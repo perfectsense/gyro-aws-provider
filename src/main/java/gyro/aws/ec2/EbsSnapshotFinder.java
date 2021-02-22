@@ -16,15 +16,14 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Snapshot;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Snapshot;
 
 /**
  * Query ebs snapshot.
@@ -195,6 +194,7 @@ public class EbsSnapshotFinder extends Ec2TaggableAwsFinder<Ec2Client, Snapshot,
 
     @Override
     protected List<Snapshot> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSnapshotsPaginator(r -> r.filters(createFilters(filters))).snapshots().stream().collect(Collectors.toList());
+        return client.describeSnapshotsPaginator(r -> r.filters(createFilters(filters)))
+            .snapshots().stream().collect(Collectors.toList());
     }
 }

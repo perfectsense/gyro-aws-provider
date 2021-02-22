@@ -16,14 +16,13 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Address;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Address;
 
 /**
  * Query elastic ip.
@@ -127,7 +126,7 @@ public class ElasticIpFinder extends Ec2TaggableAwsFinder<Ec2Client, Address, El
     }
 
     /**
-     * The Elastic IP address.
+     * The elastic IP address.
      */
     public String getPublicIp() {
         return publicIp;

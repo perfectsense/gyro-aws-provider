@@ -16,19 +16,28 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -53,15 +62,6 @@ import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
 import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
 import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates an Instance with the specified AMI, Subnet and Security group.
@@ -115,14 +115,13 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     private Boolean sourceDestCheck;
     private String userData;
     private String capacityReservation;
-    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private Set<BlockDeviceMapping> blockDeviceMapping;
     private InstanceProfileResource instanceProfile;
     private LaunchTemplateSpecificationResource launchTemplate;
     private String privateIpAddress;
     private String status;
 
-    // -- Readonly
-
+    // Read-only
     private String id;
     private String publicIpAddress;
     private String publicDnsName;
@@ -351,7 +350,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      *
      * @subresource gyro.aws.ec2.BlockDeviceMappingResource
      */
-    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -359,7 +358,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
@@ -586,7 +585,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         if (!getBlockDeviceMapping().isEmpty()) {
             builder = builder.blockDeviceMappings(
                 getBlockDeviceMapping().stream()
-                    .map(BlockDeviceMappingResource::getBlockDeviceMapping)
+                    .map(BlockDeviceMapping::getBlockDeviceMapping)
                     .collect(Collectors.toList())
             );
         }

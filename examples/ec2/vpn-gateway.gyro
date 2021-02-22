@@ -9,6 +9,7 @@ end
 aws::vpn-gateway vpn-gateway-example
     vpc: $(aws::vpc vpc-example-for-vpn-gateway-1)
     availability-zone: "us-east-2b"
+
     tags: {
         Name: "vpn-gateway-example"
     }

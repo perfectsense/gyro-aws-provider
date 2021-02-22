@@ -46,6 +46,7 @@ end
 
 aws::route-table route-table-example
     vpc: $(aws::vpc vpc-example)
+
     subnets: [
         $(aws::subnet subnet-public-us-east-2a),
         $(aws::subnet subnet-public-us-east-2b),

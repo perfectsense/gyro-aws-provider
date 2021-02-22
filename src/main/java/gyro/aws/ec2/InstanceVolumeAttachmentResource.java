@@ -16,6 +16,9 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -34,11 +37,7 @@ import software.amazon.awssdk.services.ec2.model.Volume;
 import software.amazon.awssdk.services.ec2.model.VolumeAttachment;
 import software.amazon.awssdk.services.ec2.model.VolumeAttachmentState;
 
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.ATTACHED;
-import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.DETACHED;
+import static software.amazon.awssdk.services.ec2.model.VolumeAttachmentState.*;
 
 /**
  * Attach a Volume to an Instance.
@@ -140,14 +139,10 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.detachVolume(
-            r -> r.device(getDeviceName())
-                .volumeId(getVolume().getId())
-                .instanceId(getInstance().getId())
+            r -> r.device(getDeviceName()).volumeId(getVolume().getId()).instanceId(getInstance().getId())
         );
 
-        Wait.atMost(120, TimeUnit.SECONDS)
-            .prompt(false)
-            .checkEvery(2, TimeUnit.SECONDS)
+        Wait.atMost(120, TimeUnit.SECONDS).prompt(false).checkEvery(2, TimeUnit.SECONDS)
             .until(() -> getAttachmentState(client) == DETACHED);
     }
 
@@ -160,7 +155,8 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
             if (!response.reservations().isEmpty() && !response.reservations().get(0).instances().isEmpty()) {
                 instance = response.reservations().get(0).instances().get(0);
 
-                if (instance.state().name().equals(InstanceStateName.TERMINATED) ||  instance.state().name().equals(InstanceStateName.SHUTTING_DOWN)) {
+                if (instance.state().name().equals(InstanceStateName.TERMINATED)
+                    || instance.state().name().equals(InstanceStateName.SHUTTING_DOWN)) {
                     instance = null;
                 }
             }

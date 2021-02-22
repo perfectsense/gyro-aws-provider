@@ -24,7 +24,6 @@ import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
-import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayAttachmentResourceType;
 import software.amazon.awssdk.services.ec2.model.TransitGatewayRouteTablePropagation;
@@ -50,7 +49,7 @@ public class TransitGatewayRouteTablePropagationResource extends AwsResource
     /**
      * The attachment to propagate to the route table.
      */
-    @Required
+    @ConflictsWith("vpn-attachment")
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
     }

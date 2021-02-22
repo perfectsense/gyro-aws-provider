@@ -111,7 +111,7 @@ public class SecurityGroupRulesResource extends AwsResource implements Copyable<
     }
 
     /**
-     * Whether to keep the default egress rule. If false, the rule will be deleted.
+     * When set to ``true``, the default egress rule is kept.
      */
     @Updatable
     public Boolean getKeepDefaultEgressRules() {

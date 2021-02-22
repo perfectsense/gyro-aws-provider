@@ -44,10 +44,10 @@ end
 
 aws::security-group-rules security-group-rules
     security-group: $(aws::security-group security-group)
+
     ingress
         description: "allow inbound from another sg"
         security-group: $(aws::security-group security-group-example)
-
         protocol: "TCP"
         from-port: 80
         to-port: 80
@@ -56,7 +56,6 @@ aws::security-group-rules security-group-rules
     ingress
         description: "allow inbound from another sg"
         security-group: $(aws::security-group security-group-peer)
-
         protocol: "TCP"
         from-port: 80
         to-port: 80
@@ -80,6 +79,7 @@ end
 
 aws::security-group-rules security-group-peer-rules
     security-group: $(aws::security-group security-group-peer)
+
     egress
         description: "allow outbound http traffic, ipv6 only"
         ipv6-cidr-block: "::/0"

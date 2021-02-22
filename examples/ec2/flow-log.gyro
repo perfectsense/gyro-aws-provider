@@ -12,7 +12,7 @@ aws::flow-log example-flow-log
     log-format: '${version} ${account-id} ${interface-id} ${srcaddr} ${dstaddr} ${srcport} ${dstport} ${protocol} ${packets} ${bytes} ${start} ${end} ${action} ${log-status}'
     max-aggregation-interval: 60
     vpc: $(aws::vpc vpc-example-flow-log)
-    traffic-type: "all"
+    traffic-type: ALL
 
     tags: {
         "example-tag": "example-value"

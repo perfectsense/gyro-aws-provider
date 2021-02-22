@@ -52,16 +52,14 @@ aws::instance instance-example-source
     instance-type: "t2.micro"
     key: $(aws::key-pair key-pair-example)
     subnet: $(aws::subnet subnet)
-    security-groups: [
-        $(aws::security-group security-group)
-    ]
+    capacity-reservation: "none"
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true
 
-    tags: {
-        Name: "instance-ami-example-source"
-    }
+    security-groups: [
+        $(aws::security-group security-group)
+    ]
 
     block-device-mapping
         device-name: "/dev/sdb"
@@ -69,13 +67,17 @@ aws::instance instance-example-source
         auto-enable-io: false
     end
 
-    capacity-reservation: "none"
+
+    tags: {
+        Name: "instance-ami-example-source"
+    }
 end
 
 aws::ebs-volume volume
     availability-zone: "us-east-2a"
     size: 100
     auto-enable-io: false
+
     tags: {
         Name: "ebs-volume-for-instance-ami-example-source"
     }

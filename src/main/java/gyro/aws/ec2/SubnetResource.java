@@ -66,10 +66,12 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
     private String ipv6CidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
-    private String id;
     private NetworkAclResource networkAcl;
     private String aclAssociationId;
     private String defaultAclId;
+
+    // Read-only
+    private String id;
 
     /**
      * The VPC to create the Subnet in.

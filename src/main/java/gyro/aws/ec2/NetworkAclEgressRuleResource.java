@@ -16,11 +16,11 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
-
-import java.util.Set;
 
 /**
  * Create a network ACL Egress rule.
@@ -71,4 +71,3 @@ public class NetworkAclEgressRuleResource extends NetworkAclRuleResource {
         return String.format("%s, egress", getRuleNumber());
     }
 }
-

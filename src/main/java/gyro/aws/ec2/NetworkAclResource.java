@@ -16,15 +16,18 @@
 
 package gyro.aws.ec2;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -33,9 +36,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.NetworkAcl;
 import software.amazon.awssdk.services.ec2.model.NetworkAclEntry;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * Create Network ACL in the provided VPC.
@@ -57,9 +57,11 @@ import java.util.Set;
 public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implements Copyable<NetworkAcl> {
 
     private VpcResource vpc;
-    private String id;
     private Set<NetworkAclIngressRuleResource> ingressRule;
     private Set<NetworkAclEgressRuleResource> egressRule;
+
+    // Read-only
+    private String id;
 
     /**
      * The VPC to create the Network ACL in. See `Network ACLs <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html>`_.
@@ -130,11 +132,11 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
     @Override
     public void copyFrom(NetworkAcl networkAcl) {
         setId(networkAcl.networkAclId());
+        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
 
         getEgressRule().clear();
         getIngressRule().clear();
         for (NetworkAclEntry e: networkAcl.entries()) {
-
             if (e.ruleNumber().equals(32767) && e.protocol().equals("-1")
                 && e.portRange() == null
                 && e.cidrBlock().equals("0.0.0.0/0")) {
@@ -151,8 +153,6 @@ public class NetworkAclResource extends Ec2TaggableResource<NetworkAcl> implemen
                 getIngressRule().add(ingressRule);
             }
         }
-
-        setVpc(findById(VpcResource.class, networkAcl.vpcId()));
 
         refreshTags();
     }

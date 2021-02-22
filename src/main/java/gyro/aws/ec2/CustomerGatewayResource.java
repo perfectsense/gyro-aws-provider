@@ -16,9 +16,12 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.acm.AcmCertificateResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -33,8 +36,6 @@ import software.amazon.awssdk.services.ec2.model.CustomerGateway;
 import software.amazon.awssdk.services.ec2.model.DescribeCustomerGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.GatewayType;
-
-import java.util.Set;
 
 /**
  * Create Customer Gateway based on the provided Public IP.
@@ -55,12 +56,15 @@ import java.util.Set;
 @Type("customer-gateway")
 public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway> implements Copyable<CustomerGateway> {
 
-    private String id;
     private String publicIp;
     private Integer bgpAsn;
+    private AcmCertificateResource certificate;
+
+    // Read-only
+    private String id;
 
     /**
-     * Public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html>`_.
+     * The public IP address for the gateway's external interface. See `Customer Gateway <https://docs.aws.amazon.com/vpc/latest/adminguide/Introduction.html/>`_.
      */
     @Required
     public String getPublicIp() {
@@ -72,7 +76,7 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     /**
-     * the Border Gateway Protocol Autonomous System Number of the gateway.
+     * The Border Gateway Protocol Autonomous System Number of the gateway.
      */
     public Integer getBgpAsn() {
         if (bgpAsn == null) {
@@ -86,13 +90,19 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         this.bgpAsn = bgpAsn;
     }
 
-    @Override
-    protected String getResourceId() {
-        return getId();
+    /**
+     * The ACM customer gateway certificate.
+     */
+    public AcmCertificateResource getCertificate() {
+        return certificate;
+    }
+
+    public void setCertificate(AcmCertificateResource certificate) {
+        this.certificate = certificate;
     }
 
     /**
-     * The ID of the Customer Gateway.
+     * The ID of the customer gateway.
      */
     @Id
     @Output
@@ -105,10 +115,16 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
     }
 
     @Override
+    protected String getResourceId() {
+        return getId();
+    }
+
+    @Override
     public void copyFrom(CustomerGateway customerGateway) {
         setId(customerGateway.customerGatewayId());
         setPublicIp(customerGateway.ipAddress());
         setBgpAsn(!ObjectUtils.isBlank(customerGateway.bgpAsn()) ? Integer.parseInt(customerGateway.bgpAsn()) : null);
+        setCertificate(findById(AcmCertificateResource.class, customerGateway.certificateArn()));
 
         refreshTags();
     }
@@ -130,9 +146,8 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
 
     @Override
     protected void doCreate(GyroUI ui, State state) {
-        CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder();
-        builder.publicIp(getPublicIp());
-        builder.type(GatewayType.IPSEC_1);
+        CreateCustomerGatewayRequest.Builder builder = CreateCustomerGatewayRequest.builder().publicIp(getPublicIp())
+            .type(GatewayType.IPSEC_1).certificateArn(getCertificate() == null ? null : getCertificate().getArn());
 
         if (getBgpAsn() > 0) {
             builder.bgpAsn(getBgpAsn());
@@ -167,7 +182,8 @@ public class CustomerGatewayResource extends Ec2TaggableResource<CustomerGateway
         }
 
         try {
-            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r -> r.customerGatewayIds(getId()));
+            DescribeCustomerGatewaysResponse response = client.describeCustomerGateways(r ->
+                r.customerGatewayIds(getId()));
 
             if (!response.customerGateways().isEmpty()) {
                 customerGateway = response.customerGateways().get(0);

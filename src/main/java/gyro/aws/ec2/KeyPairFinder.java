@@ -16,13 +16,13 @@
 
 package gyro.aws.ec2;
 
+import java.util.List;
+import java.util.Map;
+
 import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.KeyPairInfo;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Query key pair.

@@ -27,7 +27,7 @@ public class DnsEntry extends Diffable implements Copyable<software.amazon.awssd
     private HostedZoneResource hostedZone;
 
     /**
-     * Name of the dns.
+     * The name of the dns.
      */
     @Output
     public String getName() {
@@ -39,7 +39,7 @@ public class DnsEntry extends Diffable implements Copyable<software.amazon.awssd
     }
 
     /**
-     * Associated hosted zone.
+     * The associated hosted zone.
      */
     @Output
     public HostedZoneResource getHostedZone() {
@@ -53,7 +53,8 @@ public class DnsEntry extends Diffable implements Copyable<software.amazon.awssd
     @Override
     public void copyFrom(software.amazon.awssdk.services.ec2.model.DnsEntry dnsEntry) {
         setName(dnsEntry.dnsName());
-        setHostedZone(!ObjectUtils.isBlank(dnsEntry.hostedZoneId()) ? findById(HostedZoneResource.class, dnsEntry.hostedZoneId()) : null);
+        setHostedZone(!ObjectUtils.isBlank(dnsEntry.hostedZoneId())
+            ? findById(HostedZoneResource.class, dnsEntry.hostedZoneId()) : null);
     }
 
     @Override

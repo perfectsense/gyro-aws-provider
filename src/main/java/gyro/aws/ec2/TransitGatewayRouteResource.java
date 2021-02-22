@@ -70,7 +70,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * Enable blackhole to drop all the traffic that matches this route.
+     * When set to ``true``, blackhole is enabled to drop all the traffic that matches this route.
      */
     @Updatable
     public Boolean getBlackhole() {
@@ -82,7 +82,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Peering attachment for the route.
+     * The peering attachment for the route.
      */
     @Updatable
     @ConflictsWith("vpc-attachment")
@@ -95,7 +95,7 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     /**
-     * The Vpc attachment for the route.
+     * The VPC attachment for the route.
      */
     @Updatable
     @ConflictsWith("peering-attachment")
@@ -119,16 +119,21 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
     }
 
     @Override
+    public String primaryKey() {
+        return getDestinationCidrBlock();
+    }
+
+    @Override
     public void copyFrom(TransitGatewayRoute model) {
         setDestinationCidrBlock(model.destinationCidrBlock());
         setBlackhole(model.hasTransitGatewayAttachments());
         if (model.hasTransitGatewayAttachments()) {
             TransitGatewayRouteAttachment attachment = model.transitGatewayAttachments().get(0);
-            if (attachment.resourceTypeAsString().equals("peering")) {
+            if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.PEERING)) {
                 setPeeringAttachment(findById(
                     TransitGatewayPeeringAttachmentResource.class,
                     attachment.transitGatewayAttachmentId()));
-            } else if (attachment.resourceTypeAsString().equals("vpc")) {
+            } else if (attachment.resourceType().equals(TransitGatewayAttachmentResourceType.VPC)) {
                 setVpcAttachment(findById(
                     TransitGatewayVpcAttachmentResource.class,
                     attachment.transitGatewayAttachmentId()));
@@ -136,11 +141,6 @@ public class TransitGatewayRouteResource extends AwsResource implements Copyable
                 setVpnAttachment(findById(VpnConnectionResource.class, attachment.transitGatewayAttachmentId()));
             }
         }
-    }
-
-    @Override
-    public String primaryKey() {
-        return getDestinationCidrBlock();
     }
 
     @Override

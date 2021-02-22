@@ -16,6 +16,8 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -25,8 +27,6 @@ import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Route;
-
-import java.util.Set;
 
 /**
  * Add a route to a route table. `See Route Tables <https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html>`_.
@@ -51,7 +51,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     private InstanceResource instance;
     private NatGatewayResource natGateway;
     private NetworkInterfaceResource networkInterface;
-    private String transitGatewayId;
+    private TransitGatewayResource transitGateway;
     private PeeringConnectionResource vpcPeeringConnection;
 
     /**
@@ -85,7 +85,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate an Egress Only Internet Gateway to the Route. Only valid with IPv6 destination CIDR.
+     * The Egress Only Internet Gateway to be associated to the Route. Only valid with IPv6 destination CIDR.
      */
     public EgressOnlyInternetGatewayResource getEgressGateway() {
         return egressGateway;
@@ -96,7 +96,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate an Internet Gateway to the Route. Only valid with IPv4 destination CIDR.
+     * The Internet Gateway to be associated to the Route. Only valid with IPv4 destination CIDR.
      */
     public InternetGatewayResource getGateway() {
         return gateway;
@@ -107,7 +107,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a NAT instance running in your VPC to the Route.
+     * The NAT instance running in your VPC to be associated to the Route.
      */
     public InstanceResource getInstance() {
         return instance;
@@ -118,7 +118,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a NAT Gateway to the Route. Only valid with IPv4 destination CIDR.
+     * The NAT Gateway to be associated to the Route. Only valid with IPv4 destination CIDR.
      */
     public NatGatewayResource getNatGateway() {
         return natGateway;
@@ -129,7 +129,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * Associate a Network Interface to the Route.
+     * The Network Interface to be associated to the Route.
      */
     public NetworkInterfaceResource getNetworkInterface() {
         return networkInterface;
@@ -140,18 +140,18 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     }
 
     /**
-     * The ID of a transit gateway to associate to the Route.
+     * The transit gateway to associate to the Route.
      */
-    public String getTransitGatewayId() {
-        return transitGatewayId;
+    public TransitGatewayResource getTransitGateway() {
+        return transitGateway;
     }
 
-    public void setTransitGatewayId(String transitGatewayId) {
-        this.transitGatewayId = transitGatewayId;
+    public void setTransitGateway(TransitGatewayResource transitGatewayId) {
+        this.transitGateway = transitGateway;
     }
 
     /**
-     * Associate a VPC Peering Connection to the Route.
+     * The VPC Peering Connection to be associated to the Route.
      */
     public PeeringConnectionResource getVpcPeeringConnection() {
         return vpcPeeringConnection;
@@ -163,13 +163,19 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
 
     @Override
     public void copyFrom(Route route) {
-        setEgressGateway(!ObjectUtils.isBlank(route.egressOnlyInternetGatewayId()) ? findById(EgressOnlyInternetGatewayResource.class, route.egressOnlyInternetGatewayId()) : null);
-        setGateway(!ObjectUtils.isBlank(route.gatewayId()) ? findById(InternetGatewayResource.class, route.gatewayId()) : null);
-        setInstance(!ObjectUtils.isBlank(route.instanceId()) ? findById(InstanceResource.class, route.instanceId()) : null);
-        setNatGateway(!ObjectUtils.isBlank(route.natGatewayId()) ? findById(NatGatewayResource.class, route.natGatewayId()) : null);
-        setNetworkInterface(!ObjectUtils.isBlank(route.networkInterfaceId()) ? findById(NetworkInterfaceResource.class, route.networkInterfaceId()) : null);
-        setTransitGatewayId(route.transitGatewayId());
-        setVpcPeeringConnection(!ObjectUtils.isBlank(route.vpcPeeringConnectionId()) ? findById(PeeringConnectionResource.class, route.vpcPeeringConnectionId()) : null);
+        setEgressGateway(!ObjectUtils.isBlank(route.egressOnlyInternetGatewayId())
+            ? findById(EgressOnlyInternetGatewayResource.class, route.egressOnlyInternetGatewayId()) : null);
+        setGateway(!ObjectUtils.isBlank(route.gatewayId())
+            ? findById(InternetGatewayResource.class, route.gatewayId()) : null);
+        setInstance(!ObjectUtils.isBlank(route.instanceId())
+            ? findById(InstanceResource.class, route.instanceId()) : null);
+        setNatGateway(!ObjectUtils.isBlank(route.natGatewayId())
+            ? findById(NatGatewayResource.class, route.natGatewayId()) : null);
+        setNetworkInterface(!ObjectUtils.isBlank(route.networkInterfaceId())
+            ? findById(NetworkInterfaceResource.class, route.networkInterfaceId()) : null);
+        setTransitGateway(findById(TransitGatewayResource.class, route.transitGatewayId()));
+        setVpcPeeringConnection(!ObjectUtils.isBlank(route.vpcPeeringConnectionId())
+            ? findById(PeeringConnectionResource.class, route.vpcPeeringConnectionId()) : null);
         setDestinationCidrBlock(route.destinationCidrBlock());
         setDestinationIpv6CidrBlock(route.destinationIpv6CidrBlock());
         setDestinationPrefixListId(route.destinationPrefixListId());
@@ -191,8 +197,8 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             secondaryKey = getNatGateway().getId();
         } else if (getNetworkInterface() != null) {
             secondaryKey = getNetworkInterface().getId();
-        } else if (getTransitGatewayId() != null) {
-            secondaryKey = getTransitGatewayId();
+        } else if (getTransitGateway() != null) {
+            secondaryKey = getTransitGateway().getId();
         } else if (getVpcPeeringConnection() != null) {
             secondaryKey = getVpcPeeringConnection().getId();
         } else if (getEgressGateway() != null) {
@@ -214,15 +220,15 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         Ec2Client client = createClient(Ec2Client.class);
 
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
-                .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
-                .gatewayId(getGateway() != null ? getGateway().getId() : null)
-                .instanceId(getInstance() != null ? getInstance().getId() : null)
-                .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
-                .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
-                .transitGatewayId(getTransitGatewayId())
-                .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-                .routeTableId(((RouteTableResource) parent()).getId())
-                .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
+            .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
+            .gatewayId(getGateway() != null ? getGateway().getId() : null)
+            .instanceId(getInstance() != null ? getInstance().getId() : null)
+            .natGatewayId(getNatGateway() != null ? getNatGateway().getId() : null)
+            .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
+            .transitGatewayId(getTransitGateway() != null ? getTransitGateway().getId() : null)
+            .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
+            .routeTableId(((RouteTableResource) parent()).getId())
+            .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
 

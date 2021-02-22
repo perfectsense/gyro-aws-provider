@@ -49,8 +49,8 @@ public class SecurityGroupRulesFinder extends AwsFinder<Ec2Client, SecurityGroup
 
     @Override
     protected List<SecurityGroup> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeSecurityGroupsPaginator(r -> r.filters(createFilters(filters))).securityGroups().stream().collect(
-            Collectors.toList());
+        return client.describeSecurityGroupsPaginator(r ->
+            r.filters(createFilters(filters))).securityGroups().stream().collect(Collectors.toList());
     }
 
     @Override

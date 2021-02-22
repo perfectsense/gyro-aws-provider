@@ -16,30 +16,34 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CapacityReservation;
+import software.amazon.awssdk.services.ec2.model.CapacityReservationInstancePlatform;
+import software.amazon.awssdk.services.ec2.model.CapacityReservationTenancy;
 import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import software.amazon.awssdk.services.ec2.model.EndDateType;
+import software.amazon.awssdk.services.ec2.model.InstanceMatchCriteria;
 
 /**
  * Creates a EC2 Capacity Reservation.
@@ -62,24 +66,27 @@ import java.util.Set;
  *     end
  */
 @Type("ec2-capacity-reservation")
-public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation> implements Copyable<CapacityReservation> {
+public class CapacityReservationResource extends Ec2TaggableResource<CapacityReservation>
+    implements Copyable<CapacityReservation> {
 
-    private String id;
     private String availabilityZone;
     private Boolean ebsOptimized;
     private Date endDate;
-    private String endDateType;
+    private EndDateType endDateType;
     private Boolean ephemeralStorage;
-    private String instanceMatchCriteria;
-    private String instancePlatform;
+    private InstanceMatchCriteria instanceMatchCriteria;
+    private CapacityReservationInstancePlatform instancePlatform;
     private String instanceType;
-    private String tenancy;
+    private CapacityReservationTenancy tenancy;
     private Integer instanceCount;
+
+    // Read-only
+    private String id;
     private Integer availableInstanceCount;
     private Date createDate;
 
     /**
-     * The id of the capacity reservation.
+     * The ID of the capacity reservation.
      */
     @Id
     @Output
@@ -92,7 +99,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * The Availability Zone in which to create the Capacity Reservation.
+     * The availability zone in which to create the Capacity Reservation.
      */
     @Required
     public String getAvailabilityZone() {
@@ -104,7 +111,7 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports EBS-optimized instances.
+     * When set to ``true``, the Capacity Reservation supports EBS-optimized instances.
      */
     @Required
     public Boolean getEbsOptimized() {
@@ -132,17 +139,17 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
      */
     @Required
     @Updatable
-    @ValidStrings({"unlimited", "limited"})
-    public String getEndDateType() {
-        return endDateType != null ? endDateType.toLowerCase() : null;
+    @ValidStrings({ "unlimited", "limited" })
+    public EndDateType getEndDateType() {
+        return endDateType;
     }
 
-    public void setEndDateType(String endDateType) {
+    public void setEndDateType(EndDateType endDateType) {
         this.endDateType = endDateType;
     }
 
     /**
-     * Indicates whether the Capacity Reservation supports instances with temporary, block-level storage.
+     * When set to ``true``, the Capacity Reservation supports instances with temporary, block-level storage.
      */
     @Required
     public Boolean getEphemeralStorage() {
@@ -157,12 +164,12 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
      * Indicates the type of instance launches that the Capacity Reservation accepts.
      */
     @Required
-    @ValidStrings({"open", "targeted"})
-    public String getInstanceMatchCriteria() {
-        return instanceMatchCriteria != null ? instanceMatchCriteria.toLowerCase() : null;
+    @ValidStrings({ "open", "targeted" })
+    public InstanceMatchCriteria getInstanceMatchCriteria() {
+        return instanceMatchCriteria;
     }
 
-    public void setInstanceMatchCriteria(String instanceMatchCriteria) {
+    public void setInstanceMatchCriteria(InstanceMatchCriteria instanceMatchCriteria) {
         this.instanceMatchCriteria = instanceMatchCriteria;
     }
 
@@ -170,11 +177,11 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
      * The type of operating system for which to reserve capacity.
      */
     @Required
-    public String getInstancePlatform() {
+    public CapacityReservationInstancePlatform getInstancePlatform() {
         return instancePlatform;
     }
 
-    public void setInstancePlatform(String instancePlatform) {
+    public void setInstancePlatform(CapacityReservationInstancePlatform instancePlatform) {
         this.instancePlatform = instancePlatform;
     }
 
@@ -194,12 +201,12 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
      * Indicates the tenancy of the Capacity Reservation.
      */
     @Required
-    @ValidStrings({"default", "dedicated"})
-    public String getTenancy() {
-        return tenancy != null ? tenancy.toLowerCase() : null;
+    @ValidStrings({ "default", "dedicated" })
+    public CapacityReservationTenancy getTenancy() {
+        return tenancy;
     }
 
-    public void setTenancy(String tenancy) {
+    public void setTenancy(CapacityReservationTenancy tenancy) {
         this.tenancy = tenancy;
     }
 
@@ -251,12 +258,12 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
         setAvailabilityZone(capacityReservation.availabilityZone());
         setEbsOptimized(capacityReservation.ebsOptimized());
         setEndDate(capacityReservation.endDate() != null ? Date.from(capacityReservation.endDate()) : null);
-        setEndDateType(capacityReservation.endDateTypeAsString());
+        setEndDateType(capacityReservation.endDateType());
         setEphemeralStorage(capacityReservation.ephemeralStorage());
-        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteriaAsString());
-        setInstancePlatform(capacityReservation.instancePlatformAsString());
+        setInstanceMatchCriteria(capacityReservation.instanceMatchCriteria());
+        setInstancePlatform(capacityReservation.instancePlatform());
         setInstanceType(capacityReservation.instanceType());
-        setTenancy(capacityReservation.tenancyAsString());
+        setTenancy(capacityReservation.tenancy());
         setAvailableInstanceCount(capacityReservation.availableInstanceCount());
         setCreateDate(capacityReservation.createDate() != null ? Date.from(capacityReservation.createDate()) : null);
         setInstanceCount(capacityReservation.totalInstanceCount());
@@ -334,29 +341,46 @@ public class CapacityReservationResource extends Ec2TaggableResource<CapacityRes
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getEndDateType() == null || (!getEndDateType().equals("unlimited") && !getEndDateType().equals("limited"))) {
-            errors.add(new ValidationError(this, null, "The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
-                + "Valid values [ 'unlimited', 'limited' ]"));
+        if (getEndDateType() == null || (!getEndDateType().equals(EndDateType.UNLIMITED)
+            && !getEndDateType().equals(EndDateType.LIMITED))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The value - (" + getEndDateType() + ") is invalid for parameter 'end-date-type'."
+                    + "Valid values [ 'unlimited', 'limited' ]"));
         }
 
-        if (getEndDateType().equals("unlimited") && !ObjectUtils.isBlank(getEndDate())) {
-            errors.add(new ValidationError(this, null, "The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
-                + "when param 'end-date-type' is set to 'unlimited'."));
+        if (getEndDateType().equals(EndDateType.UNLIMITED) && !ObjectUtils.isBlank(getEndDate())) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The value - (" + getEndDate() + ") is invalid for parameter 'end-date' "
+                    + "when param 'end-date-type' is set to 'unlimited'."));
         }
 
-        if (getEndDateType().equals("limited") && ObjectUtils.isBlank(getEndDate())) {
-            errors.add(new ValidationError(this, null, "The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
-                + "when param 'end-date-type' is set to 'limited'."));
+        if (getEndDateType().equals(EndDateType.LIMITED) && ObjectUtils.isBlank(getEndDate())) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The value - (" + getEndDate() + ") is mandatory for parameter 'end-date' "
+                    + "when param 'end-date-type' is set to 'limited'."));
         }
 
-        if (getInstanceMatchCriteria() == null || (!getInstanceMatchCriteria().equals("open") && !getInstanceMatchCriteria().equals("targeted"))) {
-            errors.add(new ValidationError(this, null, "The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
-                + "Valid values [ 'open', 'targeted' ]"));
+        if (getInstanceMatchCriteria() == null || (!getInstanceMatchCriteria().equals("open")
+            && !getInstanceMatchCriteria().equals("targeted"))) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The value - (" + getInstanceMatchCriteria() + ") is invalid for parameter 'instance-match-criteria'."
+                    + "Valid values [ 'open', 'targeted' ]"));
         }
 
         if (getTenancy() == null || (!getTenancy().equals("default") && !getTenancy().equals("dedicated"))) {
-            errors.add(new ValidationError(this, null, "The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
-                + "Valid values [ 'default', 'dedicated' ]"));
+            errors.add(new ValidationError(
+                this,
+                null,
+                "The value - (" + getTenancy() + ") is invalid for parameter 'tenancy'."
+                    + "Valid values [ 'default', 'dedicated' ]"));
         }
 
         return errors;

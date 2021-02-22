@@ -27,7 +27,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.AmiResource;
-import gyro.aws.ec2.BlockDeviceMappingResource;
+import gyro.aws.ec2.BlockDeviceMapping;
 import gyro.aws.ec2.InstanceResource;
 import gyro.aws.ec2.KeyPairResource;
 import gyro.aws.ec2.SecurityGroupResource;
@@ -106,7 +106,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     private String spotPrice;
     private String userData;
     private Boolean associatePublicIp;
-    private Set<BlockDeviceMappingResource> blockDeviceMapping;
+    private Set<BlockDeviceMapping> blockDeviceMapping;
     private InstanceProfileResource instanceProfile;
 
     /**
@@ -311,7 +311,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
     /**
      * The block device mapping to initialize the instances with.
      */
-    public Set<BlockDeviceMappingResource> getBlockDeviceMapping() {
+    public Set<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new HashSet<>();
         }
@@ -319,7 +319,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         return blockDeviceMapping;
     }
 
-    public void setBlockDeviceMapping(Set<BlockDeviceMappingResource> blockDeviceMapping) {
+    public void setBlockDeviceMapping(Set<BlockDeviceMapping> blockDeviceMapping) {
         this.blockDeviceMapping = blockDeviceMapping;
     }
 
