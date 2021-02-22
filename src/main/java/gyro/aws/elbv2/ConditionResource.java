@@ -327,30 +327,20 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     public List<ValidationError> validate(Set<String> configuredFields) {
         ArrayList<ValidationError> errors = new ArrayList<>();
 
-        if (!(configuredFields.contains("field") || configuredFields.contains("value"))) {
-            if (getHostHeaderConfig() == null && getHttpHeaderConfig() == null
-                && getHttpRequestMethodConfig() == null && getPathPatternConfig() == null
-                && getQueryStringConfig() == null
-                && getSourceIpConfig() == null) {
-                errors.add(new ValidationError(
-                    this,
-                    null,
-                    "At least one of 'host-header-config' or 'http-header-config' or 'http-request-method-config' or 'path-pattern-config' or 'query-string-config' or 'source-ip-config' is required."));
+        if (!(configuredFields.contains("field") || configuredFields.contains("value") || configuredFields.contains(
+            "host-header-config") || configuredFields.contains("http-header-config") || configuredFields.contains(
+            "http-request-method-config") || configuredFields.contains("path-pattern-config")
+            || configuredFields.contains("query-string-config") || configuredFields.contains("source-ip-config"))) {
+            if (getField() == null || getValue().isEmpty()) {
+                errors.add(new ValidationError(this, null, "At least one of 'field' and 'value' or 'host-header-config' or 'http-header-config' or 'http-request-method-config' or 'path-pattern-config' or 'query-string-config' or 'source-ip-config' is required."));
             }
-        }
-
-        if (!(configuredFields.contains("host-header-config") || configuredFields.contains("http-header-config")
-            || configuredFields.contains("http-request-method-config") || configuredFields.contains(
-            "path-pattern-config") || configuredFields.contains("query-string-config") || configuredFields.contains(
-            "source-ip-config"))) {
-            errors.add(new ValidationError(this, null, "The 'field' and 'value' are required."));
         }
 
         return errors;
     }
 
     public String getFieldString() {
-        return getField() != null ? getField() : getConditionValue().getField();
+        return getConditionValue() == null ? getField() : getConditionValue().getField();
     }
 
     public void resetConfigs() {
