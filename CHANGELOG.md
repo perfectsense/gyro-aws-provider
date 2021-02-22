@@ -1,4 +1,43 @@
-## 0.99.4 (Unreleased)
+CHANGELOG
+=========
+
+## 1.0.0 (January 13th, 2021)
+
+ENHANCEMENTS: 
+
+* [247](https://github.com/perfectsense/gyro-aws-provider/issues/247): Add support for EFS.
+* [247](https://github.com/perfectsense/gyro-aws-provider/issues/250): Add support for DynamoDb Accelerator.
+* [258](https://github.com/perfectsense/gyro-aws-provider/issues/258): Add support for WAF V2.
+* [284](https://github.com/perfectsense/gyro-aws-provider/issues/284): Add support for CodeBuild.
+* [285](https://github.com/perfectsense/gyro-aws-provider/issues/285): Add support for Kendra.
+* [286](https://github.com/perfectsense/gyro-aws-provider/issues/286): Add support for Api Gateway V2.
+* [287](https://github.com/perfectsense/gyro-aws-provider/issues/287): Add support for Autoscale Plan.
+* [318](https://github.com/perfectsense/gyro-aws-provider/issues/318): Update KMS references to resource references.
+* [329](https://github.com/perfectsense/gyro-aws-provider/issues/329): Update IAM role reference examples to be gyro managed examples.
+
+ISSUES FIXED:
+
+* [305](https://github.com/perfectsense/gyro-aws-provider/issues/305): Fix Network Acl refresh error.
+* [310](https://github.com/perfectsense/gyro-aws-provider/issues/310): Allow passing credentials to S3 FileBackend.
+* [313](https://github.com/perfectsense/gyro-aws-provider/issues/313): Fix SQS copyFrom for external references.
+* [323](https://github.com/perfectsense/gyro-aws-provider/issues/323): Fix compilation on Windows.
+* [335](https://github.com/perfectsense/gyro-aws-provider/issues/335): Gracefully handle `Request limit exceed` exception.
+* [362](https://github.com/perfectsense/gyro-aws-provider/issues/362): Fix IAM policy refreshing older version.
+* [365](https://github.com/perfectsense/gyro-aws-provider/issues/365): Fix NPE when refreshing multiple resources.
+
+RELEASE NOTES:
+
+Version `1.0.0` of Gyro AWS provider is not compatible with Gyro prior to version `1.0.0`.
+If you are using an older Gyro version and encounter errors of the following nature, please update to version `1.0.0` or higher.
+
+```
+aws::acm-certificate prod-frontend-load-balancer → options certificate options → preference: Must be one of ENABLED, DISABLED
+In prod/frontend.gyro on line 59 from column 9 to 27
+58:     options
+59:         preference: ENABLED
+60:     end
+```
+
 
 ## 0.99.3 (August 25th, 2020)
 
@@ -41,13 +80,13 @@ ISSUES FIXED:
 
 * [191](https://github.com/perfectsense/gyro-aws-provider/issues/191): Allow inline policies for IAM Roles.
 * [195](https://github.com/perfectsense/gyro-aws-provider/issues/195): Fix needing multiple gyro up for S3 bucket with replication configuration.
- Allow for instance type changes of non-autoscale instances* [196](https://github.com/perfectsense/gyro-aws-provider/issues/196): Fix auto reordering of records in Route53 record sets.
- * [200](https://github.com/perfectsense/gyro-aws-provider/issues/200): Allow EC2 Security groups to set rules referencing itself.
- * [210](https://github.com/perfectsense/gyro-aws-provider/issues/210): Fix NPE when refreshing EC2 Security groups.
- * [211](https://github.com/perfectsense/gyro-aws-provider/issues/211): Fix NPE when refreshing Route53 Hosted zone.
- * [212](https://github.com/perfectsense/gyro-aws-provider/issues/212): Allow finding external EC2 Security group rules.
- * [231](https://github.com/perfectsense/gyro-aws-provider/issues/231): Fix exception when enabling S3 Access logging.
- * [245](https://github.com/perfectsense/gyro-aws-provider/issues/245): Add missing package-info files.
+* [196](https://github.com/perfectsense/gyro-aws-provider/issues/196): Fix auto reordering of records in Route53 record sets.
+* [200](https://github.com/perfectsense/gyro-aws-provider/issues/200): Allow EC2 Security groups to set rules referencing itself.
+* [210](https://github.com/perfectsense/gyro-aws-provider/issues/210): Fix NPE when refreshing EC2 Security groups.
+* [211](https://github.com/perfectsense/gyro-aws-provider/issues/211): Fix NPE when refreshing Route53 Hosted zone.
+* [212](https://github.com/perfectsense/gyro-aws-provider/issues/212): Allow finding external EC2 Security group rules.
+* [231](https://github.com/perfectsense/gyro-aws-provider/issues/231): Fix exception when enabling S3 Access logging.
+* [245](https://github.com/perfectsense/gyro-aws-provider/issues/245): Add missing package-info files.
 
  MISC:
 

@@ -1,0 +1,11 @@
+aws::route53-health-check health-check-example-calculated
+    type: "CALCULATED"
+    inverted: false
+    disabled: false
+    health-threshold: 0
+    ip-address: '2600:1f16:9b1:9001:475e:3e1a:54c5:3d9fr'
+
+    tags: {
+        Name: "health-check-example-calculated"
+    }
+end

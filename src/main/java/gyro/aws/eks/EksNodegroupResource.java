@@ -46,7 +46,6 @@ import software.amazon.awssdk.services.eks.model.DeleteNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.DescribeNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.Nodegroup;
-import software.amazon.awssdk.services.eks.model.NodegroupResources;
 import software.amazon.awssdk.services.eks.model.NodegroupStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
@@ -317,7 +316,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         Nodegroup nodegroup = getNodegroup(client);
 
-        if (nodegroup == null) {
+        if (nodegroup == null || nodegroup.status().equals(NodegroupStatus.DELETING)) {
             return false;
         }
 
@@ -383,21 +382,23 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         if (changedFieldNames.contains("labels")) {
             if (!currentResource.getLabels().isEmpty()) {
                 client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .labels(UpdateLabelsPayload.builder()
-                                .removeLabels(currentResource.getLabels().keySet())
-                                .build())
-                        .nodegroupName(getName())
-                        .build());
-            }
-
-            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                     .clusterName(getCluster().getName())
                     .labels(UpdateLabelsPayload.builder()
-                            .addOrUpdateLabels(currentResource.getLabels())
-                            .build())
+                        .removeLabels(currentResource.getLabels().keySet())
+                        .build())
                     .nodegroupName(getName())
                     .build());
+            }
+
+            waitForActiveState(client);
+
+            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                .clusterName(getCluster().getName())
+                .labels(UpdateLabelsPayload.builder()
+                    .addOrUpdateLabels(getLabels())
+                    .build())
+                .nodegroupName(getName())
+                .build());
 
             waitForActiveState(client);
         }
@@ -431,9 +432,9 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             .nodegroupName(getName())
             .build());
 
-        Wait.atMost(15, TimeUnit.MINUTES)
+        Wait.atMost(10, TimeUnit.MINUTES)
             .prompt(false)
-            .checkEvery(5, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
             .until(() -> getNodegroup(client) == null);
     }
 
@@ -457,8 +458,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
     private void waitForActiveState(EksClient client) {
         Wait.atMost(15, TimeUnit.MINUTES)
-                .prompt(false)
-                .checkEvery(5, TimeUnit.MINUTES)
+            .prompt(false)
+            .checkEvery(30, TimeUnit.SECONDS)
                 .until(() -> {
                     Nodegroup nodegroup = getNodegroup(client);
                     return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);

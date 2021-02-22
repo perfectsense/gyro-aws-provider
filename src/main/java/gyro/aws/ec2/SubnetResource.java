@@ -63,6 +63,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     private VpcResource vpc;
     private String cidrBlock;
+    private String ipv6CidrBlock;
     private String availabilityZone;
     private Boolean mapPublicIpOnLaunch;
     private NetworkAclResource networkAcl;
@@ -94,6 +95,18 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
     public void setCidrBlock(String cidrBlock) {
         this.cidrBlock = cidrBlock;
+    }
+
+    /**
+     * The IPv6 network range for the subnet, in CIDR notation.
+     */
+    @Updatable
+    public String getIpv6CidrBlock() {
+        return ipv6CidrBlock;
+    }
+
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
+        this.ipv6CidrBlock = ipv6CidrBlock;
     }
 
     /**
@@ -183,6 +196,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         setMapPublicIpOnLaunch(subnet.mapPublicIpOnLaunch());
         setVpc(findById(VpcResource.class, subnet.vpcId()));
 
+        if (subnet.hasIpv6CidrBlockAssociationSet() && !subnet.ipv6CidrBlockAssociationSet().isEmpty()) {
+            setIpv6CidrBlock(subnet.ipv6CidrBlockAssociationSet().get(0).ipv6CidrBlock());
+        }
+
         refreshTags();
     }
 
@@ -245,6 +262,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateSubnetRequest request = CreateSubnetRequest.builder()
+            .ipv6CidrBlock(getIpv6CidrBlock())
             .availabilityZone(getAvailabilityZone())
             .cidrBlock(getCidrBlock())
             .vpcId(getVpc().getId())
@@ -294,6 +312,10 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             );
 
             setAclAssociationId(replaceNetworkAclAssociationResponse.newAssociationId());
+        }
+
+        if (changedProperties.contains("ipv6-cidr-block")) {
+            client.associateSubnetCidrBlock(r -> r.ipv6CidrBlock(getIpv6CidrBlock()).subnetId(getId()));
         }
 
         modifyAttribute(client);

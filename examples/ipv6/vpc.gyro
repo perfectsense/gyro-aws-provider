@@ -1,0 +1,4 @@
+aws::vpc example-vpc
+    cidr-block: 10.0.0.0/16
+    provide-ipv6-cidr-block: true
+end
