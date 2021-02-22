@@ -21,11 +21,12 @@ import gyro.core.resource.Diffable;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateSpecification;
 
 public class LaunchTemplateSpecificationResource extends Diffable implements Copyable<LaunchTemplateSpecification> {
+
     private LaunchTemplateResource launchTemplate;
     private String version;
 
     /**
-     * The Launch Template to use for creating the instance.
+     * The launch template to use for creating the instance.
      */
     public LaunchTemplateResource getLaunchTemplate() {
         return launchTemplate;

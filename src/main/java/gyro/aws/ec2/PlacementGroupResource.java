@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -30,11 +34,10 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import software.amazon.awssdk.services.ec2.model.DescribePlacementGroupsResponse;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.PlacementGroup;
+import software.amazon.awssdk.services.ec2.model.PlacementStrategy;
 
 /**
  * Creates a Placement Group with the specified name and placement strategy.

@@ -16,15 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.aws.AwsResource;
-import gyro.core.GyroException;
-import software.amazon.awssdk.core.SdkClient;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.aws.AwsFinder;
+import gyro.aws.AwsResource;
+import gyro.core.GyroException;
+import software.amazon.awssdk.core.SdkClient;
 
 public abstract class Ec2TaggableAwsFinder<C extends SdkClient, M, R extends AwsResource> extends AwsFinder<C, M, R> {
 

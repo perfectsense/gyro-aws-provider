@@ -16,13 +16,13 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-
-import java.util.Set;
 
 public class SecurityGroupIngressRuleResource extends SecurityGroupRuleResource {
     @Override

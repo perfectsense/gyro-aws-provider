@@ -72,7 +72,7 @@ public class TransitGatewayRouteTableResource extends Ec2TaggableResource<Transi
     private List<TransitGatewayRouteTablePropagationResource> propagation;
     private List<TransitGatewayRouteResource> route;
 
-    // Output
+    // Read-only
 
     private String id;
 

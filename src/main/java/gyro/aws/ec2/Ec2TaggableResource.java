@@ -16,25 +16,25 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsResource;
-import gyro.core.GyroUI;
-import gyro.core.resource.Updatable;
-import gyro.core.resource.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.CompactMap;
+import gyro.aws.AwsResource;
+import gyro.core.GyroUI;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Filter;
 import software.amazon.awssdk.services.ec2.model.Tag;
 import software.amazon.awssdk.services.ec2.model.TagDescription;
 import software.amazon.awssdk.services.ec2.paginators.DescribeTagsIterable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class Ec2TaggableResource<T> extends AwsResource {
 

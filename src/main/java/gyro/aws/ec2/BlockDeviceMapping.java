@@ -22,11 +22,11 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-import software.amazon.awssdk.services.ec2.model.BlockDeviceMapping;
-import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMapping;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateBlockDeviceMappingRequest;
 
-public class BlockDeviceMappingResource extends Diffable implements Copyable<BlockDeviceMapping> {
+public class BlockDeviceMapping extends Diffable
+    implements Copyable<software.amazon.awssdk.services.ec2.model.BlockDeviceMapping> {
+
     private String deviceName;
     private Boolean deleteOnTermination;
     private Boolean encrypted;
@@ -34,12 +34,14 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     private String kmsKeyId;
     private Integer volumeSize;
     private String snapshotId;
-    private String state;
     private String volumeType;
     private Boolean autoEnableIo;
 
+    // Read-only
+    private String state;
+
     /**
-     * Name of the drive to attach this volume to.
+     * The name of the drive to attach this volume to.
      */
     @Required
     public String getDeviceName() {
@@ -51,7 +53,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     /**
-     * Delete volume on instance termination. Defaults to true.
+     * The delete volume on instance termination. Defaults to true.
      */
     public Boolean getDeleteOnTermination() {
         if (deleteOnTermination == null) {
@@ -66,7 +68,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     /**
-     * Should the volume be encrypted. Defaults to false.
+     * When set to ``true``, the volume will be encrypted. Defaults to false.
      */
     public Boolean getEncrypted() {
         if (encrypted == null) {
@@ -93,7 +95,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     /**
-     * The kms key id, when using encrypted volume.
+     * The kms key ID, when using encrypted volume.
      */
     public String getKmsKeyId() {
         return kmsKeyId;
@@ -139,11 +141,11 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     /**
-     * The type of volume being created. Defaults to 'gp2'.
+     * The type of volume being created. Defaults to ``gp2``.
      *
      */
     @Updatable
-    @ValidStrings({"gp2", "io1", "st1", "sc1", "standard"})
+    @ValidStrings({ "gp2", "io1", "st1", "sc1", "standard" })
     public String getVolumeType() {
         if (volumeType == null) {
             volumeType = "gp2";
@@ -157,7 +159,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     /**
-     * Auto Enable IO. Defaults to false.
+     * When set to ``true``, IO is auto enabled. Defaults to false.
      */
     @Updatable
     public Boolean getAutoEnableIo() {
@@ -178,7 +180,7 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
     }
 
     @Override
-    public void copyFrom(BlockDeviceMapping blockDeviceMapping) {
+    public void copyFrom(software.amazon.awssdk.services.ec2.model.BlockDeviceMapping blockDeviceMapping) {
         setDeviceName(blockDeviceMapping.deviceName());
         setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
         setEncrypted(blockDeviceMapping.ebs().encrypted());
@@ -189,8 +191,8 @@ public class BlockDeviceMappingResource extends Diffable implements Copyable<Blo
         setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
     }
 
-    BlockDeviceMapping getBlockDeviceMapping() {
-        return BlockDeviceMapping.builder()
+    software.amazon.awssdk.services.ec2.model.BlockDeviceMapping getBlockDeviceMapping() {
+        return software.amazon.awssdk.services.ec2.model.BlockDeviceMapping.builder()
             .deviceName(getDeviceName())
             .ebs(
                 e -> e.encrypted(getEncrypted())

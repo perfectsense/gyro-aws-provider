@@ -16,17 +16,21 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -46,10 +50,6 @@ import software.amazon.awssdk.services.ec2.model.VpcAttributeName;
 import software.amazon.awssdk.services.ec2.model.VpcClassicLink;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Creates a VPC with the specified IPv4 CIDR block.
@@ -98,7 +98,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Launch instances with public hostnames. Defaults to false. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
+     * When set to ``true``, instances are launched with public hostnames. Defaults to false. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
     @Updatable
     public Boolean getEnableDnsHostnames() {
@@ -114,7 +114,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Enable Amazon provided DNS server at 169.254.169.253 or base of VPC network range plus two. Default is true. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
+     * When set to ``true``, Amazon provided DNS server is enabled at 169.254.169.253 or base of VPC network range plus two. Default is true. See `DNS Support in your VPC <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-support>`_.
      */
     @Updatable
     public Boolean getEnableDnsSupport() {
@@ -154,7 +154,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Enable ClassLink to allow communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html>`_.
+     * When set to ``true``, ClassLink allows communication with EC2-Classic instances. Defaults to false. See `ClassicLink Basics <https://docs.aws.amazon.com/vpc/latest/userguide/vpc-classiclink.html/>`_.
      */
     @Updatable
     public Boolean getEnableClassicLink() {
@@ -170,7 +170,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Enable linked EC2-Classic instance hostnames to resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support>`_.
+     * When set to ``true``, linked EC2-Classic instance hostnames resolve to private IP address. Defaults to false. See `Enabling ClassicLink DNS Support <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html?#classiclink-enable-dns-support/>`_.
      */
     @Updatable
     public Boolean getEnableClassicLinkDnsSupport() {
@@ -210,7 +210,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     }
 
     /**
-     * Is the current VPC default.
+     * The current default VPC.
      */
     @Output
     public Boolean getDefaultVpc() {

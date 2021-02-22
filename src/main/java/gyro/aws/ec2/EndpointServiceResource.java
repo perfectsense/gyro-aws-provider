@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -29,6 +33,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AllowedPrincipal;
 import software.amazon.awssdk.services.ec2.model.CreateVpcEndpointServiceConfigurationResponse;
@@ -39,10 +44,6 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServiceConfigu
 import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointServicePermissionsRequest;
 import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
 import software.amazon.awssdk.services.ec2.model.ServiceTypeDetail;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a vpc endpoint service.
@@ -64,6 +65,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     private Set<NetworkLoadBalancerResource> networkLoadBalancers;
     private Set<RoleResource> principals;
 
+    // Read-only
     private String id;
     private String name;
     private Set<String> availabilityZones;
@@ -74,7 +76,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     private Set<EndpointServiceTypeDetail> serviceType;
 
     /**
-     * Require acceptance. Defaults to true.
+     * When set to ``true``, require acceptance. Defaults to ``true``.
      */
     @Updatable
     public Boolean getAcceptanceRequired() {
@@ -90,9 +92,10 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * A list of Network load Balancers. At least one is Required.
+     * A list of Network load Balancers.
      */
     @Updatable
+    @Required
     public Set<NetworkLoadBalancerResource> getNetworkLoadBalancers() {
         if (networkLoadBalancers == null) {
             networkLoadBalancers = new HashSet<>();
@@ -122,7 +125,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * The id of the endpoint service.
+     * The ID of the endpoint service.
      */
     @Id
     @Output
@@ -147,7 +150,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * A list of Availability zones of the endpoint service.
+     * A list of availability zones of the endpoint service.
      */
     @Output
     public Set<String> getAvailabilityZones() {
@@ -159,7 +162,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * A list of base endpoint dns names.
+     * A list of base endpoint DNS names.
      */
     @Output
     public Set<String> getBaseEndpointDnsNames() {
@@ -171,7 +174,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * The private dns name of the endpoint service.
+     * The private DNS name of the endpoint service.
      */
     @Output
     public String getPrivateDnsName() {
@@ -195,7 +198,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * Is vpc endpoints managed.
+     * Is VPC endpoints managed.
      */
     @Output
     public Boolean getManageVpcEndpoints() {
@@ -207,7 +210,7 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
     }
 
     /**
-     * A Set of service type.
+     * A set of service type.
      */
     @Output
     public Set<EndpointServiceTypeDetail> getServiceType() {
@@ -232,14 +235,16 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         setId(serviceConfiguration.serviceId());
         setAcceptanceRequired(serviceConfiguration.acceptanceRequired());
         setName(serviceConfiguration.serviceName());
-        setAvailabilityZones(serviceConfiguration.availabilityZones() != null ? new HashSet<>(serviceConfiguration.availabilityZones()) : null);
-        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
+        setAvailabilityZones(serviceConfiguration.availabilityZones() != null
+            ? new HashSet<>(serviceConfiguration.availabilityZones()) : null);
+        setBaseEndpointDnsNames(serviceConfiguration.baseEndpointDnsNames() != null
+            ? new HashSet<>(serviceConfiguration.baseEndpointDnsNames()) : null);
         setPrivateDnsName(serviceConfiguration.privateDnsName());
         setState(serviceConfiguration.serviceStateAsString());
         setManageVpcEndpoints(serviceConfiguration.managesVpcEndpoints());
 
         getServiceType().clear();
-        for (ServiceTypeDetail serviceTypeDetail: serviceConfiguration.serviceType()) {
+        for (ServiceTypeDetail serviceTypeDetail : serviceConfiguration.serviceType()) {
             EndpointServiceTypeDetail endpointServiceTypeDetail = newSubresource(EndpointServiceTypeDetail.class);
             endpointServiceTypeDetail.copyFrom(serviceTypeDetail);
             getServiceType().add(endpointServiceTypeDetail);
@@ -255,12 +260,13 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
 
         Ec2Client client = createClient(Ec2Client.class);
 
-        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r -> r.serviceId(getId()));
+        DescribeVpcEndpointServicePermissionsResponse response = client.describeVpcEndpointServicePermissions(r ->
+            r.serviceId(getId()));
 
         getPrincipals().clear();
 
-        for (AllowedPrincipal allowedPrincipal: response.allowedPrincipals()) {
-            getPrincipals().add(findById(RoleResource.class,allowedPrincipal.principal()));
+        for (AllowedPrincipal allowedPrincipal : response.allowedPrincipals()) {
+            getPrincipals().add(findById(RoleResource.class, allowedPrincipal.principal()));
         }
 
         refreshTags();
@@ -286,16 +292,16 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcEndpointServiceConfigurationResponse response = client.createVpcEndpointServiceConfiguration(
-            r -> r.acceptanceRequired(getAcceptanceRequired())
-                .networkLoadBalancerArns(getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toList()))
+            r -> r.acceptanceRequired(getAcceptanceRequired()).networkLoadBalancerArns(
+                getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toList()))
         );
 
         setId(response.serviceConfiguration().serviceId());
 
         if (!getPrincipals().isEmpty()) {
             client.modifyVpcEndpointServicePermissions(
-                r -> r.serviceId(getId())
-                    .addAllowedPrincipals(getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
+                r -> r.serviceId(getId()).addAllowedPrincipals(
+                    getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toList()))
             );
         }
 
@@ -310,13 +316,15 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
 
         if (changedProperties.contains("acceptance-required") || changedProperties.contains("network-load-balancers")) {
 
-            ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest.builder()
-                .serviceId(getId());
+            ModifyVpcEndpointServiceConfigurationRequest.Builder builder = ModifyVpcEndpointServiceConfigurationRequest
+                .builder().serviceId(getId());
 
             builder.acceptanceRequired(getAcceptanceRequired());
 
-            Set<String> currentNlbArns = currentEndpointService.getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
-            Set<String> pendingNlbArns = getNetworkLoadBalancers().stream().map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+            Set<String> currentNlbArns = currentEndpointService.getNetworkLoadBalancers().stream()
+                .map(LoadBalancerResource::getArn).collect(Collectors.toSet());
+            Set<String> pendingNlbArns = getNetworkLoadBalancers().stream()
+                .map(LoadBalancerResource::getArn).collect(Collectors.toSet());
 
             Set<String> deleteNlbArns = new HashSet<>(currentNlbArns);
             deleteNlbArns.removeAll(pendingNlbArns);
@@ -336,10 +344,11 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         }
 
         if (changedProperties.contains("principals")) {
-            ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest.builder()
-                .serviceId(getId());
+            ModifyVpcEndpointServicePermissionsRequest.Builder builder = ModifyVpcEndpointServicePermissionsRequest
+                .builder().serviceId(getId());
 
-            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
+            Set<String> currentIamArns = currentEndpointService.getPrincipals().stream()
+                .map(RoleResource::getArn).collect(Collectors.toSet());
             Set<String> pendingIamArns = getPrincipals().stream().map(RoleResource::getArn).collect(Collectors.toSet());
 
             Set<String> deleteIamRoleArns = new HashSet<>(currentIamArns);
@@ -383,7 +392,8 @@ public class EndpointServiceResource extends Ec2TaggableResource<ServiceConfigur
         }
 
         try {
-            DescribeVpcEndpointServiceConfigurationsResponse response = client.describeVpcEndpointServiceConfigurations(r -> r.serviceIds(getId()));
+            DescribeVpcEndpointServiceConfigurationsResponse response = client
+                .describeVpcEndpointServiceConfigurations(r -> r.serviceIds(getId()));
 
             if (!response.serviceConfigurations().isEmpty()) {
                 serviceConfiguration = response.serviceConfigurations().get(0);

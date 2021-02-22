@@ -16,14 +16,18 @@
 
 package gyro.aws.ec2;
 
+import java.util.Date;
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -31,9 +35,7 @@ import software.amazon.awssdk.services.ec2.model.CreateSnapshotResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeSnapshotsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Snapshot;
-
-import java.util.Date;
-import java.util.Set;
+import software.amazon.awssdk.services.ec2.model.SnapshotState;
 
 /**
  * Creates a EBS Snapshot based on the specified EBS volume.
@@ -56,16 +58,17 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
 
     private EbsVolumeResource volume;
     private String description;
-    private String id;
 
-    private String dataEncryptionKeyId;
+    // Read-only
+    private String id;
+    private String dataEncryptionKey;
     private Boolean encrypted;
-    private String kmsKeyId;
+    private KmsKeyResource kmsKey;
     private String ownerAlias;
     private String ownerId;
     private String progress;
     private Date startTime;
-    private String state;
+    private SnapshotState state;
     private String stateMessage;
     private Integer volumeSize;
 
@@ -109,12 +112,12 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
      * The data encryption key of the snapshot.
      */
     @Output
-    public String getDataEncryptionKeyId() {
-        return dataEncryptionKeyId;
+    public String getDataEncryptionKey() {
+        return dataEncryptionKey;
     }
 
-    public void setDataEncryptionKeyId(String dataEncryptionKeyId) {
-        this.dataEncryptionKeyId = dataEncryptionKeyId;
+    public void setDataEncryptionKey(String dataEncryptionKey) {
+        this.dataEncryptionKey = dataEncryptionKey;
     }
 
     /**
@@ -130,15 +133,15 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     }
 
     /**
-     * The kms key id of the snapshot.
+     * The kms key used to protect the volume encryption key for the parent volume..
      */
     @Output
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsKeyResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsKeyResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -193,11 +196,11 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
      * The state of the snapshot.
      */
     @Output
-    public String getState() {
+    public SnapshotState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(SnapshotState state) {
         this.state = state;
     }
 
@@ -228,18 +231,19 @@ public class EbsSnapshotResource extends Ec2TaggableResource<Snapshot> implement
     @Override
     public void copyFrom(Snapshot snapshot) {
         setId(snapshot.snapshotId());
-        setDataEncryptionKeyId(snapshot.dataEncryptionKeyId());
+        setDataEncryptionKey(snapshot.dataEncryptionKeyId());
         setDescription(snapshot.description());
         setEncrypted(snapshot.encrypted());
-        setKmsKeyId(snapshot.kmsKeyId());
+        setKmsKey(findById(KmsKeyResource.class, snapshot.kmsKeyId()));
         setOwnerAlias(snapshot.ownerAlias());
         setOwnerId(snapshot.ownerId());
         setProgress(snapshot.progress());
         setStartTime(Date.from(snapshot.startTime()));
-        setState(snapshot.stateAsString());
+        setState(snapshot.state());
         setStateMessage(snapshot.stateMessage());
         setVolumeSize(snapshot.volumeSize());
-        setVolume(!ObjectUtils.isBlank(snapshot.volumeId()) ? findById(EbsVolumeResource.class, snapshot.volumeId()) : null);
+        setVolume(!ObjectUtils.isBlank(snapshot.volumeId())
+            ? findById(EbsVolumeResource.class, snapshot.volumeId()) : null);
 
         refreshTags();
     }

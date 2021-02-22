@@ -16,6 +16,15 @@
 
 package gyro.aws.ec2;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
@@ -23,10 +32,10 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -41,15 +50,6 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcEndpointRequest;
 import software.amazon.awssdk.services.ec2.model.VpcEndpoint;
 import software.amazon.awssdk.services.ec2.model.VpcEndpointType;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a vpc endpoint with the specified vpc and either route tables or subnets and security groups.
@@ -91,7 +91,6 @@ import java.util.stream.Collectors;
 @Type("vpc-endpoint")
 public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implements Copyable<VpcEndpoint> {
 
-    private String id;
     private String serviceName;
     private VpcResource vpc;
     private VpcEndpointType type;
@@ -101,6 +100,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     private Boolean privateDnsEnabled;
     private String policy;
 
+    // Read-only
+    private String id;
     private String state;
     private Date createTime;
     private Set<NetworkInterfaceResource> networkInterfaces;
@@ -121,7 +122,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The name of the service that is going to associated with this Endpoint.
+     * The name of the service that is going to associated with this endpoint.
      */
     @Required
     public String getServiceName() {
@@ -161,7 +162,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The set of Route Tables being associated with the Endpoint. (Required if ``type-interface`` set to true.)
+     * The set of Route Tables being associated with the endpoint. (Required if ``type-interface`` set to true.)
      */
     @Updatable
     public Set<RouteTableResource> getRouteTables() {
@@ -177,7 +178,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The set of Subnets being associated with the Endpoint. (Required if ``type-interface`` set to false.)
+     * The set of Subnets being associated with the endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
     public Set<SubnetResource> getSubnets() {
@@ -193,7 +194,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * The set of of Security Groups being associated with the Endpoint. (Required if ``type-interface`` set to false.)
+     * The set of of Security Groups being associated with the endpoint. (Required if ``type-interface`` set to false.)
      */
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
@@ -209,7 +210,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * Enable private DNS on the Endpoint.
+     * When set to ``true``, the private DNS on the endpoint is enabled.
      */
     @Updatable
     public Boolean getPrivateDnsEnabled() {
@@ -258,7 +259,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * A set of Network Interface attached to the Endpoint.
+     * A set of network interface attached to the endpoint.
      */
     @Output
     public Set<NetworkInterfaceResource> getNetworkInterfaces() {
@@ -274,7 +275,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * A set of Dns Entry attached to the Endpoint.
+     * A set of Dns Entry attached to the endpoint.
      */
     @Output
     public Set<DnsEntry> getDnsEntries() {
@@ -286,7 +287,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     /**
-     * Is the requester managed.
+     * When set to ``true``, the requester is managed.
      */
     @Output
     public Boolean getRequesterManaged() {
@@ -326,18 +327,20 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     public void copyFrom(VpcEndpoint vpcEndpoint) {
         setVpc(findById(VpcResource.class, vpcEndpoint.vpcId()));
         setServiceName(vpcEndpoint.serviceName());
-        setSecurityGroups(vpcEndpoint.groups().stream().map(o -> findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
+        setSecurityGroups(vpcEndpoint.groups().stream().map(o ->
+            findById(SecurityGroupResource.class, o.groupId())).collect(Collectors.toSet()));
         setId(vpcEndpoint.vpcEndpointId());
         setType(vpcEndpoint.vpcEndpointType());
         setPrivateDnsEnabled(vpcEndpoint.privateDnsEnabled());
-        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o -> findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
-        setSubnets(vpcEndpoint.subnetIds().stream().map(o -> findById(SubnetResource.class, o)).collect(Collectors.toSet()));
+        setRouteTables(vpcEndpoint.routeTableIds().stream().map(o ->
+            findById(RouteTableResource.class, o)).collect(Collectors.toSet()));
+        setSubnets(vpcEndpoint.subnetIds().stream().map(o ->
+            findById(SubnetResource.class, o)).collect(Collectors.toSet()));
         setPolicy(vpcEndpoint.policyDocument());
-
         setState(vpcEndpoint.stateAsString());
         setCreateTime(Date.from(vpcEndpoint.creationTimestamp()));
-        setNetworkInterfaces(vpcEndpoint.networkInterfaceIds().stream().map(o -> findById(NetworkInterfaceResource.class, o)).collect(Collectors.toSet()));
-
+        setNetworkInterfaces(vpcEndpoint.networkInterfaceIds().stream().map(o ->
+            findById(NetworkInterfaceResource.class, o)).collect(Collectors.toSet()));
         setRequesterManaged(vpcEndpoint.requesterManaged());
 
         getDnsEntries().clear();
@@ -383,10 +386,13 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         builder.serviceName(getServiceName());
 
         if (getType().equals(VpcEndpointType.INTERFACE)) {
-            builder.subnetIds(getSubnets().isEmpty() ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
-            builder.securityGroupIds(getSecurityGroups().isEmpty() ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
+            builder.subnetIds(getSubnets().isEmpty()
+                ? null : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
+            builder.securityGroupIds(getSecurityGroups().isEmpty()
+                ? null : getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()));
         } else {
-            builder.routeTableIds(getRouteTables().isEmpty() ? null : getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toList()));
+            builder.routeTableIds(getRouteTables().isEmpty()
+                ? null : getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toList()));
             builder.policyDocument(getPolicy());
         }
 
@@ -412,11 +418,15 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         if (changedProperties.contains("route-tables")) {
 
-            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
-            Set<String> pendingRouteTableIds = getRouteTables().stream().map(RouteTableResource::getId).collect(Collectors.toSet());
+            Set<String> currentRouteTableIds = oldEndpoint.getRouteTables().stream()
+                .map(RouteTableResource::getId).collect(Collectors.toSet());
+            Set<String> pendingRouteTableIds = getRouteTables().stream()
+                .map(RouteTableResource::getId).collect(Collectors.toSet());
 
-            List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o -> !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
-            List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o -> !currentRouteTableIds.contains(o)).collect(Collectors.toList());
+            List<String> removeRouteTableIds = currentRouteTableIds.stream().filter(o ->
+                !pendingRouteTableIds.contains(o)).collect(Collectors.toList());
+            List<String> addRouteTableIds = pendingRouteTableIds.stream().filter(o ->
+                !currentRouteTableIds.contains(o)).collect(Collectors.toList());
 
             if (!addRouteTableIds.isEmpty()) {
                 builder.addRouteTableIds(addRouteTableIds);
@@ -428,11 +438,14 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
 
         if (changedProperties.contains("subnets")) {
-            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
+            Set<String> currentSubnetIds = oldEndpoint.getSubnets().stream()
+                .map(SubnetResource::getId).collect(Collectors.toSet());
             Set<String> pendingSubnetIds = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
 
-            List<String> removeSubnetIds = currentSubnetIds.stream().filter(o -> !pendingSubnetIds.contains(o)).collect(Collectors.toList());
-            List<String> addSubnetIds = pendingSubnetIds.stream().filter(o -> !currentSubnetIds.contains(o)).collect(Collectors.toList());
+            List<String> removeSubnetIds = currentSubnetIds.stream().filter(o ->
+                !pendingSubnetIds.contains(o)).collect(Collectors.toList());
+            List<String> addSubnetIds = pendingSubnetIds.stream().filter(o ->
+                !currentSubnetIds.contains(o)).collect(Collectors.toList());
 
             if (!addSubnetIds.isEmpty()) {
                 builder.addSubnetIds(addSubnetIds);
@@ -444,11 +457,15 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
 
         if (changedProperties.contains("security-groups")) {
-            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
-            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toSet());
+            Set<String> currentSecurityGroupIds = oldEndpoint.getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId).collect(Collectors.toSet());
+            Set<String> pendingSecurityGroupIds = getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId).collect(Collectors.toSet());
 
-            List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o -> !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
-            List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o -> !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());
+            List<String> removeSecurityGroupIds = currentSecurityGroupIds.stream().filter(o ->
+                !pendingSecurityGroupIds.contains(o)).collect(Collectors.toList());
+            List<String> addSecurityGroupIds = pendingSecurityGroupIds.stream().filter(o ->
+                !currentSecurityGroupIds.contains(o)).collect(Collectors.toList());
 
             if (!addSecurityGroupIds.isEmpty()) {
                 builder.addSecurityGroupIds(addSecurityGroupIds);
@@ -523,7 +540,8 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         try {
             Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
             Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
-            DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
+            DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r ->
+                r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
 
             if (!response.vpcEndpoints().isEmpty()) {
                 vpcEndpoint = response.vpcEndpoints().get(0);

@@ -16,15 +16,14 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.ServiceConfiguration;
 
 /**
  * Query vpc endpoint service.
@@ -106,11 +105,13 @@ public class EndpointServiceFinder extends Ec2TaggableAwsFinder<Ec2Client, Servi
 
     @Override
     protected List<ServiceConfiguration> findAllAws(Ec2Client client) {
-        return client.describeVpcEndpointServiceConfigurationsPaginator().serviceConfigurations().stream().collect(Collectors.toList());
+        return client.describeVpcEndpointServiceConfigurationsPaginator().serviceConfigurations()
+            .stream().collect(Collectors.toList());
     }
 
     @Override
     protected List<ServiceConfiguration> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcEndpointServiceConfigurationsPaginator(r -> r.filters(createFilters(filters))).serviceConfigurations().stream().collect(Collectors.toList());
+        return client.describeVpcEndpointServiceConfigurationsPaginator(r ->
+            r.filters(createFilters(filters))).serviceConfigurations().stream().collect(Collectors.toList());
     }
 }

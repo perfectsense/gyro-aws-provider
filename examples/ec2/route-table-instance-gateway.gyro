@@ -67,20 +67,24 @@ aws::instance instance-example
     instance-type: "t2.micro"
     key: "example"
     subnet: $(aws::subnet subnet)
-    security-groups: $(aws::security-group security-group)
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true
+    capacity-reservation: "none"
+
+    security-groups: [
+        $(aws::security-group security-group)
+    ]
 
     tags: {
         Name: "instance-example"
     }
 
-    capacity-reservation: "none"
 end
 
 aws::route-table route-table-example
     vpc: $(aws::vpc vpc)
+
     subnets: [
         $(aws::subnet subnet)
     ]

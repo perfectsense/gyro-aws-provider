@@ -16,6 +16,9 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
+import java.util.Set;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -32,9 +35,6 @@ import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionRespo
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Create a Peering Connection between two VPC.
@@ -54,11 +54,11 @@ import java.util.Set;
  *     end
  */
 @Type("vpc-peering-connection")
-public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection> implements Copyable<VpcPeeringConnection> {
+public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringConnection>
+    implements Copyable<VpcPeeringConnection> {
 
     private VpcResource vpc;
     private VpcResource peerVpc;
-    private String id;
     private Boolean allowDnsResolutionFromRemoteVpc;
     private Boolean allowEgressFromLocalClassicLinkToRemoteVpc;
     private Boolean allowEgressFromLocalVpcToRemoteClassicLink;
@@ -66,8 +66,11 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     private Boolean peerAllowEgressFromLocalClassicLinkToRemoteVpc;
     private Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink;
 
+    // Read-only
+    private String id;
+
     /**
-     * Requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html>`_.
+     * The requester VPC. See `Creating and Accepting Peering Connection <https://docs.aws.amazon.com/vpc/latest/peering/create-vpc-peering-connection.html/>`_.
      */
     @Required
     public VpcResource getVpc() {
@@ -79,7 +82,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * Accepter VPC.
+     * The accepter VPC.
      */
     @Required
     public VpcResource getPeerVpc() {
@@ -91,7 +94,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. Defaults to ``false``.
+     * When set to ``true``, enables a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. Defaults to ``false``.
      */
     @Updatable
     public Boolean getAllowDnsResolutionFromRemoteVpc() {
@@ -107,7 +110,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables outbound communication from an EC2-Classic instance that's linked to a local VPC using ClassicLink to instances in a peer VPC. Defaults to ``false``.
+     * When set to ``true``, enables outbound communication from an EC2-Classic instance that's linked to a local VPC using ClassicLink to instances in a peer VPC. Defaults to ``false``.
      */
     @Updatable
     public Boolean getAllowEgressFromLocalClassicLinkToRemoteVpc() {
@@ -123,7 +126,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables outbound communication from instances in a local VPC to an EC2-Classic instance that's linked to a peer VPC using ClassicLink. Defaults to ``false``.
+     * When set to ``true``, enables outbound communication from instances in a local VPC to an EC2-Classic instance that's linked to a peer VPC using ClassicLink. Defaults to ``false``.
      */
     @Updatable
     public Boolean getAllowEgressFromLocalVpcToRemoteClassicLink() {
@@ -139,7 +142,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. Defaults to ``false``.
+     * When set to ``true``, enables a local VPC to resolve public DNS hostnames to private IP addresses when queried from instances in the peer VPC. Defaults to ``false``.
      */
     @Updatable
     public Boolean getPeerAllowDnsResolutionFromRemoteVpc() {
@@ -155,7 +158,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables outbound communication from an EC2-Classic instance that's linked to a local VPC using ClassicLink to instances in a peer VPC. Defaults to ``false``.
+     * When set to ``true``, enables outbound communication from an EC2-Classic instance that's linked to a local VPC using ClassicLink to instances in a peer VPC. Defaults to ``false``.
      */
     @Updatable
     public Boolean getPeerAllowEgressFromLocalClassicLinkToRemoteVpc() {
@@ -171,7 +174,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     /**
-     * If ``true``, enables outbound communication from instances in a local VPC to an EC2-Classic instance that's linked to a peer VPC using ClassicLink. Defaults to ``false``.
+     * When set to ``true``, enables outbound communication from instances in a local VPC to an EC2-Classic instance that's linked to a peer VPC using ClassicLink. Defaults to ``false``.
      */
     @Updatable
     public Boolean getPeerAllowEgressFromLocalVpcToRemoteClassicLink() {
@@ -207,16 +210,20 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     @Override
     public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
-
         setVpc(findById(VpcResource.class, vpcPeeringConnection.requesterVpcInfo().vpcId()));
-        setAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.requesterVpcInfo().peeringOptions().allowDnsResolutionFromRemoteVpc());
-        setAllowEgressFromLocalClassicLinkToRemoteVpc(vpcPeeringConnection.requesterVpcInfo().peeringOptions().allowEgressFromLocalClassicLinkToRemoteVpc());
-        setAllowEgressFromLocalVpcToRemoteClassicLink(vpcPeeringConnection.requesterVpcInfo().peeringOptions().allowEgressFromLocalVpcToRemoteClassicLink());
-
+        setAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.requesterVpcInfo().peeringOptions()
+            .allowDnsResolutionFromRemoteVpc());
+        setAllowEgressFromLocalClassicLinkToRemoteVpc(vpcPeeringConnection.requesterVpcInfo()
+            .peeringOptions().allowEgressFromLocalClassicLinkToRemoteVpc());
+        setAllowEgressFromLocalVpcToRemoteClassicLink(vpcPeeringConnection.requesterVpcInfo()
+            .peeringOptions().allowEgressFromLocalVpcToRemoteClassicLink());
         setPeerVpc(findById(VpcResource.class, vpcPeeringConnection.accepterVpcInfo().vpcId()));
-        setPeerAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowDnsResolutionFromRemoteVpc());
-        setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowEgressFromLocalClassicLinkToRemoteVpc());
-        setPeerAllowEgressFromLocalVpcToRemoteClassicLink(vpcPeeringConnection.accepterVpcInfo().peeringOptions().allowEgressFromLocalVpcToRemoteClassicLink());
+        setPeerAllowDnsResolutionFromRemoteVpc(vpcPeeringConnection.accepterVpcInfo()
+            .peeringOptions().allowDnsResolutionFromRemoteVpc());
+        setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(vpcPeeringConnection.accepterVpcInfo()
+            .peeringOptions().allowEgressFromLocalClassicLinkToRemoteVpc());
+        setPeerAllowEgressFromLocalVpcToRemoteClassicLink(vpcPeeringConnection.accepterVpcInfo()
+            .peeringOptions().allowEgressFromLocalVpcToRemoteClassicLink());
 
         refreshTags();
     }
@@ -241,9 +248,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         Ec2Client client = createClient(Ec2Client.class);
 
         CreateVpcPeeringConnectionResponse response = client.createVpcPeeringConnection(
-            r -> r.vpcId(getVpc().getId())
-                .peerVpcId(getPeerVpc().getId())
-                .peerOwnerId(getPeerVpc().getAccount())
+            r -> r.vpcId(getVpc().getId()).peerVpcId(getPeerVpc().getId()).peerOwnerId(getPeerVpc().getAccount())
                 .peerRegion(getPeerVpc().getRegion())
         );
 
@@ -297,16 +302,15 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
     }
 
     private void modifyPeeringConnectionSettings(Ec2Client client) {
-        client.modifyVpcPeeringConnectionOptions(
-            r -> r.vpcPeeringConnectionId(getId())
-                .accepterPeeringConnectionOptions(
-                    acp -> acp.allowDnsResolutionFromRemoteVpc(getPeerAllowDnsResolutionFromRemoteVpc())
-                        .allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc())
-                        .allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink()))
-                .requesterPeeringConnectionOptions(
-                    req -> req.allowDnsResolutionFromRemoteVpc(getAllowDnsResolutionFromRemoteVpc())
-                        .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
-                        .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink()))
+        client.modifyVpcPeeringConnectionOptions(r -> r.vpcPeeringConnectionId(getId())
+            .accepterPeeringConnectionOptions(acp -> acp.allowDnsResolutionFromRemoteVpc(
+                getPeerAllowDnsResolutionFromRemoteVpc())
+                .allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc())
+                .allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink()))
+            .requesterPeeringConnectionOptions(req -> req.allowDnsResolutionFromRemoteVpc(
+                getAllowDnsResolutionFromRemoteVpc())
+                .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
+                .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink()))
         );
     }
 }

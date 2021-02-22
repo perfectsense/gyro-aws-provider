@@ -68,7 +68,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
     private String description;
     private TransitGatewayOptions transitGatewayOptions;
 
-    // Read only
+    // Read-only
     private String id;
     private String arn;
     private String ownerId;

@@ -16,16 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.Vpc;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.Vpc;
 
 /**
  * Query vpc.
@@ -227,6 +226,7 @@ public class VpcFinder extends Ec2TaggableAwsFinder<Ec2Client, Vpc, VpcResource>
 
     @Override
     protected List<Vpc> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeVpcsPaginator(r -> r.filters(createFilters(filters))).vpcs().stream().collect(Collectors.toList());
+        return client.describeVpcsPaginator(r ->
+            r.filters(createFilters(filters))).vpcs().stream().collect(Collectors.toList());
     }
 }

@@ -16,14 +16,14 @@
 
 package gyro.aws.ec2;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Image;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Query instance.
@@ -37,6 +37,7 @@ import java.util.Map;
  */
 @Type("ami")
 public class AmiFinder extends Ec2TaggableAwsFinder<Ec2Client, Image, AmiResource> {
+
     private String architecture;
     private String blockDeviceMappingDeleteOnTermination;
     private String blockDeviceMappingDeviceName;

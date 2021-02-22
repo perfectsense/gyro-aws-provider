@@ -4,7 +4,7 @@ aws::vpc vpc-launch-template-example
 
     tags: {
         Name: "vpc-launch-template-example"
-         }
+    }
 end
 
 aws::subnet subnet
@@ -104,20 +104,20 @@ aws::launch-template launch-template
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key-name: "example"
+    disable-api-termination: false
+    ebs-optimized: false
+    capacity-reservation: "open"
+
     security-groups: [
         $(aws::security-group security-group-launch-template-example-1),
         $(aws::security-group security-group-launch-template-example-2)
     ]
-    disable-api-termination: false
-    ebs-optimized: false
 
     block-device-mapping
         device-name: "/dev/sdb"
         volume-size: 100
         auto-enable-io: false
     end
-
-    capacity-reservation: "open"
 
     tags: {
         Name: "launch-template-example-1"

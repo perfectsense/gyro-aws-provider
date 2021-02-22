@@ -56,7 +56,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     /**
      * The Peering attachment to associate with the route table.
      */
-    @ConflictsWith("vpc-attachment")
+    @ConflictsWith({ "vpc-attachment", "vpn-attachment" })
     public TransitGatewayPeeringAttachmentResource getPeeringAttachment() {
         return peeringAttachment;
     }
@@ -68,7 +68,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
     /**
      * The Vpc attachment to associate with the route table.
      */
-    @ConflictsWith("peering-attachment")
+    @ConflictsWith({ "peering-attachment", "vpn-attachment" })
     public TransitGatewayVpcAttachmentResource getVpcAttachment() {
         return vpcAttachment;
     }

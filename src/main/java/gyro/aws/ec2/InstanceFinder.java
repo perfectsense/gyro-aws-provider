@@ -16,17 +16,16 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import gyro.core.Type;
 import gyro.core.finder.Filter;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Query instance.
@@ -172,7 +171,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * A Boolean that indicates whether the EBS volume is deleted on instance termination.
+     * Indicates whether the EBS volume is deleted on instance termination.
      */
     @Filter("block-device-mapping.delete-on-termination")
     public String getBlockDeviceMappingDeleteOnTermination() {
@@ -264,7 +263,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * A Boolean that indicates whether the instance is enabled for hibernation. A value of true means that the instance is enabled for hibernation.
+     * Indicates whether the instance is enabled for hibernation. A value of true means that the instance is enabled for hibernation.
      */
     @Filter("hibernation-options.configured")
     public String getHibernationOptionsConfigured() {
@@ -433,7 +432,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * When launching multiple instances, this is the index for the instance in the launch group (for example, 0, 1, 2, and so on).
+     * The index for the instance in the launch group when launching multiple instances (for example, 0, 1, 2, and so on).
      */
     public String getLaunchIndex() {
         return launchIndex;
@@ -478,7 +477,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * Specifies whether the IPv4 address of the network interface is the primary private IPv4 address.
+     * Indicates whether the IPv4 address of the network interface is the primary private IPv4 address.
      */
     @Filter("network-interface.addresses.primary")
     public String getNetworkInterfaceAddressesPrimary() {
@@ -634,7 +633,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * Specifies whether the attachment is deleted when an instance is terminated.
+     * Indicates whether the attachment is deleted when an instance is terminated.
      */
     @Filter("network-interface.attachment.delete-on-termination")
     public String getNetworkInterfaceAttachmentDeleteOnTermination() {
@@ -646,7 +645,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * The Availability Zone for the network interface.
+     * The availability zone for the network interface.
      */
     @Filter("network-interface.availability-zone")
     public String getNetworkInterfaceAvailabilityZone() {
@@ -790,7 +789,7 @@ public class InstanceFinder extends Ec2TaggableAwsFinder<Ec2Client, Instance, In
     }
 
     /**
-     * Whether the network interface performs source/destination checking. A value of true means that checking is enabled, and false means that checking is disabled. The value must be false for the network interface to perform network address translation (NAT) in your VPC.
+     * Indicates whether the network interface performs source/destination checking. A value of true means that checking is enabled, and false means that checking is disabled. The value must be false for the network interface to perform network address translation (NAT) in your VPC.
      */
     @Filter("network-interface.source-dest-check")
     public String getNetworkInterfaceSourceDestCheck() {

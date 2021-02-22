@@ -16,16 +16,15 @@
 
 package gyro.aws.ec2;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.finder.Filter;
-import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.NetworkInterface;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import gyro.core.Type;
+import gyro.core.finder.Filter;
+import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.NetworkInterface;
 
 /**
  * Query network interface.
@@ -89,7 +88,7 @@ public class NetworkInterfaceFinder extends Ec2TaggableAwsFinder<Ec2Client, Netw
     }
 
     /**
-     * Whether the private IPv4 address is the primary IP address associated with the network interface.
+     * Indicates whether the private IPv4 address is the primary IP address associated with the network interface.
      */
     @Filter("addresses.primary")
     public String getAddressesPrimary() {
@@ -281,7 +280,7 @@ public class NetworkInterfaceFinder extends Ec2TaggableAwsFinder<Ec2Client, Netw
     }
 
     /**
-     * The Availability Zone of the network interface.
+     * The availability zone of the network interface.
      */
     public String getAvailabilityZone() {
         return availabilityZone;
@@ -490,6 +489,7 @@ public class NetworkInterfaceFinder extends Ec2TaggableAwsFinder<Ec2Client, Netw
 
     @Override
     protected List<NetworkInterface> findAws(Ec2Client client, Map<String, String> filters) {
-        return client.describeNetworkInterfacesPaginator(r -> r.filters(createFilters(filters))).networkInterfaces().stream().collect(Collectors.toList());
+        return client.describeNetworkInterfacesPaginator(r ->
+            r.filters(createFilters(filters))).networkInterfaces().stream().collect(Collectors.toList());
     }
 }

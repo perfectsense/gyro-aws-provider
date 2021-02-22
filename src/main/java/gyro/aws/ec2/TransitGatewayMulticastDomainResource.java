@@ -67,12 +67,12 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
     implements Copyable<TransitGatewayMulticastDomain> {
 
     private TransitGatewayResource transitGateway;
+    private TransitGatewayMulticastDomainOptions options;
     private List<TransitGatewayMulticastDomainAssociationResource> association;
     private List<TransitGatewayMulticastDomainGroupMemberResource> groupMember;
     private List<TransitGatewayMulticastDomainGroupSourceResource> groupSource;
 
-    // Output
-
+    // Read-only
     private String id;
 
     /**
@@ -85,6 +85,19 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
     public void setTransitGateway(TransitGatewayResource transitGateway) {
         this.transitGateway = transitGateway;
+    }
+
+    /**
+     * The multicast domain options.
+     *
+     * @subresource gyro.aws.ec2.TransitGatewayMulticastDomainOptions
+     */
+    public TransitGatewayMulticastDomainOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(TransitGatewayMulticastDomainOptions options) {
+        this.options = options;
     }
 
     /**
@@ -161,6 +174,14 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
         setTransitGateway(findById(TransitGatewayResource.class, model.transitGatewayId()));
         setId(model.transitGatewayMulticastDomainId());
 
+        setOptions(null);
+        if (model.options() != null) {
+            TransitGatewayMulticastDomainOptions multicastDomainOptions = newSubresource(
+                TransitGatewayMulticastDomainOptions.class);
+            multicastDomainOptions.copyFrom(model.options());
+            setOptions(multicastDomainOptions);
+        }
+
         Ec2Client client = createClient(Ec2Client.class);
 
         List<TransitGatewayMulticastDomainAssociation> associations = client.getTransitGatewayMulticastDomainAssociations(
@@ -218,18 +239,20 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        CreateTransitGatewayMulticastDomainResponse response = client.createTransitGatewayMulticastDomain(r -> r.transitGatewayId(
-            getTransitGateway().getId()));
+        CreateTransitGatewayMulticastDomainResponse response = client.createTransitGatewayMulticastDomain(r -> r
+            .transitGatewayId(getTransitGateway().getId())
+            .options(getOptions() != null ? getOptions().toCreateTransitGatewayMulticastDomainRequestOptions() : null));
 
         setId(response.transitGatewayMulticastDomain().transitGatewayMulticastDomainId());
 
-        Wait.atMost(2, TimeUnit.MINUTES)
+        Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
             .until(() -> {
                 TransitGatewayMulticastDomain domain = getTransitGatewayMulticastDomain(client);
                 return domain != null && domain.state().equals(TransitGatewayMulticastDomainState.AVAILABLE);
             });
+
     }
 
     @Override

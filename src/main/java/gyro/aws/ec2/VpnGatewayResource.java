@@ -16,27 +16,29 @@
 
 package gyro.aws.ec2;
 
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.AttachmentStatus;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayRequest;
 import software.amazon.awssdk.services.ec2.model.CreateVpnGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpnGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.GatewayType;
 import software.amazon.awssdk.services.ec2.model.VpnGateway;
-
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import software.amazon.awssdk.services.ec2.model.VpnState;
 
 /**
  * Create VPN Gateway.
@@ -54,6 +56,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("vpn-gateway")
 public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implements Copyable<VpnGateway> {
+
     private Long amazonSideAsn;
     private VpcResource vpc;
     private String availabilityZone;
@@ -123,7 +126,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         setAmazonSideAsn(vpnGateway.amazonSideAsn());
 
         if (!vpnGateway.vpcAttachments().isEmpty()
-            && vpnGateway.vpcAttachments().get(0).stateAsString().equals("attached")
+            && vpnGateway.vpcAttachments().get(0).state().equals(AttachmentStatus.ATTACHED)
             && !ObjectUtils.isBlank(vpnGateway.vpcAttachments().get(0).vpcId())) {
             setVpc(findById(VpcResource.class, vpnGateway.vpcAttachments().get(0).vpcId()));
         } else {
@@ -246,7 +249,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
         return vpnGateway != null
             && !vpnGateway.vpcAttachments().isEmpty()
-            && vpnGateway.vpcAttachments().get(0).stateAsString().equalsIgnoreCase("attached");
+            && vpnGateway.vpcAttachments().get(0).state().equals(AttachmentStatus.ATTACHED);
     }
 
     private VpnGateway getVpnGateway(Ec2Client client) {
@@ -274,6 +277,6 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
     private boolean isVpnDeleted(Ec2Client client) {
         VpnGateway vpnGateway = getVpnGateway(client);
 
-        return vpnGateway == null || vpnGateway.stateAsString().equalsIgnoreCase("deleted");
+        return vpnGateway == null || vpnGateway.state().equals(VpnState.DELETED);
     }
 }

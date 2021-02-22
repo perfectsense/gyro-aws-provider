@@ -10,7 +10,7 @@ aws::internet-gateway internet-gateway-elastic-ip
     vpc: $(aws::vpc vpc-elastic-ip)
 end
 
-aws::subnet  subnet-example-nic-elastic-ip
+aws::subnet subnet-example-nic-elastic-ip
     vpc: $(aws::vpc vpc-elastic-ip)
     availability-zone: "us-east-2a"
     cidr-block: "10.0.0.0/16"
@@ -25,9 +25,10 @@ aws::network-interface nic-example-elastic-ip
     description: "test-nic-elastic-ip"
     subnet: $(aws::subnet subnet-example-nic-elastic-ip)
     primary-ipv4-address: "10.0.0.22"
+
     ipv4-addresses: [
-      "10.0.0.18",
-      "10.0.0.10"
+        "10.0.0.18",
+        "10.0.0.10"
     ]
 
     tags: {
@@ -39,7 +40,8 @@ aws::elastic-ip elastic-ip-example-1
     is-standard-domain: false
     allow-re-association: true
     network-interface: $(aws::network-interface nic-example-elastic-ip)
-    #network-interface-association-private-ip: "10.0.0.18"
+    network-interface-association-private-ip: "10.0.0.18"
+
     tags: {
         Name: "elastic-ip-example-1"
     }
@@ -50,6 +52,7 @@ aws::elastic-ip elastic-ip-example-2
     allow-re-association: true
     network-interface: $(aws::network-interface nic-example-elastic-ip)
     network-interface-association-private-ip: "10.0.0.18"
+
     tags: {
         Name: "elastic-ip-example-2"
     }
@@ -83,13 +86,14 @@ aws::instance instance-example-elastic-ip
     shutdown-behavior: "STOP"
     instance-type: "t2.micro"
     key: "example"
-    subnet: $(aws::subnet subnet-example-nic-elastic-ip)
-    security-groups: [
-        $(aws::security-group security-group-elastic-ip)
-    ]
     disable-api-termination: false
     ebs-optimized: false
     source-dest-check: true
+    subnet: $(aws::subnet subnet-example-nic-elastic-ip)
+
+    security-groups: [
+        $(aws::security-group security-group-elastic-ip)
+    ]
 
     tags: {
         Name: "instance-example-elastic-ip-elastic-ip"
@@ -102,6 +106,7 @@ aws::elastic-ip elastic-ip-example-3
     is-standard-domain: false
     allow-re-association: true
     instance: $(aws::instance instance-example-elastic-ip)
+
     tags: {
         Name: "elastic-ip-example-3"
     }
