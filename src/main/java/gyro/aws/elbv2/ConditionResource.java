@@ -31,6 +31,8 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.DependsOn;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 
@@ -42,8 +44,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleConditio
  * .. code-block:: gyro
  *
  *     condition
- *         field: "host-header"
- *
  *         host-header-config
  *             values: ["www.example.net"]
  *         end
@@ -51,6 +51,8 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleConditio
  */
 public class ConditionResource extends AwsResource implements Copyable<RuleCondition> {
 
+    private String field;
+    private List<String> value;
     private HostHeaderConditionConfiguration hostHeaderConfig;
     private HttpHeaderConditionConfiguration httpHeaderConfig;
     private HttpRequestMethodConditionConfiguration httpRequestMethodConfig;
@@ -58,11 +60,53 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     private QueryStringConditionConfiguration queryStringConfig;
     private SourceIpConditionConfiguration sourceIpConfig;
 
+    @DependsOn("value")
+    @ConflictsWith({
+        "host-header-config",
+        "http-header-config",
+        "http-request-method-config",
+        "path-pattern-config",
+        "query-string-config",
+        "source-ip-config"
+    })
+    @ValidStrings({ "host-header", "path-pattern" })
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
+    }
+
+    @Updatable
+    @DependsOn("field")
+    @ConflictsWith({
+        "host-header-config",
+        "http-header-config",
+        "http-request-method-config",
+        "path-pattern-config",
+        "query-string-config",
+        "source-ip-config"
+    })
+    public List<String> getValue() {
+        if (value == null) {
+            value = new ArrayList<>();
+        }
+
+        return value;
+    }
+
+    public void setValue(List<String> value) {
+        this.value = value;
+    }
+
     /**
      * The information for a host header condition.
      */
     @Updatable
     @ConflictsWith({
+        "value",
+        "field",
         "http-header-config",
         "http-request-method-config",
         "path-pattern-config",
@@ -174,11 +218,13 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     @Override
     public String primaryKey() {
-        return getConditionValue().getField();
+        return getFieldString();
     }
 
     @Override
     public void copyFrom(RuleCondition ruleCondition) {
+        setField(ruleCondition.field());
+        setValue(ruleCondition.values());
 
         if (ruleCondition.hostHeaderConfig() != null) {
             HostHeaderConditionConfiguration config = newSubresource(HostHeaderConditionConfiguration.class);
@@ -254,7 +300,8 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
 
     public RuleCondition toCondition() {
         return RuleCondition.builder()
-            .field(getConditionValue().getField())
+            .field(getFieldString())
+            .values(getValue().isEmpty() ? null : getValue())
             .hostHeaderConfig(getHostHeaderConfig() == null ?
                 null : getHostHeaderConfig().toHostHeaderConditionConfig())
             .httpHeaderConfig(getHttpHeaderConfig() == null ?
@@ -269,7 +316,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
             .build();
     }
 
-    private ConditionValue getConditionValue() {
+    public ConditionValue getConditionValue() {
         return getHostHeaderConfig() == null ? (getHttpHeaderConfig() == null ? (getHttpRequestMethodConfig() == null
             ? (getPathPatternConfig() == null ? (getQueryStringConfig() == null ? (getSourceIpConfig())
             : getQueryStringConfig()) : getPathPatternConfig()) : getHttpRequestMethodConfig())
@@ -280,15 +327,19 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
     public List<ValidationError> validate(Set<String> configuredFields) {
         ArrayList<ValidationError> errors = new ArrayList<>();
 
-        if (getHostHeaderConfig() == null && getHttpHeaderConfig() == null
+        /*if (getHostHeaderConfig() == null && getHttpHeaderConfig() == null
             && getHttpRequestMethodConfig() == null && getPathPatternConfig() == null && getQueryStringConfig() == null
             && getSourceIpConfig() == null) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "At least one of 'host-header-config' or 'http-header-config' or 'http-request-method-config' or 'path-pattern-config' or 'query-string-config' or 'source-ip-config' is required."));
-        }
+        }*/
 
         return errors;
+    }
+
+    public String getFieldString() {
+        return getField() != null ? getField() : getConditionValue().getField();
     }
 }

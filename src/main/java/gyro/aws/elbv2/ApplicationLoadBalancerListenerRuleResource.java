@@ -16,6 +16,12 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -24,7 +30,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -35,10 +40,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeRule
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Rule;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleCondition;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleNotFoundException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -174,7 +175,23 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
 
             Rule rule = response.rules().get(0);
 
+            Map<String, Boolean> conditionFieldIsSet = new HashMap<>();
+            for (ConditionResource c : getCondition()) {
+                conditionFieldIsSet.put(
+                    c.getFieldString(),
+                    c.getField() != null);
+            }
+
             this.copyFrom(rule);
+
+            for (ConditionResource c : getCondition()) {
+                if (conditionFieldIsSet.get(c.getFieldString())) {
+                    c.setHostHeaderConfig(null);
+                } else {
+                    c.setField(null);
+                    c.setValue(null);
+                }
+            }
 
             return true;
 
