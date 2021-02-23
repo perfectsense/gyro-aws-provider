@@ -70,6 +70,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
         "source-ip-config"
     })
     @ValidStrings({ "host-header", "path-pattern" })
+    @Updatable
     public String getField() {
         return field;
     }
