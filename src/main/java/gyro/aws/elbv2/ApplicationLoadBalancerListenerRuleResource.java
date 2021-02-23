@@ -17,9 +17,7 @@
 package gyro.aws.elbv2;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import gyro.aws.AwsResource;
@@ -175,17 +173,17 @@ public class ApplicationLoadBalancerListenerRuleResource extends AwsResource imp
 
             Rule rule = response.rules().get(0);
 
-            Map<String, Boolean> conditionFieldIsSet = new HashMap<>();
+            List<String> conditionsWithFields = new ArrayList<>();
             for (ConditionResource c : getCondition()) {
-                conditionFieldIsSet.put(
-                    c.getFieldString(),
-                    c.getField() != null);
+                if (c.getField() != null) {
+                    conditionsWithFields.add(c.getField());
+                }
             }
 
             this.copyFrom(rule);
 
             for (ConditionResource c : getCondition()) {
-                if (conditionFieldIsSet.get(c.getFieldString())) {
+                if (conditionsWithFields.contains(c.getField())) {
                     c.resetConfigs();
                 } else {
                     c.setField(null);

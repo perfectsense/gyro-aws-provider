@@ -340,7 +340,7 @@ public class ConditionResource extends AwsResource implements Copyable<RuleCondi
         return errors;
     }
 
-    public String getFieldString() {
+    private String getFieldString() {
         return getConditionValue() == null ? getField() : getConditionValue().getField();
     }
 
