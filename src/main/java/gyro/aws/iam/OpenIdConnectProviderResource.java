@@ -117,7 +117,6 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
      * The url for an identity provider.
      */
     @Required
-    @Regex(value = "^(https)://.+$", message = "a string starting with 'https://'")
     public String getUrl() {
         return url;
     }
