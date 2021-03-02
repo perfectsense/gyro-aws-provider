@@ -297,6 +297,10 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
         setThumbPrints(new ArrayList<>(model.thumbprintList()));
         setUrl(String.format("https://%s", model.url()));
         setCreatedDate(model.createDate().toString());
+        getTags().clear();
+        if (model.hasTags()) {
+            setTags(model.tags().stream().collect(Collectors.toMap(Tag::key, Tag::value)));
+        }
     }
 
     private String getThumbprint(String url, Integer port) {
