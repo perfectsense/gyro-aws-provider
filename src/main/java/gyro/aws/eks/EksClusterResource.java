@@ -113,6 +113,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     // Read-only
     private String arn;
+    private String oidcProviderUrl;
 
     /**
      * The name of the EKS cluster.
@@ -223,6 +224,18 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.arn = arn;
     }
 
+    /**
+     * The issuer URL for the OIDC identity provider.
+     */
+    @Output
+    public String getOidcProviderUrl() {
+        return oidcProviderUrl;
+    }
+
+    public void setOidcProviderUrl(String oidcProviderUrl) {
+        this.oidcProviderUrl = oidcProviderUrl;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setName(model.name());
@@ -238,6 +251,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         eksLogging.copyFrom(model.logging());
         setLogging(eksLogging);
 
+        if (model.identity() != null && model.identity().oidc() != null) {
+            setOidcProviderUrl(model.identity().oidc().issuer());
+        }
     }
 
     @Override
@@ -271,15 +287,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (!getEncryptionConfig().isEmpty()) {
             builder = builder.encryptionConfig(getEncryptionConfig().stream()
-                    .map(EksEncryptionConfig::toEncryptionConfig)
-                    .collect(Collectors.toList()));
+                .map(EksEncryptionConfig::toEncryptionConfig)
+                .collect(Collectors.toList()));
         }
 
         CreateClusterResponse response = client.createCluster(builder.tags(getTags()).build());
 
-        copyFrom(response.cluster());
-
         waitForActiveStatus(client);
+
+        copyFrom(getCluster(client));
     }
 
     @Override
