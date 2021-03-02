@@ -36,7 +36,7 @@ import software.amazon.awssdk.services.iam.model.OpenIDConnectProviderListEntry;
  *
  * .. code-block:: gyro
  *
- *    openid-connect-provider: $(external-query aws::iam-open-id-connect-provider { arn: ''})
+ *    openid-connect-provider: $(external-query aws::iam-openid-connect-provider { arn: ''})
  */
 @Type("iam-openid-connect-provider")
 public class OpenIdConnectProviderFinder extends AwsFinder<IamClient, OpenIdConnectProviderCustom, OpenIdConnectProviderResource> {
