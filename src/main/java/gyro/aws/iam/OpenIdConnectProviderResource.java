@@ -56,20 +56,20 @@ import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 /**
- * Creates an Open Id connect provider.
+ * Creates an OpenId connect provider.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::iam-open-id-connect-provider provider-example
+ *     aws::iam-openid-connect-provider provider-example
  *         client-ids : [ "sts.amazon.com" ]
  *         thumb-prints : [ "9e99a48a9960b14926cc7f3b02e22da2b0ab7280" ]
  *         url : "https://oidc.eks.us-east-2.amazonaws.com/id/50B4045A6F925CDC0F497A99C624"
  *     end
  */
-@Type("iam-open-id-connect-provider")
+@Type("iam-openid-connect-provider")
 public class OpenIdConnectProviderResource extends AwsResource implements Copyable<OpenIdConnectProviderCustom> {
 
     private List<String> clientIds;

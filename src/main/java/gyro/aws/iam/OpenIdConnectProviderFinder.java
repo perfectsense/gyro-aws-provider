@@ -29,16 +29,16 @@ import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.OpenIDConnectProviderListEntry;
 
 /**
- * Query open id connect provider.
+ * Query openid connect provider.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *    open-id-connect-provider: $(external-query aws::iam-open-id-connect-provider { arn: ''})
+ *    openid-connect-provider: $(external-query aws::iam-open-id-connect-provider { arn: ''})
  */
-@Type("iam-open-id-connect-provider")
+@Type("iam-openid-connect-provider")
 public class OpenIdConnectProviderFinder extends AwsFinder<IamClient, OpenIdConnectProviderCustom, OpenIdConnectProviderResource> {
 
     private String arn;
