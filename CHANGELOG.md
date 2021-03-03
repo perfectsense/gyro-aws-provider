@@ -1,6 +1,29 @@
 CHANGELOG
 =========
 
+## 1.0.1 (March 3rd, 2021)
+
+ENHANCEMENTS:
+
+* [174](https://github.com/perfectsense/gyro-aws-provider/issues/174): Add support for IAM OIDC provider.
+* [289](https://github.com/perfectsense/gyro-aws-provider/issues/289): Add support for ECR.
+* [358](https://github.com/perfectsense/gyro-aws-provider/issues/358): Add support for EKS Add-ons.
+* [366](https://github.com/perfectsense/gyro-aws-provider/issues/366): Add support for ALB condition resource.
+* [381](https://github.com/perfectsense/gyro-aws-provider/issues/381): Add support for OriginShield in Cloudfront.
+* [389](https://github.com/perfectsense/gyro-aws-provider/issues/389): Add support for Vpn connection in Transit Gateway.
+
+ISSUES FIXED:
+
+* [355](https://github.com/perfectsense/gyro-aws-provider/issues/355): Fix NAT Gateway creation.
+* [359](https://github.com/perfectsense/gyro-aws-provider/issues/359): Fix EFS nodegroup refresh.
+* [362](https://github.com/perfectsense/gyro-aws-provider/issues/362): Fix refresh of IAM policy.
+* [365](https://github.com/perfectsense/gyro-aws-provider/issues/365): Fix NPE when refreshing multiple resources.
+* [371](https://github.com/perfectsense/gyro-aws-provider/issues/371): Add support for updating EKS nodegroup labels.
+* [370](https://github.com/perfectsense/gyro-aws-provider/issues/370): Reduce wait time for eks nodegroup.
+* [375](https://github.com/perfectsense/gyro-aws-provider/issues/375): Fix RDS cluster param group refresh.
+* [382](https://github.com/perfectsense/gyro-aws-provider/issues/382): Fix autoscaling group desired-capacity auto update.
+* [398](https://github.com/perfectsense/gyro-aws-provider/issues/398): Fix Security Group delete when using @uses-credentials.
+
 ## 1.0.0 (January 13th, 2021)
 
 ENHANCEMENTS: 
