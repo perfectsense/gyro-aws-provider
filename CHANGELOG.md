@@ -5,6 +5,7 @@ CHANGELOG
 
 ENHANCEMENTS:
 
+* [164](https://github.com/perfectsense/gyro-aws-provider/issues/164): Add support for IPV6 addressing.
 * [174](https://github.com/perfectsense/gyro-aws-provider/issues/174): Add support for IAM OIDC provider.
 * [289](https://github.com/perfectsense/gyro-aws-provider/issues/289): Add support for ECR.
 * [358](https://github.com/perfectsense/gyro-aws-provider/issues/358): Add support for EKS Add-ons.
