@@ -15,6 +15,7 @@ ENHANCEMENTS:
 ISSUES FIXED:
 
 * [355](https://github.com/perfectsense/gyro-aws-provider/issues/355): Fix NAT Gateway creation.
+* [356](https://github.com/perfectsense/gyro-aws-provider/issues/356): Fix NAT Gateway refresh.
 * [359](https://github.com/perfectsense/gyro-aws-provider/issues/359): Fix EFS nodegroup refresh.
 * [362](https://github.com/perfectsense/gyro-aws-provider/issues/362): Fix refresh of IAM policy.
 * [365](https://github.com/perfectsense/gyro-aws-provider/issues/365): Fix NPE when refreshing multiple resources.
