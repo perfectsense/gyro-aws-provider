@@ -39,7 +39,7 @@ Load the AWS provider in your project by consuming it as a `plugin` directive in
 
 ```shell
 @repository: 'https://artifactory.psdops.com/gyro-releases'
-@plugin: 'gyro:gyro-aws-provider:1.0.0'
+@plugin: 'gyro:gyro-aws-provider:1.0.1'
 ```
 
 #### Authentication ####
@@ -71,6 +71,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [Dynamo DB](https://gyro.dev/providers/aws/dynamodb/index.html)
 * [Dax](https://gyro.dev/providers/aws/dax/index.html)
 * [EC2](https://gyro.dev/providers/aws/ec2/index.html)
+* [ECR](https://gyro.dev/providers/aws/ecr/index.html)
 * [EFS](https://gyro.dev/providers/aws/efs/index.html)
 * [EKS](https://gyro.dev/providers/aws/eks/index.html)
 * [ElastiCache](https://gyro.dev/providers/aws/elasticache/index.html)
