@@ -320,6 +320,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The name of the final snap shot when this DB cluster is deleted.
      */
+    @Updatable
     public String getFinalDbSnapshotIdentifier() {
         return finalDbSnapshotIdentifier;
     }
