@@ -667,6 +667,16 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
+        boolean instanceStopped = isInstanceStopped(client);
+
+        if (changedProperties.contains("instance-type")
+                && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
+            client.modifyInstanceAttribute(
+                    r -> r.instanceId(getId())
+                            .instanceType(o -> o.value(getInstanceType()))
+            );
+        }
+
         if (changedProperties.contains("status")) {
             if ("stopped".equals(getStatus())) {
                 client.stopInstances(
@@ -688,16 +698,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     .prompt(false)
                     .until(() -> isInstanceRunning(client));
             }
-        }
-
-        boolean instanceStopped = isInstanceStopped(client);
-
-        if (changedProperties.contains("instance-type")
-            && validateInstanceStop(ui, instanceStopped, "instance-type", getInstanceType())) {
-            client.modifyInstanceAttribute(
-                r -> r.instanceId(getId())
-                    .instanceType(o -> o.value(getInstanceType()))
-            );
         }
 
         if (changedProperties.contains("ebs-optimized")
