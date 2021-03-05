@@ -182,13 +182,15 @@ public class BlockDeviceMapping extends Diffable
     @Override
     public void copyFrom(software.amazon.awssdk.services.ec2.model.BlockDeviceMapping blockDeviceMapping) {
         setDeviceName(blockDeviceMapping.deviceName());
-        setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
-        setEncrypted(blockDeviceMapping.ebs().encrypted());
-        setIops(blockDeviceMapping.ebs().iops());
-        setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
-        setVolumeSize(blockDeviceMapping.ebs().volumeSize());
-        setSnapshotId(blockDeviceMapping.ebs().snapshotId());
-        setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
+        if (blockDeviceMapping.ebs() != null) {
+            setDeleteOnTermination(blockDeviceMapping.ebs().deleteOnTermination());
+            setEncrypted(blockDeviceMapping.ebs().encrypted());
+            setIops(blockDeviceMapping.ebs().iops());
+            setKmsKeyId(blockDeviceMapping.ebs().kmsKeyId());
+            setVolumeSize(blockDeviceMapping.ebs().volumeSize());
+            setSnapshotId(blockDeviceMapping.ebs().snapshotId());
+            setVolumeType(blockDeviceMapping.ebs().volumeTypeAsString());
+        }
     }
 
     software.amazon.awssdk.services.ec2.model.BlockDeviceMapping getBlockDeviceMapping() {
