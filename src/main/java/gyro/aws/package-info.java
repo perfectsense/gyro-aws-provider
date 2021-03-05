@@ -29,7 +29,7 @@
  * .. code:: shell
  *
  *     {@literal @}repository: 'https://artifactory.psdops.com/gyro-releases'
- *     {@literal @}plugin: 'gyro:gyro-aws-provider:1.0.1'
+ *     {@literal @}plugin: 'gyro:gyro-aws-provider:1.0.2'
  *
  * This lets Gyro load the AWS provider plugin and lets you start managing AWS resources using Gyro.
  *
