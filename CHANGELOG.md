@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 1.0.2 (March 5th, 2021)
+
+ISSUES FIXED:
+
+* [410](https://github.com/perfectsense/gyro-aws-provider/issues/410): Fix NPE when searching for AMI using external query.
+* [412](https://github.com/perfectsense/gyro-aws-provider/issues/412): Fix updating instance type when starting an instance.
+
 ## 1.0.1 (March 3rd, 2021)
 
 ENHANCEMENTS:
