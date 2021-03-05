@@ -667,6 +667,17 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
+        if (changedProperties.contains("status") && "running".equals(getStatus())) {
+            client.startInstances(
+                r -> r.instanceIds(getId())
+            );
+
+            Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> isInstanceRunning(client));
+        }
+
         boolean instanceStopped = isInstanceStopped(client);
 
         if (changedProperties.contains("instance-type")
@@ -675,29 +686,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                     r -> r.instanceId(getId())
                             .instanceType(o -> o.value(getInstanceType()))
             );
-        }
-
-        if (changedProperties.contains("status")) {
-            if ("stopped".equals(getStatus())) {
-                client.stopInstances(
-                    r -> r.instanceIds(getId())
-                        .force(true)
-                );
-
-                Wait.atMost(3, TimeUnit.MINUTES)
-                    .checkEvery(10, TimeUnit.SECONDS)
-                    .prompt(false)
-                    .until(() -> isInstanceStopped(client));
-            } else {
-                client.startInstances(
-                    r -> r.instanceIds(getId())
-                );
-
-                Wait.atMost(3, TimeUnit.MINUTES)
-                    .checkEvery(10, TimeUnit.SECONDS)
-                    .prompt(false)
-                    .until(() -> isInstanceRunning(client));
-            }
         }
 
         if (changedProperties.contains("ebs-optimized")
@@ -722,6 +710,18 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
                 r -> r.instanceId(getId())
                     .capacityReservationSpecification(getCapacityReservationSpecification())
             );
+        }
+
+        if (changedProperties.contains("status") && "stopped".equals(getStatus())) {
+            client.stopInstances(
+                r -> r.instanceIds(getId())
+                    .force(true)
+            );
+
+            Wait.atMost(3, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> isInstanceStopped(client));
         }
     }
 
