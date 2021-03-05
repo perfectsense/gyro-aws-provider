@@ -387,7 +387,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     /**
-     * The state of the instance. Valid values are ``Running`` or ``Stopped``
+     * The state of the instance.
      */
     @ValidStrings({"running", "stopped"})
     @Updatable
