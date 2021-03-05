@@ -667,15 +667,16 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        if (changedProperties.contains("status") && "running".equals(getStatus())) {
-            client.startInstances(
+        if (changedProperties.contains("status") && "stopped".equals(getStatus())) {
+            client.stopInstances(
                 r -> r.instanceIds(getId())
+                    .force(true)
             );
 
             Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(false)
-                .until(() -> isInstanceRunning(client));
+                .until(() -> isInstanceStopped(client));
         }
 
         boolean instanceStopped = isInstanceStopped(client);
@@ -712,16 +713,15 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             );
         }
 
-        if (changedProperties.contains("status") && "stopped".equals(getStatus())) {
-            client.stopInstances(
+        if (changedProperties.contains("status") && "running".equals(getStatus())) {
+            client.startInstances(
                 r -> r.instanceIds(getId())
-                    .force(true)
             );
 
             Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
                 .prompt(false)
-                .until(() -> isInstanceStopped(client));
+                .until(() -> isInstanceRunning(client));
         }
     }
 
