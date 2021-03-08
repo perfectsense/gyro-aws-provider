@@ -436,13 +436,15 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
+        ResourceRecordSet recordSet = null;
+
         try {
             List<ResourceRecordSet> records = client.listResourceRecordSetsPaginator(
                 r -> r.hostedZoneId(getHostedZone().getId())
             ).resourceRecordSets().stream().collect(Collectors.toList());
 
             if (!records.isEmpty()) {
-                return records
+                recordSet = records
                     .stream()
                     .filter(o -> o.name().equals(getName().replace("*", "\\052")))
                     .filter(o -> o.type().name().equalsIgnoreCase(getType()))
@@ -453,7 +455,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             // ignore
         }
 
-        return null;
+        return recordSet;
     }
 
     private void saveResourceRecordSet(Route53Client client, RecordSetResource recordSetResource, ChangeAction changeAction) {
