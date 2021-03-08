@@ -36,6 +36,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.route53.Route53Client;
 import software.amazon.awssdk.services.route53.model.Change;
 import software.amazon.awssdk.services.route53.model.ChangeAction;
+import software.amazon.awssdk.services.route53.model.HostedZoneNotFoundException;
+import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
@@ -434,20 +436,26 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     }
 
     private ResourceRecordSet getResourceRecordSet(Route53Client client) {
-        List<ResourceRecordSet> records = client.listResourceRecordSetsPaginator(
-            r -> r.hostedZoneId(getHostedZone().getId())
-        ).resourceRecordSets().stream().collect(Collectors.toList());
+        ResourceRecordSet recordSet = null;
 
-        if (!records.isEmpty()) {
-            return records
-                .stream()
-                .filter(o -> o.name().equals(getName().replace("*", "\\052")))
-                .filter(o -> o.type().name().equalsIgnoreCase(getType()))
-                .findFirst()
-                .orElse(null);
+        try {
+            List<ResourceRecordSet> records = client.listResourceRecordSetsPaginator(
+                r -> r.hostedZoneId(getHostedZone().getId())
+            ).resourceRecordSets().stream().collect(Collectors.toList());
+
+            if (!records.isEmpty()) {
+                recordSet = records
+                    .stream()
+                    .filter(o -> o.name().equals(getName().replace("*", "\\052")))
+                    .filter(o -> o.type().name().equalsIgnoreCase(getType()))
+                    .findFirst()
+                    .orElse(null);
+            }
+        } catch (HostedZoneNotFoundException | NoSuchHostedZoneException ignore) {
+            // ignore
         }
 
-        return null;
+        return recordSet;
     }
 
     private void saveResourceRecordSet(Route53Client client, RecordSetResource recordSetResource, ChangeAction changeAction) {
