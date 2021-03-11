@@ -206,7 +206,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     /**
      * The Ami type of the node group.
      */
-    @ValidStrings({"AL2_x86_6", "AL2_x86_64_GPU"})
+    @ValidStrings({"AL2_x86_64", "AL2_x86_64_GPU", "AL2_ARM_64"})
     public AMITypes getAmiType() {
         return amiType;
     }
