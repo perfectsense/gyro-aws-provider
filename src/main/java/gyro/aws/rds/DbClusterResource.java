@@ -135,8 +135,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private List<SecurityGroupResource> vpcSecurityGroups;
     private String endpointAddress;
     private String readerEndpointAddress;
-    private DbSnapshotResource dbSnapshot;
-    private DbClusterSnapshotResource dbClusterSnapshot;
     private DbClusterS3Import s3Import;
 
     /**
@@ -453,33 +451,21 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
-     * The cluster snapshot to restore the database from.
+     * The identifier of the snapshot.
      */
-    @ConflictsWith({ "db-cluster-snapshot", "s3-import" })
-    public DbSnapshotResource getDbSnapshot() {
-        return dbSnapshot;
+    @ConflictsWith("s3-import")
+    public String getSnapshotIdentifier() {
+        return snapshotIdentifier;
     }
 
-    public void setDbSnapshot(DbSnapshotResource dbSnapshot) {
-        this.dbSnapshot = dbSnapshot;
-    }
-
-    /**
-     * The snapshot to restore the database from.
-     */
-    @ConflictsWith({ "db-snapshot", "s3-import" })
-    public DbClusterSnapshotResource getDbClusterSnapshot() {
-        return dbClusterSnapshot;
-    }
-
-    public void setDbClusterSnapshot(DbClusterSnapshotResource dbClusterSnapshot) {
-        this.dbClusterSnapshot = dbClusterSnapshot;
+    public void setSnapshotIdentifier(String snapshotIdentifier) {
+        this.snapshotIdentifier = snapshotIdentifier;
     }
 
     /**
      * The s3 import to restore the database from.
      */
-    @ConflictsWith({ "db-snapshot", "db-cluster-snapshot" })
+    @ConflictsWith({ "snapshot-identifier" })
     public DbClusterS3Import getS3Import() {
         return s3Import;
     }
@@ -649,10 +635,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 .build()
             : null;
 
-        if (getDbSnapshot() != null || getDbClusterSnapshot() != null) {
+        if (getSnapshotIdentifier() != null) {
             RestoreDbClusterFromSnapshotResponse response = client.restoreDBClusterFromSnapshot(
                 r -> r.availabilityZones(getAvailabilityZones())
-                    .snapshotIdentifier(getSnapshotId())
+                    .snapshotIdentifier(getSnapshotIdentifier())
                     .backtrackWindow(getBackTrackWindow())
                     .databaseName(getDbName())
                     .dbClusterIdentifier(getIdentifier())
@@ -897,10 +883,5 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (!waitResult) {
             throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getIdentifier());
         }
-    }
-
-    private String getSnapshotId() {
-        return getDbClusterSnapshot() == null ?
-            (getDbSnapshot() == null ? null : getDbSnapshot().getIdentifier()) : getDbClusterSnapshot().getIdentifier();
     }
 }
