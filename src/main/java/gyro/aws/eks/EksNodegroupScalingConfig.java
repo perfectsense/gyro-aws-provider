@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Range;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.model.NodegroupScalingConfig;
 
 public class EksNodegroupScalingConfig extends Diffable implements Copyable<NodegroupScalingConfig> {
@@ -33,6 +34,7 @@ public class EksNodegroupScalingConfig extends Diffable implements Copyable<Node
      */
     @Range(min = 1, max = 100)
     @Updatable
+    @Required
     public Integer getDesiredSize() {
         return desiredSize;
     }
