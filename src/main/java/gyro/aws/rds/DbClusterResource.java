@@ -16,19 +16,27 @@
 
 package gyro.aws.rds;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -37,13 +45,8 @@ import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromS3Response;
+import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromSnapshotResponse;
 
 /**
  * Create a Aurora cluster.
@@ -125,12 +128,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private String preferredMaintenanceWindow;
     private String preSignedUrl;
     private String replicationSourceIdentifier;
+    private String snapshotIdentifier;
     private ScalingConfiguration scalingConfiguration;
     private Boolean skipFinalSnapshot;
     private Boolean storageEncrypted;
     private List<SecurityGroupResource> vpcSecurityGroups;
     private String endpointAddress;
     private String readerEndpointAddress;
+    private DbClusterS3Import s3Import;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -320,6 +325,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The name of the final snap shot when this DB cluster is deleted.
      */
+    @Updatable
     public String getFinalDbSnapshotIdentifier() {
         return finalDbSnapshotIdentifier;
     }
@@ -445,9 +451,33 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
+     * The identifier of the snapshot.
+     */
+    @ConflictsWith("s3-import")
+    public String getSnapshotIdentifier() {
+        return snapshotIdentifier;
+    }
+
+    public void setSnapshotIdentifier(String snapshotIdentifier) {
+        this.snapshotIdentifier = snapshotIdentifier;
+    }
+
+    /**
+     * The s3 import to restore the database from.
+     */
+    @ConflictsWith({ "snapshot-identifier" })
+    public DbClusterS3Import getS3Import() {
+        return s3Import;
+    }
+
+    public void setS3Import(DbClusterS3Import s3Import) {
+        this.s3Import = s3Import;
+    }
+
+    /**
      *  The scaling properties of the DB cluster. Only applicable for DB clusters in `serverless` DB engine mode.
      *
-     * @subresource gyro.aws.rds.ScalingConfiguration
+     * @subresource gyro.ws.rds.ScalingConfiguration
      */
     @Updatable
     public ScalingConfiguration getScalingConfiguration() {
@@ -605,14 +635,104 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 .build()
             : null;
 
-        CreateDbClusterResponse response = client.createDBCluster(
-            r -> r.availabilityZones(getAvailabilityZones())
+        if (getSnapshotIdentifier() != null) {
+            RestoreDbClusterFromSnapshotResponse response = client.restoreDBClusterFromSnapshot(
+                r -> r.availabilityZones(getAvailabilityZones())
+                    .snapshotIdentifier(getSnapshotIdentifier())
+                    .backtrackWindow(getBackTrackWindow())
+                    .databaseName(getDbName())
+                    .dbClusterIdentifier(getIdentifier())
+                    .dbClusterParameterGroupName(
+                        getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
+                    .deletionProtection(getDeletionProtection())
+                    .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
+                    .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                    .engine(getEngine())
+                    .engineVersion(getEngineVersion())
+                    .engineMode(getEngineMode())
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                    .port(getPort())
+                    .scalingConfiguration(scalingConfiguration)
+                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getId)
+                        .collect(Collectors.toList()) : null)
+            );
+
+            setArn(response.dbCluster().dbClusterArn());
+            state.save();
+            waitForActiveStatus(client);
+
+            if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
+                || getPreferredMaintenanceWindow() != null) {
+                client.modifyDBCluster(r -> r.applyImmediately(true)
+                    .dbClusterIdentifier(getIdentifier())
+                    .backupRetentionPeriod(getBackupRetentionPeriod())
+                    .preferredBackupWindow(getPreferredBackupWindow())
+                    .preferredMaintenanceWindow(getPreferredMaintenanceWindow()));
+
+                waitForActiveStatus(client);
+            }
+
+        } else if (getS3Import() != null) {
+            RestoreDbClusterFromS3Response response = client.restoreDBClusterFromS3(r ->
+                r.availabilityZones(getAvailabilityZones())
+                    .backupRetentionPeriod(getBackupRetentionPeriod())
+                    .characterSetName(getCharacterSetName())
+                    .databaseName(getDbName())
+                    .dbClusterIdentifier(getIdentifier())
+                    .dbClusterParameterGroupName(
+                        getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
+                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
+                    .engine(getEngine())
+                    .engineVersion(getEngineVersion())
+                    .port(getPort())
+                    .masterUsername(getMasterUsername())
+                    .masterUserPassword(getMasterUserPassword())
+                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                    .preferredBackupWindow(getPreferredBackupWindow())
+                    .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+                    .storageEncrypted(getStorageEncrypted())
+                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
+                    .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                    .sourceEngine(getS3Import().getSourceEngine())
+                    .sourceEngineVersion(getS3Import().getSourceEngineVersion())
+                    .s3BucketName(getS3Import().getS3Bucket().getName())
+                    .s3Prefix(getS3Import().getS3Prefix())
+                    .s3IngestionRoleArn(getS3Import().getS3IngestionRole().getArn())
+                    .backtrackWindow(getBackTrackWindow())
+                    .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
+                    .deletionProtection(getDeletionProtection())
+                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                        .stream()
+                        .map(SecurityGroupResource::getId)
+                        .collect(Collectors.toList()) : null));
+
+            setArn(response.dbCluster().dbClusterArn());
+            state.save();
+            waitForActiveStatus(client);
+
+            if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
+                || getPreferredMaintenanceWindow() != null) {
+                client.modifyDBCluster(r -> r.applyImmediately(true)
+                    .dbClusterIdentifier(getIdentifier())
+                    .scalingConfiguration(scalingConfiguration));
+
+                waitForActiveStatus(client);
+            }
+
+        } else {
+            CreateDbClusterResponse response = client.createDBCluster(
+                r -> r.availabilityZones(getAvailabilityZones())
                     .backtrackWindow(getBackTrackWindow())
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
                     .databaseName(getDbName())
                     .dbClusterIdentifier(getIdentifier())
-                    .dbClusterParameterGroupName(getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
+                    .dbClusterParameterGroupName(
+                        getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
                     .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
                     .deletionProtection(getDeletionProtection())
                     .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
@@ -636,19 +756,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .stream()
                         .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
-        );
+            );
 
-        setArn(response.dbCluster().dbClusterArn());
-
-        state.save();
-
-        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
-            .prompt(false)
-            .until(() -> isAvailable(client));
-
-        if (!waitResult) {
-            throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getIdentifier());
+            setArn(response.dbCluster().dbClusterArn());
+            state.save();
+            waitForActiveStatus(client);
         }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
@@ -689,26 +801,35 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         try {
             client.modifyDBCluster(
-                r -> r.applyImmediately(Objects.equals(getApplyImmediately(), current.getApplyImmediately()) ? null : getApplyImmediately())
-                    .backtrackWindow(Objects.equals(getBackTrackWindow(), current.getBackTrackWindow()) ? null : getBackTrackWindow())
-                    .backupRetentionPeriod(Objects.equals(getBackupRetentionPeriod(), current.getBackupRetentionPeriod())
-                        ? null : getBackupRetentionPeriod())
+                r -> r.applyImmediately(getApplyImmediately())
+                    .backtrackWindow(Objects.equals(getBackTrackWindow(), current.getBackTrackWindow())
+                        ? null : getBackTrackWindow())
+                    .backupRetentionPeriod(Objects.equals(
+                        getBackupRetentionPeriod(),
+                        current.getBackupRetentionPeriod()) ? null : getBackupRetentionPeriod())
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
                     .dbClusterIdentifier(current.getIdentifier())
-                    .dbClusterParameterGroupName(Objects.equals(getDbClusterParameterGroup(), current.getDbClusterParameterGroup())
-                        ? null : clusterParameterGroupName)
-                    .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
+                    .dbClusterParameterGroupName(Objects.equals(
+                        getDbClusterParameterGroup(),
+                        current.getDbClusterParameterGroup()) ? null : clusterParameterGroupName)
+                    .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection())
+                        ? null : getDeletionProtection())
                     .enableIAMDatabaseAuthentication(Objects.equals(
-                        getEnableIamDatabaseAuthentication(), current.getEnableIamDatabaseAuthentication())
-                        ? null : getEnableIamDatabaseAuthentication())
-                    .engineVersion(Objects.equals(getEngineVersion(), current.getEngineVersion()) ? null : getEngineVersion())
-                    .masterUserPassword(Objects.equals(getMasterUserPassword(), current.getMasterUserPassword()) ? null : getMasterUserPassword())
-                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
+                        getEnableIamDatabaseAuthentication(),
+                        current.getEnableIamDatabaseAuthentication()) ? null : getEnableIamDatabaseAuthentication())
+                    .engineVersion(Objects.equals(getEngineVersion(), current.getEngineVersion())
+                        ? null : getEngineVersion())
+                    .masterUserPassword(Objects.equals(getMasterUserPassword(), current.getMasterUserPassword())
+                        ? null : getMasterUserPassword())
+                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup())
+                        ? null : optionGroupName)
                     .port(Objects.equals(getPort(), current.getPort()) ? null : getPort())
-                    .preferredBackupWindow(Objects.equals(getPreferredBackupWindow(), current.getPreferredBackupWindow())
-                        ? null : getPreferredBackupWindow())
-                    .preferredMaintenanceWindow(Objects.equals(getPreferredMaintenanceWindow(), current.getPreferredMaintenanceWindow())
-                        ? null : getPreferredMaintenanceWindow())
+                    .preferredBackupWindow(Objects.equals(
+                        getPreferredBackupWindow(),
+                        current.getPreferredBackupWindow()) ? null : getPreferredBackupWindow())
+                    .preferredMaintenanceWindow(Objects.equals(
+                        getPreferredMaintenanceWindow(),
+                        current.getPreferredMaintenanceWindow()) ? null : getPreferredMaintenanceWindow())
                     .scalingConfiguration(scalingConfiguration)
                     .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
                         ? null : vpcSecurityGroupIds)
@@ -751,5 +872,16 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         }
 
         return false;
+    }
+
+    private void waitForActiveStatus(RdsClient client) {
+        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getIdentifier());
+        }
     }
 }
