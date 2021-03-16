@@ -851,7 +851,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         client.deleteDBCluster(
             r -> r.dbClusterIdentifier(getIdentifier())
-                    .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
+                    .finalDBSnapshotIdentifier(!getSkipFinalSnapshot() ? getFinalDbSnapshotIdentifier() : null)
                     .skipFinalSnapshot(getSkipFinalSnapshot())
         );
 
