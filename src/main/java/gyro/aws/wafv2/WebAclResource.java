@@ -287,12 +287,14 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         visibilityConfig.copyFrom(webACL.visibilityConfig());
         setVisibilityConfig(visibilityConfig);
 
-        // Load associated ALB's
         Wafv2Client client = createClient(Wafv2Client.class);
-        getLoadBalancers().clear();
-        getAssociatedAlbArns(client).forEach(
-            r -> getLoadBalancers().add(findById(ApplicationLoadBalancerResource.class, r))
-        );
+        // Load associated ALB's
+        if (!"CLOUDFRONT".equalsIgnoreCase(getScope())) {
+            getLoadBalancers().clear();
+            getAssociatedAlbArns(client).forEach(
+                r -> getLoadBalancers().add(findById(ApplicationLoadBalancerResource.class, r))
+            );
+        }
 
         // Load logging configuration
         setLoggingConfiguration(null);
