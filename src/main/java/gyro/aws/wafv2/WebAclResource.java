@@ -439,15 +439,17 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     public void delete(GyroUI ui, State state) throws Exception {
         Wafv2Client client = createClient(Wafv2Client.class);
 
-        // Remove associated ALb before deleting
-        List<String> associatedAlbArns = getAssociatedAlbArns(client);
+        if (!"CLOUDFRONT".equalsIgnoreCase(getScope())) {
+            // Remove associated ALb before deleting
+            List<String> associatedAlbArns = getAssociatedAlbArns(client);
 
-        if (!associatedAlbArns.isEmpty()) {
-            for (String arn : associatedAlbArns) {
-                try {
-                    client.disassociateWebACL(r -> r.resourceArn(arn));
-                } catch (Exception ex) {
-                    // ignore
+            if (!associatedAlbArns.isEmpty()) {
+                for (String arn : associatedAlbArns) {
+                    try {
+                        client.disassociateWebACL(r -> r.resourceArn(arn));
+                    } catch (Exception ex) {
+                        // ignore
+                    }
                 }
             }
         }
