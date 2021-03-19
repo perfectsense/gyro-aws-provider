@@ -47,7 +47,7 @@ public abstract class WafTaggableResource extends AwsResource {
      * Resources can only use and associate with other similar scoped resources.
      */
     @Required
-    @ValidStrings({ "GLOBAL", "REGIONAL" })
+    @ValidStrings({ "CLOUDFRONT", "REGIONAL" })
     public String getScope() {
         return scope;
     }
