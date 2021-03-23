@@ -377,6 +377,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         copyFrom(response.nodegroup());
 
+        state.save();
+
         waitForActiveState(client);
     }
 
