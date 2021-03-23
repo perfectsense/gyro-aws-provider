@@ -99,11 +99,6 @@ aws::vpc-endpoint s3-endpoint
     }
 end
 
-aws::key-pair example-eks-nodegroup
-    name: example-eks-nodegroup
-    public-key-path: "example-public-key.pub"
-end
-
 aws::internet-gateway example-eks-nodegroup
     name: example-eks-nodegroup
     vpc: $(aws::vpc vpc)
@@ -156,7 +151,6 @@ end
 aws::launch-template example-eks-nodegroup
     name: "example-eks-nodes"
     instance-type: "t3.medium"
-    key-name: $(aws::key-pair example-eks-nodegroup).name
 
     block-device-mapping
         device-name: "/dev/xvdc"
