@@ -1,0 +1,194 @@
+aws::vpc vpc
+    name: "example-eks-nodegroup"
+    cidr-block: '10.145.0.0/16'
+    enable-dns-hostnames: true
+    enable-dns-support: true
+end
+
+@for zone, public-cidr, private-cidr -in ["us-east-2a", '10.145.44.0/23', '10.145.144.0/23', "us-east-2b", '10.145.46.0/23', '10.145.146.0/23', "us-east-2c", '10.145.48.0/23', '10.145.148.0/23']
+    aws::subnet "public $zone"
+        name: "example-eks-nodegroup public $zone"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $zone
+        cidr-block: $public-cidr
+        map-public-ip-on-launch: true
+
+        tags: {
+            'kubernetes.io/role/elb': '1',
+            "kubernetes.io/cluster/example-eks-nodegroup": 'shared'
+        }
+    end
+
+    aws::subnet "private $zone"
+        name: "example-eks-nodegroup private $zone"
+        vpc: $(aws::vpc vpc)
+        availability-zone: $zone
+        cidr-block: $private-cidr
+        map-public-ip-on-launch: false
+
+        tags: {
+            "kubernetes.io/cluster/example-eks-nodegroup": 'shared'
+        }
+    end
+@end
+
+aws::security-group security-group-example
+    name: "example-sg-eks"
+    vpc: $(aws::vpc vpc)
+    description: "example-eks-nodegroup"
+end
+
+@for zone -in ["us-east-2a", "us-east-2b", "us-east-2c"]
+    aws::elastic-ip "$zone"
+        allow-re-association: true
+
+        tags: {
+            Name: "example-eks-nodegroup $zone"
+        }
+    end
+
+    aws::nat-gateway "$zone"
+        elastic-ip: $(aws::elastic-ip $zone)
+        internet-gateway: $(aws::internet-gateway example-eks-nodegroup)
+        subnet: $(aws::subnet "public $zone")
+    end
+@end
+
+aws::route-table "public"
+    vpc: $(aws::vpc vpc)
+    subnets: $(aws::subnet public*)
+
+    tags: {
+        Name: "example-eks-nodegroup public"
+    }
+
+    route
+        destination-cidr-block: "0.0.0.0/0"
+        gateway: $(aws::internet-gateway example-eks-nodegroup)
+    end
+end
+
+@for zone1 -in ["us-east-2a", "us-east-2b", "us-east-2c"]
+    aws::route-table "private-$(zone1)"
+        vpc: $(aws::vpc vpc)
+        subnets: [
+            $(aws::subnet "private $zone1")
+        ]
+
+        tags: {
+            Name: "example-eks-nodegroup private zone1"
+        }
+
+        route
+            destination-cidr-block: "0.0.0.0/0"
+            nat-gateway: $(aws::nat-gateway $zone1)
+        end
+    end
+@end
+
+aws::vpc-endpoint s3-endpoint
+    name: "example-eks-nodegroup s3"
+    vpc: $(aws::vpc vpc)
+    service-name: "com.amazonaws.us-east-2.s3"
+    type: 'Gateway'
+
+    route-tables: $(aws::route-table private-*)
+
+    tags: {
+        Name: "example-eks-nodegroup s3"
+    }
+end
+
+aws::key-pair example-eks-nodegroup
+    name: example-eks-nodegroup
+    public-key-path: "example-public-key.pub"
+end
+
+aws::internet-gateway example-eks-nodegroup
+    name: example-eks-nodegroup
+    vpc: $(aws::vpc vpc)
+end
+
+aws::eks-cluster example-eks-nodegroup
+    name: example-eks-nodegroup
+    role: $(aws::iam-role "eks")
+    version: 1.18
+
+    vpc-config
+        enable-endpoint-private-access: true
+        enable-endpoint-public-access: true
+
+        subnets: [
+            $(aws::subnet "public us-east-2a"),
+            $(aws::subnet "public us-east-2b"),
+            $(aws::subnet "public us-east-2c")
+        ]
+    end
+
+    logging
+        enabled-log-types
+            log-types: ['api', 'audit', 'scheduler', 'authenticator', 'controllerManager']
+        end
+    end
+end
+
+aws::iam-role "eks"
+    name: "example-eks-role"
+    assume-role-policy: 'eks-assume-role.json'
+
+    policies: [
+        'arn:aws:iam::aws:policy/AmazonEKSServicePolicy',
+        'arn:aws:iam::aws:policy/AmazonEKSClusterPolicy'
+    ]
+end
+
+aws::iam-role "eks-node"
+    name: "example-eks-node-role"
+    assume-role-policy: 'ec2-assume-role.json'
+
+    policies: [
+        'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy',
+        'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly',
+        'arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy'
+    ]
+end
+
+aws::launch-template example-eks-nodegroup
+    name: "example-eks-nodes"
+    instance-type: "t3.medium"
+    key-name: $(aws::key-pair example-eks-nodegroup).name
+
+    block-device-mapping
+        device-name: "/dev/xvdc"
+        volume-size: 20
+        auto-enable-io: false
+    end
+end
+
+aws::eks-nodegroup eks-nodegroup-example
+    name: "example-eks-nodegroup"
+    cluster: $(aws::eks-cluster example-eks-nodegroup)
+    node-role: $(aws::iam-role eks-node)
+    ami-type: AL2_x86_64
+
+    scaling-config
+        desired-size: 2
+        max-size: 2
+        min-size: 2
+    end
+
+    subnets: [
+        $(aws::subnet "private us-east-2a"),
+        $(aws::subnet "private us-east-2b"),
+        $(aws::subnet "private us-east-2c")
+    ]
+
+    launch-template-specification
+        launch-template: $(aws::launch-template example-eks-nodegroup)
+        version: 1
+    end
+
+    labels: {
+        "example-label-key-updated": "example-label-value"
+    }
+end
