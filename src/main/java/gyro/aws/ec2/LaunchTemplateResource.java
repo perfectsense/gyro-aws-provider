@@ -127,7 +127,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The AMI to be used to launch the Instance created by this Template.
      */
-    @Required
     public AmiResource getAmi() {
         return ami;
     }
@@ -197,10 +196,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The shutdown behavior options for an instance. Defaults to Stop. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
+     * The shutdown behavior options for an instance. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
      */
     public String getShutdownBehavior() {
-        return shutdownBehavior != null ? shutdownBehavior.toLowerCase() : ShutdownBehavior.STOP.toString();
+        return shutdownBehavior;
     }
 
     public void setShutdownBehavior(String shutdownBehavior) {
@@ -222,7 +221,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
-    @Required
     public String getKeyName() {
         return keyName;
     }
@@ -419,7 +417,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .disableApiTermination(getDisableApiTermination())
                         .ebsOptimized(getEbsOptimized())
                         .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                        .imageId(getAmi().getId())
+                        .imageId(getAmi() == null ? null : getAmi().getId())
                         .instanceType(getInstanceType())
                         .instanceInitiatedShutdownBehavior(getShutdownBehavior())
                         .keyName(getKeyName())
