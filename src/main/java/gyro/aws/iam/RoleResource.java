@@ -107,7 +107,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return this.assumeRolePolicy;
+            return formatPolicy(this.assumeRolePolicy);
         }
     }
 
