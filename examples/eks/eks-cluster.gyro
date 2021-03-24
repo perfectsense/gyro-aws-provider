@@ -170,14 +170,6 @@ aws::eks-nodegroup eks-nodegroup-example
         $(aws::subnet "subnet-example-us-east-2b")
     ]
 
-    remote-access
-        ec2-ssh-key: "key-pair-example"
-
-        source-security-groups: [
-            $(aws::security-group security-group-example-source)
-        ]
-    end
-
     scaling-config
         desired-size: 2
         max-size: 2
