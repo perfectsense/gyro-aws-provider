@@ -56,6 +56,19 @@ aws::iam-policy example-policy-iam-service
     policy-document: "eks-service-policy.json"
 end
 
+aws::kms-key kms-example
+    aliases: ["alias/eks1", "alias/eks2"]
+    bypass-policy-lockout-safety-check: "true"
+    description: "eks kms key"
+    enabled: "true"
+    key-rotation: "true"
+    policy: "kms-policy.json"
+
+    tags: {
+        Name: "kms-example"
+    }
+end
+
 aws::eks-cluster ex
     name: "example-eks-gyro"
     role: $(aws::iam-role example-role-iam-eks)
@@ -87,7 +100,7 @@ aws::eks-cluster ex
 
     encryption-config
         provider
-            key: $(external-query aws::kms-key { key-id: "c5245825-8526-4032-a67c-21656f220312"})
+            key: $(aws::kms-key kms-example)
         end
     end
 
