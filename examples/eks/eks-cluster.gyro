@@ -59,7 +59,7 @@ end
 aws::eks-cluster ex
     name: "example-eks-gyro"
     role: $(aws::iam-role example-role-iam-eks)
-    version: 1.15
+    version: 1.19
 
     vpc-config
         enable-endpoint-private-access: true
