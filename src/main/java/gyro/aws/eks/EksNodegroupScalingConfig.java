@@ -34,7 +34,6 @@ public class EksNodegroupScalingConfig extends Diffable implements Copyable<Node
      */
     @Range(min = 1, max = 100)
     @Updatable
-    @Required
     public Integer getDesiredSize() {
         if (desiredSize == null) {
             return getMinSize();
