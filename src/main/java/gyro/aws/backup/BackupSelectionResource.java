@@ -29,7 +29,7 @@ import software.amazon.awssdk.services.backup.model.GetBackupSelectionResponse;
  *         configuration
  *             name: production
  *             role: $(external-query aws::iam-role { name: 'AWSBackupDefaultServiceRole'})
- *             resources: ["arn:aws:rds:us-east-2:242040583208:db:aurora-mysql-cluster"]
+ *             resources: [$(aws::db-cluster db-cluster-example).arn]
  *         end
  *     end
  */
