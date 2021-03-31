@@ -1,5 +1,6 @@
 package gyro.aws.backup;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,6 +94,10 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
      */
     @Updatable
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 

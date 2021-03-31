@@ -2,6 +2,8 @@ package gyro.aws.backup;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +85,10 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
      */
     @Updatable
     public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
         return tags;
     }
 
@@ -118,6 +124,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     @Updatable
     public String getAccessPolicy() {
         accessPolicy = getProcessedPolicy(accessPolicy);
+
         return accessPolicy;
     }
 
@@ -130,6 +137,10 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
      */
     @DependsOn("sns-topic")
     public List<BackupVaultEvent> getBackupVaultEvents() {
+        if (backupVaultEvents == null) {
+            backupVaultEvents = new ArrayList<>();
+        }
+
         return backupVaultEvents;
     }
 
