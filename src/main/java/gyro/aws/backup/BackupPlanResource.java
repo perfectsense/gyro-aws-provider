@@ -17,7 +17,6 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.CreateBackupPlanResponse;
 import software.amazon.awssdk.services.backup.model.GetBackupPlanResponse;
-import software.amazon.awssdk.services.backup.model.InvalidParameterValueException;
 import software.amazon.awssdk.services.backup.model.ResourceNotFoundException;
 
 /**
@@ -168,7 +167,7 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
 
             return true;
 
-        } catch (ResourceNotFoundException | InvalidParameterValueException ex) {
+        } catch (ResourceNotFoundException ex) {
             return false;
         }
     }

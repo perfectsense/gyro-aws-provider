@@ -208,7 +208,11 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
             return true;
 
         } catch (BackupException ex) {
-            return false;
+            if (ex.awsErrorDetails().errorCode().contains("AccessDeniedException")) {
+                return false;
+            }
+
+            throw ex;
         }
     }
 

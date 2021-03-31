@@ -116,7 +116,7 @@ public class BackupSelectionResource extends AwsResource implements Copyable<Get
 
             return true;
 
-        } catch (ResourceNotFoundException | InvalidParameterValueException ex) {
+        } catch (ResourceNotFoundException ex) {
             return false;
         }
     }
