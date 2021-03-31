@@ -26,7 +26,6 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.BackupException;
-import software.amazon.awssdk.services.backup.model.BackupPlansListMember;
 import software.amazon.awssdk.services.backup.model.GetBackupPlanResponse;
 
 /**
@@ -57,10 +56,8 @@ public class BackupPlanFinder extends AwsFinder<BackupClient, GetBackupPlanRespo
 
     @Override
     protected List<GetBackupPlanResponse> findAllAws(BackupClient client) {
-        List<String> ids = client.listBackupPlans().backupPlansList().stream()
-            .map(BackupPlansListMember::backupPlanId).collect(Collectors.toList());
-
-        return ids.stream().map(i -> client.getBackupPlan(r -> r.backupPlanId(i))).collect(Collectors.toList());
+        return client.listBackupPlansPaginator().stream().flatMap(r -> r.backupPlansList().stream()
+            .map(p -> client.getBackupPlan(g -> g.backupPlanId(p.backupPlanId())))).collect(Collectors.toList());
     }
 
     @Override

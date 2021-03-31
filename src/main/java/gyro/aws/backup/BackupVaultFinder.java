@@ -56,7 +56,7 @@ public class BackupVaultFinder extends AwsFinder<BackupClient, DescribeBackupVau
 
     @Override
     protected List<DescribeBackupVaultResponse> findAllAws(BackupClient client) {
-        return client.listBackupVaults().backupVaultList().stream()
+        return client.listBackupVaultsPaginator().stream().flatMap(r -> r.backupVaultList().stream())
             .map(v -> client.describeBackupVault(r -> r.backupVaultName(v.backupVaultName())))
             .collect(Collectors.toList());
     }

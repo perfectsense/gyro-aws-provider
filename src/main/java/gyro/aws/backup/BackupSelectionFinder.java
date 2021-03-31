@@ -71,14 +71,13 @@ public class BackupSelectionFinder
     protected List<GetBackupSelectionResponse> findAllAws(BackupClient client) {
         List<GetBackupSelectionResponse> selections = new ArrayList<>();
 
-        List<String> backupPlanIds = client.listBackupPlans()
-            .backupPlansList()
-            .stream()
-            .map(BackupPlansListMember::backupPlanId)
+        List<String> backupPlanIds = client.listBackupPlansPaginator()
+            .stream().flatMap(r -> r.backupPlansList().stream().map(BackupPlansListMember::backupPlanId))
             .collect(Collectors.toList());
 
-        backupPlanIds.forEach(i -> selections.addAll(client.listBackupSelections(r -> r.backupPlanId(i))
-            .backupSelectionsList().stream()
+        backupPlanIds.forEach(i -> selections.addAll(client.listBackupSelectionsPaginator(r -> r.backupPlanId(i))
+            .stream()
+            .flatMap(s -> s.backupSelectionsList().stream())
             .map(s -> client.getBackupSelection(r -> r.selectionId(s.selectionId()).backupPlanId(i)))
             .collect(Collectors.toList())));
 
@@ -94,10 +93,8 @@ public class BackupSelectionFinder
             backupPlanIds.add(filters.get("backup-plan-id"));
 
         } else {
-            backupPlanIds.addAll(client.listBackupPlans()
-                .backupPlansList()
-                .stream()
-                .map(BackupPlansListMember::backupPlanId)
+            backupPlanIds.addAll(client.listBackupPlansPaginator()
+                .stream().flatMap(r -> r.backupPlansList().stream().map(BackupPlansListMember::backupPlanId))
                 .collect(Collectors.toList()));
         }
 
@@ -118,8 +115,9 @@ public class BackupSelectionFinder
         } else {
             backupPlanIds.forEach(i -> {
                 try {
-                    selections.addAll(client.listBackupSelections(r -> r.backupPlanId(i))
-                        .backupSelectionsList().stream()
+                    selections.addAll(client.listBackupSelectionsPaginator(r -> r.backupPlanId(i))
+                        .stream()
+                        .flatMap(s -> s.backupSelectionsList().stream())
                         .map(s -> client.getBackupSelection(r -> r.selectionId(s.selectionId()).backupPlanId(i)))
                         .collect(Collectors.toList()));
                 } catch (BackupException ex) {
