@@ -10,6 +10,7 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.backup.BackupClient;
@@ -78,6 +79,7 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
      * The body of a backup plan.
      */
     @Required
+    @Updatable
     public BackupPlan getConfiguration() {
         return configuration;
     }
@@ -89,6 +91,7 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
     /**
      * The tags for the plan.
      */
+    @Updatable
     public Map<String, String> getTags() {
         return tags;
     }

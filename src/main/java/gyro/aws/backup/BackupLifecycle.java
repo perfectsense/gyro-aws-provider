@@ -2,6 +2,7 @@ package gyro.aws.backup;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.backup.model.Lifecycle;
 
 public class BackupLifecycle extends Diffable implements Copyable<Lifecycle> {
@@ -12,6 +13,7 @@ public class BackupLifecycle extends Diffable implements Copyable<Lifecycle> {
     /**
      * The number of days after creation that a recovery point is deleted.
      */
+    @Updatable
     public Long getDeleteAfterDays() {
         return deleteAfterDays;
     }
@@ -23,6 +25,7 @@ public class BackupLifecycle extends Diffable implements Copyable<Lifecycle> {
     /**
      * The number of days after creation that a recovery point is moved to cold storage.
      */
+    @Updatable
     public Long getMoveToColdStorageAfterDays() {
         return moveToColdStorageAfterDays;
     }

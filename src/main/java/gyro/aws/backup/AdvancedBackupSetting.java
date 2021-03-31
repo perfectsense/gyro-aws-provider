@@ -8,6 +8,7 @@ import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 
@@ -20,6 +21,7 @@ public class AdvancedBackupSetting
     /**
      * The backup option for a selected resource.
      */
+    @Updatable
     public Map<String, String> getBackupOptions() {
         if (backupOptions == null) {
             backupOptions = new HashMap<>();

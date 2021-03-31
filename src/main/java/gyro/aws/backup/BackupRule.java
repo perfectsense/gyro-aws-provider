@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Min;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
@@ -28,6 +29,7 @@ public class BackupRule extends Diffable
     /**
      * The value in minutes after a backup job is successfully started before it must be completed or it will be canceled by AWS Backup.
      */
+    @Updatable
     public Long getCompletionWindowMinutes() {
         return completionWindowMinutes;
     }
@@ -39,6 +41,7 @@ public class BackupRule extends Diffable
     /**
      * The array of copy actions, which contains the details of the copy operation.
      */
+    @Updatable
     public List<BackupCopyAction> getCopyAction() {
         if (copyAction == null) {
             copyAction = new ArrayList<>();
@@ -54,6 +57,7 @@ public class BackupRule extends Diffable
     /**
      * When se to ``true``, AWS Backup creates continuous backups.
      */
+    @Updatable
     public Boolean getEnableContinuousBackup() {
         return enableContinuousBackup;
     }
@@ -65,6 +69,7 @@ public class BackupRule extends Diffable
     /**
      * The lifecycle which defines when a protected resource is transitioned to cold storage and when it expires.
      */
+    @Updatable
     public BackupLifecycle getLifecycle() {
         return lifecycle;
     }
@@ -76,6 +81,7 @@ public class BackupRule extends Diffable
     /**
      * The tags for the rule.
      */
+    @Updatable
     public Map<String, String> getRecoveryPointTags() {
         if (recoveryPointTags == null) {
             recoveryPointTags = new HashMap<>();
@@ -104,6 +110,7 @@ public class BackupRule extends Diffable
     /**
      * The CRON expression specifying when AWS Backup initiates a backup job.
      */
+    @Updatable
     public String getSchedule() {
         return schedule;
     }
@@ -116,6 +123,7 @@ public class BackupRule extends Diffable
      * The value in minutes after a backup is scheduled before a job will be canceled if it doesn't start successfully.
      */
     @Min(60)
+    @Updatable
     public Long getStartWindowMinutes() {
         return startWindowMinutes;
     }
@@ -128,6 +136,7 @@ public class BackupRule extends Diffable
      * The logical container where backups are stored.
      */
     @Required
+    @Updatable
     public BackupVaultResource getTargetBackupVault() {
         return targetBackupVault;
     }

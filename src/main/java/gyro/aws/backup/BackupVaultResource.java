@@ -81,6 +81,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     /**
      * Metadata that you can assign to help organize the resources that you create.
      */
+    @Updatable
     public Map<String, String> getTags() {
         return tags;
     }

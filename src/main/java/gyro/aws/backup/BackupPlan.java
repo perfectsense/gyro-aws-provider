@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class BackupPlan extends Diffable
@@ -18,6 +19,7 @@ public class BackupPlan extends Diffable
     /**
      * The list of backup options for each resource type.
      */
+    @Updatable
     public List<AdvancedBackupSetting> getAdvancedBackupSettings() {
         if (advancedBackupSettings == null) {
             advancedBackupSettings = new ArrayList<>();
@@ -34,6 +36,7 @@ public class BackupPlan extends Diffable
      * The display name of a backup plan.
      */
     @Required
+    @Updatable
     public String getName() {
         return name;
     }
@@ -45,6 +48,7 @@ public class BackupPlan extends Diffable
     /**
      * The array of rules, each of which specifies a scheduled task that is used to back up a selection of resources.
      */
+    @Updatable
     @Required
     public List<BackupRule> getRule() {
         if (rule == null) {
