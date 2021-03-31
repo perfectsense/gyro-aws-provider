@@ -190,6 +190,12 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         BackupClient client = createClient(BackupClient.class);
 
+        if (changedFieldNames.contains("tags")) {
+            BackupPlanResource resource = (BackupPlanResource) current;
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeyList(resource.getTags().keySet()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
+        }
+
         client.updateBackupPlan(r -> r.backupPlanId(getId()).backupPlan(getConfiguration().toBackupPlanInput()));
     }
 

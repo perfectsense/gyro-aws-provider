@@ -238,6 +238,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         BackupClient client = createClient(BackupClient.class);
+        BackupVaultResource resource = (BackupVaultResource) current;
 
         if (changedFieldNames.contains("access-policy")) {
             client.deleteBackupVaultAccessPolicy(r -> r.backupVaultName(getName()));
@@ -245,6 +246,18 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
                 client.putBackupVaultAccessPolicy(r -> r.backupVaultName(getName())
                     .policy(getAccessPolicy()));
             }
+        }
+
+        if (changedFieldNames.contains("tags")) {
+            client.untagResource(r -> r.resourceArn(getArn()).tagKeyList(resource.getTags().keySet()));
+            client.tagResource(r -> r.resourceArn(getArn()).tags(getTags()));
+        }
+
+        if (changedFieldNames.contains("sns-topic") || changedFieldNames.contains("backup-vault-events")) {
+            client.deleteBackupVaultNotifications(r -> r.backupVaultName(getName()));
+            client.putBackupVaultNotifications(r -> r.backupVaultEvents(getBackupVaultEvents())
+                .backupVaultName(getName())
+                .snsTopicArn(getSnsTopic().getArn()));
         }
     }
 
@@ -276,7 +289,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
         }
     }
 
-    public String getArnFromName() {
+    protected String getArnFromName() {
         return String.format(
             "arn:aws:backup:%s:%s:backup-vault:%s",
             credentials(AwsCredentials.class).getRegion(),
