@@ -27,7 +27,7 @@ public class BackupRule extends Diffable
     private BackupVaultResource targetBackupVault;
 
     /**
-     * The value in minutes after a backup job is successfully started before it must be completed or it will be canceled by AWS Backup.
+     * The value in minutes a backup job has to complete itself after a successfully start, before it is canceled by AWS Backup.
      */
     @Updatable
     public Long getCompletionWindowMinutes() {
@@ -39,7 +39,7 @@ public class BackupRule extends Diffable
     }
 
     /**
-     * The array of copy actions, which contains the details of the copy operation.
+     * The list of copy actions, which contains the details of the copy operation.
      */
     @Updatable
     public List<BackupCopyAction> getCopyAction() {
@@ -55,7 +55,7 @@ public class BackupRule extends Diffable
     }
 
     /**
-     * When se to ``true``, AWS Backup creates continuous backups.
+     * When set to ``true``, AWS Backup creates continuous backups.
      */
     @Updatable
     public Boolean getEnableContinuousBackup() {
@@ -98,7 +98,7 @@ public class BackupRule extends Diffable
      * The display name for the backup rule.
      */
     @Required
-    @Regex("^[a-zA-Z0-9\\-\\_\\.]{1,50}$")
+    @Regex(value = "^[a-zA-Z0-9\\-\\_\\.]{1,50}$", message = "a string 1 to 50 characters long containing letters, numbers, underscores, periods and hyphens")
     public String getName() {
         return name;
     }

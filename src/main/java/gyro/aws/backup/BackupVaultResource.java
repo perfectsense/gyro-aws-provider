@@ -126,7 +126,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     }
 
     /**
-     * An array of events that indicate the status of jobs to back up resources to the backup vault.
+     * The list of events that indicate the status of jobs to back up resources to the backup vault.
      */
     @DependsOn("sns-topic")
     public List<BackupVaultEvent> getBackupVaultEvents() {
@@ -138,7 +138,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     }
 
     /**
-     * The Amazon Resource Name (ARN) that specifies the topic for a backup vault’s events; for example, arn:aws:sns:us-west-2:111122223333:MyVaultTopic.
+     * The SNS topic for a backup vault’s events.
      */
     @DependsOn("backup-vault-events")
     public TopicResource getSnsTopic() {

@@ -33,7 +33,7 @@ public class BackupPlan extends Diffable
     }
 
     /**
-     * The display name of a backup plan.
+     * The name of a backup plan.
      */
     @Required
     @Updatable
@@ -46,7 +46,7 @@ public class BackupPlan extends Diffable
     }
 
     /**
-     * The array of rules, each of which specifies a scheduled task that is used to back up a selection of resources.
+     * The list of rules, each of which specifies a scheduled task that is used to back up a selection of resources.
      */
     @Updatable
     @Required

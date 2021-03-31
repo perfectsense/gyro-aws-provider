@@ -30,7 +30,7 @@ public class BackupSelection extends Diffable
     }
 
     /**
-     * The array of conditions used to specify a set of resources to assign to a backup plan.
+     * The list of conditions used to specify a set of resources to assign to a backup plan.
      */
     public List<BackupCondition> getCondition() {
         if (condition == null) {
@@ -45,7 +45,7 @@ public class BackupSelection extends Diffable
     }
 
     /**
-     * The array of strings that contain ARNs of resources to assign to a backup plan.
+     * The list of strings that contain ARNs of resources to assign to a backup plan.
      */
     public List<String> getResources() {
         if (resources == null) {
