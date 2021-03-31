@@ -17,6 +17,8 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.CreateBackupPlanResponse;
 import software.amazon.awssdk.services.backup.model.GetBackupPlanResponse;
+import software.amazon.awssdk.services.backup.model.InvalidParameterValueException;
+import software.amazon.awssdk.services.backup.model.ResourceNotFoundException;
 
 /**
  * Creates a backup plan.
@@ -159,15 +161,16 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
     public boolean refresh() {
         BackupClient client = createClient(BackupClient.class);
 
-        GetBackupPlanResponse backupPlanResponse = client.getBackupPlan(r -> r.backupPlanId(getId()));
+        try {
+            GetBackupPlanResponse backupPlanResponse = client.getBackupPlan(r -> r.backupPlanId(getId()));
 
-        if (backupPlanResponse == null) {
+            copyFrom(backupPlanResponse);
+
+            return true;
+
+        } catch (ResourceNotFoundException | InvalidParameterValueException ex) {
             return false;
         }
-
-        copyFrom(backupPlanResponse);
-
-        return true;
     }
 
     @Override

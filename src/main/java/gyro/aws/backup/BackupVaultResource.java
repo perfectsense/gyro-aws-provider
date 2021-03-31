@@ -26,6 +26,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.backup.BackupClient;
+import software.amazon.awssdk.services.backup.model.BackupException;
 import software.amazon.awssdk.services.backup.model.BackupVaultEvent;
 import software.amazon.awssdk.services.backup.model.CreateBackupVaultResponse;
 import software.amazon.awssdk.services.backup.model.DescribeBackupVaultResponse;
@@ -199,15 +200,16 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     public boolean refresh() {
         BackupClient client = createClient(BackupClient.class);
 
-        DescribeBackupVaultResponse response = client.describeBackupVault(r -> r.backupVaultName(getName()));
+        try {
+            DescribeBackupVaultResponse response = client.describeBackupVault(r -> r.backupVaultName(getName()));
 
-        if (response == null) {
+            copyFrom(response);
+
+            return true;
+
+        } catch (BackupException ex) {
             return false;
         }
-
-        copyFrom(response);
-
-        return true;
     }
 
     @Override
