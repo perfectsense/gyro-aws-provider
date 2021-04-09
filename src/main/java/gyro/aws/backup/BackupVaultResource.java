@@ -18,9 +18,8 @@ package gyro.aws.backup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,6 +40,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.BackupException;
 import software.amazon.awssdk.services.backup.model.BackupVaultEvent;
@@ -78,7 +78,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
     private String creatorRequestId;
     private KmsKeyResource encryptionKey;
     private String accessPolicy;
-    private List<BackupVaultEvent> backupVaultEvents;
+    private Set<BackupVaultEvent> backupVaultEvent;
     private TopicResource snsTopic;
 
     // Read-only
@@ -153,16 +153,22 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
      * The list of events that indicate the status of jobs to back up resources to the backup vault.
      */
     @DependsOn("sns-topic")
-    public List<BackupVaultEvent> getBackupVaultEvents() {
-        if (backupVaultEvents == null) {
-            backupVaultEvents = new ArrayList<>();
+    @ValidStrings({
+        "BACKUP_JOB_STARTED", "BACKUP_JOB_COMPLETED", "BACKUP_JOB_SUCCESSFUL", "BACKUP_JOB_FAILED",
+        "BACKUP_JOB_EXPIRED", "RESTORE_JOB_STARTED", "RESTORE_JOB_COMPLETED", "RESTORE_JOB_SUCCESSFUL",
+        "RESTORE_JOB_FAILED", "COPY_JOB_STARTED", "COPY_JOB_SUCCESSFUL", "COPY_JOB_FAILED", "RECOVERY_POINT_MODIFIED",
+        "BACKUP_PLAN_CREATED", "BACKUP_PLAN_MODIFIED"
+    })
+    public Set<BackupVaultEvent> getBackupVaultEvent() {
+        if (backupVaultEvent == null) {
+            backupVaultEvent = new HashSet<>();
         }
 
-        return backupVaultEvents;
+        return backupVaultEvent;
     }
 
-    public void setBackupVaultEvents(List<BackupVaultEvent> backupVaultEvents) {
-        this.backupVaultEvents = backupVaultEvents;
+    public void setBackupVaultEvent(Set<BackupVaultEvent> backupVaultEvent) {
+        this.backupVaultEvent = backupVaultEvent;
     }
 
     /**
@@ -204,7 +210,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
 
             GetBackupVaultNotificationsResponse notifications = client.getBackupVaultNotifications(r -> r.backupVaultName(
                 getName()));
-            setBackupVaultEvents(notifications.backupVaultEvents());
+            setBackupVaultEvent(new HashSet<>(notifications.backupVaultEvents()));
             setSnsTopic(findById(TopicResource.class, notifications.snsTopicArn()));
 
         } catch (ResourceNotFoundException ex) {
@@ -249,7 +255,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
         }
 
         if (getSnsTopic() != null) {
-            client.putBackupVaultNotifications(r -> r.backupVaultEvents(getBackupVaultEvents())
+            client.putBackupVaultNotifications(r -> r.backupVaultEvents(getBackupVaultEvent())
                 .backupVaultName(getName())
                 .snsTopicArn(getSnsTopic().getArn()));
         }
@@ -275,7 +281,7 @@ public class BackupVaultResource extends AwsResource implements Copyable<Describ
 
         if (changedFieldNames.contains("sns-topic") || changedFieldNames.contains("backup-vault-events")) {
             client.deleteBackupVaultNotifications(r -> r.backupVaultName(getName()));
-            client.putBackupVaultNotifications(r -> r.backupVaultEvents(getBackupVaultEvents())
+            client.putBackupVaultNotifications(r -> r.backupVaultEvents(getBackupVaultEvent())
                 .backupVaultName(getName())
                 .snsTopicArn(getSnsTopic().getArn()));
         }
