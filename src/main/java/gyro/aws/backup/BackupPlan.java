@@ -34,6 +34,8 @@ public class BackupPlan extends Diffable
 
     /**
      * The list of backup options for each resource type.
+     *
+     * @subresource gyro.aws.backup.AdvancedBackupSetting
      */
     @Updatable
     public List<AdvancedBackupSetting> getAdvancedBackupSettings() {
@@ -63,6 +65,8 @@ public class BackupPlan extends Diffable
 
     /**
      * The list of rules, each of which specifies a scheduled task that is used to back up a selection of resources.
+     *
+     * @subresource gyro.aws.backup.BackupRule
      */
     @Updatable
     @Required

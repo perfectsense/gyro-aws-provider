@@ -75,6 +75,8 @@ public class BackupSelectionResource extends AwsResource implements Copyable<Get
 
     /**
      * The body of a request to assign a set of resources to a backup plan.
+     *
+     * @subresource gyro.aws.backup.BackupSelection
      */
     @Required
     public BackupSelection getConfiguration() {

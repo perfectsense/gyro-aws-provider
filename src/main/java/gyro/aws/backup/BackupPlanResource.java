@@ -95,6 +95,8 @@ public class BackupPlanResource extends AwsResource implements Copyable<GetBacku
 
     /**
      * The body of a backup plan.
+     *
+     * @subresource gyro.aws.backup.BackupPlan
      */
     @Required
     @Updatable

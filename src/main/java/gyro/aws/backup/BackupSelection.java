@@ -47,6 +47,8 @@ public class BackupSelection extends Diffable
 
     /**
      * The list of conditions used to specify a set of resources to assign to a backup plan.
+     *
+     * @subresource gyro.aws.backup.BackupCondition
      */
     public List<BackupCondition> getCondition() {
         if (condition == null) {

@@ -40,6 +40,8 @@ public class BackupCopyAction extends Diffable implements Copyable<CopyAction> {
 
     /**
      * The value of the Lifecycle property for this object.
+     *
+     * @subresource gyro.aws.backup.BackupLifecycle
      */
     public BackupLifecycle getLifecycle() {
         return lifecycle;

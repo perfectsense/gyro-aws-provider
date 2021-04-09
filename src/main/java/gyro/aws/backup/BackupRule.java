@@ -56,6 +56,8 @@ public class BackupRule extends Diffable
 
     /**
      * The list of copy actions, which contains the details of the copy operation.
+     *
+     * @subresource gyro.aws.backup.BackupCopyAction
      */
     @Updatable
     public List<BackupCopyAction> getCopyAction() {
@@ -84,6 +86,8 @@ public class BackupRule extends Diffable
 
     /**
      * The lifecycle which defines when a protected resource is transitioned to cold storage and when it expires.
+     *
+     * @subresource gyro.aws.backup.BackupLifecycle
      */
     @Updatable
     public BackupLifecycle getLifecycle() {
