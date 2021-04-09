@@ -27,6 +27,7 @@ import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.BackupException;
 import software.amazon.awssdk.services.backup.model.BackupPlansListMember;
 import software.amazon.awssdk.services.backup.model.GetBackupSelectionResponse;
+import software.amazon.awssdk.services.backup.model.ResourceNotFoundException;
 
 /**
  * Query Backup Selection.
@@ -107,7 +108,7 @@ public class BackupSelectionFinder
                     if (backupSelection != null) {
                         selections.add(backupSelection);
                     }
-                } catch (BackupException ex) {
+                } catch (ResourceNotFoundException ex) {
                     // ignore
                 }
             });
@@ -120,7 +121,7 @@ public class BackupSelectionFinder
                         .flatMap(s -> s.backupSelectionsList().stream())
                         .map(s -> client.getBackupSelection(r -> r.selectionId(s.selectionId()).backupPlanId(i)))
                         .collect(Collectors.toList()));
-                } catch (BackupException ex) {
+                } catch (ResourceNotFoundException ex) {
                     // ignore
                 }
             });

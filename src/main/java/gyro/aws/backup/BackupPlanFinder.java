@@ -27,6 +27,7 @@ import gyro.core.Type;
 import software.amazon.awssdk.services.backup.BackupClient;
 import software.amazon.awssdk.services.backup.model.BackupException;
 import software.amazon.awssdk.services.backup.model.GetBackupPlanResponse;
+import software.amazon.awssdk.services.backup.model.ResourceNotFoundException;
 
 /**
  * Query Backup Plan.
@@ -66,7 +67,7 @@ public class BackupPlanFinder extends AwsFinder<BackupClient, GetBackupPlanRespo
 
         try {
             responses = Collections.singletonList(client.getBackupPlan(r -> r.backupPlanId(filters.get("id"))));
-        } catch (BackupException ex) {
+        } catch (ResourceNotFoundException ex) {
             // ignore
         }
 

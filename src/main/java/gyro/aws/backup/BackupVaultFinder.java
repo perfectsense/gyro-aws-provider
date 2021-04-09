@@ -67,8 +67,11 @@ public class BackupVaultFinder extends AwsFinder<BackupClient, DescribeBackupVau
 
         try {
             responses = Collections.singletonList(client.describeBackupVault(r -> r.backupVaultName(filters.get("name"))));
+
         } catch (BackupException ex) {
-            // ignore
+            if (!ex.awsErrorDetails().errorCode().contains("AccessDeniedException")) {
+                throw ex;
+            }
         }
 
         return responses;
