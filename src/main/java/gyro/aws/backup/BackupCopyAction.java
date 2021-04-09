@@ -64,7 +64,7 @@ public class BackupCopyAction extends Diffable implements Copyable<CopyAction> {
 
     @Override
     public String primaryKey() {
-        return String.format("Vault: %s, Lifecycle: (%s,  %s)", getDestinationBackupVault().getName(),
+        return String.format("with vault: %s and lifecycle: (%s,  %s)", getDestinationBackupVault().getName(),
             getLifecycle().getDeleteAfterDays(), getLifecycle().getMoveToColdStorageAfterDays());
     }
 

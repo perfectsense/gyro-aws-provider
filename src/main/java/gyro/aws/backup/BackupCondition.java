@@ -74,10 +74,10 @@ public class BackupCondition extends Diffable implements Copyable<Condition> {
     @Override
     public String primaryKey() {
         return String.format(
-            "Type: %s, Key: %s, Value: %s",
-            getConditionType(),
-            getConditionKey(),
-            getConditionValue());
+            "with type: %s, key: %s and value: %s",
+            getType(),
+            getKey(),
+            getValue());
     }
 
     Condition toCondition() {

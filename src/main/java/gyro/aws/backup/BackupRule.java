@@ -190,7 +190,7 @@ public class BackupRule extends Diffable
 
     @Override
     public String primaryKey() {
-        return String.format("Rule name: %s", getName());
+        return getName();
     }
 
     software.amazon.awssdk.services.backup.model.BackupRuleInput toBackupRuleInput() {

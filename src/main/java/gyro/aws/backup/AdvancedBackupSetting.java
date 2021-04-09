@@ -70,7 +70,8 @@ public class AdvancedBackupSetting
 
     @Override
     public String primaryKey() {
-        return String.format("Resource Type: %s, Options: (%s)", getResourceType(), getBackupOptions().toString());
+        return String.format("with resource type: %s and options: (%s)",
+            getResourceType(), getBackupOptions().toString());
     }
 
     @Override
