@@ -28,7 +28,7 @@ import gyro.core.validation.Required;
 public class BackupPlan extends Diffable
     implements Copyable<software.amazon.awssdk.services.backup.model.BackupPlan> {
 
-    private List<AdvancedBackupSetting> advancedBackupSettings;
+    private List<AdvancedBackupSetting> advancedBackupSetting;
     private String name;
     private List<BackupRule> rule;
 
@@ -38,16 +38,16 @@ public class BackupPlan extends Diffable
      * @subresource gyro.aws.backup.AdvancedBackupSetting
      */
     @Updatable
-    public List<AdvancedBackupSetting> getAdvancedBackupSettings() {
-        if (advancedBackupSettings == null) {
-            advancedBackupSettings = new ArrayList<>();
+    public List<AdvancedBackupSetting> getAdvancedBackupSetting() {
+        if (advancedBackupSetting == null) {
+            advancedBackupSetting = new ArrayList<>();
         }
 
-        return advancedBackupSettings;
+        return advancedBackupSetting;
     }
 
-    public void setAdvancedBackupSettings(List<AdvancedBackupSetting> advancedBackupSettings) {
-        this.advancedBackupSettings = advancedBackupSettings;
+    public void setAdvancedBackupSetting(List<AdvancedBackupSetting> advancedBackupSetting) {
+        this.advancedBackupSetting = advancedBackupSetting;
     }
 
     /**
@@ -96,7 +96,7 @@ public class BackupPlan extends Diffable
         }
 
         if (model.hasAdvancedBackupSettings()) {
-            setAdvancedBackupSettings(model.advancedBackupSettings().stream().map(s -> {
+            setAdvancedBackupSetting(model.advancedBackupSettings().stream().map(s -> {
                 AdvancedBackupSetting setting = newSubresource(AdvancedBackupSetting.class);
                 setting.copyFrom(s);
                 return setting;
@@ -111,7 +111,7 @@ public class BackupPlan extends Diffable
 
     software.amazon.awssdk.services.backup.model.BackupPlanInput toBackupPlanInput() {
         return software.amazon.awssdk.services.backup.model.BackupPlanInput.builder()
-            .advancedBackupSettings(getAdvancedBackupSettings().stream()
+            .advancedBackupSettings(getAdvancedBackupSetting().stream()
                 .map(AdvancedBackupSetting::toAdvancedBackupSetting).collect(Collectors.toList()))
             .backupPlanName(getName())
             .rules(getRule().stream().map(BackupRule::toBackupRuleInput).collect(Collectors.toList()))
