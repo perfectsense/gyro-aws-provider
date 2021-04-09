@@ -19,56 +19,58 @@ package gyro.aws.backup;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.backup.model.Condition;
 import software.amazon.awssdk.services.backup.model.ConditionType;
 
 public class BackupCondition extends Diffable implements Copyable<Condition> {
 
-    private String conditionKey;
-    private ConditionType conditionType;
-    private String conditionValue;
+    private String key;
+    private ConditionType type;
+    private String value;
 
     /**
      * The key in a key-value pair.
      */
     @Required
-    public String getConditionKey() {
-        return conditionKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setConditionKey(String conditionKey) {
-        this.conditionKey = conditionKey;
+    public void setKey(String key) {
+        this.key = key;
     }
 
     /**
      * The operation that is applied to a key-value pair used to filter resources in a selection.
      */
     @Required
-    public ConditionType getConditionType() {
-        return conditionType;
+    @ValidStrings("STRINGEQUALS")
+    public ConditionType getType() {
+        return type;
     }
 
-    public void setConditionType(ConditionType conditionType) {
-        this.conditionType = conditionType;
+    public void setType(ConditionType type) {
+        this.type = type;
     }
 
     /**
      * The value in a key-value pair.
      */
     @Required
-    public String getConditionValue() {
-        return conditionValue;
+    public String getValue() {
+        return value;
     }
 
-    public void setConditionValue(String conditionValue) {
-        this.conditionValue = conditionValue;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
     public void copyFrom(Condition model) {
-        setConditionKey(model.conditionKey());
-        setConditionType(model.conditionType());
-        setConditionValue(model.conditionValue());
+        setKey(model.conditionKey());
+        setType(model.conditionType());
+        setValue(model.conditionValue());
     }
 
     @Override
@@ -81,7 +83,7 @@ public class BackupCondition extends Diffable implements Copyable<Condition> {
     }
 
     Condition toCondition() {
-        return Condition.builder().conditionKey(getConditionKey())
-            .conditionType(getConditionType()).conditionValue(getConditionValue()).build();
+        return Condition.builder().conditionKey(getKey())
+            .conditionType(getType()).conditionValue(getValue()).build();
     }
 }
