@@ -78,6 +78,11 @@ public class AdvancedBackupSetting
     public List<ValidationError> validate(Set<String> configuredFields) {
         ArrayList<ValidationError> errors = new ArrayList<>();
 
+        if (configuredFields.isEmpty()) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'backup-options' or 'resource-type' is required."));
+        }
+
         for (Map.Entry<String, String> entry : getBackupOptions().entrySet()) {
             if (!entry.getKey().equals("WindowsVSS") ||
                 !(entry.getValue().equals("enabled") || entry.getValue().equals("disabled"))) {

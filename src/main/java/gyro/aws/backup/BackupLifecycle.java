@@ -16,9 +16,14 @@
 
 package gyro.aws.backup;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.backup.model.Lifecycle;
 
 public class BackupLifecycle extends Diffable implements Copyable<Lifecycle> {
@@ -64,5 +69,17 @@ public class BackupLifecycle extends Diffable implements Copyable<Lifecycle> {
     Lifecycle toLifecycle() {
         return Lifecycle.builder().deleteAfterDays(getDeleteAfterDays())
             .moveToColdStorageAfterDays(getMoveToColdStorageAfterDays()).build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        ArrayList<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.isEmpty()) {
+            errors.add(new ValidationError(this, null,
+                "At least one of 'delete-after-days' or 'move-to-cold-storage-after-days' is required."));
+        }
+
+        return errors;
     }
 }
