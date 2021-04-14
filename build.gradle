@@ -81,11 +81,12 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.9')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.19')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:apigatewayv2'
     implementation 'software.amazon.awssdk:autoscaling'
     implementation 'software.amazon.awssdk:autoscalingplans'
+    implementation 'software.amazon.awssdk:backup'
     implementation 'software.amazon.awssdk:cloudfront'
     implementation 'software.amazon.awssdk:cloudtrail'
     implementation 'software.amazon.awssdk:cloudwatch'
