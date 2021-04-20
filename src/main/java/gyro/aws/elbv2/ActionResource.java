@@ -26,10 +26,13 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.ActionTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedResponseActionConfig;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.ForwardActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
 
 import java.util.Set;
@@ -51,6 +54,7 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     private AuthenticateCognitoAction authenticateCognitoAction;
     private AuthenticateOidcAction authenticateOidcAction;
     private FixedResponseAction fixedResponseAction;
+    private ForwardAction forwardAction;
     private Integer order;
     private RedirectAction redirectAction;
 
@@ -80,6 +84,20 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
 
     public void setAuthenticateOidcAction(AuthenticateOidcAction authenticateOidcAction) {
         this.authenticateOidcAction = authenticateOidcAction;
+    }
+
+    /**
+     *  Action to support multiple ALB Target groups. If both this field and {@link TargetGroupResource}
+     *  are defined, they must match and only will support a single target. This field should be used
+     *  when forward weights should be used.
+     */
+    @Updatable
+    public ForwardAction getForwardAction() {
+        return forwardAction;
+    }
+
+    public void setForwardAction(ForwardAction forwardAction) {
+        this.forwardAction = forwardAction;
     }
 
     /**
@@ -152,6 +170,13 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
             setRedirectAction(redirect);
         }
 
+        ForwardActionConfig forwardActionConfig = action.forwardConfig();
+        if (forwardActionConfig != null) {
+            ForwardAction forward = newSubresource(ForwardAction.class);
+            forward.copyFrom(forwardActionConfig);
+            setForwardAction(forward);
+        }
+
         setOrder(action.order());
         setTargetGroup(action.targetGroupArn() != null ? findById(TargetGroupResource.class, action.targetGroupArn()) : null);
         setType(action.typeAsString());
@@ -207,12 +232,30 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
     }
 
+    @Required
+    @Updatable
+    @Override
+    public String getType() {
+        if (getAuthenticateCognitoAction() != null) {
+            return ActionTypeEnum.AUTHENTICATE_COGNITO.toString();
+        } else if (getAuthenticateOidcAction() != null) {
+            return ActionTypeEnum.AUTHENTICATE_OIDC.toString();
+        } else if (getFixedResponseAction() != null) {
+            return ActionTypeEnum.FIXED_RESPONSE.toString();
+        } else if (getForwardAction() != null || getTargetGroup() != null) {
+            return ActionTypeEnum.FORWARD.toString();
+        } else {
+            return ActionTypeEnum.UNKNOWN_TO_SDK_VERSION.toString();
+        }
+    }
+
     public Action toAction() {
         return Action.builder()
                 .authenticateCognitoConfig(getAuthenticateCognitoAction() != null ? getAuthenticateCognitoAction().toCognito() : null)
                 .authenticateOidcConfig(getAuthenticateOidcAction() != null ? getAuthenticateOidcAction().toOidc() : null)
                 .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
+                .forwardConfig(getForwardAction() != null ? getForwardAction().toForwardActionConfig() : null)
                 .order(getOrder())
                 .targetGroupArn(getTargetGroup() != null ? getTargetGroup().getArn() : null)
                 .type(getType())
