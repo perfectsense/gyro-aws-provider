@@ -41,6 +41,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -82,6 +83,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
      */
     @Required
     @Updatable
+    @CollectionMax(100)
     public List<String> getClientIds() {
         if (clientIds == null) {
             clientIds = new ArrayList<>();
