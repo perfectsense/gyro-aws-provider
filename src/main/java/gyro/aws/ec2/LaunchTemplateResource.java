@@ -107,6 +107,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
+    private LaunchTemplateMetadataOptions metadataOptions;
 
     // Read-only
     private String id;
@@ -349,6 +350,17 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The metadata options for the instance.
+     */
+    public LaunchTemplateMetadataOptions getMetadataOptions() {
+        return metadataOptions;
+    }
+
+    public void setMetadataOptions(LaunchTemplateMetadataOptions metadataOptions) {
+        this.metadataOptions = metadataOptions;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -434,7 +446,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                         .capacityReservationSpecification(getCapacityReservationSpecification())
                         .iamInstanceProfile(getLaunchTemplateInstanceProfile())
                         .networkInterfaces(!getNetworkInterfaces().isEmpty()
-                            ? toNetworkInterfaceSpecificationRequest() : null)));
+                            ? toNetworkInterfaceSpecificationRequest() : null)
+                        .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions())
+                )
+        );
         setId(response.launchTemplate().launchTemplateId());
         setVersion(response.launchTemplate().latestVersionNumber());
     }
