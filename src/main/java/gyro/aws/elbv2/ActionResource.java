@@ -16,6 +16,7 @@
 
 package gyro.aws.elbv2;
 
+import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.diff.Create;
@@ -26,7 +27,6 @@ import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 
 import gyro.core.scope.State;
-import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ActionTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -49,7 +49,7 @@ import java.util.Set;
  *         type: "forward"
  *     end
  */
-public class ActionResource extends NetworkActionResource implements Copyable<Action> {
+public class ActionResource extends AwsResource implements Copyable<Action> {
 
     private AuthenticateCognitoAction authenticateCognitoAction;
     private AuthenticateOidcAction authenticateOidcAction;
@@ -171,15 +171,18 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
 
         ForwardActionConfig forwardActionConfig = action.forwardConfig();
-        if (forwardActionConfig != null) {
+        if (action.targetGroupArn() != null || forwardActionConfig != null) {
             ForwardAction forward = newSubresource(ForwardAction.class);
-            forward.copyFrom(forwardActionConfig);
+
+            if (forwardActionConfig != null) {
+                forward.copyFrom(forwardActionConfig);
+            }
+
+            forward.addTargets(action.targetGroupArn());
             setForwardAction(forward);
         }
 
         setOrder(action.order());
-        setTargetGroup(action.targetGroupArn() != null ? findById(TargetGroupResource.class, action.targetGroupArn()) : null);
-        setType(action.typeAsString());
     }
 
     @Override
@@ -232,17 +235,14 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
     }
 
-    @Required
-    @Updatable
-    @Override
-    public String getType() {
+    public String detectType() {
         if (getAuthenticateCognitoAction() != null) {
             return ActionTypeEnum.AUTHENTICATE_COGNITO.toString();
         } else if (getAuthenticateOidcAction() != null) {
             return ActionTypeEnum.AUTHENTICATE_OIDC.toString();
         } else if (getFixedResponseAction() != null) {
             return ActionTypeEnum.FIXED_RESPONSE.toString();
-        } else if (getForwardAction() != null || getTargetGroup() != null) {
+        } else if (getForwardAction() != null) {
             return ActionTypeEnum.FORWARD.toString();
         } else {
             return ActionTypeEnum.UNKNOWN_TO_SDK_VERSION.toString();
@@ -257,9 +257,13 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
                 .forwardConfig(getForwardAction() != null ? getForwardAction().toForwardActionConfig() : null)
                 .order(getOrder())
-                .targetGroupArn(getTargetGroup() != null ? getTargetGroup().getArn() : null)
-                .type(getType())
+                .type(detectType())
                 .build();
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s/%s", getOrder(), detectType());
     }
 }
 

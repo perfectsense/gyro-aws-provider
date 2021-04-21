@@ -39,6 +39,22 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
         this.targetGroupStickiness = targetGroupStickiness;
     }
 
+    public void addTargets (String... targetGroupArns) {
+        Set<String> existingTargetGroups = getTargetGroupWeight().stream()
+            .map(TargetGroupTupleResource::getTargetGroupArn)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        for (String targetGroupArn : targetGroupArns) {
+            TargetGroupResource targetGroupResource = findById(TargetGroupResource.class, targetGroupArn);
+            if (!existingTargetGroups.contains(targetGroupArn) && targetGroupResource != null) {
+                TargetGroupTupleResource tupleResource = newSubresource(TargetGroupTupleResource.class);
+                tupleResource.setTargetGroup(targetGroupResource);
+                getTargetGroupWeight().add(tupleResource);
+            }
+        }
+    }
+
     @Override
     public void copyFrom(ForwardActionConfig forwardActionConfig) {
 
