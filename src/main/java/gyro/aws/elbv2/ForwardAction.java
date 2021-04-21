@@ -16,18 +16,18 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroupT
 
 public class ForwardAction extends Diffable implements Copyable<ForwardActionConfig> {
 
-    private List<TargetGroupTupleResource> targetGroup;
+    private List<TargetGroupTupleResource> targetGroupWeight;
     private TargetGroupStickiness targetGroupStickiness;
 
     @Updatable
-    public List<TargetGroupTupleResource> getTargetGroup() {
-        return targetGroup == null ?
-            targetGroup = new ArrayList<>() :
-            targetGroup;
+    public List<TargetGroupTupleResource> getTargetGroupWeight() {
+        return targetGroupWeight == null ?
+            targetGroupWeight = new ArrayList<>() :
+            targetGroupWeight;
     }
 
-    public void setTargetGroup(List<TargetGroupTupleResource> targetGroup) {
-        this.targetGroup = targetGroup;
+    public void setTargetGroupWeight(List<TargetGroupTupleResource> targetGroupWeight) {
+        this.targetGroupWeight = targetGroupWeight;
     }
 
     @Updatable
@@ -42,12 +42,12 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
     @Override
     public void copyFrom(ForwardActionConfig forwardActionConfig) {
 
-        getTargetGroup().clear();
+        getTargetGroupWeight().clear();
         if (forwardActionConfig.hasTargetGroups()) {
             for (TargetGroupTuple targetGroupTuple : forwardActionConfig.targetGroups()) {
                 TargetGroupTupleResource targetGroupWeight = newSubresource(TargetGroupTupleResource.class);
                 targetGroupWeight.copyFrom(targetGroupTuple);
-                getTargetGroup().add(targetGroupWeight);
+                getTargetGroupWeight().add(targetGroupWeight);
             }
         }
 
@@ -59,7 +59,7 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
     }
 
     public List<TargetGroupTuple> toTargetGroupTuples() {
-        return getTargetGroup().stream()
+        return getTargetGroupWeight().stream()
             .map(TargetGroupTupleResource::toTargetGroupTuple)
             .collect(Collectors.toList());
     }
