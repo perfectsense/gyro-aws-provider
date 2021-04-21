@@ -26,7 +26,6 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
     private Integer errorCode;
     private String responseCode;
     private String responsePagePath;
-    private Boolean customizeErrorResponse;
 
     /**
      * The minimum amount of time to cache this error code.
@@ -78,18 +77,6 @@ public class CloudFrontCustomErrorResponse extends Diffable implements Copyable<
 
     public void setResponsePagePath(String responsePagePath) {
         this.responsePagePath = responsePagePath;
-    }
-
-    public Boolean getCustomizeErrorResponse() {
-        if (customizeErrorResponse == null) {
-            customizeErrorResponse = false;
-        }
-
-        return customizeErrorResponse;
-    }
-
-    public void setCustomizeErrorResponse(Boolean customizeErrorResponse) {
-        this.customizeErrorResponse = customizeErrorResponse;
     }
 
     @Override
