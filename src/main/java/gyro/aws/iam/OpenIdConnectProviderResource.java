@@ -276,13 +276,13 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
             Set<String> clientIdsToRemove = new HashSet<>(currentClientIds);
             clientIdsToRemove.removeAll(getClientIds());
 
-            if (!clientIdsToAdd.isEmpty()) {
-                clientIdsToAdd.forEach(c -> client.addClientIDToOpenIDConnectProvider(r -> r.clientID(c)
+            if (!clientIdsToRemove.isEmpty()) {
+                clientIdsToRemove.forEach(c -> client.removeClientIDFromOpenIDConnectProvider(r -> r.clientID(c)
                     .openIDConnectProviderArn(getArn())));
             }
 
-            if (!clientIdsToRemove.isEmpty()) {
-                clientIdsToRemove.forEach(c -> client.removeClientIDFromOpenIDConnectProvider(r -> r.clientID(c)
+            if (!clientIdsToAdd.isEmpty()) {
+                clientIdsToAdd.forEach(c -> client.addClientIDToOpenIDConnectProvider(r -> r.clientID(c)
                     .openIDConnectProviderArn(getArn())));
             }
         }
