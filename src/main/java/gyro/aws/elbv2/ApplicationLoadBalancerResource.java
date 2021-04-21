@@ -104,6 +104,8 @@ public class ApplicationLoadBalancerResource extends LoadBalancerResource implem
 
         getSubnets().clear();
         loadBalancer.availabilityZones().forEach(az -> getSubnets().add(findById(SubnetResource.class, az.subnetId())));
+
+        super.copyFrom(loadBalancer);
     }
 
     @Override
