@@ -21,6 +21,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
      * A list of client id's (also knows as audiences) for the the open id connect provider.
      */
     @Required
+    @Updatable
     public List<String> getClientIds() {
         if (clientIds == null) {
             clientIds = new ArrayList<>();
@@ -263,6 +265,24 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
 
             client.updateOpenIDConnectProviderThumbprint(r -> r.openIDConnectProviderArn(getArn())
                 .thumbprintList(thumbPrints));
+        }
+
+        if (changedFieldNames.contains("client-ids")) {
+            List<String> currentClientIds = ((OpenIdConnectProviderResource) current).getClientIds();
+            Set<String> clientIdsToAdd = new HashSet<>(getClientIds());
+            clientIdsToAdd.removeAll(currentClientIds);
+            Set<String> clientIdsToRemove = new HashSet<>(currentClientIds);
+            clientIdsToRemove.removeAll(getClientIds());
+
+            if (!clientIdsToAdd.isEmpty()) {
+                clientIdsToAdd.forEach(c -> client.addClientIDToOpenIDConnectProvider(r -> r.clientID(c)
+                    .openIDConnectProviderArn(getArn())));
+            }
+
+            if (!clientIdsToRemove.isEmpty()) {
+                clientIdsToRemove.forEach(c -> client.removeClientIDFromOpenIDConnectProvider(r -> r.clientID(c)
+                    .openIDConnectProviderArn(getArn())));
+            }
         }
 
         if (changedFieldNames.contains("tags")) {
