@@ -21,7 +21,9 @@ public class TargetGroupTupleResource extends Diffable implements Copyable<Targe
 
     @Updatable
     public Integer getWeight() {
-        return weight;
+        return weight == null ?
+            weight = 1 :
+            weight;
     }
 
     public void setWeight(Integer weight) {
@@ -30,7 +32,7 @@ public class TargetGroupTupleResource extends Diffable implements Copyable<Targe
 
     @Override
     public String primaryKey() {
-        return String.format("%s::%s", getTargetGroup().getArn(), getWeight());
+        return String.format("%s/%s", getTargetGroup().getArn(), getWeight());
     }
 
     public String getTargetGroupArn() {
