@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
-import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ForwardActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroupStickinessConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroupTuple;
@@ -100,15 +99,6 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
 
     @Override
     public String primaryKey() {
-        return getTargetGroup().stream()
-            .map(TargetGroupTupleResource::getTargetGroupArn)
-            .filter(Objects::nonNull)
-            .collect(Collectors.joining("/"));
-    }
-
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-        return errors;
+        return "forward-action";
     }
 }

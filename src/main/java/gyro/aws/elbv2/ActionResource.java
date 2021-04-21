@@ -16,6 +16,10 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -25,8 +29,9 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
 import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
-
 import gyro.core.scope.State;
+import gyro.core.validation.ValidationError;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ActionTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -34,8 +39,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.Authenticate
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedResponseActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ForwardActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
-
-import java.util.Set;
 
 /**
  *
@@ -264,6 +267,33 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
     @Override
     public String primaryKey() {
         return String.format("%s/%s", getOrder(), detectType());
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+        List<String> types = new ArrayList<>();
+        if (getAuthenticateCognitoAction() != null) {
+            types.add(ActionTypeEnum.AUTHENTICATE_COGNITO.toString());
+        }
+        if (getAuthenticateOidcAction() != null) {
+            types.add(ActionTypeEnum.AUTHENTICATE_OIDC.toString());
+        }
+        if (getFixedResponseAction() != null) {
+            types.add(ActionTypeEnum.FIXED_RESPONSE.toString());
+        }
+        if (getForwardAction() != null) {
+            types.add(ActionTypeEnum.FORWARD.toString());
+        }
+
+        if (types.size() > 1) {
+            errors.add(new ValidationError(
+                this,
+                "type",
+                String.format("Action Resource must have exactly 1 type. Types defined: [ %s ]", StringUtils.join(types, ","))));
+        }
+
+        return errors;
     }
 }
 
