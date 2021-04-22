@@ -104,6 +104,8 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
 
             getSubnetMapping().add(subnet);
         }
+
+        super.copyFrom(loadBalancer);
     }
 
     @Override
