@@ -16,17 +16,24 @@
 
 package gyro.aws.route53;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableSet;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.google.common.collect.ImmutableSet;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -41,13 +48,6 @@ import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Creates a record set in the given hosted zone.
@@ -99,7 +99,7 @@ import java.util.stream.Stream;
  *         type: "A"
  *
  *         alias
- *             hosted-zone-id: $(aws::load-balancer elb).hosted-zone-id
+ *             hosted-zone: $(aws::load-balancer elb).hosted-zone
  *             evaluate-target-health: false
  *             dns-name: $(aws::load-balancer elb).*.dns-name
  *         end
@@ -372,7 +372,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             setAlias(newSubresource(AliasTarget.class));
             getAlias().setDnsName(recordSet.aliasTarget().dnsName());
             getAlias().setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
-            getAlias().setHostedZoneId(recordSet.aliasTarget().hostedZoneId());
+            getAlias().setHostedZone(findById(HostedZoneResource.class, recordSet.aliasTarget().hostedZoneId()));
         }
 
         if (recordSet.geoLocation() != null) {
@@ -471,7 +471,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             recordSetBuilder.aliasTarget(
                 a -> a.dnsName(alias.getDnsName())
                     .evaluateTargetHealth(alias.getEvaluateTargetHealth())
-                    .hostedZoneId(alias.getHostedZoneId()));
+                    .hostedZoneId(alias.getHostedZone().getId()));
         } else {
             recordSetBuilder.resourceRecords(recordSetResource.getRecords().stream()
                 .map(o -> ResourceRecord.builder().value(o).build())

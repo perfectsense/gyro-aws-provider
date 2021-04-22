@@ -24,7 +24,7 @@ import gyro.core.validation.Required;
 public class AliasTarget extends Diffable {
 
     private String dnsName;
-    private String hostedZoneId;
+    private HostedZoneResource hostedZone;
     private Boolean evaluateTargetHealth;
 
     /**
@@ -49,12 +49,12 @@ public class AliasTarget extends Diffable {
      */
     @Required
     @Updatable
-    public String getHostedZoneId() {
-        return hostedZoneId;
+    public HostedZoneResource getHostedZone() {
+        return hostedZone;
     }
 
-    public void setHostedZoneId(String hostedZoneId) {
-        this.hostedZoneId = hostedZoneId;
+    public void setHostedZone(HostedZoneResource hostedZone) {
+        this.hostedZone = hostedZone;
     }
 
     /**
