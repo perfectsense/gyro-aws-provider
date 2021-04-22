@@ -35,9 +35,11 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalanci
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetGroupsResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthRequest;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Matcher;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Tag;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -205,6 +207,31 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
 
     public void setVpc(VpcResource vpc) {
         this.vpc = vpc;
+    }
+
+    /**
+     * Helper method that maps Health State to instances in that state.
+     *
+     * @return A map of health state to number of targets in that state
+     */
+    public Map<String, Integer> targetHealth() {
+        Map<String, Integer> healthMap = new HashMap<>();
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+        List<TargetHealthDescription> targetHealthDescriptions = client.describeTargetHealth(
+            DescribeTargetHealthRequest.builder()
+                .targetGroupArn(getArn())
+                .build())
+            .targetHealthDescriptions();
+
+        for (TargetHealthDescription thd : targetHealthDescriptions) {
+            String state = thd.targetHealth().stateAsString();
+            int count = healthMap.getOrDefault(state, 0);
+            healthMap.put(state, count + 1);
+        }
+
+        healthMap.put("Total", targetHealthDescriptions.size());
+        return healthMap;
     }
 
     @Override
