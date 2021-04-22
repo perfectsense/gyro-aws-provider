@@ -124,9 +124,13 @@ aws::application-load-balancer-listener listener-example
     end
 
     default-action
-        type: "forward"
-        target-group: $(aws::load-balancer-target-group target-group-example)
         order: 2
+        forward-action
+            target-weight
+                target-group: $(aws::load-balancer-target-group target-group-example)
+                weight: 1
+            end
+        end
     end
 end
 
@@ -157,7 +161,6 @@ aws::application-load-balancer-listener-rule listener-rule-example
     priority: "1"
 
     action
-        type: "fixed-response"
         order: 2
 
         fixed-response-action
@@ -167,7 +170,6 @@ aws::application-load-balancer-listener-rule listener-rule-example
         end
     end
     action
-        type: "authenticate-cognito"
         order: 1
 
         authenticate-cognito-action

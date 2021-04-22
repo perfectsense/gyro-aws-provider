@@ -51,8 +51,12 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleNotFound
  *         priority: "1"
  *
  *         action
- *             target-group: $(aws::load-balancer-target-group target-group-example | target-group-arn)
- *             type: "forward"
+ *             forward-action
+ *                 target-weight
+ *                     target-group: $(aws::load-balancer-target-group target-group-example)
+ *                     weight: 1
+ *                 end
+ *             end
  *         end
  *
  *         condition

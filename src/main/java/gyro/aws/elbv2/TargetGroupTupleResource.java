@@ -10,6 +10,9 @@ public class TargetGroupTupleResource extends Diffable implements Copyable<Targe
     private TargetGroupResource targetGroup;
     private Integer weight;
 
+    /**
+     * The Target group to which requests are forwarded
+     */
     @Updatable
     public TargetGroupResource getTargetGroup() {
         return targetGroup;
@@ -19,6 +22,10 @@ public class TargetGroupTupleResource extends Diffable implements Copyable<Targe
         this.targetGroup = targetGroup;
     }
 
+    /**
+     * The weight of the ratio of requests forwarded to the given target group.
+     * The ratio is this weight / total weights from all Target groups configured
+     */
     @Updatable
     public Integer getWeight() {
         return weight == null ?

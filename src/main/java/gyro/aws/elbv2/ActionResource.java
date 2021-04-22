@@ -48,8 +48,13 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActi
  * .. code-block:: gyro
  *
  *     action
- *         target-group: $(aws::load-balancer-target-group target-group-example)
- *         type: "forward"
+ *         order: 1
+ *         forward-action
+ *             target-weight
+ *                 target-group: $(aws::load-balancer-target-group target-group-example)
+ *                 weight: 1
+ *             end
+ *         end
  *     end
  */
 public class ActionResource extends AwsResource implements Copyable<Action> {
@@ -269,6 +274,9 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
         return String.format("%s/%s", getOrder(), detectType());
     }
 
+    /**
+     * Actions can only have a single type configured.
+     */
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
