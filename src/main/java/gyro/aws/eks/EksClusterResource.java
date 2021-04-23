@@ -362,6 +362,8 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                     .map(EksEncryptionConfig::toEncryptionConfig)
                     .collect(Collectors.toList())
             ));
+
+            waitForActiveStatus(client);
         }
     }
 
