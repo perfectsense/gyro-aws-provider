@@ -110,6 +110,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
     private LaunchTemplateMetadataOptions metadataOptions;
+    private LaunchTemplateCreditSpecification creditSpecification;
 
     // Read-only
     private String id;
@@ -380,6 +381,17 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The credit specifications for the instance.
+     */
+    public LaunchTemplateCreditSpecification getCreditSpecification() {
+        return creditSpecification;
+    }
+
+    public void setCreditSpecification(LaunchTemplateCreditSpecification creditSpecification) {
+        this.creditSpecification = creditSpecification;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -567,7 +579,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             .iamInstanceProfile(getLaunchTemplateInstanceProfile())
             .networkInterfaces(!getNetworkInterfaces().isEmpty()
                 ? toNetworkInterfaceSpecificationRequest() : null)
-            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions()
-            ).build();
+            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions())
+            .creditSpecification(getCreditSpecification() == null ? null
+                : getCreditSpecification().toCreditSpecification())
+            .build();
     }
 }
