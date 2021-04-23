@@ -27,6 +27,8 @@ public class EksEncryptionConfig extends Diffable implements Copyable<Encryption
 
     /**
      * The provider to use for the cluster.
+     *
+     * @subresource gyro.aws.eks.EksProvider
      */
     @Required
     public EksProvider getProvider() {

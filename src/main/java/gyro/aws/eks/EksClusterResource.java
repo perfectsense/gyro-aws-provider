@@ -183,6 +183,8 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The encryption configuration used by the cluster.
+     *
+     * @subresource gyro.aws.eks.EksEncryptionConfig
      */
     @Updatable
     public List<EksEncryptionConfig> getEncryptionConfig() {
