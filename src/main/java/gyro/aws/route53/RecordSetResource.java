@@ -373,6 +373,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             getAlias().setDnsName(recordSet.aliasTarget().dnsName());
             getAlias().setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
             getAlias().setHostedZone(findById(HostedZoneResource.class, recordSet.aliasTarget().hostedZoneId()));
+            getAlias().setHostedZoneId(recordSet.aliasTarget().hostedZoneId());
         }
 
         if (recordSet.geoLocation() != null) {
@@ -471,7 +472,8 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             recordSetBuilder.aliasTarget(
                 a -> a.dnsName(alias.getDnsName())
                     .evaluateTargetHealth(alias.getEvaluateTargetHealth())
-                    .hostedZoneId(alias.getHostedZone().getId()));
+                    .hostedZoneId(
+                        alias.getHostedZone() == null ? alias.getHostedZoneId() : alias.getHostedZone().getId()));
         } else {
             recordSetBuilder.resourceRecords(recordSetResource.getRecords().stream()
                 .map(o -> ResourceRecord.builder().value(o).build())
