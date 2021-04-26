@@ -369,6 +369,8 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     /**
      * The metadata options for the instance.
+     *
+     * @subresource gyro.aws.ec2.LaunchTemplateMetadataOptions
      */
     @Updatable
     public LaunchTemplateMetadataOptions getMetadataOptions() {
