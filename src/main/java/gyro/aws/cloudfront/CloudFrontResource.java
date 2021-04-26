@@ -120,7 +120,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
     private Boolean enabled;
     private String comment;
-    private Set<String> cnames;
+    private List<String> cnames;
     private String httpVersion;
     private String priceClass;
     private String defaultRootObject;
@@ -134,7 +134,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private CloudFrontCacheBehavior defaultCacheBehavior;
     private CloudFrontViewerCertificate viewerCertificate;
     private CloudFrontLogging logging;
-    private Set<CloudFrontCustomErrorResponse> customErrorResponse;
+    private List<CloudFrontCustomErrorResponse> customErrorResponse;
     private CloudFrontGeoRestriction geoRestriction;
 
     // -- Read only
@@ -203,15 +203,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * CNAMES (aliases) for which this distribution will listen for.
      */
     @Updatable
-    public Set<String> getCnames() {
+    public List<String> getCnames() {
         if (cnames == null) {
-            cnames = new HashSet<>();
+            cnames = new ArrayList<>();
         }
 
         return cnames;
     }
 
-    public void setCnames(Set<String> cnames) {
+    public void setCnames(List<String> cnames) {
         this.cnames = cnames;
     }
 
@@ -429,15 +429,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
     @Updatable
-    public Set<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
+    public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
-            customErrorResponse = new HashSet<>();
+            customErrorResponse = new ArrayList<>();
         }
 
         return customErrorResponse;
     }
 
-    public void setCustomErrorResponse(Set<CloudFrontCustomErrorResponse> customErrorResponses) {
+    public void setCustomErrorResponse(List<CloudFrontCustomErrorResponse> customErrorResponses) {
         this.customErrorResponse = customErrorResponses;
     }
 
@@ -467,7 +467,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         setEnabled(config.enabled());
         setComment(config.comment());
-        setCnames(config.aliases().items().isEmpty() ? new HashSet<>() : new HashSet<>(config.aliases().items()));
+        setCnames(config.aliases().items().isEmpty() ? new ArrayList<>() : config.aliases().items());
         setHttpVersion(config.httpVersionAsString());
         setPriceClass(config.priceClassAsString());
         setCallerReference(config.callerReference());
