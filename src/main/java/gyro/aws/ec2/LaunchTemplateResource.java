@@ -554,10 +554,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     private RequestLaunchTemplateData requestLaunchTemplateData() {
-        return RequestLaunchTemplateData.builder()
+        RequestLaunchTemplateData.Builder builder = RequestLaunchTemplateData.builder()
             .cpuOptions(getCoreCount() > 0
-            ? o -> o.threadsPerCore(getThreadPerCore())
-            .coreCount(getCoreCount()).build() : SdkBuilder::build)
+                ? o -> o.threadsPerCore(getThreadPerCore())
+                .coreCount(getCoreCount()).build() : SdkBuilder::build)
             .disableApiTermination(getDisableApiTermination())
             .ebsOptimized(getEbsOptimized())
             .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
@@ -579,9 +579,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             .iamInstanceProfile(getLaunchTemplateInstanceProfile())
             .networkInterfaces(!getNetworkInterfaces().isEmpty()
                 ? toNetworkInterfaceSpecificationRequest() : null)
-            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions())
-            .creditSpecification(getCreditSpecification() == null ? null
-                : getCreditSpecification().toCreditSpecification())
-            .build();
+            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions());
+
+        if (getCreditSpecification() != null) {
+            builder.creditSpecification(getCreditSpecification().toCreditSpecification());
+        }
+
+        return builder.build();
     }
 }
