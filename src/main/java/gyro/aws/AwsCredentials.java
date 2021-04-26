@@ -27,6 +27,7 @@ public class AwsCredentials extends Credentials {
     private String profileName;
     private String region;
     private AwsCredentialsProvider provider;
+    private String clientConfig;
 
     public AwsCredentials() {
         this.provider = AwsCredentialsProviderChain.builder()
@@ -59,6 +60,14 @@ public class AwsCredentials extends Credentials {
 
     public AwsCredentialsProvider provider() {
         return provider;
+    }
+
+    public String getClientConfig() {
+        return clientConfig;
+    }
+
+    public void setClientConfig(String clientConfig) {
+        this.clientConfig = clientConfig;
     }
 
     @Override
