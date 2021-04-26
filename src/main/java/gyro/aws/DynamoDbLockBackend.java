@@ -155,7 +155,7 @@ public class DynamoDbLockBackend extends LockBackend {
     }
 
     private DynamoDbClient client() {
-        return AwsResource.createClient(DynamoDbClient.class, credentials());
+        return AwsResource.createClient(DynamoDbClient.class, credentials(), getRootScope());
     }
 
     private AwsCredentials credentials() {

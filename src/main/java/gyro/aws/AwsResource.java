@@ -21,9 +21,15 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.clientconfiguration.ClientConfiguration;
+import gyro.aws.clientconfiguration.ClientConfigurationSettings;
 import gyro.core.GyroException;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
+import gyro.core.scope.DiffableScope;
+import gyro.core.scope.Scope;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.client.builder.AwsDefaultClientBuilder;
 import software.amazon.awssdk.core.SdkClient;
@@ -44,7 +50,7 @@ public abstract class AwsResource extends Resource {
             return ((AwsResource) parent).createClient(clientClass);
         }
 
-        return createClient(clientClass, null, null);
+        return createClient(clientClass, null, "");
     }
 
     @SuppressWarnings("unchecked")
@@ -55,15 +61,16 @@ public abstract class AwsResource extends Resource {
         }
 
         AwsCredentials credentials = credentials(AwsCredentials.class);
-        client = createClient(clientClass, credentials, region, endpoint);
+        DiffableScope scope = DiffableInternals.getScope(this);
+        client = createClient(clientClass, credentials, region, endpoint, scope);
         return (T) client;
     }
 
-    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials) {
-        return createClient(clientClass, credentials, null, null);
+    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, Scope scope) {
+        return createClient(clientClass, credentials, null, null, scope);
     }
 
-    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint) {
+    public static synchronized <T extends SdkClient> T createClient(Class<T> clientClass, AwsCredentials credentials, String region, String endpoint, Scope scope) {
         if (credentials == null) {
             throw new GyroException(String.format(
                 "Unable to create %s, no credentials specified!",
@@ -81,22 +88,47 @@ public abstract class AwsResource extends Resource {
 
         if (clients.get(key) == null) {
             try {
-                AwsCredentialsProvider provider = credentials.provider();
 
-                ClientOverrideConfiguration.Builder retryPolicy = ClientOverrideConfiguration.builder()
+                ClientOverrideConfiguration overrideConfiguration = ClientOverrideConfiguration.builder()
                     .retryPolicy(RetryPolicy.builder()
                         .numRetries(20)
                         .retryCapacityCondition(RetryOnThrottlingCondition.create())
-                        .build());
+                        .build()).build();
+
+                ApacheHttpClient.Builder httpClientBuilder = ApacheHttpClient.builder();
+
+                String clientConfig = credentials.getClientConfig();
+                if (ObjectUtils.isBlank(clientConfig)) {
+                    clientConfig = "default";
+                }
+
+                if (scope != null) {
+                    ClientConfiguration clientConfiguration = scope.getRootScope().getSettings(ClientConfigurationSettings.class)
+                        .getClientConfigurations()
+                        .get(clientConfig);
+
+                    if (clientConfiguration != null) {
+                        if (clientConfiguration.getHttpClientConfiguration() != null) {
+                            httpClientBuilder = clientConfiguration.getHttpClientConfiguration().toApacheHttpClient();
+                        }
+
+                        if (clientConfiguration.getOverrideConfiguration() != null) {
+                            overrideConfiguration = clientConfiguration.getOverrideConfiguration()
+                                .toClientOverrideConfiguration();
+                        }
+                    }
+                }
+
+                AwsCredentialsProvider provider = credentials.provider();
 
                 Method method = clientClass.getMethod("builder");
                 AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
                 builder.credentialsProvider(provider);
                 builder.region(Region.of(region != null ? region : credentials.getRegion()));
-                builder.httpClientBuilder(ApacheHttpClient.builder());
-                builder.overrideConfiguration(retryPolicy.build());
+                builder.httpClientBuilder(httpClientBuilder);
+                builder.overrideConfiguration(overrideConfiguration);
 
-                if (endpoint != null) {
+                if (!ObjectUtils.isBlank(endpoint)) {
                     builder.endpointOverride(URI.create(endpoint));
                 }
 
