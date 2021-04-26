@@ -16,18 +16,29 @@
 
 package gyro.aws.cloudfront;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.waf.global.WebAclResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.TestValue;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.TestValue;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
@@ -46,15 +57,6 @@ import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
 import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a CloudFront distribution.
@@ -207,6 +209,8 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         if (cnames == null) {
             cnames = new ArrayList<>();
         }
+
+        Collections.sort(cnames);
 
         return cnames;
     }
@@ -433,6 +437,8 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         if (customErrorResponse == null) {
             customErrorResponse = new ArrayList<>();
         }
+
+        customErrorResponse.sort(Comparator.comparing(CloudFrontCustomErrorResponse::getErrorCode));
 
         return customErrorResponse;
     }
