@@ -32,11 +32,13 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
+import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateVersionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
@@ -44,7 +46,7 @@ import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservationSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
-import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
+import software.amazon.awssdk.services.ec2.model.RequestLaunchTemplateData;
 import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 /**
@@ -107,6 +109,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
+    private LaunchTemplateMetadataOptions metadataOptions;
 
     // Read-only
     private String id;
@@ -127,6 +130,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The AMI to be used to launch the Instance created by this Template.
      */
+    @Updatable
     public AmiResource getAmi() {
         return ami;
     }
@@ -138,6 +142,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The number of cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
      */
+    @Updatable
     public Integer getCoreCount() {
         if (coreCount == null) {
             coreCount = 0;
@@ -153,6 +158,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The number of threads per cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
      */
+    @Updatable
     public Integer getThreadPerCore() {
         if (threadPerCore == null) {
             threadPerCore = 0;
@@ -168,6 +174,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, EBS optimization for an instance is enabled. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html/>`_.
      */
+    @Updatable
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
             ebsOptimized = false;
@@ -183,6 +190,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, hibernate options for an instance are enabled. Defaults to false. See `Hibernate your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html/>`_.
      */
+    @Updatable
     public Boolean getConfigureHibernateOption() {
         if (configureHibernateOption == null) {
             configureHibernateOption = false;
@@ -198,6 +206,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The shutdown behavior options for an instance. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
      */
+    @Updatable
     public String getShutdownBehavior() {
         return shutdownBehavior;
     }
@@ -210,6 +219,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
      */
     @Required
+    @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -221,6 +231,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
+    @Updatable
     public String getKeyName() {
         return keyName;
     }
@@ -232,6 +243,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, monitoring for your instance is enabled. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html/>`_.
      */
+    @Updatable
     public Boolean getEnableMonitoring() {
         if (enableMonitoring == null) {
             enableMonitoring = false;
@@ -246,6 +258,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The security groups associated with the launch instance. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. Required if Network Interface not configured.
      */
+    @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new ArrayList<>();
@@ -261,6 +274,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, api termination of an instance is enabled. See `Enabling Termination Protection for an Instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination/>`_.
      */
+    @Updatable
     public Boolean getDisableApiTermination() {
         if (disableApiTermination == null) {
             disableApiTermination = false;
@@ -276,6 +290,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html/>`_.
      */
+    @Updatable
     public String getUserData() {
         if (userData == null) {
             userData = "";
@@ -295,6 +310,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      *
      * @subresource gyro.aws.ec2.AmiBlockDeviceMapping
      */
+    @Updatable
     public List<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
@@ -310,6 +326,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The capacity reservation for the instances being launched using this template.
      */
+    @Updatable
     public String getCapacityReservation() {
         if (capacityReservation == null) {
             capacityReservation = "none";
@@ -325,6 +342,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * Iam instance profile to be linked with the instances being launched using this template.
      */
+    @Updatable
     public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
@@ -336,6 +354,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The set of Network Interfaces to be attached to the instances being launched using this template. Required if Security Group not provided.
      */
+    @Updatable
     public Set<NetworkInterfaceResource> getNetworkInterfaces() {
         if (networkInterfaces == null) {
             networkInterfaces = new HashSet<>();
@@ -346,6 +365,20 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     public void setNetworkInterfaces(Set<NetworkInterfaceResource> networkInterfaces) {
         this.networkInterfaces = networkInterfaces;
+    }
+
+    /**
+     * The metadata options for the instance.
+     *
+     * @subresource gyro.aws.ec2.LaunchTemplateMetadataOptions
+     */
+    @Updatable
+    public LaunchTemplateMetadataOptions getMetadataOptions() {
+        return metadataOptions;
+    }
+
+    public void setMetadataOptions(LaunchTemplateMetadataOptions metadataOptions) {
+        this.metadataOptions = metadataOptions;
     }
 
     /**
@@ -410,38 +443,26 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getName())
-                .launchTemplateData(
-                    l -> l.cpuOptions(getCoreCount() > 0
-                        ? o -> o.threadsPerCore(getThreadPerCore())
-                        .coreCount(getCoreCount()).build() : SdkBuilder::build)
-                        .disableApiTermination(getDisableApiTermination())
-                        .ebsOptimized(getEbsOptimized())
-                        .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                        .imageId(getAmi() == null ? null : getAmi().getId())
-                        .instanceType(getInstanceType())
-                        .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                        .keyName(getKeyName())
-                        .monitoring(o -> o.enabled(getEnableMonitoring()))
-                        .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getId)
-                            .collect(Collectors.toList()) : null)
-                        .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                        .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                            getBlockDeviceMapping()
-                                .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
-                                .collect(Collectors.toList()) : null
-                        )
-                        .capacityReservationSpecification(getCapacityReservationSpecification())
-                        .iamInstanceProfile(getLaunchTemplateInstanceProfile())
-                        .networkInterfaces(!getNetworkInterfaces().isEmpty()
-                            ? toNetworkInterfaceSpecificationRequest() : null)));
+                .launchTemplateData(requestLaunchTemplateData())
+        );
+
         setId(response.launchTemplate().launchTemplateId());
         setVersion(response.launchTemplate().latestVersionNumber());
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+        Ec2Client client = createClient(Ec2Client.class);
 
+        CreateLaunchTemplateVersionResponse response = client.createLaunchTemplateVersion(r -> r.launchTemplateId(getId())
+            .launchTemplateData(requestLaunchTemplateData())
+        );
+
+        client.modifyLaunchTemplate(r -> r.launchTemplateId(getId())
+            .defaultVersion(getVersion().toString())
+        );
+
+        setVersion(response.launchTemplateVersion().versionNumber());
     }
 
     @Override
@@ -520,5 +541,35 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return getNetworkInterfaces().stream().map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest
             .builder().networkInterfaceId(o.getId()).deviceIndex(deviceIndex.getAndIncrement()).build()
         ).collect(Collectors.toList());
+    }
+
+    private RequestLaunchTemplateData requestLaunchTemplateData() {
+        return RequestLaunchTemplateData.builder()
+            .cpuOptions(getCoreCount() > 0
+            ? o -> o.threadsPerCore(getThreadPerCore())
+            .coreCount(getCoreCount()).build() : SdkBuilder::build)
+            .disableApiTermination(getDisableApiTermination())
+            .ebsOptimized(getEbsOptimized())
+            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+            .imageId(getAmi() == null ? null : getAmi().getId())
+            .instanceType(getInstanceType())
+            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+            .keyName(getKeyName())
+            .monitoring(o -> o.enabled(getEnableMonitoring()))
+            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId)
+                .collect(Collectors.toList()) : null)
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                getBlockDeviceMapping()
+                    .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
+                    .collect(Collectors.toList()) : null
+            )
+            .capacityReservationSpecification(getCapacityReservationSpecification())
+            .iamInstanceProfile(getLaunchTemplateInstanceProfile())
+            .networkInterfaces(!getNetworkInterfaces().isEmpty()
+                ? toNetworkInterfaceSpecificationRequest() : null)
+            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions()
+            ).build();
     }
 }
