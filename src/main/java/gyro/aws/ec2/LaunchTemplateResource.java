@@ -111,6 +111,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private Set<NetworkInterfaceResource> networkInterfaces;
     private LaunchTemplateMetadataOptions metadataOptions;
     private LaunchTemplateCreditSpecification creditSpecification;
+    private LaunchTemplateElasticGpuSpecification elasticGpuSpecification;
 
     // Read-only
     private String id;
@@ -383,12 +384,25 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The credit specifications for the instance.
      */
+    @Updatable
     public LaunchTemplateCreditSpecification getCreditSpecification() {
         return creditSpecification;
     }
 
     public void setCreditSpecification(LaunchTemplateCreditSpecification creditSpecification) {
         this.creditSpecification = creditSpecification;
+    }
+
+    /**
+     * The elastic GPU to associate with the instance.
+     */
+    @Updatable
+    public LaunchTemplateElasticGpuSpecification getElasticGpuSpecification() {
+        return elasticGpuSpecification;
+    }
+
+    public void setElasticGpuSpecification(LaunchTemplateElasticGpuSpecification elasticGpuSpecification) {
+        this.elasticGpuSpecification = elasticGpuSpecification;
     }
 
     /**
@@ -583,6 +597,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getCreditSpecification() != null) {
             builder.creditSpecification(getCreditSpecification().toCreditSpecification());
+        }
+
+        if (getElasticGpuSpecification() != null) {
+            builder.elasticGpuSpecifications(getElasticGpuSpecification().toElasticGpuSpecification());
         }
 
         return builder.build();

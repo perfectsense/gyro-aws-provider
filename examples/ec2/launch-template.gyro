@@ -100,7 +100,12 @@ end
 
 aws::launch-template launch-template-advanced-options
     name: "launch-template-example-advanced-options"
-    instance-type: "t2.micro"
+    instance-type: "t2.medium"
+
+    elastic-gpu-specification
+        type: "eg1.medium"
+    end
+
     credit-specification
         cpu-credits: standard
     end
