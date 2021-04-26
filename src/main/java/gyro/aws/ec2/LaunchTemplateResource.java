@@ -112,6 +112,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplateMetadataOptions metadataOptions;
     private LaunchTemplateCreditSpecification creditSpecification;
     private List<LaunchTemplateElasticGpuSpecification> elasticGpuSpecification;
+    private List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator;
 
     // Read-only
     private String id;
@@ -410,6 +411,22 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The elastic inference accelerator for the instance.
+     */
+    @Updatable
+    public List<LaunchTemplateElasticInferenceAccelerator> getInferenceAccelerator() {
+        if (inferenceAccelerator == null) {
+            inferenceAccelerator = new ArrayList<>();
+        }
+
+        return inferenceAccelerator;
+    }
+
+    public void setInferenceAccelerator(List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator) {
+        this.inferenceAccelerator = inferenceAccelerator;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -606,6 +623,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         if (!getElasticGpuSpecification().isEmpty()) {
             builder.elasticGpuSpecifications(getElasticGpuSpecification().stream()
                 .map(LaunchTemplateElasticGpuSpecification::toElasticGpuSpecification)
+                .collect(Collectors.toList()));
+        }
+
+        if (!getInferenceAccelerator().isEmpty()) {
+            builder.elasticInferenceAccelerators(getInferenceAccelerator().stream()
+                .map(LaunchTemplateElasticInferenceAccelerator::toLaunchTemplateElasticInferenceAccelerator)
                 .collect(Collectors.toList()));
         }
 

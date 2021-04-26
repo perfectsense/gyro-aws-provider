@@ -110,6 +110,16 @@ aws::launch-template launch-template-advanced-options
         cpu-credits: standard
     end
 
+    inference-accelerator
+        type: "eia1.medium"
+        count: 1
+    end
+
+    inference-accelerator
+        type: "eia1.large"
+        count: 5
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }
