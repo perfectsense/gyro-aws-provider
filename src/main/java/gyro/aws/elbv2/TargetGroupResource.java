@@ -16,6 +16,13 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.psddev.dari.util.CompactMap;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.VpcResource;
@@ -26,8 +33,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
-import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -40,12 +45,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.Matcher;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Tag;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -207,6 +206,31 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
 
     public void setVpc(VpcResource vpc) {
         this.vpc = vpc;
+    }
+
+    /**
+     * Helper method that maps Health State to instances in that state.
+     *
+     * @return A map of health state to number of targets in that state
+     */
+    public Map<String, Integer> targetHealth() {
+        Map<String, Integer> healthMap = new HashMap<>();
+
+        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
+        List<TargetHealthDescription> targetHealthDescriptions = client.describeTargetHealth(
+            DescribeTargetHealthRequest.builder()
+                .targetGroupArn(getArn())
+                .build())
+            .targetHealthDescriptions();
+
+        for (TargetHealthDescription thd : targetHealthDescriptions) {
+            String state = thd.targetHealth().stateAsString();
+            int count = healthMap.getOrDefault(state, 0);
+            healthMap.put(state, count + 1);
+        }
+
+        healthMap.put("Total", targetHealthDescriptions.size());
+        return healthMap;
     }
 
     @Override
