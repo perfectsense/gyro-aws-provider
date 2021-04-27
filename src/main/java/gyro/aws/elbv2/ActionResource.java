@@ -25,13 +25,13 @@ import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
+import gyro.core.diff.Update;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
-import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.ValidationError;
-import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.ActionTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
@@ -71,6 +71,11 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
      *
      *  @subresource gyro.aws.elbv2.AuthenticateCognitoAction
      */
+    @ConflictsWith({
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
         return authenticateCognitoAction;
@@ -85,6 +90,11 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
      *
      *  @subresource gyro.aws.elbv2.AuthenticateOidcAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "fixed-response-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
         return authenticateOidcAction;
@@ -98,7 +108,14 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
      *  Action to support multiple ALB Target groups. If both this field and {@link TargetGroupResource}
      *  are defined, they must match and only will support a single target. This field should be used
      *  when forward weights should be used.
+     *
+     * @subresource gyro.aws.elbv2.ForwardAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "redirect-action" })
     @Updatable
     public ForwardAction getForwardAction() {
         return forwardAction;
@@ -113,6 +130,11 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
      *
      *  @subresource gyro.aws.elbv2.FixedResponseAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
         return fixedResponseAction;
@@ -139,6 +161,11 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
      *
      *  @subresource gyro.aws.elbv2.RedirectAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "forward-action" })
     @Updatable
     public RedirectAction getRedirectAction() {
         return redirectAction;
@@ -282,25 +309,13 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
-        List<String> types = new ArrayList<>();
-        if (getAuthenticateCognitoAction() != null) {
-            types.add(ActionTypeEnum.AUTHENTICATE_COGNITO.toString());
-        }
-        if (getAuthenticateOidcAction() != null) {
-            types.add(ActionTypeEnum.AUTHENTICATE_OIDC.toString());
-        }
-        if (getFixedResponseAction() != null) {
-            types.add(ActionTypeEnum.FIXED_RESPONSE.toString());
-        }
-        if (getForwardAction() != null) {
-            types.add(ActionTypeEnum.FORWARD.toString());
-        }
 
-        if (types.size() > 1) {
+        if (getAuthenticateCognitoAction() == null && getAuthenticateOidcAction() == null
+            && getFixedResponseAction() == null && getForwardAction() == null && getRedirectAction() == null) {
             errors.add(new ValidationError(
                 this,
-                "type",
-                String.format("Action Resource must have exactly 1 type. Types defined: [ %s ]", StringUtils.join(types, ","))));
+                null,
+                "Exactly one of 'authenticate-cognito-action' or 'authenticate-oidc-action' or 'fixed-response-action' or 'forward-action' or 'redirect-action' is required."));
         }
 
         return errors;
