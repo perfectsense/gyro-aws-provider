@@ -126,7 +126,7 @@ aws::application-load-balancer-listener listener-example
     default-action
         order: 2
         forward-action
-            target-weight
+            target-group-weight
                 target-group: $(aws::load-balancer-target-group target-group-example)
                 weight: 1
             end

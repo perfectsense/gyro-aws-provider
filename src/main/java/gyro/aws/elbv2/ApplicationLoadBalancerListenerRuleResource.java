@@ -52,7 +52,7 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.RuleNotFound
  *
  *         action
  *             forward-action
- *                 target-weight
+ *                 target-group-weight
  *                     target-group: $(aws::load-balancer-target-group target-group-example)
  *                     weight: 1
  *                 end

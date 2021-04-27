@@ -21,11 +21,11 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroupT
  * .. code-block:: gyro
  *
  *     forward-action
- *         target-weight
+ *         target-group-weight
  *             target-group: $(aws::load-balancer-target-group target-group-example)
  *             weight: 1
  *         end
- *         target-weight
+ *         target-group-weight
  *             target-group: $(aws::load-balancer-target-group target-group-example-2)
  *             weight: 1
  *         end
