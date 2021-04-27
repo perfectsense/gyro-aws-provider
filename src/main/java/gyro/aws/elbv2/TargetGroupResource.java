@@ -35,9 +35,11 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalanci
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.CreateTargetGroupResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTagsResponse;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetGroupsResponse;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTargetHealthRequest;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Matcher;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Tag;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetGroup;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.TargetHealthDescription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
