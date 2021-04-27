@@ -209,31 +209,6 @@ public class TargetGroupResource extends AwsResource implements Copyable<TargetG
         this.vpc = vpc;
     }
 
-    /**
-     * Helper method that maps Health State to instances in that state.
-     *
-     * @return A map of health state to number of targets in that state
-     */
-    public Map<String, Integer> targetHealth() {
-        Map<String, Integer> healthMap = new HashMap<>();
-
-        ElasticLoadBalancingV2Client client = createClient(ElasticLoadBalancingV2Client.class);
-        List<TargetHealthDescription> targetHealthDescriptions = client.describeTargetHealth(
-            DescribeTargetHealthRequest.builder()
-                .targetGroupArn(getArn())
-                .build())
-            .targetHealthDescriptions();
-
-        for (TargetHealthDescription thd : targetHealthDescriptions) {
-            String state = thd.targetHealth().stateAsString();
-            int count = healthMap.getOrDefault(state, 0);
-            healthMap.put(state, count + 1);
-        }
-
-        healthMap.put("Total", targetHealthDescriptions.size());
-        return healthMap;
-    }
-
     @Override
     public void copyFrom(TargetGroup targetGroup) {
         if (getHealthCheck() != null) {
