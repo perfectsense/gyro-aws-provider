@@ -42,6 +42,6 @@ public class TargetGroupStickiness extends Diffable implements Copyable<TargetGr
 
     @Override
     public String primaryKey() {
-        return String.format("%s:%s", getDuration(), getEnabled());
+        return "";
     }
 }

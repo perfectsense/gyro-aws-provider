@@ -131,6 +131,6 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
 
     @Override
     public String primaryKey() {
-        return "forward-action";
+        return "";
     }
 }
