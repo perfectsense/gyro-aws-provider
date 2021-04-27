@@ -61,6 +61,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [ACM PCA](https://gyro.dev/providers/aws/acm-pca/index.html)
 * [API Gateway](https://gyro.dev/providers/aws/api-gateway-v2/index.html)
 * [Autoscaling Groups](https://gyro.dev/providers/aws/autoscaling-groups/index.html)
+* [Backup](https://gyro.dev/providers/aws/backup/index.html)
 * [Cloudfront](https://gyro.dev/providers/aws/cloudfront/index.html)
 * [Cloudtrail](https://gyro.dev/providers/aws/cloudtrail/index.html)
 * [Cloudwatch](https://gyro.dev/providers/aws/cloudwatch/index.html)
