@@ -473,7 +473,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         setEnabled(config.enabled());
         setComment(config.comment());
-        setCnames(config.aliases().items().isEmpty() ? new ArrayList<>() : config.aliases().items());
+        setCnames(config.aliases().items().isEmpty() ? new ArrayList<>() : new ArrayList<>(config.aliases().items()));
         setHttpVersion(config.httpVersionAsString());
         setPriceClass(config.priceClassAsString());
         setCallerReference(config.callerReference());
@@ -528,11 +528,12 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setGeoRestriction(geoRestriction);
 
         getCustomErrorResponse().clear();
-        for (CustomErrorResponse errorResponse : config.customErrorResponses().items()) {
+        setCustomErrorResponse(config.customErrorResponses().items().stream().map(errorResponse -> {
             CloudFrontCustomErrorResponse customErrorResponse = newSubresource(CloudFrontCustomErrorResponse.class);
             customErrorResponse.copyFrom(errorResponse);
-            getCustomErrorResponse().add(customErrorResponse);
-        }
+
+            return customErrorResponse;
+        }).collect(Collectors.toList()));
 
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
