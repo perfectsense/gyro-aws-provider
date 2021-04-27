@@ -252,6 +252,8 @@ public class ActionResource extends AwsResource implements Copyable<Action> {
             return ActionTypeEnum.FIXED_RESPONSE.toString();
         } else if (getForwardAction() != null) {
             return ActionTypeEnum.FORWARD.toString();
+        } else if (getRedirectAction() != null) {
+            return ActionTypeEnum.REDIRECT.toString();
         } else {
             return ActionTypeEnum.UNKNOWN_TO_SDK_VERSION.toString();
         }
