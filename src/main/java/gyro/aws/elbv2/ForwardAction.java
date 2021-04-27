@@ -41,7 +41,9 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
     private TargetGroupStickiness targetGroupStickiness;
 
     /**
-     * A list of target groups and their associated weight for forwarding.
+     * The list of target groups and their associated weight for forwarding.
+     *
+     * @subresource gyro.aws.elbv2.TargetGroupTupleResource
      */
     @Updatable
     public List<TargetGroupTupleResource> getTargetGroupWeight() {
@@ -55,7 +57,9 @@ public class ForwardAction extends Diffable implements Copyable<ForwardActionCon
     }
 
     /**
-     * The Configuration to determine if subsequent requests should stay with the same target group
+     * The configuration to determine if subsequent requests should stay with the same target group.
+     *
+     * @subresource gyro.aws.elbv2.TargetGroupStickiness
      */
     @Updatable
     public TargetGroupStickiness getTargetGroupStickiness() {

@@ -11,7 +11,7 @@ public class TargetGroupStickiness extends Diffable implements Copyable<TargetGr
     private Integer duration;
 
     /**
-     * Determines if requests should be directed to the same target group
+     * When set to ``true``, the requests will be directed to the same target group
      */
     @Updatable
     public Boolean getEnabled() {
@@ -23,7 +23,7 @@ public class TargetGroupStickiness extends Diffable implements Copyable<TargetGr
     }
 
     /**
-     * How long requests should be directed to the same target group
+     * The amount of time for which requests should be directed to the same target group
      */
     @Updatable
     public Integer getDuration() {
