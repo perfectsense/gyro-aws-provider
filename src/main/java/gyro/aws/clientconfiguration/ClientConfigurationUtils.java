@@ -40,6 +40,8 @@ public class ClientConfigurationUtils {
             parse(duration);
         } catch (DateTimeParseException ex) {
             throw new ClientConfigurationException(fieldName, String.format("Time format '%s' is invalid.", duration));
+        } catch (NullPointerException npe) {
+            throw new ClientConfigurationException(fieldName, "Is required.");
         }
     }
 }

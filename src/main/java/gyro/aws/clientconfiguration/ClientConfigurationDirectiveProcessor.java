@@ -29,6 +29,7 @@ import gyro.core.Type;
 import gyro.core.directive.DirectiveProcessor;
 import gyro.core.scope.RootScope;
 import gyro.core.scope.Scope;
+import gyro.lang.ast.Node;
 import gyro.lang.ast.block.DirectiveNode;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
@@ -108,8 +109,17 @@ public class ClientConfigurationDirectiveProcessor extends DirectiveProcessor<Ro
             try {
                 ((ClientConfigurationInterface) configClassObj).validate();
             } catch (ClientConfigurationException ex) {
-                if (ex.getField() != null) {
-                    throw new GyroException(bodyScope.getLocation(ex.getField()), ex.getFormattedMessage());
+                if (!ObjectUtils.isBlank(ex.getField())) {
+                    Node node = bodyScope.getLocation(ex.getField());
+                    if (node != null) {
+                        throw new GyroException(bodyScope.getLocation(ex.getField()), ex.getFormattedMessage());
+                    }
+                }
+
+                Node parent = bodyScope.getParent()
+                    .getLocation(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_HYPHEN, configClass.getSimpleName()));
+                if (parent != null) {
+                    throw new GyroException(parent, ex.getFormattedMessage());
                 } else {
                     throw new GyroException(ex.getFormattedMessage());
                 }
