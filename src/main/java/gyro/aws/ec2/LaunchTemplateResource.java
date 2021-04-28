@@ -116,6 +116,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplateEnclaveOptions enclaveOptions;
     private LaunchTemplateHibernationOptions hibernationOptions;
     private LaunchTemplateInstanceMarketOptions marketOptions;
+    private String kernelId;
 
     // Read-only
     private String id;
@@ -466,6 +467,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The ID of the kernel.
+     */
+    @Updatable
+    public String getKernelId() {
+        return kernelId;
+    }
+
+    public void setKernelId(String kernelId) {
+        this.kernelId = kernelId;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -653,6 +666,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             .iamInstanceProfile(getLaunchTemplateInstanceProfile())
             .networkInterfaces(!getNetworkInterfaces().isEmpty()
                 ? toNetworkInterfaceSpecificationRequest() : null)
+            .kernelId(getKernelId())
             .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions());
 
         if (getCreditSpecification() != null) {
