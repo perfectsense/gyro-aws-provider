@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.ec2.model.CreditSpecification;
@@ -15,6 +16,7 @@ public class LaunchTemplateCreditSpecification extends Diffable implements Copya
      * The credit option for CPU usage of a ``t2``, ``t3``, or ``t3a`` instance. Valid values are ``standard`` and ``unlimited``.
      */
     @Required
+    @Updatable
     @ValidStrings({ "standard", "unlimited" })
     public String getCpuCredits() {
         return cpuCredits;
