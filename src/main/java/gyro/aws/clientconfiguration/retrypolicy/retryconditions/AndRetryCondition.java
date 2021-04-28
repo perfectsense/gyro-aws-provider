@@ -36,6 +36,9 @@ public class AndRetryCondition implements RetryConditionInterface, ClientConfigu
         return retryCondition;
     }
 
+    // Pseudo setters.
+    // Configs point to one or more of the below variables based on the setter names
+
     public void setAndRetryCondition(List<AndRetryCondition> andRetryConditions) {
         getRetryCondition().addAll(andRetryConditions);
     }

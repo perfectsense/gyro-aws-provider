@@ -56,6 +56,7 @@ public class ClientConfigurationDirectiveProcessor extends DirectiveProcessor<Ro
         settings.getClientConfigurations().put(name, clientConfiguration);
     }
 
+    // Automate config consumption mapping fields to class parameters
     private Object process(Class<?> configClass, RootScope scope, Scope bodyScope) {
         Object configClassObj = Reflections.newInstance(configClass);
         if (bodyScope != null) {
@@ -67,6 +68,7 @@ public class ClientConfigurationDirectiveProcessor extends DirectiveProcessor<Ro
                         CaseFormat.LOWER_HYPHEN,
                         property.getName()));
 
+                    // Recursively assign values for complex gyro types
                     if (genericParameterType.getTypeName().contains("gyro")) {
                         if (configVal instanceof List) {
                             if (genericParameterType.getTypeName().contains("java.util.List")) {
