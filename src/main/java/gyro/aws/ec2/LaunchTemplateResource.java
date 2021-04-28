@@ -114,6 +114,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private List<LaunchTemplateElasticGpuSpecification> elasticGpuSpecification;
     private List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator;
     private LaunchTemplateEnclaveOptions enclaveOptions;
+    private LaunchTemplateHibernationOptions hibernationOptions;
 
     // Read-only
     private String id;
@@ -440,6 +441,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The hibernation options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateHibernationOptions getHibernationOptions() {
+        return hibernationOptions;
+    }
+
+    public void setHibernationOptions(LaunchTemplateHibernationOptions hibernationOptions) {
+        this.hibernationOptions = hibernationOptions;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -647,6 +660,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getEnclaveOptions() != null) {
             builder.enclaveOptions(getEnclaveOptions().toLaunchTemplateEnclaveOptionsRequest());
+        }
+
+        if (getHibernationOptions() != null) {
+            builder.hibernationOptions(getHibernationOptions().toLaunchTemplateHibernationOptionsRequest());
         }
 
         return builder.build();

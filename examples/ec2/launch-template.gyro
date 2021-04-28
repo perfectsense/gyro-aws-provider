@@ -124,6 +124,10 @@ aws::launch-template launch-template-advanced-options
         enabled: true
     end
 
+    hibernation-options
+        configured: true
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }
