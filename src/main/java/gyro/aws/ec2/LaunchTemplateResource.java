@@ -115,6 +115,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator;
     private LaunchTemplateEnclaveOptions enclaveOptions;
     private LaunchTemplateHibernationOptions hibernationOptions;
+    private LaunchTemplateInstanceMarketOptions marketOptions;
 
     // Read-only
     private String id;
@@ -453,6 +454,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The spot market options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateInstanceMarketOptions getMarketOptions() {
+        return marketOptions;
+    }
+
+    public void setMarketOptions(LaunchTemplateInstanceMarketOptions marketOptions) {
+        this.marketOptions = marketOptions;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -664,6 +677,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getHibernationOptions() != null) {
             builder.hibernationOptions(getHibernationOptions().toLaunchTemplateHibernationOptionsRequest());
+        }
+
+        if (getMarketOptions() != null) {
+            builder.instanceMarketOptions(getMarketOptions().toLaunchTemplateInstanceMarketOptionsRequest());
         }
 
         return builder.build();

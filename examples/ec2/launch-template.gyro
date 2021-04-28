@@ -128,6 +128,18 @@ aws::launch-template launch-template-advanced-options
         configured: true
     end
 
+    market-options
+        market-type: SPOT
+
+        spot-market-options
+            block-duration-minutes: 60
+            instance-interruption-behavior: HIBERNATE
+            max-price: 0
+            spot-instance-type: PERSISTENT
+            valid-until: "Wed May 29 21:54:06 EDT 2025"
+        end
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }
