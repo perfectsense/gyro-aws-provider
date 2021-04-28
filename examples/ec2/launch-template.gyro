@@ -120,6 +120,10 @@ aws::launch-template launch-template-advanced-options
         count: 5
     end
 
+    enclave-options
+        enabled: true
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }

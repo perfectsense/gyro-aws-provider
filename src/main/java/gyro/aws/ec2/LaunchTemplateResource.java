@@ -113,6 +113,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplateCreditSpecification creditSpecification;
     private List<LaunchTemplateElasticGpuSpecification> elasticGpuSpecification;
     private List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator;
+    private LaunchTemplateEnclaveOptions enclaveOptions;
 
     // Read-only
     private String id;
@@ -427,6 +428,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The enclave options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateEnclaveOptions getEnclaveOptions() {
+        return enclaveOptions;
+    }
+
+    public void setEnclaveOptions(LaunchTemplateEnclaveOptions enclaveOptions) {
+        this.enclaveOptions = enclaveOptions;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -630,6 +643,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             builder.elasticInferenceAccelerators(getInferenceAccelerator().stream()
                 .map(LaunchTemplateElasticInferenceAccelerator::toLaunchTemplateElasticInferenceAccelerator)
                 .collect(Collectors.toList()));
+        }
+
+        if (getEnclaveOptions() != null) {
+            builder.enclaveOptions(getEnclaveOptions().toLaunchTemplateEnclaveOptionsRequest());
         }
 
         return builder.build();
