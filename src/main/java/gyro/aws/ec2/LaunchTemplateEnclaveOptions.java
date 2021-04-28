@@ -2,6 +2,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateEnclaveOptionsRequest;
 
@@ -14,6 +15,7 @@ public class LaunchTemplateEnclaveOptions extends Diffable
      * When set to ``true`` the instance for AWS Nitro Enclaves is enabled.
      */
     @Required
+    @Updatable
     public Boolean getEnabled() {
         return enabled;
     }
