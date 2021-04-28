@@ -35,7 +35,7 @@ public class FixedDelay implements BackoffStrategyInterface, ClientConfiguration
 
     @Override
     public void validate() {
-        ClientConfigurationUtils.validate(getDelay(), "delay", "fixed-delay");
+        ClientConfigurationUtils.validate(getDelay(), "delay");
     }
 
     @Override

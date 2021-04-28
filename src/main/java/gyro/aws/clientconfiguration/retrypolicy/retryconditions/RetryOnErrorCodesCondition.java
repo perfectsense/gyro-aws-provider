@@ -19,8 +19,8 @@ package gyro.aws.clientconfiguration.retrypolicy.retryconditions;
 import java.util.HashSet;
 import java.util.List;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
-import gyro.core.GyroException;
 import software.amazon.awssdk.awscore.retry.conditions.RetryOnErrorCodeCondition;
 import software.amazon.awssdk.core.retry.conditions.RetryCondition;
 
@@ -39,7 +39,7 @@ public class RetryOnErrorCodesCondition implements RetryConditionInterface, Clie
     @Override
     public void validate() {
         if (getRetryableErrorCodes().isEmpty()) {
-            throw new GyroException("'retryable-error-codes' cannot be empty.");
+            throw new ClientConfigurationException("retryable-error-codes", "Cannot be empty.");
         }
     }
 

@@ -20,8 +20,6 @@ import java.time.Duration;
 import java.time.format.DateTimeParseException;
 
 import com.google.common.base.Preconditions;
-import com.psddev.dari.util.ObjectUtils;
-import gyro.core.GyroException;
 
 public class ClientConfigurationUtils {
 
@@ -37,14 +35,11 @@ public class ClientConfigurationUtils {
         return Duration.ofSeconds(parse(duration));
     }
 
-    public static void validate(String duration, String fieldName, String parent) {
+    public static void validate(String duration, String fieldName) {
         try {
             parse(duration);
         } catch (DateTimeParseException ex) {
-            throw new GyroException(String.format(
-                "%s'%s's time format '" + duration + "' is invalid.",
-                (ObjectUtils.isBlank(parent) ? "" : String.format("%s: ", parent)),
-                fieldName));
+            throw new ClientConfigurationException(fieldName, String.format("Time format '%s' is invalid.", duration));
         }
     }
 }

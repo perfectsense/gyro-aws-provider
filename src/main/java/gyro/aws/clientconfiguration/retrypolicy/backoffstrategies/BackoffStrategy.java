@@ -19,8 +19,8 @@ package gyro.aws.clientconfiguration.retrypolicy.backoffstrategies;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
-import gyro.core.GyroException;
 
 public class BackoffStrategy implements BackoffStrategyInterface, ClientConfigurationInterface {
 
@@ -57,9 +57,13 @@ public class BackoffStrategy implements BackoffStrategyInterface, ClientConfigur
         long count = Stream.of(getEqualJitter(), getFullJitter(), getFixedDelay()).filter(Objects::nonNull).count();
 
         if (count > 1) {
-            throw new GyroException("Only one of 'fixed-delay', 'full-jitter' or 'equal-jitter' is allowed.");
+            throw new ClientConfigurationException(
+                "backoff-strategy",
+                "Only one of 'fixed-delay', 'full-jitter' or 'equal-jitter' is allowed.");
         } else if (count == 0) {
-            throw new GyroException("One of 'fixed-delay', 'full-jitter' or 'equal-jitter' is required.");
+            throw new ClientConfigurationException(
+                "backoff-strategy",
+                "One of 'fixed-delay', 'full-jitter' or 'equal-jitter' is required.");
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.google.common.base.CaseFormat;
 import com.psddev.dari.util.ObjectUtils;
+import gyro.core.GyroException;
 import gyro.core.Reflections;
 import gyro.core.Type;
 import gyro.core.directive.DirectiveProcessor;
@@ -104,7 +105,15 @@ public class ClientConfigurationDirectiveProcessor extends DirectiveProcessor<Ro
         }
 
         if (ClientConfigurationInterface.class.isAssignableFrom(configClass)) {
-            ((ClientConfigurationInterface) configClassObj).validate();
+            try {
+                ((ClientConfigurationInterface) configClassObj).validate();
+            } catch (ClientConfigurationException ex) {
+                if (ex.getField() != null) {
+                    throw new GyroException(bodyScope.getLocation(ex.getField()), ex.getFormattedMessage());
+                } else {
+                    throw new GyroException(ex.getFormattedMessage());
+                }
+            }
         }
 
         return configClassObj;

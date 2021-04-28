@@ -19,8 +19,8 @@ package gyro.aws.clientconfiguration.retrypolicy.retryconditions;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
-import gyro.core.GyroException;
 
 public class CapacityRetryCondition implements RetryConditionInterface, ClientConfigurationInterface {
 
@@ -91,7 +91,8 @@ public class CapacityRetryCondition implements RetryConditionInterface, ClientCo
             .filter(Objects::nonNull).count();
 
         if (count > 1) {
-            throw new GyroException(
+            throw new ClientConfigurationException(
+                "retry-condition",
                 "Only one of 'and-retry-condition',"
                     + " 'or-retry-condition',"
                     + " 'max-number-of-retry-condition',"
@@ -99,7 +100,8 @@ public class CapacityRetryCondition implements RetryConditionInterface, ClientCo
                     + " 'retry-on-status-codes-condition'"
                     + " or 'retry-on-throttling-condition' is allowed.");
         } else if (count == 0) {
-            throw new GyroException(
+            throw new ClientConfigurationException(
+                "retry-condition",
                 "One of 'and-retry-condition',"
                     + " 'or-retry-condition',"
                     + " 'max-number-of-retry-condition',"

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
-import gyro.core.GyroException;
 import software.amazon.awssdk.core.retry.conditions.RetryCondition;
 
 public class OrRetryCondition implements RetryConditionInterface, ClientConfigurationInterface {
@@ -38,6 +38,14 @@ public class OrRetryCondition implements RetryConditionInterface, ClientConfigur
 
     // Pseudo setters.
     // Configs point to one or more of the below variables based on the setter names
+    //
+    // Ex:
+    //  ..
+    //  or-retry-condition
+    //      retry-on-throttling-condition # <-- triggers setRetryOnThrottlingCondition()
+    //      end
+    //  end
+    //
 
     public void setAndRetryCondition(List<AndRetryCondition> andRetryConditions) {
         getRetryCondition().addAll(andRetryConditions);
@@ -66,7 +74,7 @@ public class OrRetryCondition implements RetryConditionInterface, ClientConfigur
     @Override
     public void validate() {
         if (getRetryCondition().isEmpty()) {
-            throw new GyroException("'or-retry-condition' cannot be empty.");
+            throw new ClientConfigurationException("or-retry-condition", "Cannot be empty.");
         }
     }
 

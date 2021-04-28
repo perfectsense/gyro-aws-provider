@@ -42,7 +42,7 @@ public class ClientOverrideConfiguration implements ClientConfigurationInterface
     @Override
     public void validate() {
         if (getApiCallTimeout() != null) {
-            ClientConfigurationUtils.validate(getApiCallTimeout(), "api-call-timeout", "client-override-configuration");
+            ClientConfigurationUtils.validate(getApiCallTimeout(), "api-call-timeout");
         }
     }
 

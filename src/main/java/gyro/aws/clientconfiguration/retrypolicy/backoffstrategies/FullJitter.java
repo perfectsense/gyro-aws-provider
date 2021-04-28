@@ -44,8 +44,8 @@ public class FullJitter implements BackoffStrategyInterface, ClientConfiguration
 
     @Override
     public void validate() {
-        ClientConfigurationUtils.validate(getBaseDelay(), "base-delay", "full-jitter");
-        ClientConfigurationUtils.validate(getMaxBackoffTime(), "max-backoff-time", "full-jitter");
+        ClientConfigurationUtils.validate(getBaseDelay(), "base-delay");
+        ClientConfigurationUtils.validate(getMaxBackoffTime(), "max-backoff-time");
     }
 
     @Override

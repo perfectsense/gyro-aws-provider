@@ -90,33 +90,29 @@ public class HttpClientConfiguration implements ClientConfigurationInterface {
         if (getConnectionAcquisitionTimeout() != null) {
             ClientConfigurationUtils.validate(
                 getConnectionAcquisitionTimeout(),
-                "connection-acquisition-timeout",
-                "http-client-configuration");
+                "connection-acquisition-timeout");
         }
 
         if (getConnectionTimeout() != null) {
             ClientConfigurationUtils.validate(
                 getConnectionTimeout(),
-                "connection-timeout",
-                "http-client-configuration");
+                "connection-timeout");
         }
 
         if (getConnectionTimeToLive() != null) {
             ClientConfigurationUtils.validate(
                 getConnectionTimeToLive(),
-                "connection-time-to-live",
-                "http-client-configuration");
+                "connection-time-to-live");
         }
 
         if (getConnectionMaxIdleTime() != null) {
             ClientConfigurationUtils.validate(
                 getConnectionMaxIdleTime(),
-                "connection-max-idle-time",
-                "http-client-configuration");
+                "connection-max-idle-time");
         }
 
         if (getSocketTimeout() != null) {
-            ClientConfigurationUtils.validate(getSocketTimeout(), "socket-timeout", "http-client-configuration");
+            ClientConfigurationUtils.validate(getSocketTimeout(), "socket-timeout");
         }
 
         if (getMaxConnections() != null && getMaxConnections() < 1) {

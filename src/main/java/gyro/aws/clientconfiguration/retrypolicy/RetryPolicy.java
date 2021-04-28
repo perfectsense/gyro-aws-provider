@@ -16,12 +16,12 @@
 
 package gyro.aws.clientconfiguration.retrypolicy;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
 import gyro.aws.clientconfiguration.retrypolicy.backoffstrategies.BackoffStrategy;
 import gyro.aws.clientconfiguration.retrypolicy.backoffstrategies.ThrottlingBackoffStrategy;
 import gyro.aws.clientconfiguration.retrypolicy.retryconditions.CapacityRetryCondition;
 import gyro.aws.clientconfiguration.retrypolicy.retryconditions.RetryCondition;
-import gyro.core.GyroException;
 
 public class RetryPolicy implements ClientConfigurationInterface {
 
@@ -82,8 +82,8 @@ public class RetryPolicy implements ClientConfigurationInterface {
 
     @Override
     public void validate() {
-        if (getRetryCount() != null && getRetryCount() < 0) {
-            throw new GyroException("'retry-count' cannot be less than 1.");
+        if (getRetryCount() != null && getRetryCount() < 1) {
+            throw new ClientConfigurationException("retry-count", "Cannot be less than 1.");
         }
     }
 

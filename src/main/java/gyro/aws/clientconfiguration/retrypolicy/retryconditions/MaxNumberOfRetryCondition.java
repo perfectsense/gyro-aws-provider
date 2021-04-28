@@ -16,8 +16,8 @@
 
 package gyro.aws.clientconfiguration.retrypolicy.retryconditions;
 
+import gyro.aws.clientconfiguration.ClientConfigurationException;
 import gyro.aws.clientconfiguration.ClientConfigurationInterface;
-import gyro.core.GyroException;
 import software.amazon.awssdk.core.retry.conditions.MaxNumberOfRetriesCondition;
 import software.amazon.awssdk.core.retry.conditions.RetryCondition;
 
@@ -35,8 +35,8 @@ public class MaxNumberOfRetryCondition implements RetryConditionInterface, Clien
 
     @Override
     public void validate() {
-        if (getRetryCount() == null || getRetryCount() < 0) {
-            throw new GyroException("retry-count cannot be empty or less than 1.");
+        if (getRetryCount() == null || getRetryCount() < 1) {
+            throw new ClientConfigurationException("retry-count", "Cannot be empty or less than 1.");
         }
     }
 

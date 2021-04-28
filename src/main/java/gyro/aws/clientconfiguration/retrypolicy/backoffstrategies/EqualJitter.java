@@ -44,8 +44,8 @@ public class EqualJitter implements BackoffStrategyInterface, ClientConfiguratio
 
     @Override
     public void validate() {
-        ClientConfigurationUtils.validate(getBaseDelay(), "base-delay", "equal-jitter");
-        ClientConfigurationUtils.validate(getMaxBackoffTime(), "max-backoff-time", "equal-jitter");
+        ClientConfigurationUtils.validate(getBaseDelay(), "base-delay");
+        ClientConfigurationUtils.validate(getMaxBackoffTime(), "max-backoff-time");
     }
 
     @Override
