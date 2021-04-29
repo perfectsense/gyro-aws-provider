@@ -34,6 +34,7 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -117,6 +118,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplateHibernationOptions hibernationOptions;
     private LaunchTemplateInstanceMarketOptions marketOptions;
     private String kernelId;
+    private String ramDiskId;
     private LaunchTemplatePlacement placement;
 
     // Read-only
@@ -480,6 +482,19 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The ID of the RAM disk.
+     */
+    @Updatable
+    @DependsOn("kernel")
+    public String getRamDiskId() {
+        return ramDiskId;
+    }
+
+    public void setRamDiskId(String ramDiskId) {
+        this.ramDiskId = ramDiskId;
+    }
+
+    /**
      * The placement for the instance;
      */
     @Updatable
@@ -680,6 +695,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             .networkInterfaces(!getNetworkInterfaces().isEmpty()
                 ? toNetworkInterfaceSpecificationRequest() : null)
             .kernelId(getKernelId())
+            .ramDiskId(getRamDiskId())
             .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions());
 
         if (getCreditSpecification() != null) {
