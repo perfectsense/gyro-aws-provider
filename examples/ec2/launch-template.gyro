@@ -148,6 +148,14 @@ aws::launch-template launch-template-advanced-options
         tenancy: DEFAULT
     end
 
+    tag-specification
+        resource-type: NETWORK_INTERFACE
+
+        tags: {
+            "example-tag": "example-value"
+        }
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }

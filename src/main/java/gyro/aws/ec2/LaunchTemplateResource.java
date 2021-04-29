@@ -120,6 +120,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String kernelId;
     private String ramDiskId;
     private LaunchTemplatePlacement placement;
+    private List<LaunchTemplateTagSpecification> tagSpecification;
 
     // Read-only
     private String id;
@@ -470,6 +471,22 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The tags to apply to the resources during launch.
+     */
+    @Updatable
+    public List<LaunchTemplateTagSpecification> getTagSpecification() {
+        if (tagSpecification == null) {
+            tagSpecification = new ArrayList<>();
+        }
+
+        return tagSpecification;
+    }
+
+    public void setTagSpecification(List<LaunchTemplateTagSpecification> tagSpecification) {
+        this.tagSpecification = tagSpecification;
+    }
+
+    /**
      * The ID of the kernel.
      */
     @Updatable
@@ -728,6 +745,12 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getPlacement() != null) {
             builder.placement(getPlacement().toLaunchTemplatePlacementRequest());
+        }
+
+        if (!getTagSpecification().isEmpty()) {
+            builder.tagSpecifications(getTagSpecification().stream()
+                .map(LaunchTemplateTagSpecification::toLaunchTemplateTagSpecificationRequest)
+                .collect(Collectors.toList()));
         }
 
         return builder.build();
