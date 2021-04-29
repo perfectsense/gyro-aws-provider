@@ -140,6 +140,14 @@ aws::launch-template launch-template-advanced-options
         end
     end
 
+    placement
+        affinity: HOST
+        availability-zone: us-east-2a
+        group-name: example-group
+        partition-number: 1
+        tenancy: DEFAULT
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }

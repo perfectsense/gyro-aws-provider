@@ -117,6 +117,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplateHibernationOptions hibernationOptions;
     private LaunchTemplateInstanceMarketOptions marketOptions;
     private String kernelId;
+    private LaunchTemplatePlacement placement;
 
     // Read-only
     private String id;
@@ -479,6 +480,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The placement for the instance;
+     */
+    @Updatable
+    public LaunchTemplatePlacement getPlacement() {
+        return placement;
+    }
+
+    public void setPlacement(LaunchTemplatePlacement placement) {
+        this.placement = placement;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -695,6 +708,10 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (getMarketOptions() != null) {
             builder.instanceMarketOptions(getMarketOptions().toLaunchTemplateInstanceMarketOptionsRequest());
+        }
+
+        if (getPlacement() != null) {
+            builder.placement(getPlacement().toLaunchTemplatePlacementRequest());
         }
 
         return builder.build();
