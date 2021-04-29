@@ -48,7 +48,6 @@ import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservati
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.RequestLaunchTemplateData;
-import software.amazon.awssdk.utils.builder.SdkBuilder;
 
 /**
  * Creates a Launch Template from config or an existing Instance Id.
@@ -95,8 +94,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     private String name;
     private AmiResource ami;
-    private Integer coreCount;
-    private Integer threadPerCore;
     private Boolean ebsOptimized;
     private Boolean configureHibernateOption;
     private String shutdownBehavior;
@@ -121,6 +118,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String ramDiskId;
     private LaunchTemplatePlacement placement;
     private List<LaunchTemplateTagSpecification> tagSpecification;
+    private LaunchTemplateCpuOptions cpuOptions;
 
     // Read-only
     private String id;
@@ -148,38 +146,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     public void setAmi(AmiResource ami) {
         this.ami = ami;
-    }
-
-    /**
-     * The number of cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
-     */
-    @Updatable
-    public Integer getCoreCount() {
-        if (coreCount == null) {
-            coreCount = 0;
-        }
-
-        return coreCount;
-    }
-
-    public void setCoreCount(Integer coreCount) {
-        this.coreCount = coreCount;
-    }
-
-    /**
-     * The number of threads per cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
-     */
-    @Updatable
-    public Integer getThreadPerCore() {
-        if (threadPerCore == null) {
-            threadPerCore = 0;
-        }
-
-        return threadPerCore;
-    }
-
-    public void setThreadPerCore(Integer threadPerCore) {
-        this.threadPerCore = threadPerCore;
     }
 
     /**
@@ -524,6 +490,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The cpu options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateCpuOptions getCpuOptions() {
+        return cpuOptions;
+    }
+
+    public void setCpuOptions(LaunchTemplateCpuOptions cpuOptions) {
+        this.cpuOptions = cpuOptions;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -687,9 +665,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     private RequestLaunchTemplateData requestLaunchTemplateData() {
         RequestLaunchTemplateData.Builder builder = RequestLaunchTemplateData.builder()
-            .cpuOptions(getCoreCount() > 0
-                ? o -> o.threadsPerCore(getThreadPerCore())
-                .coreCount(getCoreCount()).build() : SdkBuilder::build)
             .disableApiTermination(getDisableApiTermination())
             .ebsOptimized(getEbsOptimized())
             .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
@@ -753,6 +728,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                 .collect(Collectors.toList()));
         }
 
+        if (getCpuOptions() != null) {
+            builder.cpuOptions(getCpuOptions().toLaunchTemplateCpuOptionsRequest());
+        }
         return builder.build();
     }
 }

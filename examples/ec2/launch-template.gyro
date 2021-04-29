@@ -156,6 +156,11 @@ aws::launch-template launch-template-advanced-options
         }
     end
 
+    cpu-options
+        core-count: 1
+        threads-per-core: 2
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }
