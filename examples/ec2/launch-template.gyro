@@ -161,6 +161,10 @@ aws::launch-template launch-template-advanced-options
         threads-per-core: 2
     end
 
+    monitoring
+        enabled: true
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }

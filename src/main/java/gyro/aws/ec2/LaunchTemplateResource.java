@@ -99,7 +99,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private String shutdownBehavior;
     private String instanceType;
     private String keyName;
-    private Boolean enableMonitoring;
     private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
@@ -119,6 +118,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private LaunchTemplatePlacement placement;
     private List<LaunchTemplateTagSpecification> tagSpecification;
     private LaunchTemplateCpuOptions cpuOptions;
+    private LaunchTemplateMonitoring monitoring;
 
     // Read-only
     private String id;
@@ -215,21 +215,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     public void setKeyName(String keyName) {
         this.keyName = keyName;
-    }
-
-    /**
-     * When set to ``true``, monitoring for your instance is enabled. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html/>`_.
-     */
-    @Updatable
-    public Boolean getEnableMonitoring() {
-        if (enableMonitoring == null) {
-            enableMonitoring = false;
-        }
-        return enableMonitoring;
-    }
-
-    public void setEnableMonitoring(Boolean enableMonitoring) {
-        this.enableMonitoring = enableMonitoring;
     }
 
     /**
@@ -502,6 +487,18 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
+     * The monitoring for the instance.
+     */
+    @Updatable
+    public LaunchTemplateMonitoring getMonitoring() {
+        return monitoring;
+    }
+
+    public void setMonitoring(LaunchTemplateMonitoring monitoring) {
+        this.monitoring = monitoring;
+    }
+
+    /**
      * The ID of the launch template.
      */
     @Id
@@ -672,7 +669,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
             .instanceType(getInstanceType())
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
             .keyName(getKeyName())
-            .monitoring(o -> o.enabled(getEnableMonitoring()))
             .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
                 .map(SecurityGroupResource::getId)
                 .collect(Collectors.toList()) : null)
@@ -731,6 +727,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         if (getCpuOptions() != null) {
             builder.cpuOptions(getCpuOptions().toLaunchTemplateCpuOptionsRequest());
         }
+
+        if (getMonitoring() != null) {
+            builder.monitoring(getMonitoring().toLaunchTemplatesMonitoringRequest()).build();
+        }
+
         return builder.build();
     }
 }
