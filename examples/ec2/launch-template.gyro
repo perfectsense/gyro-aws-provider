@@ -165,6 +165,10 @@ aws::launch-template launch-template-advanced-options
         enabled: true
     end
 
+    capacity-reservation
+        preference: NONE
+    end
+
     tags: {
         Name: "launch-template-example-advanced-options"
     }
@@ -178,7 +182,10 @@ aws::launch-template launch-template
     key-name: "example"
     disable-api-termination: false
     ebs-optimized: false
-    capacity-reservation: "open"
+
+    capacity-reservation
+        preference: OPEN
+    end
 
     security-groups: [
         $(aws::security-group security-group-launch-template-example-1),

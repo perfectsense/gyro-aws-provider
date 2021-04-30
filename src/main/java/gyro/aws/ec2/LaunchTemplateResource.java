@@ -44,7 +44,6 @@ import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
-import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservationSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.RequestLaunchTemplateData;
@@ -103,7 +102,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     private Boolean disableApiTermination;
     private String userData;
     private List<BlockDeviceMapping> blockDeviceMapping;
-    private String capacityReservation;
+    private LaunchTemplateCapacityReservation capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
     private LaunchTemplateMetadataOptions metadataOptions;
@@ -289,15 +288,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      * The capacity reservation for the instances being launched using this template.
      */
     @Updatable
-    public String getCapacityReservation() {
-        if (capacityReservation == null) {
-            capacityReservation = "none";
-        }
-
+    public LaunchTemplateCapacityReservation getCapacityReservation() {
         return capacityReservation;
     }
 
-    public void setCapacityReservation(String capacityReservation) {
+    public void setCapacityReservation(LaunchTemplateCapacityReservation capacityReservation) {
         this.capacityReservation = capacityReservation;
     }
 
@@ -598,13 +593,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
             throw new GyroException("Either security group or network interface is to be provided, not both.");
         }
-
-        if (!getCapacityReservation().equalsIgnoreCase("none")
-            && !getCapacityReservation().equalsIgnoreCase("open")
-            && !getCapacityReservation().startsWith("cr-")) {
-            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
-                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
-        }
     }
 
     private LaunchTemplate getLaunchTemplate(Ec2Client client) {
@@ -629,18 +617,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         }
 
         return launchTemplate;
-    }
-
-    private LaunchTemplateCapacityReservationSpecificationRequest getCapacityReservationSpecification() {
-        if (("none").equals(getCapacityReservation()) || ("open").equals(getCapacityReservation())) {
-            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
-                .capacityReservationPreference(getCapacityReservation().toLowerCase())
-                .build();
-        } else {
-            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
-                .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
-                .build();
-        }
     }
 
     private LaunchTemplateIamInstanceProfileSpecificationRequest getLaunchTemplateInstanceProfile() {
@@ -678,7 +654,8 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
                     .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
                     .collect(Collectors.toList()) : null
             )
-            .capacityReservationSpecification(getCapacityReservationSpecification())
+            .capacityReservationSpecification(getCapacityReservation() == null ? null
+                : getCapacityReservation().toLaunchTemplateCapacityReservationSpecificationRequest())
             .iamInstanceProfile(getLaunchTemplateInstanceProfile())
             .networkInterfaces(!getNetworkInterfaces().isEmpty()
                 ? toNetworkInterfaceSpecificationRequest() : null)
