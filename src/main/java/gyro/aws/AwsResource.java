@@ -37,6 +37,11 @@ public abstract class AwsResource extends Resource {
 
     private static final Map<String, SdkClient> clients = new HashMap<>();
     private transient SdkClient client;
+    private static boolean bustCache = false;
+
+    public static void bustCache() {
+        bustCache = true;
+    }
 
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
         Diffable parent = parent();
@@ -78,6 +83,10 @@ public abstract class AwsResource extends Resource {
         String key = String.format("Client Class: %s, Credentials: %s, Region: %s, Endpoint: %s",
             clientClass.getName(), credentials.getProfileName() == null ? "" : credentials.getProfileName(),
             region == null ? credentials.getRegion() : region, endpoint == null ? "" : endpoint);
+
+        if (bustCache) {
+            clients.clear();
+        }
 
         if (clients.get(key) == null) {
             try {
