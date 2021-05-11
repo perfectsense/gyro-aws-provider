@@ -113,6 +113,8 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
 
     /**
      * The identity provider configuration.
+     *
+     * @subresource gyro.aws.eks.OidcIdentityProviderConfiguration
      */
     @Required
     public OidcIdentityProviderConfiguration getConfig() {
