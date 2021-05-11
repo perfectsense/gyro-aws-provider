@@ -175,8 +175,8 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
 
         client.associateIdentityProviderConfig(r -> r.clusterName(getCluster().getName()).oidc(getConfig().toOidcIdentityProviderConfig()).tags(getTags()));
 
-        Wait.atMost(60, TimeUnit.MINUTES)
-            .checkEvery(5, TimeUnit.MINUTES)
+        Wait.atMost(30, TimeUnit.MINUTES)
+            .checkEvery(2, TimeUnit.MINUTES)
             .prompt(false)
             .until(() -> {
                 IdentityProviderConfigResponse response = getIdentityProviderConfigResponse(client);
@@ -196,8 +196,8 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
 
         client.disassociateIdentityProviderConfig(r -> r.clusterName(getCluster().getName()).identityProviderConfig(i -> i.name(getName()).type(getType())));
 
-        Wait.atMost(60, TimeUnit.MINUTES)
-            .checkEvery(5, TimeUnit.MINUTES)
+        Wait.atMost(30, TimeUnit.MINUTES)
+            .checkEvery(2, TimeUnit.MINUTES)
             .prompt(false)
             .until(() -> getIdentityProviderConfigResponse(client) == null);
     }
