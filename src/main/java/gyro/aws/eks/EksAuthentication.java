@@ -55,7 +55,7 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  *             groups-claim: "groups"
  *             groups-prefix: "onelogin-group:"
  *             config-name: "onelogin"
- *             issuer-url: "vaild issuer url"
+ *             issuer-url: "valid issuer url"
  *             username-prefix: "onelogin-user:"
  *         end
  *
