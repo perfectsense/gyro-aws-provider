@@ -114,6 +114,8 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     // Read-only
     private String arn;
     private String oidcProviderUrl;
+    private String endpoint;
+    private String certificateAuthorityData;
 
     /**
      * The name of the EKS cluster.
@@ -239,12 +241,37 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.oidcProviderUrl = oidcProviderUrl;
     }
 
+    /**
+     * The endpoint for the cluster.
+     */
+    @Output
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    /**
+     * The certificate authority to verify when connecting to the cluster.
+     */
+    @Output
+    public String getCertificateAuthorityData() {
+        return certificateAuthorityData;
+    }
+
+    public void setCertificateAuthorityData(String certificateAuthorityData) {
+        this.certificateAuthorityData = certificateAuthorityData;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setName(model.name());
         setRole(findById(RoleResource.class, model.roleArn()));
         setVersion(model.version());
         setArn(model.arn());
+        setEndpoint(model.endpoint());
 
         EksVpcConfig eksVpcConfig = newSubresource(EksVpcConfig.class);
         eksVpcConfig.copyFrom(model.resourcesVpcConfig());
@@ -256,6 +283,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (model.identity() != null && model.identity().oidc() != null) {
             setOidcProviderUrl(model.identity().oidc().issuer());
+        }
+
+        if (model.certificateAuthority() != null) {
+            setCertificateAuthorityData(model.certificateAuthority().data());
         }
     }
 
