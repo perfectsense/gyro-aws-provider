@@ -80,16 +80,16 @@ aws::eks-cluster ex
         ]
     end
 
+    addon
+        addon-name: "vpc-cni"
+
+        tags : {
+            Name: "example-eks-gyro-vpc-cni"
+        }
+
+    end
+
     tags: {
-        "example-tag-key": "example-tag-value"
-    }
-end
-
-aws::eks-addon example-addon
-    addon-name: vpc-cni
-    cluster: $(aws::eks-cluster ex)
-
-    tags : {
-        "example-tag-key": "example-key-value"
+        Name: "example-eks-gyro"
     }
 end
