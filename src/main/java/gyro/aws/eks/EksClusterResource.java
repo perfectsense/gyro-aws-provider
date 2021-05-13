@@ -277,9 +277,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
             setOidcProviderUrl(model.identity().oidc().issuer());
         }
 
+        EksClient client = createClient(EksClient.class);
+
         // load eks authentication
         setAuthentication(null);
-        EksClient client = createClient(EksClient.class);
         try {
             ListIdentityProviderConfigsResponse response = client.listIdentityProviderConfigs(r -> r
                 .clusterName(getName()));
@@ -292,9 +293,11 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                     providerConfig.name(),
                     providerConfig.type());
 
-                EksAuthentication authentication = newSubresource(EksAuthentication.class);
-                authentication.copyFrom(auth);
-                setAuthentication(authentication);
+                if (auth != null) {
+                    EksAuthentication authentication = newSubresource(EksAuthentication.class);
+                    authentication.copyFrom(auth);
+                    setAuthentication(authentication);
+                }
             }
         } catch (NotFoundException ex) {
             // Ignore
