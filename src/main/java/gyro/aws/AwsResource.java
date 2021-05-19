@@ -43,6 +43,10 @@ public abstract class AwsResource extends Resource {
         bustCache = true;
     }
 
+    public static void keepCache() {
+        bustCache = false;
+    }
+
     protected <T extends SdkClient> T createClient(Class<T> clientClass) {
         Diffable parent = parent();
         if (parent instanceof AwsResource) {
