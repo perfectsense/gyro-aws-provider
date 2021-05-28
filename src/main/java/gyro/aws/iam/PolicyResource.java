@@ -16,6 +16,11 @@
 
 package gyro.aws.iam;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -35,11 +40,6 @@ import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Policy;
 import software.amazon.awssdk.services.iam.model.PolicyVersion;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.util.Set;
 
 /**
  * Creates an IAM Policy with the specified options.
@@ -224,8 +224,28 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         client.deletePolicy(r -> r.policyArn(this.getArn()));
     }
 
-    public String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
+    public static String formatPolicy(String policy) {
+        String formattedPolicy = null;
+
+        if (policy != null) {
+            boolean quoted = false;
+            StringBuilder out = new StringBuilder();
+
+            for (Character c : policy.toCharArray()) {
+                if (c == '"') {
+                    quoted = !quoted;
+                }
+
+                if (c != System.lineSeparator().charAt(0) && c != '\t') {
+                    if (c != ' ' || quoted) {
+                        out.append(c);
+                    }
+                }
+            }
+            formattedPolicy = out.toString();
+        }
+
+        return formattedPolicy;
     }
 
     private Policy getPolicy(IamClient client) {

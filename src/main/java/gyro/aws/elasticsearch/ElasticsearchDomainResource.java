@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -212,13 +213,13 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
     public String getAccessPolicies() {
         if (accessPolicies != null && accessPolicies.contains(".json")) {
             try (InputStream input = openInput(accessPolicies)) {
-                accessPolicies = formatPolicy(IoUtils.toUtf8String(input));
+                accessPolicies = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return accessPolicies;
             } catch (IOException err) {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return accessPolicies;
+            return PolicyResource.formatPolicy(accessPolicies);
         }
     }
 
@@ -502,13 +503,6 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
             .checkEvery(4, TimeUnit.MINUTES)
             .prompt(false)
             .until(() -> getElasticSearchDomain(client) == null);
-    }
-
-    public String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ")
-            .replaceAll("\t", " ")
-            .trim()
-            .replaceAll(" ", "") : policy;
     }
 
     private ElasticsearchDomainStatus getElasticSearchDomain(ElasticsearchClient client) {
