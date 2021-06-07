@@ -44,9 +44,13 @@ import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
+import software.amazon.awssdk.services.eks.model.IdentityProviderConfig;
+import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
+import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
 import software.amazon.awssdk.services.eks.model.LogSetup;
 import software.amazon.awssdk.services.eks.model.LogType;
 import software.amazon.awssdk.services.eks.model.Logging;
+import software.amazon.awssdk.services.eks.model.NotFoundException;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
@@ -110,6 +114,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     private EksLogging logging;
     private List<EksEncryptionConfig> encryptionConfig;
     private Map<String, String> tags;
+    private EksAuthentication authentication;
 
     // Read-only
     private String arn;
@@ -216,6 +221,20 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     }
 
     /**
+     * The authentication config for the cluster.
+     *
+     * @subresource gyro.aws.eks.EksAuthentication
+     */
+    @Updatable
+    public EksAuthentication getAuthentication() {
+        return authentication;
+    }
+
+    public void setAuthentication(EksAuthentication authentication) {
+        this.authentication = authentication;
+    }
+
+    /**
      * The Amazon Resource Number (ARN) of the cluster.
      */
     @Output
@@ -256,6 +275,32 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (model.identity() != null && model.identity().oidc() != null) {
             setOidcProviderUrl(model.identity().oidc().issuer());
+        }
+
+        EksClient client = createClient(EksClient.class);
+
+        // load eks authentication
+        setAuthentication(null);
+        try {
+            ListIdentityProviderConfigsResponse response = client.listIdentityProviderConfigs(r -> r
+                .clusterName(getName()));
+            if (response.hasIdentityProviderConfigs() && !response.identityProviderConfigs().isEmpty()) {
+                IdentityProviderConfig providerConfig = response.identityProviderConfigs().get(0);
+
+                IdentityProviderConfigResponse auth = EksAuthentication.getIdentityProviderConfigResponse(
+                    client,
+                    getName(),
+                    providerConfig.name(),
+                    providerConfig.type());
+
+                if (auth != null) {
+                    EksAuthentication authentication = newSubresource(EksAuthentication.class);
+                    authentication.copyFrom(auth);
+                    setAuthentication(authentication);
+                }
+            }
+        } catch (NotFoundException ex) {
+            // Ignore
         }
     }
 
