@@ -31,16 +31,18 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
     private String clientId;
     private String groupsClaim;
     private String groupsPrefix;
-    private String arn;
     private String configName;
     private String issuerUrl;
-    private String status;
     private Map<String, String> requiredClaims;
     private String usernameClaim;
     private String usernamePrefix;
 
+    // Read-only
+    private String arn;
+    private String status;
+
     /**
-     * The id of the client that the makes authentication request.
+     * The ID of the client that the makes authentication request.
      */
     @Required
     public String getClientId() {
@@ -63,7 +65,7 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
     }
 
     /**
-     * A prefix prepended to group claims to avoid naming conflicts.
+     * The prefix prepended to group claims to avoid naming conflicts.
      */
     public String getGroupsPrefix() {
         return groupsPrefix;
@@ -110,7 +112,7 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
     }
 
     /**
-     * Status of the identity provider.
+     * The status of the identity provider.
      */
     @Output
     public String getStatus() {

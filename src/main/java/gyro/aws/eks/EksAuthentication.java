@@ -115,7 +115,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
     }
 
     /**
-     * Tags for the identity provider configuration.
+     * The tags for the identity provider configuration.
      */
     public Map<String, String> getTags() {
         if (tags == null) {
