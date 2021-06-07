@@ -16,18 +16,29 @@
 
 package gyro.aws.cloudfront;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.waf.global.WebAclResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.TestValue;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.TestValue;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
@@ -46,15 +57,6 @@ import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
 import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Create a CloudFront distribution.
@@ -120,7 +122,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
     private Boolean enabled;
     private String comment;
-    private Set<String> cnames;
+    private List<String> cnames;
     private String httpVersion;
     private String priceClass;
     private String defaultRootObject;
@@ -134,7 +136,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private CloudFrontCacheBehavior defaultCacheBehavior;
     private CloudFrontViewerCertificate viewerCertificate;
     private CloudFrontLogging logging;
-    private Set<CloudFrontCustomErrorResponse> customErrorResponse;
+    private List<CloudFrontCustomErrorResponse> customErrorResponse;
     private CloudFrontGeoRestriction geoRestriction;
 
     // -- Read only
@@ -203,15 +205,17 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * CNAMES (aliases) for which this distribution will listen for.
      */
     @Updatable
-    public Set<String> getCnames() {
+    public List<String> getCnames() {
         if (cnames == null) {
-            cnames = new HashSet<>();
+            cnames = new ArrayList<>();
         }
+
+        Collections.sort(cnames);
 
         return cnames;
     }
 
-    public void setCnames(Set<String> cnames) {
+    public void setCnames(List<String> cnames) {
         this.cnames = cnames;
     }
 
@@ -429,15 +433,17 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * @subresource gyro.aws.cloudfront.CloudFrontCustomErrorResponse
      */
     @Updatable
-    public Set<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
+    public List<CloudFrontCustomErrorResponse> getCustomErrorResponse() {
         if (customErrorResponse == null) {
-            customErrorResponse = new HashSet<>();
+            customErrorResponse = new ArrayList<>();
         }
+
+        customErrorResponse.sort(Comparator.comparing(CloudFrontCustomErrorResponse::getErrorCode));
 
         return customErrorResponse;
     }
 
-    public void setCustomErrorResponse(Set<CloudFrontCustomErrorResponse> customErrorResponses) {
+    public void setCustomErrorResponse(List<CloudFrontCustomErrorResponse> customErrorResponses) {
         this.customErrorResponse = customErrorResponses;
     }
 
@@ -467,7 +473,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         setEnabled(config.enabled());
         setComment(config.comment());
-        setCnames(config.aliases().items().isEmpty() ? new HashSet<>() : new HashSet<>(config.aliases().items()));
+        setCnames(config.aliases().items().isEmpty() ? new ArrayList<>() : new ArrayList<>(config.aliases().items()));
         setHttpVersion(config.httpVersionAsString());
         setPriceClass(config.priceClassAsString());
         setCallerReference(config.callerReference());
@@ -522,11 +528,12 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setGeoRestriction(geoRestriction);
 
         getCustomErrorResponse().clear();
-        for (CustomErrorResponse errorResponse : config.customErrorResponses().items()) {
+        setCustomErrorResponse(config.customErrorResponses().items().stream().map(errorResponse -> {
             CloudFrontCustomErrorResponse customErrorResponse = newSubresource(CloudFrontCustomErrorResponse.class);
             customErrorResponse.copyFrom(errorResponse);
-            getCustomErrorResponse().add(customErrorResponse);
-        }
+
+            return customErrorResponse;
+        }).collect(Collectors.toList()));
 
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 

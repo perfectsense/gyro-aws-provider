@@ -94,7 +94,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     }
 
     /**
-     * S3 configuration for this origin.
+     * S3 configuration for this origin. When configuring the origin if both `s3-origin` and `custom-origin` are left blank, defaults to a blank `s3-origin`. If the `domain-name` is set to anything other than a bucket a `custom-origin` needs to be configured.
      *
      * @subresource gyro.aws.cloudfront.CloudFrontS3Origin
      */
@@ -112,7 +112,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     }
 
     /**
-     * Custom configuration for this origin.
+     * Custom configuration for this origin. If the `domain-name` is set to anything other than a bucket a `custom-origin` needs to be configured.
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCustomOrigin
      */

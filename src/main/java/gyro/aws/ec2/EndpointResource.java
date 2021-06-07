@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,6 +34,7 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -497,12 +499,10 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
             r -> r.vpcEndpointIds(getId())
         );
 
-        // Delay for residual dependency to be gone. 2 Min
-        try {
-            Thread.sleep(120000);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        Wait.atMost(3, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> getVpcEndpoint(client) == null);
     }
 
     @Override

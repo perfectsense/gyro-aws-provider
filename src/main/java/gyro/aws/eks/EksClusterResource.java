@@ -183,7 +183,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The encryption configuration used by the cluster.
+     *
+     * @subresource gyro.aws.eks.EksEncryptionConfig
      */
+    @Updatable
     public List<EksEncryptionConfig> getEncryptionConfig() {
         if (encryptionConfig == null) {
             encryptionConfig = new ArrayList<>();
@@ -349,6 +352,16 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                                 .build())
                         .build());
             }
+
+            waitForActiveStatus(client);
+        }
+
+        if (changedFieldNames.contains("encryption-config") && !getEncryptionConfig().isEmpty()) {
+            client.associateEncryptionConfig(r -> r.clusterName(getName())
+                .encryptionConfig(getEncryptionConfig().stream()
+                    .map(EksEncryptionConfig::toEncryptionConfig)
+                    .collect(Collectors.toList())
+            ));
 
             waitForActiveStatus(client);
         }

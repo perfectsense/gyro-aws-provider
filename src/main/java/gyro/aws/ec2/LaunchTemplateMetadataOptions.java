@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Perfect Sense.
+ * Copyright 2020, Brightspot
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,12 @@ public class LaunchTemplateMetadataOptions extends Diffable implements Copyable<
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
+    /**
+     * Enable or disable the HTTP metadata endpoint. Valid values are: ``enabled``, or ``disabled``.
+     */
     public LaunchTemplateInstanceMetadataEndpointState getHttpEndpoint() {
         return httpEndpoint;
     }
@@ -42,6 +45,9 @@ public class LaunchTemplateMetadataOptions extends Diffable implements Copyable<
         this.httpEndpoint = httpEndpoint;
     }
 
+    /**
+     * Hop limit for instance metadata requests.
+     */
     public Integer getHttpPutResponseHopLimit() {
         return httpPutResponseHopLimit;
     }
@@ -50,6 +56,9 @@ public class LaunchTemplateMetadataOptions extends Diffable implements Copyable<
         this.httpPutResponseHopLimit = httpPutResponseHopLimit;
     }
 
+    /**
+     * Specify if a token is required for instance metadata requests. Default is ``optional``.
+     */
     public LaunchTemplateHttpTokensState getHttpTokens() {
         return httpTokens;
     }

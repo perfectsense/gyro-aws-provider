@@ -16,23 +16,29 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.diff.Create;
 import gyro.core.diff.Delete;
+import gyro.core.diff.Update;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.Resource;
-import gyro.core.diff.Update;
 import gyro.core.resource.Updatable;
-
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Action;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.ActionTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateCognitoActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.AuthenticateOidcActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.FixedResponseActionConfig;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.ForwardActionConfig;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.RedirectActionConfig;
-
-import java.util.Set;
 
 /**
  *
@@ -42,15 +48,21 @@ import java.util.Set;
  * .. code-block:: gyro
  *
  *     action
- *         target-group: $(aws::load-balancer-target-group target-group-example)
- *         type: "forward"
+ *         order: 1
+ *         forward-action
+ *             target-group-weight
+ *                 target-group: $(aws::load-balancer-target-group target-group-example)
+ *                 weight: 1
+ *             end
+ *         end
  *     end
  */
-public class ActionResource extends NetworkActionResource implements Copyable<Action> {
+public class ActionResource extends AwsResource implements Copyable<Action> {
 
     private AuthenticateCognitoAction authenticateCognitoAction;
     private AuthenticateOidcAction authenticateOidcAction;
     private FixedResponseAction fixedResponseAction;
+    private ForwardAction forwardAction;
     private Integer order;
     private RedirectAction redirectAction;
 
@@ -59,6 +71,11 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
      *
      *  @subresource gyro.aws.elbv2.AuthenticateCognitoAction
      */
+    @ConflictsWith({
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public AuthenticateCognitoAction getAuthenticateCognitoAction() {
         return authenticateCognitoAction;
@@ -73,6 +90,11 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
      *
      *  @subresource gyro.aws.elbv2.AuthenticateOidcAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "fixed-response-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public AuthenticateOidcAction getAuthenticateOidcAction() {
         return authenticateOidcAction;
@@ -83,10 +105,36 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
     }
 
     /**
+     *  Action to support multiple ALB Target groups. If both this field and {@link TargetGroupResource}
+     *  are defined, they must match and only will support a single target. This field should be used
+     *  when forward weights should be used.
+     *
+     * @subresource gyro.aws.elbv2.ForwardAction
+     */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "redirect-action" })
+    @Updatable
+    public ForwardAction getForwardAction() {
+        return forwardAction;
+    }
+
+    public void setForwardAction(ForwardAction forwardAction) {
+        this.forwardAction = forwardAction;
+    }
+
+    /**
      *  Used to specify a custom response for an action.
      *
      *  @subresource gyro.aws.elbv2.FixedResponseAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "forward-action",
+        "redirect-action" })
     @Updatable
     public FixedResponseAction getFixedResponseAction() {
         return fixedResponseAction;
@@ -113,6 +161,11 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
      *
      *  @subresource gyro.aws.elbv2.RedirectAction
      */
+    @ConflictsWith({
+        "authenticate-cognito-action",
+        "authenticate-oidc-action",
+        "fixed-response-action",
+        "forward-action" })
     @Updatable
     public RedirectAction getRedirectAction() {
         return redirectAction;
@@ -152,9 +205,19 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
             setRedirectAction(redirect);
         }
 
+        ForwardActionConfig forwardActionConfig = action.forwardConfig();
+        if (action.targetGroupArn() != null || forwardActionConfig != null) {
+            ForwardAction forward = newSubresource(ForwardAction.class);
+
+            if (forwardActionConfig != null) {
+                forward.copyFrom(forwardActionConfig);
+            }
+
+            forward.addTargets(action.targetGroupArn());
+            setForwardAction(forward);
+        }
+
         setOrder(action.order());
-        setTargetGroup(action.targetGroupArn() != null ? findById(TargetGroupResource.class, action.targetGroupArn()) : null);
-        setType(action.typeAsString());
     }
 
     @Override
@@ -207,16 +270,55 @@ public class ActionResource extends NetworkActionResource implements Copyable<Ac
         }
     }
 
+    public String detectType() {
+        if (getAuthenticateCognitoAction() != null) {
+            return ActionTypeEnum.AUTHENTICATE_COGNITO.toString();
+        } else if (getAuthenticateOidcAction() != null) {
+            return ActionTypeEnum.AUTHENTICATE_OIDC.toString();
+        } else if (getFixedResponseAction() != null) {
+            return ActionTypeEnum.FIXED_RESPONSE.toString();
+        } else if (getForwardAction() != null) {
+            return ActionTypeEnum.FORWARD.toString();
+        } else if (getRedirectAction() != null) {
+            return ActionTypeEnum.REDIRECT.toString();
+        } else {
+            return ActionTypeEnum.UNKNOWN_TO_SDK_VERSION.toString();
+        }
+    }
+
     public Action toAction() {
         return Action.builder()
                 .authenticateCognitoConfig(getAuthenticateCognitoAction() != null ? getAuthenticateCognitoAction().toCognito() : null)
                 .authenticateOidcConfig(getAuthenticateOidcAction() != null ? getAuthenticateOidcAction().toOidc() : null)
                 .fixedResponseConfig(getFixedResponseAction() != null ? getFixedResponseAction().toFixedAction() : null)
                 .redirectConfig(getRedirectAction() != null ? getRedirectAction().toRedirect() : null)
+                .forwardConfig(getForwardAction() != null ? getForwardAction().toForwardActionConfig() : null)
                 .order(getOrder())
-                .targetGroupArn(getTargetGroup() != null ? getTargetGroup().getArn() : null)
-                .type(getType())
+                .type(detectType())
                 .build();
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s/%s", getOrder(), detectType());
+    }
+
+    /**
+     * Actions can only have a single type configured.
+     */
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getAuthenticateCognitoAction() == null && getAuthenticateOidcAction() == null
+            && getFixedResponseAction() == null && getForwardAction() == null && getRedirectAction() == null) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Exactly one of 'authenticate-cognito-action' or 'authenticate-oidc-action' or 'fixed-response-action' or 'forward-action' or 'redirect-action' is required."));
+        }
+
+        return errors;
     }
 }
 
