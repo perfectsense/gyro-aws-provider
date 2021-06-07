@@ -29,7 +29,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.ConfigStatus;
 import software.amazon.awssdk.services.eks.model.DescribeIdentityProviderConfigResponse;
@@ -56,7 +55,6 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  *                  client-id: "valid client id"
  *                  groups-claim: "groups"
  *                  groups-prefix: "onelogin-group:"
- *                  config-name: "onelogin"
  *                  issuer-url: "valid issuer url"
  *                  username-prefix: "onelogin-user:"
  *              end
@@ -69,8 +67,8 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  */
 public class EksAuthentication extends AwsResource implements Copyable<IdentityProviderConfigResponse> {
 
+    private static final String IDENTITY_PROVIDER_TYPE = "oidc";
     private String name;
-    private String type;
     private OidcIdentityProviderConfiguration config;
     private Map<String, String> tags;
 
@@ -85,19 +83,6 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * The type of the identity provider being associated.
-     */
-    @Required
-    @ValidStrings("oidc")
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     /**
@@ -136,7 +121,6 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
         String arn = model.oidc().identityProviderConfigArn();
         String[] split = arn.split("/");
         setName(split[3]);
-        setType(split[2]);
 
         OidcIdentityProviderConfiguration configuration = newSubresource(OidcIdentityProviderConfiguration.class);
         configuration.copyFrom(model.oidc());
@@ -162,7 +146,8 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
             .checkEvery(2, TimeUnit.MINUTES)
             .prompt(false)
             .until(() -> {
-                IdentityProviderConfigResponse response = getIdentityProviderConfigResponse(client, parent.getName(), getName(), getType());
+                IdentityProviderConfigResponse response = getIdentityProviderConfigResponse(
+                    client, parent.getName(), getName(), IDENTITY_PROVIDER_TYPE);
                 return response != null && response.oidc().status() == ConfigStatus.ACTIVE;
             });
     }
@@ -180,12 +165,13 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
         EksClusterResource parent = (EksClusterResource) parent();
 
         client.disassociateIdentityProviderConfig(r -> r.clusterName(parent.getName())
-            .identityProviderConfig(i -> i.name(getName()).type(getType())));
+            .identityProviderConfig(i -> i.name(getName()).type(IDENTITY_PROVIDER_TYPE)));
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
             .prompt(false)
-            .until(() -> getIdentityProviderConfigResponse(client, parent.getName(), getName(), getType()) == null);
+            .until(() -> getIdentityProviderConfigResponse(client, parent.getName(), getName(), IDENTITY_PROVIDER_TYPE)
+                == null);
     }
 
     protected static IdentityProviderConfigResponse getIdentityProviderConfigResponse(EksClient client, String clusterName, String name, String type) {

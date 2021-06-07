@@ -31,7 +31,6 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
     private String clientId;
     private String groupsClaim;
     private String groupsPrefix;
-    private String configName;
     private String issuerUrl;
     private Map<String, String> requiredClaims;
     private String usernameClaim;
@@ -85,18 +84,6 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
 
     public void setArn(String arn) {
         this.arn = arn;
-    }
-
-    /**
-     * The name of the identity provider configuration.
-     */
-    @Required
-    public String getConfigName() {
-        return configName;
-    }
-
-    public void setConfigName(String configName) {
-        this.configName = configName;
     }
 
     /**
@@ -171,7 +158,6 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
         setGroupsClaim(model.groupsClaim());
         setGroupsPrefix(model.groupsPrefix());
         setArn(model.identityProviderConfigArn());
-        setConfigName(model.identityProviderConfigName());
         setIssuerUrl(model.issuerUrl());
         setRequiredClaims(model.requiredClaims());
         setStatus(model.statusAsString());
@@ -180,8 +166,10 @@ public class OidcIdentityProviderConfiguration extends Diffable implements Copya
     }
 
     protected OidcIdentityProviderConfigRequest toOidcIdentityProviderConfig() {
+        EksAuthentication parent = (EksAuthentication) parent();
+
         return OidcIdentityProviderConfigRequest.builder()
-            .identityProviderConfigName(getConfigName())
+            .identityProviderConfigName(parent.getName())
             .clientId(getClientId())
             .issuerUrl(getIssuerUrl())
             .groupsClaim(getGroupsClaim())
