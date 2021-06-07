@@ -284,7 +284,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         try {
             ListIdentityProviderConfigsResponse response = client.listIdentityProviderConfigs(r -> r
                 .clusterName(getName()));
-            if (response.hasIdentityProviderConfigs()) {
+            if (response.hasIdentityProviderConfigs() && !response.identityProviderConfigs().isEmpty()) {
                 IdentityProviderConfig providerConfig = response.identityProviderConfigs().get(0);
 
                 IdentityProviderConfigResponse auth = EksAuthentication.getIdentityProviderConfigResponse(
