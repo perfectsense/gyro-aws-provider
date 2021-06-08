@@ -314,6 +314,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                         getAddon().add(addonResource);
                     }
                 });
+            }
+        } catch (NotFoundException ex) {
+            // Ignore
+        }
 
         // load eks authentication
         setAuthentication(null);
