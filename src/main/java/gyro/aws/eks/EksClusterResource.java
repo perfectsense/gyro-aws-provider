@@ -43,7 +43,6 @@ import software.amazon.awssdk.services.eks.model.ClusterStatus;
 import software.amazon.awssdk.services.eks.model.CreateClusterRequest;
 import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
-import software.amazon.awssdk.services.eks.model.DescribeAddonResponse;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.ListAddonsResponse;
@@ -114,7 +113,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     private EksLogging logging;
     private List<EksEncryptionConfig> encryptionConfig;
     private Map<String, String> tags;
-    private EksAddonResource addon;
+    private List<EksAddonResource> addon;
 
     // Read-only
     private String arn;
@@ -210,11 +209,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
      * @subresource gyro.aws.eks.EksAddonResource
      */
     @Updatable
-    public EksAddonResource getAddon() {
+    public List<EksAddonResource> getAddon() {
+        if (addon == null) {
+            addon = new ArrayList<>();
+        }
+
         return addon;
     }
 
-    public void setAddon(EksAddonResource addon) {
+    public void setAddon(List<EksAddonResource> addon) {
         this.addon = addon;
     }
 
@@ -285,12 +288,14 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
             ListAddonsResponse response = client.listAddons(r -> r.clusterName(getName()));
 
             if (response.hasAddons()) {
-                Addon addon = EksAddonResource.getAddon(client, getName(), response.addons().get(0));
-                if (addon != null) {
-                    EksAddonResource addonResource = newSubresource(EksAddonResource.class);
-                    addonResource.copyFrom(addon);
-                    setAddon(addonResource);
-                }
+                response.addons().forEach(a -> {
+                    Addon addon = EksAddonResource.getAddon(client, getName(), a);
+                    if (addon != null) {
+                        EksAddonResource addonResource = newSubresource(EksAddonResource.class);
+                        addonResource.copyFrom(addon);
+                        getAddon().add(addonResource);
+                    }
+                });
             }
         } catch (NotFoundException ex) {
             // Ignore
