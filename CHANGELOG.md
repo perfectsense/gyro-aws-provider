@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-## 1.1.2 (June 8th, 2021)
+## 1.2.0 (June 8th, 2021)
 
 ENHANCEMENTS:
 
