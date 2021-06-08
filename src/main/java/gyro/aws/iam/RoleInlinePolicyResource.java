@@ -1,5 +1,11 @@
 package gyro.aws.iam;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Set;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -11,12 +17,6 @@ import gyro.core.validation.Required;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.GetRolePolicyResponse;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Set;
 
 public class RoleInlinePolicyResource extends AwsResource implements Copyable<GetRolePolicyResponse> {
     private String name;
@@ -42,13 +42,13 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
     public String getPolicyDocument() {
         if (this.policyDocument != null && this.policyDocument.contains(".json")) {
             try (InputStream input = openInput(this.policyDocument)) {
-                this.policyDocument = formatPolicy(IoUtils.toUtf8String(input));
+                this.policyDocument = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.policyDocument;
             } catch (IOException err) {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return this.policyDocument;
+            return PolicyResource.formatPolicy(this.policyDocument);
         }
     }
 
@@ -101,9 +101,5 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
         RoleResource roleResource = (RoleResource) parent();
 
         client.deleteRolePolicy(r -> r.roleName(roleResource.getName()).policyName(getName()));
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }
