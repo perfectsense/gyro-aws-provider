@@ -62,7 +62,6 @@ import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
  *         end
  *     end
  */
-@Type("eks-addon")
 public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     private String addonName;
