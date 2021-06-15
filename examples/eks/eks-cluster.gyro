@@ -6,7 +6,7 @@ aws::vpc vpc
     }
 end
 
-@for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
+@for zone, cidr -in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-example-$(zone)"
         vpc: $(aws::vpc vpc)
         availability-zone: $(zone)
@@ -56,18 +56,31 @@ aws::iam-policy example-policy-iam-service
     policy-document: "eks-service-policy.json"
 end
 
+aws::kms-key kms-example
+    aliases: ["alias/eks1", "alias/eks2"]
+    bypass-policy-lockout-safety-check: "true"
+    description: "eks kms key"
+    enabled: "true"
+    key-rotation: "true"
+    policy: "kms-policy.json"
+
+    tags: {
+        Name: "kms-example"
+    }
+end
+
 aws::eks-cluster ex
     name: "example-eks-gyro"
     role: $(aws::iam-role example-role-iam-eks)
-    version: 1.15
+    version: 1.19
 
     vpc-config
         enable-endpoint-private-access: true
         enable-endpoint-public-access: true
 
         subnets: [
-            $(aws::subnet "subnet-example-us-east-1a"),
-            $(aws::subnet "subnet-example-us-east-1b")
+            $(aws::subnet "subnet-example-us-east-2a"),
+            $(aws::subnet "subnet-example-us-east-2b")
         ]
 
         security-groups: [
@@ -87,7 +100,7 @@ aws::eks-cluster ex
 
     encryption-config
         provider
-            key: $(external-query aws::kms-key { key-id: "c5245825-8526-4032-a67c-21656f220312"})
+            key: $(aws::kms-key kms-example)
         end
     end
 
@@ -123,55 +136,11 @@ aws::eks-fargate-profile eks-fargate-example
     end
 
     subnets: [
-        $(aws::subnet "subnet-example-us-east-1a"),
-        $(aws::subnet "subnet-example-us-east-1b")
+        $(aws::subnet "subnet-example-us-east-2a"),
+        $(aws::subnet "subnet-example-us-east-2b")
     ]
 
     tags: {
         "example-tag-key": "example-tag-value"
-    }
-end
-
-aws::iam-role example-role-iam-nodegroup
-    name: "example-role-iam-nodegroup"
-    assume-role-policy: '{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Principal": {"Service": "ec2.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
-    policies: [
-        'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy',
-        'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly',
-        $(aws::iam-policy example-policy-iam-cni)
-    ]
-end
-
-aws::iam-policy example-policy-iam-cni
-    name: "example-policy-iam-cni"
-    policy-document: "cni-policy.json"
-end
-
-aws::eks-nodegroup eks-nodegroup-example
-    name: "example-eks-nodegroup"
-    cluster: $(aws::eks-cluster ex)
-    node-role: $(aws::iam-role example-role-iam-nodegroup)
-
-    subnets: [
-        $(aws::subnet "subnet-example-us-east-1a"),
-        $(aws::subnet "subnet-example-us-east-1b")
-    ]
-
-    remote-access
-        ec2-ssh-key: "key-pair-example"
-
-        source-security-groups: [
-            $(aws::security-group security-group-example-source)
-        ]
-    end
-
-    scaling-config
-        desired-size: 2
-        max-size: 2
-        min-size: 2
-    end
-
-    labels: {
-        "example-label-key": "example-label-value"
     }
 end

@@ -1,0 +1,97 @@
+aws::db-cluster db-cluster-example
+    identifier: "aurora-mysql-cluster-for-backup-selection-example"
+    engine: "aurora-mysql"
+    availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
+    db-name: "clusterexample"
+    master-username: "user"
+    master-user-password: "password"
+    backup-retention-period: 5
+    preferred-backup-window: "07:00-09:00"
+    skip-final-snapshot: true
+
+    tags: {
+        Name: "aurora-mysql-cluster-for-backup-selection-example"
+    }
+end
+
+aws::backup-selection production
+    backup-plan: $(aws::backup-plan backup-plan-example)
+
+    configuration
+        name: production
+        role: $(external-query aws::iam-role { name: 'AWSBackupDefaultServiceRole'})
+        resources: [$(aws::db-cluster db-cluster-example).arn]
+    end
+end
+
+aws::kms-key kms-example
+    aliases: ["alias/key-for-backup-example"]
+    bypass-policy-lockout-safety-check: "true"
+    description: "sample kms key"
+    enabled: "true"
+    key-rotation: "true"
+    policy: "kms-policy.json"
+
+    tags: {
+        Name: "key-for-backup-example"
+    }
+end
+
+aws::backup-vault destination-vault
+    name: destination-vault
+    access-policy: "vault-access-policy.json"
+    encryption-key: $(aws::kms-key kms-example)
+
+    tags: {
+        "name" : "destination-vault"
+    }
+end
+
+aws::backup-vault target-vault
+    name: target-vault
+    access-policy: "vault-access-policy.json"
+    encryption-key: $(aws::kms-key kms-example)
+
+    tags: {
+        "name" : "target-vault"
+    }
+end
+
+aws::backup-plan backup-plan-example
+    configuration
+        name: my-rds-backups
+
+        rule
+            name: weekly
+            target-backup-vault: $(aws::backup-vault destination-vault)
+
+            schedule: 'cron(0 6 ? * * *)'
+            start-window-minutes: 61
+
+            completion-window-minutes: 121
+            enable-continuous-backup: false
+
+            recovery-point-tags: {
+               "name": "week"
+            }
+
+            lifecycle
+                delete-after-days: 366
+                move-to-cold-storage-after-days: 31
+            end
+
+            copy-action
+                destination-backup-vault: $(aws::backup-vault target-vault)
+
+                lifecycle
+                    delete-after-days: 366
+                    move-to-cold-storage-after-days: 31
+                end
+            end
+        end
+    end
+
+    tags: {
+        "name": "backup-plan-example"
+    }
+end

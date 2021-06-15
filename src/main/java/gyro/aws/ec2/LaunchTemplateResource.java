@@ -32,20 +32,21 @@ import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
+import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateVersionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
-import software.amazon.awssdk.services.ec2.model.LaunchTemplateCapacityReservationSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
-import software.amazon.awssdk.services.ec2.model.ShutdownBehavior;
-import software.amazon.awssdk.utils.builder.SdkBuilder;
+import software.amazon.awssdk.services.ec2.model.RequestLaunchTemplateData;
 
 /**
  * Creates a Launch Template from config or an existing Instance Id.
@@ -92,21 +93,31 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     private String name;
     private AmiResource ami;
-    private Integer coreCount;
-    private Integer threadPerCore;
     private Boolean ebsOptimized;
     private Boolean configureHibernateOption;
     private String shutdownBehavior;
     private String instanceType;
     private String keyName;
-    private Boolean enableMonitoring;
     private List<SecurityGroupResource> securityGroups;
     private Boolean disableApiTermination;
     private String userData;
     private List<BlockDeviceMapping> blockDeviceMapping;
-    private String capacityReservation;
+    private LaunchTemplateCapacityReservation capacityReservation;
     private InstanceProfileResource instanceProfile;
     private Set<NetworkInterfaceResource> networkInterfaces;
+    private LaunchTemplateMetadataOptions metadataOptions;
+    private LaunchTemplateCreditSpecification creditSpecification;
+    private List<LaunchTemplateElasticGpuSpecification> elasticGpuSpecification;
+    private List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator;
+    private LaunchTemplateEnclaveOptions enclaveOptions;
+    private LaunchTemplateHibernationOptions hibernationOptions;
+    private LaunchTemplateInstanceMarketOptions marketOptions;
+    private String kernelId;
+    private String ramDiskId;
+    private LaunchTemplatePlacement placement;
+    private List<LaunchTemplateTagSpecification> tagSpecification;
+    private LaunchTemplateCpuOptions cpuOptions;
+    private LaunchTemplateMonitoring monitoring;
 
     // Read-only
     private String id;
@@ -127,7 +138,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The AMI to be used to launch the Instance created by this Template.
      */
-    @Required
+    @Updatable
     public AmiResource getAmi() {
         return ami;
     }
@@ -137,38 +148,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The number of cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
-     */
-    public Integer getCoreCount() {
-        if (coreCount == null) {
-            coreCount = 0;
-        }
-
-        return coreCount;
-    }
-
-    public void setCoreCount(Integer coreCount) {
-        this.coreCount = coreCount;
-    }
-
-    /**
-     * The number of threads per cores with which to launch instances. Defaults to 0 which sets its to the instance type defaults. See `Optimizing CPU Options <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html/>`_.
-     */
-    public Integer getThreadPerCore() {
-        if (threadPerCore == null) {
-            threadPerCore = 0;
-        }
-
-        return threadPerCore;
-    }
-
-    public void setThreadPerCore(Integer threadPerCore) {
-        this.threadPerCore = threadPerCore;
-    }
-
-    /**
      * When set to ``true``, EBS optimization for an instance is enabled. Defaults to false. See `Amazon EBS–Optimized Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSOptimized.html/>`_.
      */
+    @Updatable
     public Boolean getEbsOptimized() {
         if (ebsOptimized == null) {
             ebsOptimized = false;
@@ -184,6 +166,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, hibernate options for an instance are enabled. Defaults to false. See `Hibernate your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html/>`_.
      */
+    @Updatable
     public Boolean getConfigureHibernateOption() {
         if (configureHibernateOption == null) {
             configureHibernateOption = false;
@@ -197,10 +180,11 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * The shutdown behavior options for an instance. Defaults to Stop. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
+     * The shutdown behavior options for an instance. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
      */
+    @Updatable
     public String getShutdownBehavior() {
-        return shutdownBehavior != null ? shutdownBehavior.toLowerCase() : ShutdownBehavior.STOP.toString();
+        return shutdownBehavior;
     }
 
     public void setShutdownBehavior(String shutdownBehavior) {
@@ -211,6 +195,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
      */
     @Required
+    @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
     }
@@ -222,7 +207,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs < https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html/>`_.
      */
-    @Required
+    @Updatable
     public String getKeyName() {
         return keyName;
     }
@@ -232,22 +217,9 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     }
 
     /**
-     * When set to ``true``, monitoring for your instance is enabled. See `Monitoring Your Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html/>`_.
-     */
-    public Boolean getEnableMonitoring() {
-        if (enableMonitoring == null) {
-            enableMonitoring = false;
-        }
-        return enableMonitoring;
-    }
-
-    public void setEnableMonitoring(Boolean enableMonitoring) {
-        this.enableMonitoring = enableMonitoring;
-    }
-
-    /**
      * The security groups associated with the launch instance. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html/>`_. Required if Network Interface not configured.
      */
+    @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new ArrayList<>();
@@ -263,6 +235,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * When set to ``true``, api termination of an instance is enabled. See `Enabling Termination Protection for an Instance <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingDisableAPITermination/>`_.
      */
+    @Updatable
     public Boolean getDisableApiTermination() {
         if (disableApiTermination == null) {
             disableApiTermination = false;
@@ -278,6 +251,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The user data for your instance. See `Instance Metadata and User Data <https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/ec2-instance-metadata.html/>`_.
      */
+    @Updatable
     public String getUserData() {
         if (userData == null) {
             userData = "";
@@ -297,6 +271,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      *
      * @subresource gyro.aws.ec2.AmiBlockDeviceMapping
      */
+    @Updatable
     public List<BlockDeviceMapping> getBlockDeviceMapping() {
         if (blockDeviceMapping == null) {
             blockDeviceMapping = new ArrayList<>();
@@ -312,21 +287,19 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The capacity reservation for the instances being launched using this template.
      */
-    public String getCapacityReservation() {
-        if (capacityReservation == null) {
-            capacityReservation = "none";
-        }
-
+    @Updatable
+    public LaunchTemplateCapacityReservation getCapacityReservation() {
         return capacityReservation;
     }
 
-    public void setCapacityReservation(String capacityReservation) {
+    public void setCapacityReservation(LaunchTemplateCapacityReservation capacityReservation) {
         this.capacityReservation = capacityReservation;
     }
 
     /**
      * Iam instance profile to be linked with the instances being launched using this template.
      */
+    @Updatable
     public InstanceProfileResource getInstanceProfile() {
         return instanceProfile;
     }
@@ -338,6 +311,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The set of Network Interfaces to be attached to the instances being launched using this template. Required if Security Group not provided.
      */
+    @Updatable
     public Set<NetworkInterfaceResource> getNetworkInterfaces() {
         if (networkInterfaces == null) {
             networkInterfaces = new HashSet<>();
@@ -348,6 +322,177 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     public void setNetworkInterfaces(Set<NetworkInterfaceResource> networkInterfaces) {
         this.networkInterfaces = networkInterfaces;
+    }
+
+    /**
+     * The metadata options for the instance.
+     *
+     * @subresource gyro.aws.ec2.LaunchTemplateMetadataOptions
+     */
+    @Updatable
+    public LaunchTemplateMetadataOptions getMetadataOptions() {
+        return metadataOptions;
+    }
+
+    public void setMetadataOptions(LaunchTemplateMetadataOptions metadataOptions) {
+        this.metadataOptions = metadataOptions;
+    }
+
+    /**
+     * The credit specifications for the instance.
+     */
+    @Updatable
+    public LaunchTemplateCreditSpecification getCreditSpecification() {
+        return creditSpecification;
+    }
+
+    public void setCreditSpecification(LaunchTemplateCreditSpecification creditSpecification) {
+        this.creditSpecification = creditSpecification;
+    }
+
+    /**
+     * The elastic GPU to associate with the instance.
+     */
+    @Updatable
+    public List<LaunchTemplateElasticGpuSpecification> getElasticGpuSpecification() {
+        if (elasticGpuSpecification == null) {
+            elasticGpuSpecification = new ArrayList<>();
+        }
+
+        return elasticGpuSpecification;
+    }
+
+    public void setElasticGpuSpecification(List<LaunchTemplateElasticGpuSpecification> elasticGpuSpecification) {
+        this.elasticGpuSpecification = elasticGpuSpecification;
+    }
+
+    /**
+     * The elastic inference accelerator for the instance.
+     */
+    @Updatable
+    public List<LaunchTemplateElasticInferenceAccelerator> getInferenceAccelerator() {
+        if (inferenceAccelerator == null) {
+            inferenceAccelerator = new ArrayList<>();
+        }
+
+        return inferenceAccelerator;
+    }
+
+    public void setInferenceAccelerator(List<LaunchTemplateElasticInferenceAccelerator> inferenceAccelerator) {
+        this.inferenceAccelerator = inferenceAccelerator;
+    }
+
+    /**
+     * The enclave options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateEnclaveOptions getEnclaveOptions() {
+        return enclaveOptions;
+    }
+
+    public void setEnclaveOptions(LaunchTemplateEnclaveOptions enclaveOptions) {
+        this.enclaveOptions = enclaveOptions;
+    }
+
+    /**
+     * The hibernation options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateHibernationOptions getHibernationOptions() {
+        return hibernationOptions;
+    }
+
+    public void setHibernationOptions(LaunchTemplateHibernationOptions hibernationOptions) {
+        this.hibernationOptions = hibernationOptions;
+    }
+
+    /**
+     * The spot market options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateInstanceMarketOptions getMarketOptions() {
+        return marketOptions;
+    }
+
+    public void setMarketOptions(LaunchTemplateInstanceMarketOptions marketOptions) {
+        this.marketOptions = marketOptions;
+    }
+
+    /**
+     * The tags to apply to the resources during launch.
+     */
+    @Updatable
+    public List<LaunchTemplateTagSpecification> getTagSpecification() {
+        if (tagSpecification == null) {
+            tagSpecification = new ArrayList<>();
+        }
+
+        return tagSpecification;
+    }
+
+    public void setTagSpecification(List<LaunchTemplateTagSpecification> tagSpecification) {
+        this.tagSpecification = tagSpecification;
+    }
+
+    /**
+     * The ID of the kernel.
+     */
+    @Updatable
+    public String getKernelId() {
+        return kernelId;
+    }
+
+    public void setKernelId(String kernelId) {
+        this.kernelId = kernelId;
+    }
+
+    /**
+     * The ID of the RAM disk.
+     */
+    @Updatable
+    @DependsOn("kernel")
+    public String getRamDiskId() {
+        return ramDiskId;
+    }
+
+    public void setRamDiskId(String ramDiskId) {
+        this.ramDiskId = ramDiskId;
+    }
+
+    /**
+     * The placement for the instance;
+     */
+    @Updatable
+    public LaunchTemplatePlacement getPlacement() {
+        return placement;
+    }
+
+    public void setPlacement(LaunchTemplatePlacement placement) {
+        this.placement = placement;
+    }
+
+    /**
+     * The cpu options for the instance.
+     */
+    @Updatable
+    public LaunchTemplateCpuOptions getCpuOptions() {
+        return cpuOptions;
+    }
+
+    public void setCpuOptions(LaunchTemplateCpuOptions cpuOptions) {
+        this.cpuOptions = cpuOptions;
+    }
+
+    /**
+     * The monitoring for the instance.
+     */
+    @Updatable
+    public LaunchTemplateMonitoring getMonitoring() {
+        return monitoring;
+    }
+
+    public void setMonitoring(LaunchTemplateMonitoring monitoring) {
+        this.monitoring = monitoring;
     }
 
     /**
@@ -412,38 +557,26 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getName())
-                .launchTemplateData(
-                    l -> l.cpuOptions(getCoreCount() > 0
-                        ? o -> o.threadsPerCore(getThreadPerCore())
-                        .coreCount(getCoreCount()).build() : SdkBuilder::build)
-                        .disableApiTermination(getDisableApiTermination())
-                        .ebsOptimized(getEbsOptimized())
-                        .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
-                        .imageId(getAmi().getId())
-                        .instanceType(getInstanceType())
-                        .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-                        .keyName(getKeyName())
-                        .monitoring(o -> o.enabled(getEnableMonitoring()))
-                        .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getId)
-                            .collect(Collectors.toList()) : null)
-                        .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
-                        .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
-                            getBlockDeviceMapping()
-                                .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
-                                .collect(Collectors.toList()) : null
-                        )
-                        .capacityReservationSpecification(getCapacityReservationSpecification())
-                        .iamInstanceProfile(getLaunchTemplateInstanceProfile())
-                        .networkInterfaces(!getNetworkInterfaces().isEmpty()
-                            ? toNetworkInterfaceSpecificationRequest() : null)));
+                .launchTemplateData(requestLaunchTemplateData())
+        );
+
         setId(response.launchTemplate().launchTemplateId());
         setVersion(response.launchTemplate().latestVersionNumber());
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
+        Ec2Client client = createClient(Ec2Client.class);
 
+        CreateLaunchTemplateVersionResponse response = client.createLaunchTemplateVersion(r -> r.launchTemplateId(getId())
+            .launchTemplateData(requestLaunchTemplateData())
+        );
+
+        client.modifyLaunchTemplate(r -> r.launchTemplateId(getId())
+            .defaultVersion(getVersion().toString())
+        );
+
+        setVersion(response.launchTemplateVersion().versionNumber());
     }
 
     @Override
@@ -461,13 +594,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
         if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
             throw new GyroException("Either security group or network interface is to be provided, not both.");
-        }
-
-        if (!getCapacityReservation().equalsIgnoreCase("none")
-            && !getCapacityReservation().equalsIgnoreCase("open")
-            && !getCapacityReservation().startsWith("cr-")) {
-            throw new GyroException("The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
-                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]");
         }
     }
 
@@ -495,18 +621,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return launchTemplate;
     }
 
-    private LaunchTemplateCapacityReservationSpecificationRequest getCapacityReservationSpecification() {
-        if (("none").equals(getCapacityReservation()) || ("open").equals(getCapacityReservation())) {
-            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
-                .capacityReservationPreference(getCapacityReservation().toLowerCase())
-                .build();
-        } else {
-            return LaunchTemplateCapacityReservationSpecificationRequest.builder()
-                .capacityReservationTarget(r -> r.capacityReservationId(getCapacityReservation()))
-                .build();
-        }
-    }
-
     private LaunchTemplateIamInstanceProfileSpecificationRequest getLaunchTemplateInstanceProfile() {
         if (getInstanceProfile() == null) {
             return null;
@@ -522,5 +636,81 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         return getNetworkInterfaces().stream().map(o -> LaunchTemplateInstanceNetworkInterfaceSpecificationRequest
             .builder().networkInterfaceId(o.getId()).deviceIndex(deviceIndex.getAndIncrement()).build()
         ).collect(Collectors.toList());
+    }
+
+    private RequestLaunchTemplateData requestLaunchTemplateData() {
+        RequestLaunchTemplateData.Builder builder = RequestLaunchTemplateData.builder()
+            .disableApiTermination(getDisableApiTermination())
+            .ebsOptimized(getEbsOptimized())
+            .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
+            .imageId(getAmi() == null ? null : getAmi().getId())
+            .instanceType(getInstanceType())
+            .instanceInitiatedShutdownBehavior(getShutdownBehavior())
+            .keyName(getKeyName())
+            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId)
+                .collect(Collectors.toList()) : null)
+            .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
+            .blockDeviceMappings(!getBlockDeviceMapping().isEmpty() ?
+                getBlockDeviceMapping()
+                    .stream().map(BlockDeviceMapping::getLaunchTemplateBlockDeviceMapping)
+                    .collect(Collectors.toList()) : null
+            )
+            .capacityReservationSpecification(getCapacityReservation() == null ? null
+                : getCapacityReservation().toLaunchTemplateCapacityReservationSpecificationRequest())
+            .iamInstanceProfile(getLaunchTemplateInstanceProfile())
+            .networkInterfaces(!getNetworkInterfaces().isEmpty()
+                ? toNetworkInterfaceSpecificationRequest() : null)
+            .kernelId(getKernelId())
+            .ramDiskId(getRamDiskId())
+            .metadataOptions(getMetadataOptions() == null ? null : getMetadataOptions().toMetadataOptions());
+
+        if (getCreditSpecification() != null) {
+            builder.creditSpecification(getCreditSpecification().toCreditSpecification());
+        }
+
+        if (!getElasticGpuSpecification().isEmpty()) {
+            builder.elasticGpuSpecifications(getElasticGpuSpecification().stream()
+                .map(LaunchTemplateElasticGpuSpecification::toElasticGpuSpecification)
+                .collect(Collectors.toList()));
+        }
+
+        if (!getInferenceAccelerator().isEmpty()) {
+            builder.elasticInferenceAccelerators(getInferenceAccelerator().stream()
+                .map(LaunchTemplateElasticInferenceAccelerator::toLaunchTemplateElasticInferenceAccelerator)
+                .collect(Collectors.toList()));
+        }
+
+        if (getEnclaveOptions() != null) {
+            builder.enclaveOptions(getEnclaveOptions().toLaunchTemplateEnclaveOptionsRequest());
+        }
+
+        if (getHibernationOptions() != null) {
+            builder.hibernationOptions(getHibernationOptions().toLaunchTemplateHibernationOptionsRequest());
+        }
+
+        if (getMarketOptions() != null) {
+            builder.instanceMarketOptions(getMarketOptions().toLaunchTemplateInstanceMarketOptionsRequest());
+        }
+
+        if (getPlacement() != null) {
+            builder.placement(getPlacement().toLaunchTemplatePlacementRequest());
+        }
+
+        if (!getTagSpecification().isEmpty()) {
+            builder.tagSpecifications(getTagSpecification().stream()
+                .map(LaunchTemplateTagSpecification::toLaunchTemplateTagSpecificationRequest)
+                .collect(Collectors.toList()));
+        }
+
+        if (getCpuOptions() != null) {
+            builder.cpuOptions(getCpuOptions().toLaunchTemplateCpuOptionsRequest());
+        }
+
+        if (getMonitoring() != null) {
+            builder.monitoring(getMonitoring().toLaunchTemplatesMonitoringRequest()).build();
+        }
+
+        return builder.build();
     }
 }

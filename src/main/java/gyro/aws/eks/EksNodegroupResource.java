@@ -93,6 +93,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private Map<String, String> labels;
     private Integer diskSize;
     private Map<String, String> tags;
+    private EksLaunchTemplateSpecification launchTemplateSpecification;
 
     // Read-only
     private String arn;
@@ -206,7 +207,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     /**
      * The Ami type of the node group.
      */
-    @ValidStrings({"AL2_x86_6", "AL2_x86_64_GPU"})
+    @ValidStrings({"AL2_x86_64", "AL2_x86_64_GPU", "AL2_ARM_64"})
     public AMITypes getAmiType() {
         return amiType;
     }
@@ -283,6 +284,18 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         this.arn = arn;
     }
 
+    /**
+     * The launch template specification.
+     */
+    @Updatable
+    public EksLaunchTemplateSpecification getLaunchTemplateSpecification() {
+        return launchTemplateSpecification;
+    }
+
+    public void setLaunchTemplateSpecification(EksLaunchTemplateSpecification launchTemplateSpecification) {
+        this.launchTemplateSpecification = launchTemplateSpecification;
+    }
+
     @Override
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
@@ -308,6 +321,12 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             EksNodegroupRemoteAccessConfig remoteAccessConfig = newSubresource(EksNodegroupRemoteAccessConfig.class);
             remoteAccessConfig.copyFrom(model.remoteAccess());
             setRemoteAccess(remoteAccessConfig);
+        }
+
+        if (model.launchTemplate() != null) {
+            EksLaunchTemplateSpecification specification = newSubresource(EksLaunchTemplateSpecification.class);
+            specification.copyFrom(model.launchTemplate());
+            setLaunchTemplateSpecification(specification);
         }
     }
 
@@ -351,12 +370,16 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             builder = builder.remoteAccess(getRemoteAccess().toRemoteAccessConfig());
         }
 
+        if (getLaunchTemplateSpecification() != null) {
+            builder = builder.launchTemplate(getLaunchTemplateSpecification().toLaunchTemplateSpecification());
+        }
+
         CreateNodegroupResponse response = client.createNodegroup(builder.build());
 
         copyFrom(response.nodegroup());
 
         state.save();
-
+        
         waitForActiveState(client, TimeoutSettings.Action.CREATE);
     }
 
@@ -380,6 +403,16 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                     .nodegroupName(getName())
                     .version(getVersion())
                     .build());
+        }
+
+        if (changedFieldNames.contains("launch-template-specification")) {
+            client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
+                .clusterName(getCluster().getName())
+                .launchTemplate(getLaunchTemplateSpecification().toLaunchTemplateSpecification())
+                .nodegroupName(getName())
+                .build());
+
+            waitForActiveState(client);
         }
 
         if (changedFieldNames.contains("labels")) {

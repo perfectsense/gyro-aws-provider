@@ -19,6 +19,7 @@ package gyro.aws.elbv2;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.route53.HostedZoneResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Wait;
@@ -52,6 +53,7 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
     private String name;
     private String scheme;
     private Map<String, String> tags;
+    private HostedZoneResource hostedZone;
 
     /**
      *  Public DNS name for the alb.
@@ -132,6 +134,18 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
         }
     }
 
+    /**
+     *  The hosted zone associated with the load balancer.
+     */
+    @Output
+    public HostedZoneResource getHostedZone() {
+        return hostedZone;
+    }
+
+    public void setHostedZone(HostedZoneResource hostedZone) {
+        this.hostedZone = hostedZone;
+    }
+
     @Override
     public void copyFrom(LoadBalancer loadBalancer) {
         setDnsName(loadBalancer.dnsName());
@@ -144,6 +158,8 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
 
         DescribeTagsResponse describeTagsResponse = client.describeTags(r -> r.resourceArns(getArn()));
         describeTagsResponse.tagDescriptions().forEach(tag -> tag.tags().forEach(t -> getTags().put(t.key(), t.value())));
+
+        setHostedZone(findById(HostedZoneResource.class, loadBalancer.canonicalHostedZoneId()));
     }
 
     public LoadBalancer internalRefresh() {

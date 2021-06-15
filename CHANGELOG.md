@@ -1,6 +1,42 @@
 CHANGELOG
 =========
 
+## 1.2.0 (June 8th, 2021)
+
+ENHANCEMENTS:
+
+* [472](https://github.com/perfectsense/gyro-aws-provider/issues/472): Add support for cleaning AWS client cache.
+* [466](https://github.com/perfectsense/gyro-aws-provider/issues/466): Convert EKS Addon as a subresource.
+* [462](https://github.com/perfectsense/gyro-aws-provider/issues/462): Add support for EKS Authentication.
+* [440](https://github.com/perfectsense/gyro-aws-provider/issues/440): Add support for additional fields in Launch Template.
+
+ISSUES FIXED:
+
+* [468](https://github.com/perfectsense/gyro-aws-provider/issues/468): Fix ECR lifecycle update.
+
+## 1.1.0 (April 27th, 2021)
+
+ENHANCEMENTS:
+
+* [361](https://github.com/perfectsense/gyro-aws-provider/issues/361): Add support for creating EKS Nodegroup Launch Template.
+* [407](https://github.com/perfectsense/gyro-aws-provider/issues/407): Add support for creating RDS cluster/instance from snapshots.
+* [418](https://github.com/perfectsense/gyro-aws-provider/issues/418): Add support for Backup.
+* [448](https://github.com/perfectsense/gyro-aws-provider/issues/448): Allow ALB forwarding action to target multiple groups by weight.
+* [450](https://github.com/perfectsense/gyro-aws-provider/issues/450): Allow EKS to associate a KMS key after creation.
+
+ISSUES FIXED:
+
+* [404](https://github.com/perfectsense/gyro-aws-provider/issues/404): Fix Route53 Record Set refresh error.
+* [420](https://github.com/perfectsense/gyro-aws-provider/issues/420): Update EKS Nodegroup default desired-capacity.
+* [421](https://github.com/perfectsense/gyro-aws-provider/issues/421): Fix delayed wait time for VPC Endpoint.
+* [425](https://github.com/perfectsense/gyro-aws-provider/issues/425): Fix EKS Nodegroup save error.
+* [427](https://github.com/perfectsense/gyro-aws-provider/issues/427): Fix WAFV2 refresh error when associated with a Cloudfront.
+* [428](https://github.com/perfectsense/gyro-aws-provider/issues/428): Fix WAFV2 scoping error.
+* [431](https://github.com/perfectsense/gyro-aws-provider/issues/431): Update EKS examples.
+* [432](https://github.com/perfectsense/gyro-aws-provider/issues/432): Format assume role policy examples.
+* [437](https://github.com/perfectsense/gyro-aws-provider/issues/437): Fix Cloudfront list field confusing change output.
+* [438](https://github.com/perfectsense/gyro-aws-provider/issues/438): Have ELBV2 expose hosted-zone-id.
+
 ## 1.0.2 (March 5th, 2021)
 
 ISSUES FIXED:

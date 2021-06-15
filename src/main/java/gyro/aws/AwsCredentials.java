@@ -34,6 +34,15 @@ public class AwsCredentials extends Credentials {
             .build();
     }
 
+    public AwsCredentials(AwsCredentialsProvider credentialsProvider, String profileName, String region) {
+        this.region = region;
+        this.profileName = profileName;
+
+        this.provider = AwsCredentialsProviderChain.builder()
+            .credentialsProviders(credentialsProvider)
+            .build();
+    }
+
     public String getProfileName() {
         return profileName;
     }

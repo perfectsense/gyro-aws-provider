@@ -49,8 +49,12 @@ import java.util.Set;
  *         default-certificate: "arn:aws:acm:us-east-2:acct:certificate/certificate-arn"
  *
  *         default-action
- *             target-group-arn: $(aws::load-balancer-target-group target-group-example | target-group-arn)
- *             type: "forward"
+ *             forward-action
+ *                target-group-weight
+ *                    target-group: $(aws::load-balancer-target-group target-group-example)
+ *                    weight: 1
+ *                end
+ *            end
  *         end
  *     end
  */

@@ -101,13 +101,13 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     public String getAssumeRolePolicy() {
         if (this.assumeRolePolicy != null && this.assumeRolePolicy.contains(".json")) {
             try (InputStream input = openInput(this.assumeRolePolicy)) {
-                this.assumeRolePolicy = formatPolicy(IoUtils.toUtf8String(input));
+                this.assumeRolePolicy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.assumeRolePolicy;
             } catch (IOException err) {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return this.assumeRolePolicy;
+            return PolicyResource.formatPolicy(this.assumeRolePolicy);
         }
     }
 
@@ -240,7 +240,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         setName(role.roleName());
         setDescription(role.description());
         String encode = URLDecoder.decode(role.assumeRolePolicyDocument());
-        setAssumeRolePolicy(formatPolicy(encode));
+        setAssumeRolePolicy(PolicyResource.formatPolicy(encode));
         setMaxSessionDuration(role.maxSessionDuration());
         setPath(role.path());
         setPermissionsBoundaryArn(role.permissionsBoundary() != null ? role.permissionsBoundary().permissionsBoundaryArn() : null);
@@ -305,7 +305,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        client.updateAssumeRolePolicy(r -> r.policyDocument(formatPolicy(getAssumeRolePolicy()))
+        client.updateAssumeRolePolicy(r -> r.policyDocument(PolicyResource.formatPolicy(getAssumeRolePolicy()))
                                             .roleName(getName()));
 
         client.updateRole(r -> r.description(getDescription())
@@ -363,10 +363,6 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         } catch (NoSuchEntityException ex) {
             return null;
         }
-    }
-
-    public String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 
     private List<Tag> toTags(Map<String, String> tag) {
