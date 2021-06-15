@@ -379,7 +379,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         copyFrom(response.nodegroup());
 
         state.save();
-        
+
         waitForActiveState(client, TimeoutSettings.Action.CREATE);
     }
 
@@ -412,7 +412,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 .nodegroupName(getName())
                 .build());
 
-            waitForActiveState(client);
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("labels")) {
