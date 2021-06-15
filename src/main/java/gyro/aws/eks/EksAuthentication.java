@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -144,6 +145,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 IdentityProviderConfigResponse response = getIdentityProviderConfigResponse(
