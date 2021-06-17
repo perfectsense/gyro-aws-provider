@@ -138,6 +138,11 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     }
 
     @Override
+    public String primaryKey() {
+        return "";
+    }
+
+    @Override
     public void copyFrom(Addon model) {
         setAddonName(model.addonName());
         setAddonVersion(model.addonVersion());
