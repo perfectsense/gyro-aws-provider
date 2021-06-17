@@ -115,6 +115,11 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
     }
 
     @Override
+    public String primaryKey() {
+        return "";
+    }
+
+    @Override
     public void copyFrom(IdentityProviderConfigResponse model) {
         setTags(model.oidc().tags());
 
