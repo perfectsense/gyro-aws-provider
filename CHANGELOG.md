@@ -5,7 +5,7 @@ CHANGELOG
 
 ISSUES FIXED:
 
-* [466](https://github.com/perfectsense/gyro-aws-provider/issues/476): Fix EKS voc-config update error.
+* [476](https://github.com/perfectsense/gyro-aws-provider/issues/476): Fix EKS voc-config update error.
 * [478](https://github.com/perfectsense/gyro-aws-provider/issues/478): Fix EKS addon null display.
 * [479](https://github.com/perfectsense/gyro-aws-provider/issues/479): Fix EKS authentication null display.
 * [480](https://github.com/perfectsense/gyro-aws-provider/issues/480): Fix missing documentation for Launch Template tag-specification.
