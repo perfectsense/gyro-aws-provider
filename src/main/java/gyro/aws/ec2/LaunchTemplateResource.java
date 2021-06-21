@@ -420,6 +420,8 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
 
     /**
      * The tags to apply to the resources during launch.
+     *
+     * @subresource gyro.aws.ec2.LaunchTemplateTagSpecification
      */
     @Updatable
     public List<LaunchTemplateTagSpecification> getTagSpecification() {
