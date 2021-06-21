@@ -76,7 +76,6 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
      * The name of the identity provider configuration.
      */
     @Required
-    @Id
     public String getName() {
         return name;
     }
