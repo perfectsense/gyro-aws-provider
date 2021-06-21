@@ -25,7 +25,6 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
-import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -76,7 +75,6 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
      * The name of the add-on.
      */
     @Required
-    @Id
     public String getAddonName() {
         return addonName;
     }
@@ -135,6 +133,11 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     public void setArn(String arn) {
         this.arn = arn;
+    }
+
+    @Override
+    public String primaryKey() {
+        return getAddonName();
     }
 
     @Override
