@@ -116,7 +116,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     }
 
     /**
-     * The tag mutability setting for the repository.
+     * The tag mutability setting for the repository. Defaults to ``MUTABLE``.
      */
     @Updatable
     @ValidStrings({ "MUTABLE", "IMMUTABLE" })
