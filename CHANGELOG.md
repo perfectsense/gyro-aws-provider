@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+## 1.2.1 (June 21st, 2021)
+
+ISSUES FIXED:
+
+* [476](https://github.com/perfectsense/gyro-aws-provider/issues/476): Fix EKS voc-config update error.
+* [478](https://github.com/perfectsense/gyro-aws-provider/issues/478): Fix EKS addon null display.
+* [479](https://github.com/perfectsense/gyro-aws-provider/issues/479): Fix EKS authentication null display.
+* [480](https://github.com/perfectsense/gyro-aws-provider/issues/480): Fix missing documentation for Launch Template tag-specification.
+
+## 1.2.0 (June 8th, 2021)
+
+ENHANCEMENTS:
+
+* [472](https://github.com/perfectsense/gyro-aws-provider/issues/472): Add support for cleaning AWS client cache.
+* [466](https://github.com/perfectsense/gyro-aws-provider/issues/466): Convert EKS Addon as a subresource.
+* [462](https://github.com/perfectsense/gyro-aws-provider/issues/462): Add support for EKS Authentication.
+* [440](https://github.com/perfectsense/gyro-aws-provider/issues/440): Add support for additional fields in Launch Template.
+
+ISSUES FIXED:
+
+* [468](https://github.com/perfectsense/gyro-aws-provider/issues/468): Fix ECR lifecycle update.
+
 ## 1.1.0 (April 27th, 2021)
 
 ENHANCEMENTS:

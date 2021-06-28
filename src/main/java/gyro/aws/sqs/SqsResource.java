@@ -16,21 +16,29 @@
 
 package gyro.aws.sqs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.util.JsonProcessor;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
-import com.psddev.dari.util.JsonProcessor;
-
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -42,14 +50,6 @@ import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -291,14 +291,14 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     public String getPolicy() {
         if (this.policy != null && this.policy.contains(".json")) {
             try (InputStream input = openInput(this.policy)) {
-                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                this.policy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.policy;
             } catch (IOException err) {
                 throw new GyroException(MessageFormat
                     .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policy));
             }
         } else {
-            return this.policy;
+            return PolicyResource.formatPolicy(this.policy);
         }
     }
 
@@ -518,9 +518,5 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         if (value != null) {
             request.put(name, value.toString());
         }
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }

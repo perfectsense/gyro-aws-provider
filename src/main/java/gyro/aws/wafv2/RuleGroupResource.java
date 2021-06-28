@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -334,14 +335,14 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     public String getPolicy() {
         if (this.policy != null && this.policy.contains(".json")) {
             try (InputStream input = openInput(this.policy)) {
-                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                this.policy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.policy;
             } catch (IOException err) {
                 throw new GyroException(MessageFormat
                     .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policy));
             }
         } else {
-            return this.policy;
+            return PolicyResource.formatPolicy(this.policy);
         }
     }
 
@@ -505,13 +506,6 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         }
 
         return token;
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ")
-            .replaceAll("\t", " ")
-            .trim()
-            .replaceAll(" ", "") : policy;
     }
 
     @Override

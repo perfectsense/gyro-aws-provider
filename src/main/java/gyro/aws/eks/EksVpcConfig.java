@@ -17,6 +17,7 @@
 package gyro.aws.eks;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -72,6 +73,8 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
             publicAccessCidrs = new ArrayList<>();
         }
 
+        Collections.sort(publicAccessCidrs);
+
         return publicAccessCidrs;
     }
 
@@ -110,7 +113,7 @@ public class EksVpcConfig extends Diffable implements Copyable<VpcConfigResponse
     public void copyFrom(VpcConfigResponse model) {
         setEnableEndpointPrivateAccess(model.endpointPrivateAccess());
         setEnableEndpointPublicAccess(model.endpointPublicAccess());
-        setPublicAccessCidrs(model.publicAccessCidrs());
+        setPublicAccessCidrs(new ArrayList<>(model.publicAccessCidrs()));
 
         setSecurityGroups(model.securityGroupIds()
             .stream()

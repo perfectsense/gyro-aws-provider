@@ -20,7 +20,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-def releaseVersion = '1.1.1'
+def releaseVersion = '1.2.2'
 def releaseBuild = false;
 
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
@@ -81,7 +81,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.19')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.60')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:apigatewayv2'
     implementation 'software.amazon.awssdk:autoscaling'

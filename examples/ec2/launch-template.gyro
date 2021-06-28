@@ -98,6 +98,82 @@ aws::network-interface nic-example-launch-template-2
      }
 end
 
+aws::launch-template launch-template-advanced-options
+    name: "launch-template-example-advanced-options"
+    instance-type: "t2.medium"
+
+    elastic-gpu-specification
+        type: "eg1.medium"
+    end
+
+    credit-specification
+        cpu-credits: standard
+    end
+
+    inference-accelerator
+        type: "eia1.medium"
+        count: 1
+    end
+
+    inference-accelerator
+        type: "eia1.large"
+        count: 5
+    end
+
+    enclave-options
+        enabled: true
+    end
+
+    hibernation-options
+        configured: true
+    end
+
+    market-options
+        market-type: SPOT
+
+        spot-market-options
+            block-duration-minutes: 60
+            instance-interruption-behavior: HIBERNATE
+            max-price: 0
+            spot-instance-type: PERSISTENT
+            valid-until: "Wed May 29 21:54:06 EDT 2025"
+        end
+    end
+
+    placement
+        affinity: HOST
+        availability-zone: us-east-2a
+        group-name: example-group
+        partition-number: 1
+        tenancy: DEFAULT
+    end
+
+    tag-specification
+        resource-type: NETWORK_INTERFACE
+
+        tags: {
+            "example-tag": "example-value"
+        }
+    end
+
+    cpu-options
+        core-count: 1
+        threads-per-core: 2
+    end
+
+    monitoring
+        enabled: true
+    end
+
+    capacity-reservation
+        preference: NONE
+    end
+
+    tags: {
+        Name: "launch-template-example-advanced-options"
+    }
+end
+
 aws::launch-template launch-template
     name: "launch-template-gyro-1"
     ami: $(external-query aws::ami { name: "amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2" }).0.id
@@ -106,7 +182,10 @@ aws::launch-template launch-template
     key-name: "example"
     disable-api-termination: false
     ebs-optimized: false
-    capacity-reservation: "open"
+
+    capacity-reservation
+        preference: OPEN
+    end
 
     security-groups: [
         $(aws::security-group security-group-launch-template-example-1),
