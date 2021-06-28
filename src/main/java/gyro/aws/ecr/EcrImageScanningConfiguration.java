@@ -18,6 +18,7 @@ package gyro.aws.ecr;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ecr.model.ImageScanningConfiguration;
 
@@ -28,6 +29,7 @@ public class EcrImageScanningConfiguration extends Diffable implements Copyable<
     /**
      * When set to ``true``, images are scanned after being pushed to a repository.
      */
+    @Updatable
     @Required
     public Boolean getScanOnPush() {
         return scanOnPush;

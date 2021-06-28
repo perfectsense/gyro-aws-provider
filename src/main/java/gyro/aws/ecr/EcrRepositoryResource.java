@@ -106,6 +106,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
      *
      * @subresource gyro.aws.ecr.EcrImageScanningConfiguration
      */
+    @Updatable
     public EcrImageScanningConfiguration getImageScanningConfiguration() {
         return imageScanningConfiguration;
     }
@@ -115,10 +116,15 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     }
 
     /**
-     * The tag mutability setting for the repository.
+     * The tag mutability setting for the repository. Defaults to ``MUTABLE``.
      */
+    @Updatable
     @ValidStrings({ "MUTABLE", "IMMUTABLE" })
     public ImageTagMutability getImageTagMutability() {
+        if (imageTagMutability == null) {
+            imageTagMutability = ImageTagMutability.MUTABLE;
+        }
+
         return imageTagMutability;
     }
 
@@ -330,6 +336,18 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
             } else {
                 putLifecyclePolicy(client);
             }
+        }
+
+        if (changedFieldNames.contains("image-tag-mutability")) {
+            client.putImageTagMutability(r -> r.repositoryName(getRepositoryName())
+                .imageTagMutability(getImageTagMutability()));
+        }
+
+        if (changedFieldNames.contains("image-scanning-configuration")) {
+            client.putImageScanningConfiguration(r -> r.repositoryName(getRepositoryName())
+                .imageScanningConfiguration(getImageScanningConfiguration() != null
+                    ? getImageScanningConfiguration().toImageScanningConfiguration()
+                    : newSubresource(EcrImageScanningConfiguration.class).toImageScanningConfiguration()));
         }
     }
 
