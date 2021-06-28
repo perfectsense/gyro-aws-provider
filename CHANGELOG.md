@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+## 1.2.2 (June 28th, 2021)
+
+ENHANCEMENTS:
+
+* [464](https://github.com/perfectsense/gyro-aws-provider/issues/464): Expose endpoint and certificate-authority-data for EKS cluster.
+* [487](https://github.com/perfectsense/gyro-aws-provider/pull/487): Allow "gp3" volume type for EC2 BlockDeviceMapping.
+* [488](https://github.com/perfectsense/gyro-aws-provider/pull/488): Allow "CUSTOM" ami type for EKS Nodegroup.
+* [490](https://github.com/perfectsense/gyro-aws-provider/issues/490): Allow updating image-tag-mutability and image-scanning-configuration for ECR repository.
+
 ## 1.2.1 (June 21st, 2021)
 
 ISSUES FIXED:
