@@ -121,6 +121,10 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     @Updatable
     @ValidStrings({ "MUTABLE", "IMMUTABLE" })
     public ImageTagMutability getImageTagMutability() {
+        if (imageTagMutability == null) {
+            imageTagMutability = ImageTagMutability.MUTABLE;
+        }
+
         return imageTagMutability;
     }
 
@@ -336,8 +340,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
 
         if (changedFieldNames.contains("image-tag-mutability")) {
             client.putImageTagMutability(r -> r.repositoryName(getRepositoryName())
-                .imageTagMutability(
-                    getImageTagMutability() == null ? ImageTagMutability.MUTABLE : getImageTagMutability()));
+                .imageTagMutability(getImageTagMutability()));
         }
 
         if (changedFieldNames.contains("image-scanning-configuration")) {
