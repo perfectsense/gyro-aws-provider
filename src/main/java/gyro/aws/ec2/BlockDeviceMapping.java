@@ -145,10 +145,10 @@ public class BlockDeviceMapping extends Diffable
      *
      */
     @Updatable
-    @ValidStrings({ "gp2", "io1", "st1", "sc1", "standard" })
+    @ValidStrings({ "gp3", "gp2", "io1", "st1", "sc1", "standard" })
     public String getVolumeType() {
         if (volumeType == null) {
-            volumeType = "gp2";
+            volumeType = "gp3";
         }
 
         return volumeType;
