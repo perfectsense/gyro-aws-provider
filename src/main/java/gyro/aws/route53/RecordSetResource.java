@@ -16,17 +16,24 @@
 
 package gyro.aws.route53;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableSet;
+import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.google.common.collect.ImmutableSet;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -41,13 +48,6 @@ import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
 import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Creates a record set in the given hosted zone.
@@ -218,7 +218,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The name of the Record Set being created.
      */
-    @Required
     @Updatable
     public String getName() {
         if (name != null) {
@@ -284,7 +283,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The type of Record Set being created.
      */
-    @Required
     @Updatable
     @ValidStrings({"SOA", "A", "TXT", "NS", "CNAME", "MX", "NAPTR", "PTR", "SRV", "SPF", "AAAA", "CAA"})
     public String getType() {
@@ -525,16 +523,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
                 + " Valid values [ '%s' ].",getRoutingPolicy(),String.join("', '", ROUTING_POLICY_SET))));
         }
 
-        if (ObjectUtils.isBlank(getType())
-            || RRType.fromValue(getType())
-            .equals(RRType.UNKNOWN_TO_SDK_VERSION)) {
-            errors.add(new ValidationError(this, null, String.format("Invalid value '%s' for param 'insufficient-data-health-status'."
-                    + " Valid values [ '%s' ]", getType(),
-                Stream.of(RRType.values())
-                    .filter(o -> !o.equals(RRType.UNKNOWN_TO_SDK_VERSION))
-                    .map(Enum::toString).collect(Collectors.joining("', '")))));
-        }
-
         if (alias != null) {
             if (!ObjectUtils.isBlank(getTtl())) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is not allowed when 'alias' is set."));
@@ -548,10 +536,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'alias' is not set."
                     + " Valid values [ Long 0 - 172800 ]."));
-            }
-
-            if (getRecords().isEmpty()) {
-                errors.add(new ValidationError(this, null, "The param 'records' is required when 'alias' is not set."));
             }
         }
 
