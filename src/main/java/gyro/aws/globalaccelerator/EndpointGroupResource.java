@@ -22,12 +22,14 @@ import software.amazon.awssdk.services.globalaccelerator.model.EndpointDescripti
 import software.amazon.awssdk.services.globalaccelerator.model.EndpointGroup;
 import software.amazon.awssdk.services.globalaccelerator.model.EndpointGroupNotFoundException;
 import software.amazon.awssdk.services.globalaccelerator.model.HealthCheckProtocol;
+import software.amazon.awssdk.services.globalaccelerator.model.PortOverride;
 
 @Type("global-accelerator-endpoint-group")
 public class EndpointGroupResource extends AwsResource implements Copyable<EndpointGroup> {
 
     private ListenerResource listener;
     private List<EndpointGroupConfiguration> endpointConfiguration;
+    private List<EndpointGroupPortOverride> portOverride;
     private String endpointGroupRegion;
     private Integer healthCheckIntervalSeconds;
     private String healthCheckPath;
@@ -70,6 +72,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
             .trafficDialPercentage(getTrafficDialPercentage())
             .thresholdCount(getThresholdCount())
             .endpointConfigurations(endpointGroupConfigurations())
+            .portOverrides(endpointPortOverrides())
         );
 
         setArn(response.endpointGroup().endpointGroupArn());
@@ -91,6 +94,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
             .trafficDialPercentage(getTrafficDialPercentage())
             .thresholdCount(getThresholdCount())
             .endpointConfigurations(endpointGroupConfigurations())
+            .portOverrides(endpointPortOverrides())
         );
     }
 
@@ -129,6 +133,24 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
     public void setEndpointConfiguration(List<EndpointGroupConfiguration> endpointConfiguration) {
         this.endpointConfiguration = endpointConfiguration;
+    }
+
+    /**
+     * Route traffic to an alternate port on the endpoint.
+     *
+     * @subresource gyro.aws.globalaccelerator.EndpointGroupPortOverride
+     */
+    @Updatable
+    public List<EndpointGroupPortOverride> getPortOverride() {
+        if (portOverride == null) {
+            portOverride = new ArrayList<>();
+        }
+
+        return portOverride;
+    }
+
+    public void setPortOverride(List<EndpointGroupPortOverride> portOverride) {
+        this.portOverride = portOverride;
     }
 
     /**
@@ -244,6 +266,12 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
     List<EndpointConfiguration> endpointGroupConfigurations() {
         return getEndpointConfiguration().stream()
             .map(EndpointGroupConfiguration::endpointConfiguration)
+            .collect(Collectors.toList());
+    }
+
+    List<PortOverride> endpointPortOverrides() {
+        return getPortOverride().stream()
+            .map(EndpointGroupPortOverride::portOverride)
             .collect(Collectors.toList());
     }
 }
