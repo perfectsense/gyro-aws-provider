@@ -16,12 +16,17 @@
 
 package gyro.aws.globalaccelerator;
 
+import gyro.aws.Copyable;
+import gyro.aws.s3.BucketResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+import software.amazon.awssdk.services.globalaccelerator.model.UpdateAcceleratorAttributesRequest;
 
-public class AcceleratorAttributes extends Diffable {
+public class AcceleratorAttributes extends Diffable
+    implements Copyable<software.amazon.awssdk.services.globalaccelerator.model.AcceleratorAttributes> {
 
     private Boolean flowLogsEnabled;
-    private String flowLogsS3Bucket;
+    private BucketResource flowLogsS3Bucket;
     private String flowLogsS3Prefix;
 
     @Override
@@ -30,7 +35,7 @@ public class AcceleratorAttributes extends Diffable {
     }
 
     /**
-     * Whether flow logs are enabled.
+     * If set to ``true``, flow logs are enabled.
      */
     @Updatable
     public Boolean getFlowLogsEnabled() {
@@ -44,12 +49,12 @@ public class AcceleratorAttributes extends Diffable {
     /**
      * The bucket to upload flow logs to.
      */
-    public String getFlowLogsS3Bucket() {
     @Updatable
+    public BucketResource getFlowLogsS3Bucket() {
         return flowLogsS3Bucket;
     }
 
-    public void setFlowLogsS3Bucket(String flowLogsS3Bucket) {
+    public void setFlowLogsS3Bucket(BucketResource flowLogsS3Bucket) {
         this.flowLogsS3Bucket = flowLogsS3Bucket;
     }
 
@@ -64,5 +69,20 @@ public class AcceleratorAttributes extends Diffable {
     public void setFlowLogsS3Prefix(String flowLogsS3Prefix) {
         this.flowLogsS3Prefix = flowLogsS3Prefix;
     }
+
+    @Override
+    public void copyFrom(software.amazon.awssdk.services.globalaccelerator.model.AcceleratorAttributes model) {
+        setFlowLogsEnabled(model.flowLogsEnabled());
+        setFlowLogsS3Bucket(findById(BucketResource.class, model.flowLogsS3Bucket()));
+        setFlowLogsS3Prefix(model.flowLogsS3Prefix());
+    }
+
+    UpdateAcceleratorAttributesRequest toUpdateAcceleratorAttributesRequest() {
+        return UpdateAcceleratorAttributesRequest.builder()
+            .acceleratorArn(((AcceleratorResource) parentResource()).getArn())
+            .flowLogsEnabled(getFlowLogsEnabled())
+            .flowLogsS3Bucket(getFlowLogsS3Bucket().getName())
+            .flowLogsS3Prefix(getFlowLogsS3Prefix())
+            .build();
     }
 }

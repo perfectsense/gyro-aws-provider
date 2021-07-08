@@ -36,6 +36,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.globalaccelerator.GlobalAcceleratorClient;
 import software.amazon.awssdk.services.globalaccelerator.model.Accelerator;
 import software.amazon.awssdk.services.globalaccelerator.model.AcceleratorNotFoundException;
@@ -82,7 +83,7 @@ import static software.amazon.awssdk.services.globalaccelerator.model.Accelerato
  *         endpoint-group-region: us-east-1
  *         endpoint-configuration
  *             client-ip-preservation-enabled: true
- *             endpoint-id: arn:aws:elasticloadbalancing:us-east-1:111111111111:loadbalancer/app/qa/e8222a13d93ea86f
+ *             endpoint-id: $(aws::application-load-balancer alb-example).arn
  *             weight: 1.0
  *         end
  *
@@ -100,7 +101,6 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     private List<String> ipAddresses;
     private IpAddressType ipAddressType;
     private Map<String, String> tags;
-
     private AcceleratorAttributes attributes;
 
     // -- Output fields
@@ -109,131 +109,8 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     private AcceleratorStatus status;
     private List<AcceleratorIpSet> ipSets;
 
-    @Override
-    public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        try {
-            DescribeAcceleratorResponse response = client.describeAccelerator(r -> r.acceleratorArn(getArn()));
-            copyFrom(response.accelerator());
-        } catch (AcceleratorNotFoundException ex) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        CreateAcceleratorResponse response = client.createAccelerator(r -> r
-            .enabled(getEnabled())
-            .ipAddresses(getIpAddresses())
-            .ipAddressType(getIpAddressType())
-            .name(getName())
-        );
-
-        setArn(response.accelerator().acceleratorArn());
-        setDnsName(response.accelerator().dnsName());
-        setStatus(response.accelerator().status());
-
-        if (response.accelerator().hasIpSets()) {
-            setIpSets_(response.accelerator().ipSets());
-        }
-
-        state.save();
-
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
-
-        if (getAttributes() != null) {
-            client.updateAcceleratorAttributes(r -> r
-                .acceleratorArn(getArn())
-                .flowLogsEnabled(getAttributes().getFlowLogsEnabled())
-                .flowLogsS3Bucket(getAttributes().getFlowLogsS3Bucket())
-                .flowLogsS3Prefix(getAttributes().getFlowLogsS3Prefix())
-            );
-        }
-
-        client.tagResource(r -> r
-            .resourceArn(getArn())
-            .tags(tagsToAdd())
-        );
-    }
-
-    @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        client.updateAccelerator(r -> r.acceleratorArn(getArn())
-            .enabled(getEnabled())
-            .name(getName())
-            .ipAddressType(getIpAddressType())
-        );
-
-        if (changedFieldNames.contains("attributes")) {
-            client.updateAcceleratorAttributes(r -> r
-                .acceleratorArn(getArn())
-                .flowLogsEnabled(getAttributes().getFlowLogsEnabled())
-                .flowLogsS3Bucket(getAttributes().getFlowLogsS3Bucket())
-                .flowLogsS3Prefix(getAttributes().getFlowLogsS3Prefix())
-            );
-        }
-
-        client.tagResource(r -> r
-            .resourceArn(getArn())
-            .tags(tagsToAdd())
-        );
-
-        List<String> tagKeysToRemove = tagsToRemove((AcceleratorResource) current);
-        if (!tagKeysToRemove.isEmpty()) {
-            client.untagResource(r -> r
-                .resourceArn(getArn())
-                .tagKeys(tagKeysToRemove)
-            );
-        }
-
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
-    }
-
-    @Override
-    public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        client.updateAccelerator(r -> r.acceleratorArn(getArn()).enabled(false));
-
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
-
-        client.deleteAccelerator(r -> r.acceleratorArn(getArn()));
-    }
-
     /**
-     * Whether the accelerator is enabled.
+     * If set to ``true``, the accelerator is enabled.
      */
     @Updatable
     public Boolean getEnabled() {
@@ -257,7 +134,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     }
 
     /**
-     * A list of ip addresses when using `BYOIP <https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html>`_.
+     * The list of ip addresses when using `BYOIP <https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html>`_.
      */
     public List<String> getIpAddresses() {
         return ipAddresses;
@@ -270,6 +147,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     /**
      * The type of IP addresses. Currently only ``IPV4`` is supported.
      */
+    @ValidStrings("IPV4")
     @Updatable
     public IpAddressType getIpAddressType() {
         if (ipAddressType == null) {
@@ -284,7 +162,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     }
 
     /**
-     * Tags for the accelerator.
+     * The tags for the accelerator.
      */
     @Updatable
     public Map<String, String> getTags() {
@@ -300,7 +178,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     }
 
     /**
-     * Attributes for this accelerator. Current supports enabling flow logs.
+     * The attributes for this accelerator. Current supports enabling flow logs.
      *
      * @subresource gyro.aws.globalaccelerator.AcceleratorAttributes
      */
@@ -368,6 +246,136 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         this.ipSets = ipSets;
     }
 
+    @Override
+    public void copyFrom(Accelerator accelerator) {
+        setArn(accelerator.acceleratorArn());
+        setStatus(accelerator.status());
+        setDnsName(accelerator.dnsName());
+        setEnabled(accelerator.enabled());
+        setName(accelerator.name());
+
+        if (accelerator.hasIpSets()) {
+            setIpSets_(accelerator.ipSets());
+        }
+
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        AcceleratorAttributes attributes = newSubresource(AcceleratorAttributes.class);
+        DescribeAcceleratorAttributesResponse response = client.describeAcceleratorAttributes(r -> r.acceleratorArn(
+            getArn()));
+        attributes.copyFrom(response.acceleratorAttributes());
+        setAttributes(attributes);
+    }
+
+    @Override
+    public boolean refresh() {
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        try {
+            DescribeAcceleratorResponse response = client.describeAccelerator(r -> r.acceleratorArn(getArn()));
+            copyFrom(response.accelerator());
+
+        } catch (AcceleratorNotFoundException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        CreateAcceleratorResponse response = client.createAccelerator(r -> r
+            .enabled(getEnabled())
+            .ipAddresses(getIpAddresses())
+            .ipAddressType(getIpAddressType())
+            .name(getName())
+        );
+
+        copyFrom(response.accelerator());
+
+        state.save();
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .until(() -> {
+                Accelerator accelerator = accelerator(client);
+                return accelerator != null && accelerator.status() == DEPLOYED;
+            });
+
+        if (getAttributes() != null) {
+            client.updateAcceleratorAttributes(getAttributes().toUpdateAcceleratorAttributesRequest());
+        }
+
+        client.tagResource(r -> r.resourceArn(getArn()).tags(tagsToAdd()));
+    }
+
+    @Override
+    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        client.updateAccelerator(r -> r.acceleratorArn(getArn())
+            .enabled(getEnabled())
+            .name(getName())
+            .ipAddressType(getIpAddressType())
+        );
+
+        if (changedFieldNames.contains("attributes")) {
+            client.updateAcceleratorAttributes(getAttributes().toUpdateAcceleratorAttributesRequest());
+        }
+
+        client.tagResource(r -> r.resourceArn(getArn()).tags(tagsToAdd()));
+
+        List<String> tagKeysToRemove = tagsToRemove((AcceleratorResource) current);
+        if (!tagKeysToRemove.isEmpty()) {
+            client.untagResource(r -> r
+                .resourceArn(getArn())
+                .tagKeys(tagKeysToRemove)
+            );
+        }
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .until(() -> {
+                Accelerator accelerator = accelerator(client);
+                return accelerator != null && accelerator.status() == DEPLOYED;
+            });
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        client.updateAccelerator(r -> r.acceleratorArn(getArn()).enabled(false));
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .until(() -> {
+                Accelerator accelerator = accelerator(client);
+                return accelerator != null && accelerator.status() == DEPLOYED;
+            });
+
+        client.deleteAccelerator(r -> r.acceleratorArn(getArn()));
+    }
+
     public void setIpSets_(List<software.amazon.awssdk.services.globalaccelerator.model.IpSet> ipSets_) {
         if (!ipSets_.isEmpty()) {
             for (software.amazon.awssdk.services.globalaccelerator.model.IpSet ipSet_ : ipSets_) {
@@ -377,27 +385,6 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
                 getIpSets().add(ipSet);
             }
         }
-    }
-
-    @Override
-    public void copyFrom(Accelerator accelerator) {
-        setArn(accelerator.acceleratorArn());
-        setStatus(accelerator.status());
-        setDnsName(accelerator.dnsName());
-        setEnabled(accelerator.enabled());
-        setName(accelerator.name());
-        setIpSets_(accelerator.ipSets());
-
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        AcceleratorAttributes attributes = newSubresource(AcceleratorAttributes.class);
-        DescribeAcceleratorAttributesResponse response = client.describeAcceleratorAttributes(r -> r.acceleratorArn(getArn()));
-        attributes.setFlowLogsEnabled(response.acceleratorAttributes().flowLogsEnabled());
-        attributes.setFlowLogsS3Bucket(response.acceleratorAttributes().flowLogsS3Bucket());
-        attributes.setFlowLogsS3Prefix(response.acceleratorAttributes().flowLogsS3Prefix());
-
-        setAttributes(attributes);
     }
 
     private Accelerator accelerator(GlobalAcceleratorClient client) {
