@@ -46,6 +46,7 @@ import software.amazon.awssdk.services.globalaccelerator.model.DescribeAccelerat
 import software.amazon.awssdk.services.globalaccelerator.model.DescribeAcceleratorResponse;
 import software.amazon.awssdk.services.globalaccelerator.model.IpAddressType;
 import software.amazon.awssdk.services.globalaccelerator.model.Tag;
+import software.amazon.awssdk.services.globalaccelerator.model.UpdateAcceleratorAttributesRequest;
 
 import static software.amazon.awssdk.services.globalaccelerator.model.AcceleratorStatus.*;
 
@@ -293,7 +294,10 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
     @Override
     public void create(GyroUI ui, State state) throws Exception {
         GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
 
         CreateAcceleratorResponse response = client.createAccelerator(r -> r
             .enabled(getEnabled())
@@ -302,24 +306,19 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
             .name(getName())
         );
 
-        copyFrom(response.accelerator());
+        setArn(response.accelerator().acceleratorArn());
+        setDnsName(response.accelerator().dnsName());
+        setStatus(response.accelerator().status());
 
         state.save();
-
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
 
         if (getAttributes() != null) {
             client.updateAcceleratorAttributes(getAttributes().toUpdateAcceleratorAttributesRequest());
         }
 
         client.tagResource(r -> r.resourceArn(getArn()).tags(tagsToAdd()));
+
+        waitForDeployStatus(client);
     }
 
     @Override
@@ -334,7 +333,10 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         );
 
         if (changedFieldNames.contains("attributes")) {
-            client.updateAcceleratorAttributes(getAttributes().toUpdateAcceleratorAttributesRequest());
+            client.updateAcceleratorAttributes(
+                getAttributes() == null
+                    ? UpdateAcceleratorAttributesRequest.builder().acceleratorArn(getArn()).build()
+                    : getAttributes().toUpdateAcceleratorAttributesRequest());
         }
 
         client.tagResource(r -> r.resourceArn(getArn()).tags(tagsToAdd()));
@@ -347,14 +349,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
             );
         }
 
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
+        waitForDeployStatus(client);
     }
 
     @Override
@@ -364,14 +359,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
         client.updateAccelerator(r -> r.acceleratorArn(getArn()).enabled(false));
 
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .until(() -> {
-                Accelerator accelerator = accelerator(client);
-                return accelerator != null && accelerator.status() == DEPLOYED;
-            });
+        waitForDeployStatus(client);
 
         client.deleteAccelerator(r -> r.acceleratorArn(getArn()));
     }
@@ -402,5 +390,16 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         currentKeys.removeAll(getTags().keySet());
 
         return new ArrayList<>(currentKeys);
+    }
+
+    private void waitForDeployStatus(GlobalAcceleratorClient client) {
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .until(() -> {
+                Accelerator accelerator = accelerator(client);
+                return accelerator != null && accelerator.status() == DEPLOYED;
+            });
     }
 }

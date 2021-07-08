@@ -81,7 +81,7 @@ public class AcceleratorAttributes extends Diffable
         return UpdateAcceleratorAttributesRequest.builder()
             .acceleratorArn(((AcceleratorResource) parentResource()).getArn())
             .flowLogsEnabled(getFlowLogsEnabled())
-            .flowLogsS3Bucket(getFlowLogsS3Bucket().getName())
+            .flowLogsS3Bucket(getFlowLogsS3Bucket() == null ? null : getFlowLogsS3Bucket().getName())
             .flowLogsS3Prefix(getFlowLogsS3Prefix())
             .build();
     }
