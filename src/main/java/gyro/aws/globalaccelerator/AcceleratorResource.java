@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -88,6 +89,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> {
                 Accelerator accelerator = accelerator(client);
                 return accelerator != null && accelerator.status() == DEPLOYED;
@@ -144,6 +146,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> {
                 Accelerator accelerator = accelerator(client);
                 return accelerator != null && accelerator.status() == DEPLOYED;
@@ -160,6 +163,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> {
                 Accelerator accelerator = accelerator(client);
                 return accelerator != null && accelerator.status() == DEPLOYED;
