@@ -32,6 +32,7 @@ public class AcceleratorAttributes extends Diffable {
     /**
      * Whether flow logs are enabled.
      */
+    @Updatable
     public Boolean getFlowLogsEnabled() {
         return flowLogsEnabled;
     }
@@ -44,6 +45,7 @@ public class AcceleratorAttributes extends Diffable {
      * The bucket to upload flow logs to.
      */
     public String getFlowLogsS3Bucket() {
+    @Updatable
         return flowLogsS3Bucket;
     }
 
@@ -54,11 +56,13 @@ public class AcceleratorAttributes extends Diffable {
     /**
      * The location to upload flow logs in the bucket.
      */
+    @Updatable
     public String getFlowLogsS3Prefix() {
         return flowLogsS3Prefix;
     }
 
     public void setFlowLogsS3Prefix(String flowLogsS3Prefix) {
         this.flowLogsS3Prefix = flowLogsS3Prefix;
+    }
     }
 }

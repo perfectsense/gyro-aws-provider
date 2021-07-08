@@ -304,6 +304,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
      *
      * @subresource gyro.aws.globalaccelerator.AcceleratorAttributes
      */
+    @Updatable
     public AcceleratorAttributes getAttributes() {
         return attributes;
     }
