@@ -7,16 +7,19 @@ import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
+import gyro.core.scope.Defer;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.globalaccelerator.GlobalAcceleratorClient;
 import software.amazon.awssdk.services.globalaccelerator.model.ClientAffinity;
 import software.amazon.awssdk.services.globalaccelerator.model.CreateListenerResponse;
 import software.amazon.awssdk.services.globalaccelerator.model.DescribeListenerResponse;
+import software.amazon.awssdk.services.globalaccelerator.model.InvalidPortRangeException;
 import software.amazon.awssdk.services.globalaccelerator.model.Listener;
 import software.amazon.awssdk.services.globalaccelerator.model.ListenerNotFoundException;
 import software.amazon.awssdk.services.globalaccelerator.model.PortRange;
@@ -70,12 +73,16 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
         GlobalAcceleratorClient client =
             createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
 
-        client.updateListener(r -> r
-            .listenerArn(getArn())
-            .clientAffinity(getClientAffinity())
-            .protocol(getProtocol())
-            .portRanges(portRanges())
-        );
+        try {
+            client.updateListener(r -> r
+                .listenerArn(getArn())
+                .clientAffinity(getClientAffinity())
+                .protocol(getProtocol())
+                .portRanges(portRanges())
+            );
+        } catch (InvalidPortRangeException ex) {
+            throw new GyroException("Invalid port range. Ensure port is not used by an endpoint before removing it from a listener.");
+        }
     }
 
     @Override
