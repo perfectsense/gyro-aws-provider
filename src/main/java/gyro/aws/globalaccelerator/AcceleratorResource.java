@@ -287,6 +287,8 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     /**
      * The static IPs assigned to the accelerator.
+     *
+     * @subresource gyro.aws.globalaccelerator.AcceleratorIpSet
      */
     @Output
     public List<AcceleratorIpSet> getIpSets() {

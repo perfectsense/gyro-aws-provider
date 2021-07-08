@@ -16,6 +16,9 @@ public class AcceleratorIpSet extends Diffable implements Copyable<software.amaz
         return "";
     }
 
+    /**
+     * Static IP addresses associated with the accelerator.
+     */
     public List<String> getIpAddresses() {
         if (ipAddresses == null) {
             ipAddresses = new ArrayList<>();
@@ -28,6 +31,9 @@ public class AcceleratorIpSet extends Diffable implements Copyable<software.amaz
         this.ipAddresses = ipAddresses;
     }
 
+    /**
+     * The family of the IP address. Currently only IPv4.
+     */
     public String getIpFamily() {
         return ipFamily;
     }

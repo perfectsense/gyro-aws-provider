@@ -23,6 +23,9 @@ public class EndpointGroupConfiguration extends Diffable implements Copyable<End
         return getEndpointId();
     }
 
+    /**
+     * Whether client ip preservation is enabled for an ALB endpoint.
+     */
     public Boolean getClientIpPreservationEnabled() {
         return clientIpPreservationEnabled;
     }
@@ -31,6 +34,9 @@ public class EndpointGroupConfiguration extends Diffable implements Copyable<End
         this.clientIpPreservationEnabled = clientIpPreservationEnabled;
     }
 
+    /**
+     * The ID for the endpoint. For NLB/ALB endpoints use their ARN. For EIPs use the allocation id. For EC2 instances use the instance id.
+     */
     public String getEndpointId() {
         return endpointId;
     }
@@ -39,6 +45,9 @@ public class EndpointGroupConfiguration extends Diffable implements Copyable<End
         this.endpointId = endpointId;
     }
 
+    /**
+     *  The weight to associate with this endpoints.
+     */
     public Integer getWeight() {
         return weight;
     }

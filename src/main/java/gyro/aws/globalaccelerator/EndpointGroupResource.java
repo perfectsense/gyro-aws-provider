@@ -201,6 +201,9 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
         this.healthCheckPort = healthCheckPort;
     }
 
+    /**
+     * The protocol to use to check the health of endpoints.
+     */
     @Updatable
     public HealthCheckProtocol getHealthCheckProtocol() {
         return healthCheckProtocol;
@@ -235,6 +238,9 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
         this.trafficDialPercentage = trafficDialPercentage;
     }
 
+    /**
+     * The endpoint group arn.
+     */
     public String getArn() {
         return arn;
     }
