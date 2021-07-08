@@ -32,6 +32,50 @@ import software.amazon.awssdk.services.globalaccelerator.model.Tag;
 
 import static software.amazon.awssdk.services.globalaccelerator.model.AcceleratorStatus.*;
 
+/**
+ * Create a global accelerator.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::global-accelerator accelerator
+ *         name: "accelerator"
+ *         enabled: true
+ *     end
+ *
+ *     aws::global-accelerator-listener accelerator
+ *         accelerator: $(aws::global-accelerator accelerator)
+ *         protocol: TCP
+ *
+ *         port-range
+ *             from-port: 80
+ *             to-port: 80
+ *         end
+ *
+ *         port-range
+ *             from-port: 443
+ *             to-port: 443
+ *         end
+ *     end
+ *
+ *     aws::global-accelerator-endpoint-group accelerator
+ *         listener: $(aws::global-accelerator-listener accelerator)
+ *
+ *         endpoint-group-region: us-east-1
+ *         endpoint-configuration
+ *             client-ip-preservation-enabled: true
+ *             endpoint-id: arn:aws:elasticloadbalancing:us-east-1:111111111111:loadbalancer/app/qa/e8222a13d93ea86f
+ *             weight: 1.0
+ *         end
+ *
+ *         health-check-path: "/_ping"
+ *         health-check-interval-seconds: 10
+ *         health-check-protocol: HTTP
+ *         health-check-port: 443
+ *     end
+ */
 @Type("global-accelerator")
 public class AcceleratorResource extends AwsResource implements Copyable<Accelerator> {
 

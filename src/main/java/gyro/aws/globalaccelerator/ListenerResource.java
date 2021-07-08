@@ -13,7 +13,6 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-import gyro.core.scope.Defer;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.globalaccelerator.GlobalAcceleratorClient;
 import software.amazon.awssdk.services.globalaccelerator.model.ClientAffinity;
@@ -25,6 +24,29 @@ import software.amazon.awssdk.services.globalaccelerator.model.ListenerNotFoundE
 import software.amazon.awssdk.services.globalaccelerator.model.PortRange;
 import software.amazon.awssdk.services.globalaccelerator.model.Protocol;
 
+/**
+ * Create a global accelerator listener.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::global-accelerator-listener accelerator
+ *         accelerator: $(aws::global-accelerator accelerator)
+ *         protocol: TCP
+ *
+ *         port-range
+ *             from-port: 80
+ *             to-port: 80
+ *         end
+ *
+ *         port-range
+ *             from-port: 443
+ *             to-port: 443
+ *         end
+ *     end
+ */
 @Type("global-accelerator-listener")
 public class ListenerResource extends AwsResource implements Copyable<Listener> {
 
