@@ -250,11 +250,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
     @Override
     public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         try {
             DescribeEndpointGroupResponse response = client.describeEndpointGroup(r -> r.endpointGroupArn(getArn()));
@@ -268,11 +264,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         CreateEndpointGroupResponse response = client.createEndpointGroup(r -> r
             .listenerArn(getListener().getArn())
@@ -294,11 +286,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         client.updateEndpointGroup(r -> r
             .endpointGroupArn(getArn())
@@ -316,11 +304,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         client.deleteEndpointGroup(r -> r.endpointGroupArn(getArn()));
     }

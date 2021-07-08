@@ -161,8 +161,7 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
 
     @Override
     public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         try {
             DescribeListenerResponse response = client.describeListener(r -> r.listenerArn(getArn()));
@@ -176,8 +175,7 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         CreateListenerResponse response = client.createListener(r -> r
             .acceleratorArn(getAccelerator().getArn())
@@ -192,9 +190,7 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
     @Override
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         try {
             client.updateListener(r -> r
@@ -210,8 +206,7 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         client.deleteListener(r -> r.listenerArn(getArn()));
     }

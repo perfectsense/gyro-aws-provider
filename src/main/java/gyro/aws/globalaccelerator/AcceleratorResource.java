@@ -259,11 +259,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
             setIpSets_(accelerator.ipSets());
         }
 
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         AcceleratorAttributes attributes = newSubresource(AcceleratorAttributes.class);
         DescribeAcceleratorAttributesResponse response = client.describeAcceleratorAttributes(r -> r.acceleratorArn(
@@ -274,11 +270,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     @Override
     public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         try {
             DescribeAcceleratorResponse response = client.describeAccelerator(r -> r.acceleratorArn(getArn()));
@@ -293,11 +285,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(
-                GlobalAcceleratorClient.class,
-                "us-west-2",
-                "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         CreateAcceleratorResponse response = client.createAccelerator(r -> r
             .enabled(getEnabled())
@@ -323,8 +311,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         client.updateAccelerator(r -> r.acceleratorArn(getArn())
             .enabled(getEnabled())
@@ -354,8 +341,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+        GlobalAcceleratorClient client = createClient(GlobalAcceleratorClient.class);
 
         client.updateAccelerator(r -> r.acceleratorArn(getArn()).enabled(false));
 

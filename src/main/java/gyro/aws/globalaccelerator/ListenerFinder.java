@@ -53,16 +53,6 @@ public class ListenerFinder extends AwsFinder<GlobalAcceleratorClient, Listener,
     }
 
     @Override
-    protected String getRegion() {
-        return "us-west-2";
-    }
-
-    @Override
-    protected String getEndpoint() {
-        return "https://globalaccelerator.us-west-2.amazonaws.com";
-    }
-
-    @Override
     protected List<Listener> findAllAws(GlobalAcceleratorClient client) {
         return new ArrayList<>();
     }

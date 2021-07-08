@@ -53,25 +53,13 @@ public class EndpointGroupFinder extends AwsFinder<GlobalAcceleratorClient, Endp
     }
 
     @Override
-    protected String getRegion() {
-        return "us-west-2";
-    }
-
-    @Override
-    protected String getEndpoint() {
-        return "https://globalaccelerator.us-west-2.amazonaws.com";
-    }
-
-    @Override
     protected List<EndpointGroup> findAllAws(GlobalAcceleratorClient client) {
         return new ArrayList<>();
     }
 
     @Override
     protected List<EndpointGroup> findAws(GlobalAcceleratorClient client, Map<String, String> filters) {
-        return client.listEndpointGroups(r -> r.listenerArn(filters.get("listener-arn")))
-            .endpointGroups()
-            .stream()
-            .collect(Collectors.toList());
+        return new ArrayList<>(client.listEndpointGroups(r -> r.listenerArn(filters.get("listener-arn")))
+            .endpointGroups());
     }
 }

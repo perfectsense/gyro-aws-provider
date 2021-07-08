@@ -54,16 +54,6 @@ public class AcceleratorFinder extends AwsFinder<GlobalAcceleratorClient, Accele
     }
 
     @Override
-    protected String getRegion() {
-        return "us-west-2";
-    }
-
-    @Override
-    protected String getEndpoint() {
-        return "https://globalaccelerator.us-west-2.amazonaws.com";
-    }
-
-    @Override
     protected List<Accelerator> findAllAws(GlobalAcceleratorClient client) {
         return client.listAcceleratorsPaginator().accelerators().stream().collect(Collectors.toList());
     }
