@@ -82,9 +82,8 @@ public abstract class AwsResource extends Resource {
         if (clientClass.getSimpleName().equals("IamClient")) {
             region = "aws-global";
             endpoint = "https://iam.amazonaws.com";
-        }
 
-        if (clientClass.getSimpleName().equals("GlobalAcceleratorClient")) {
+        } else if (clientClass.getSimpleName().equals("GlobalAcceleratorClient")) {
             region = "us-west-2";
             endpoint = "https://globalaccelerator.us-west-2.amazonaws.com";
         }
