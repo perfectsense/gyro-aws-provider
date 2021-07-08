@@ -25,17 +25,6 @@ public class ListenerPortRange extends Diffable implements Copyable<PortRange> {
     private Integer fromPort;
     private Integer toPort;
 
-    @Override
-    public void copyFrom(PortRange portRange) {
-        setFromPort(portRange.fromPort());
-        setToPort(portRange.toPort());
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%s:%s", fromPort, toPort);
-    }
-
     public Integer getFromPort() {
         return fromPort;
     }
@@ -52,10 +41,18 @@ public class ListenerPortRange extends Diffable implements Copyable<PortRange> {
         this.toPort = toPort;
     }
 
+    @Override
+    public void copyFrom(PortRange portRange) {
+        setFromPort(portRange.fromPort());
+        setToPort(portRange.toPort());
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s:%s", fromPort, toPort);
+    }
+
     PortRange portRange() {
-        return PortRange.builder()
-            .fromPort(getFromPort())
-            .toPort(getToPort())
-            .build();
+        return PortRange.builder().fromPort(getFromPort()).toPort(getToPort()).build();
     }
 }

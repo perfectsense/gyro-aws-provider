@@ -27,20 +27,8 @@ public class EndpointGroupConfiguration extends Diffable implements Copyable<End
     private String endpointId;
     private Integer weight;
 
-    @Override
-    public void copyFrom(EndpointDescription configuration) {
-        setClientIpPreservationEnabled(configuration.clientIPPreservationEnabled());
-        setWeight(configuration.weight());
-        setEndpointId(configuration.endpointId());
-    }
-
-    @Override
-    public String primaryKey() {
-        return getEndpointId();
-    }
-
     /**
-     * Whether client ip preservation is enabled for an ALB endpoint.
+     * If set to ``true``, client IP preservation is enabled for an ALB endpoint.
      */
     public Boolean getClientIpPreservationEnabled() {
         return clientIpPreservationEnabled;
@@ -70,6 +58,18 @@ public class EndpointGroupConfiguration extends Diffable implements Copyable<End
 
     public void setWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    @Override
+    public String primaryKey() {
+        return getEndpointId();
+    }
+
+    @Override
+    public void copyFrom(EndpointDescription configuration) {
+        setClientIpPreservationEnabled(configuration.clientIPPreservationEnabled());
+        setWeight(configuration.weight());
+        setEndpointId(configuration.endpointId());
     }
 
     EndpointConfiguration endpointConfiguration() {

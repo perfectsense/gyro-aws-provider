@@ -56,7 +56,7 @@ import software.amazon.awssdk.services.globalaccelerator.model.PortOverride;
  *         endpoint-group-region: us-east-1
  *         endpoint-configuration
  *             client-ip-preservation-enabled: true
- *             endpoint-id: arn:aws:elasticloadbalancing:us-east-1:111111111111:loadbalancer/app/qa/e8222a13d93ea86f
+ *             endpoint-id: $(aws::application-load-balancer alb-example).arn
  *             weight: 1.0
  *         end
  *
@@ -82,71 +82,6 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
     // -- Output fields
     private String arn;
-
-    @Override
-    public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        try {
-            DescribeEndpointGroupResponse response = client.describeEndpointGroup(r -> r.endpointGroupArn(getArn()));
-            copyFrom(response.endpointGroup());
-        } catch (EndpointGroupNotFoundException ex) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        CreateEndpointGroupResponse response = client.createEndpointGroup(r -> r
-            .listenerArn(getListener().getArn())
-            .endpointGroupRegion(getEndpointGroupRegion())
-            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
-            .healthCheckPath(getHealthCheckPath())
-            .healthCheckPort(getHealthCheckPort())
-            .healthCheckProtocol(getHealthCheckProtocol())
-            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
-            .trafficDialPercentage(getTrafficDialPercentage())
-            .thresholdCount(getThresholdCount())
-            .endpointConfigurations(endpointGroupConfigurations())
-            .portOverrides(endpointPortOverrides())
-        );
-
-        setArn(response.endpointGroup().endpointGroupArn());
-    }
-
-    @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        client.updateEndpointGroup(r -> r
-            .endpointGroupArn(getArn())
-            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
-            .healthCheckPath(getHealthCheckPath())
-            .healthCheckPort(getHealthCheckPort())
-            .healthCheckProtocol(getHealthCheckProtocol())
-            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
-            .trafficDialPercentage(getTrafficDialPercentage())
-            .thresholdCount(getThresholdCount())
-            .endpointConfigurations(endpointGroupConfigurations())
-            .portOverrides(endpointPortOverrides())
-        );
-    }
-
-    @Override
-    public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        client.deleteEndpointGroup(r -> r.endpointGroupArn(getArn()));
-    }
 
     /**
      * The listener to configure the endpoint(s) on.
@@ -220,7 +155,7 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
     }
 
     /**
-     * For HTTP/HTTPs protocol, the path to check.
+     * The path to check for HTTP/HTTPs protocol.
      */
     @Updatable
     public String getHealthCheckPath() {
@@ -311,6 +246,83 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
 
             getEndpointConfiguration().add(configuration);
         }
+    }
+
+    @Override
+    public boolean refresh() {
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        try {
+            DescribeEndpointGroupResponse response = client.describeEndpointGroup(r -> r.endpointGroupArn(getArn()));
+            copyFrom(response.endpointGroup());
+        } catch (EndpointGroupNotFoundException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        CreateEndpointGroupResponse response = client.createEndpointGroup(r -> r
+            .listenerArn(getListener().getArn())
+            .endpointGroupRegion(getEndpointGroupRegion())
+            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
+            .healthCheckPath(getHealthCheckPath())
+            .healthCheckPort(getHealthCheckPort())
+            .healthCheckProtocol(getHealthCheckProtocol())
+            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
+            .trafficDialPercentage(getTrafficDialPercentage())
+            .thresholdCount(getThresholdCount())
+            .endpointConfigurations(endpointGroupConfigurations())
+            .portOverrides(endpointPortOverrides())
+        );
+
+        copyFrom(response.endpointGroup());
+    }
+
+    @Override
+    public void update(
+        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        client.updateEndpointGroup(r -> r
+            .endpointGroupArn(getArn())
+            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
+            .healthCheckPath(getHealthCheckPath())
+            .healthCheckPort(getHealthCheckPort())
+            .healthCheckProtocol(getHealthCheckProtocol())
+            .healthCheckIntervalSeconds(getHealthCheckIntervalSeconds())
+            .trafficDialPercentage(getTrafficDialPercentage())
+            .thresholdCount(getThresholdCount())
+            .endpointConfigurations(endpointGroupConfigurations())
+            .portOverrides(endpointPortOverrides())
+        );
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(
+                GlobalAcceleratorClient.class,
+                "us-west-2",
+                "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        client.deleteEndpointGroup(r -> r.endpointGroupArn(getArn()));
     }
 
     List<EndpointConfiguration> endpointGroupConfigurations() {

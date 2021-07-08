@@ -25,17 +25,6 @@ public class EndpointGroupPortOverride extends Diffable implements Copyable<Port
     private Integer endpointPort;
     private Integer listenerPort;
 
-    @Override
-    public void copyFrom(PortOverride override) {
-        setEndpointPort(override.endpointPort());
-        setListenerPort(override.listenerPort());
-    }
-
-    @Override
-    public String primaryKey() {
-        return String.format("%s -> %s", getListenerPort(), getEndpointPort());
-    }
-
     /**
      * The port to connect to on the endpoint.
      */
@@ -56,6 +45,17 @@ public class EndpointGroupPortOverride extends Diffable implements Copyable<Port
 
     public void setListenerPort(Integer listenerPort) {
         this.listenerPort = listenerPort;
+    }
+
+    @Override
+    public String primaryKey() {
+        return String.format("%s -> %s", getListenerPort(), getEndpointPort());
+    }
+
+    @Override
+    public void copyFrom(PortOverride override) {
+        setEndpointPort(override.endpointPort());
+        setListenerPort(override.listenerPort());
     }
 
     PortOverride portOverride() {

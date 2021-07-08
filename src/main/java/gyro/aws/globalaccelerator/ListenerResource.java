@@ -74,63 +74,6 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
     // -- Output fields
     private String arn;
 
-    @Override
-    public boolean refresh() {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        try {
-            DescribeListenerResponse response = client.describeListener(r -> r.listenerArn(getArn()));
-            copyFrom(response.listener());
-        } catch (ListenerNotFoundException ex) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public void create(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        CreateListenerResponse response = client.createListener(r -> r
-            .acceleratorArn(getAccelerator().getArn())
-            .clientAffinity(getClientAffinity())
-            .protocol(getProtocol())
-            .portRanges(portRanges())
-        );
-
-        setArn(response.listener().listenerArn());
-    }
-
-    @Override
-    public void update(
-        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        try {
-            client.updateListener(r -> r
-                .listenerArn(getArn())
-                .clientAffinity(getClientAffinity())
-                .protocol(getProtocol())
-                .portRanges(portRanges())
-            );
-        } catch (InvalidPortRangeException ex) {
-            throw new GyroException("Invalid port range. Ensure port is not used by an endpoint before removing it from a listener.");
-        }
-    }
-
-    @Override
-    public void delete(GyroUI ui, State state) throws Exception {
-        GlobalAcceleratorClient client =
-            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
-
-        client.deleteListener(r -> r.listenerArn(getArn()));
-    }
-
     /**
      * The accelerator to add this listener to.
      */
@@ -214,5 +157,62 @@ public class ListenerResource extends AwsResource implements Copyable<Listener> 
 
             getPortRange().add(pr);
         });
+    }
+
+    @Override
+    public boolean refresh() {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        try {
+            DescribeListenerResponse response = client.describeListener(r -> r.listenerArn(getArn()));
+            copyFrom(response.listener());
+        } catch (ListenerNotFoundException ex) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void create(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        CreateListenerResponse response = client.createListener(r -> r
+            .acceleratorArn(getAccelerator().getArn())
+            .clientAffinity(getClientAffinity())
+            .protocol(getProtocol())
+            .portRanges(portRanges())
+        );
+
+        copyFrom(response.listener());
+    }
+
+    @Override
+    public void update(
+        GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        try {
+            client.updateListener(r -> r
+                .listenerArn(getArn())
+                .clientAffinity(getClientAffinity())
+                .protocol(getProtocol())
+                .portRanges(portRanges())
+            );
+        } catch (InvalidPortRangeException ex) {
+            throw new GyroException("Invalid port range. Ensure port is not used by an endpoint before removing it from a listener.");
+        }
+    }
+
+    @Override
+    public void delete(GyroUI ui, State state) throws Exception {
+        GlobalAcceleratorClient client =
+            createClient(GlobalAcceleratorClient.class, "us-west-2", "https://globalaccelerator.us-west-2.amazonaws.com");
+
+        client.deleteListener(r -> r.listenerArn(getArn()));
     }
 }

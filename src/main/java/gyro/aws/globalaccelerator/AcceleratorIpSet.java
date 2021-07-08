@@ -27,11 +27,6 @@ public class AcceleratorIpSet extends Diffable implements Copyable<software.amaz
     private List<String> ipAddresses;
     private String ipFamily;
 
-    @Override
-    public String primaryKey() {
-        return "";
-    }
-
     /**
      * Static IP addresses associated with the accelerator.
      */
@@ -56,6 +51,11 @@ public class AcceleratorIpSet extends Diffable implements Copyable<software.amaz
 
     public void setIpFamily(String ipFamily) {
         this.ipFamily = ipFamily;
+    }
+
+    @Override
+    public String primaryKey() {
+        return "";
     }
 
     @Override
