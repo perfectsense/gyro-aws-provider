@@ -9,6 +9,8 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -265,6 +267,8 @@ public class EndpointGroupResource extends AwsResource implements Copyable<Endpo
     /**
      * The endpoint group arn.
      */
+    @Id
+    @Output
     public String getArn() {
         return arn;
     }
