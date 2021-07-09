@@ -543,7 +543,6 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         RequestCertificateResponse response = client.requestCertificate(
             r -> r.certificateAuthorityArn(getCertificateAuthority() != null ? getCertificateAuthority().getArn() : null)
                 .domainName(getDomainName())
-                .domainValidationOptions(getDomainValidationOption().stream().map(AcmDomainValidationOption::toDomainValidationOption).collect(Collectors.toList()))
                 .idempotencyToken(UUID.randomUUID().toString().replaceAll("-",""))
                 .options(getOptions().toCertificateOptions())
                 .subjectAlternativeNames(getSubjectAlternativeNames())
