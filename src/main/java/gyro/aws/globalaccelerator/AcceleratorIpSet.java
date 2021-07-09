@@ -21,6 +21,7 @@ import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import org.apache.commons.lang3.StringUtils;
 
 public class AcceleratorIpSet extends Diffable implements Copyable<software.amazon.awssdk.services.globalaccelerator.model.IpSet> {
 
@@ -55,7 +56,7 @@ public class AcceleratorIpSet extends Diffable implements Copyable<software.amaz
 
     @Override
     public String primaryKey() {
-        return "";
+        return StringUtils.join(ipAddresses, ", ");
     }
 
     @Override
