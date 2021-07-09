@@ -352,6 +352,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
     public void setIpSets_(List<software.amazon.awssdk.services.globalaccelerator.model.IpSet> ipSets_) {
         if (!ipSets_.isEmpty()) {
+            getIpSets().clear();
             for (software.amazon.awssdk.services.globalaccelerator.model.IpSet ipSet_ : ipSets_) {
                 AcceleratorIpSet ipSet = newSubresource(AcceleratorIpSet.class);
                 ipSet.copyFrom(ipSet_);
