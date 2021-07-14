@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 1.3.0 (July 14th, 2021)
+
+ENHANCEMENTS:
+
+* [489](https://github.com/perfectsense/gyro-aws-provider/issues/489): Add support for Global Accelerators.
+
+ISSUES FIXED:
+
+* [497](https://github.com/perfectsense/gyro-aws-provider/issues/497): Remove required annotation from key-pair field for EC2 Instance.
+* [498](https://github.com/perfectsense/gyro-aws-provider/issues/498): Remove enum validation of type for EC2 Instance.
+
 ## 1.2.2 (June 28th, 2021)
 
 ENHANCEMENTS:
