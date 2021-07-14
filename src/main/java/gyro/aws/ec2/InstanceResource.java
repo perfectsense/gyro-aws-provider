@@ -803,7 +803,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         }
 
         if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))) {
-            errors.add(new ValidationError(this, "instance-type", "The 'instance-type' is required if a 'launch-template' is not specified."));
+            errors.add(new ValidationError(this, "instance-type", "'instance-type' is required if 'launch-template' is not specified."));
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")
