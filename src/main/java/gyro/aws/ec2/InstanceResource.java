@@ -216,7 +216,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
-    @Required
     @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
