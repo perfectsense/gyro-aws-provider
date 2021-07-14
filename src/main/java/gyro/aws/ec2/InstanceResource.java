@@ -803,8 +803,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             errors.add(new ValidationError(this, "shutdown-behavior", "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
         }
 
-        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))
-            || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
+        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))) {
             errors.add(new ValidationError(this, "instance-type", "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
         }
 
