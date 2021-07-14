@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableSet;
 import com.psddev.dari.util.ObjectUtils;
@@ -45,7 +44,6 @@ import software.amazon.awssdk.services.route53.model.Change;
 import software.amazon.awssdk.services.route53.model.ChangeAction;
 import software.amazon.awssdk.services.route53.model.HostedZoneNotFoundException;
 import software.amazon.awssdk.services.route53.model.NoSuchHostedZoneException;
-import software.amazon.awssdk.services.route53.model.RRType;
 import software.amazon.awssdk.services.route53.model.ResourceRecord;
 import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
 
@@ -218,6 +216,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The name of the Record Set being created.
      */
+    @Required
     @Updatable
     public String getName() {
         if (name != null) {
@@ -283,6 +282,8 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The type of Record Set being created.
      */
+    // TODO: MAKE OUTPUT DEPENDENCIES WORK WITH VALIDATORS
+    @Required
     @Updatable
     @ValidStrings({"SOA", "A", "TXT", "NS", "CNAME", "MX", "NAPTR", "PTR", "SRV", "SPF", "AAAA", "CAA"})
     public String getType() {
@@ -536,6 +537,10 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             if (ObjectUtils.isBlank(getTtl()) || getTtl() < 0 || getTtl() > 172800) {
                 errors.add(new ValidationError(this, null, "The param 'ttl' is required when 'alias' is not set."
                     + " Valid values [ Long 0 - 172800 ]."));
+            }
+
+            if (getRecords().isEmpty()) {
+                errors.add(new ValidationError(this, null, "The param 'records' is required when 'alias' is not set."));
             }
         }
 
