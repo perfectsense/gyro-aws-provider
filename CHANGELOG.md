@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 1.3.0 (July 14th, 2021)
+
+ENHANCEMENTS:
+
+* [489](https://github.com/perfectsense/gyro-aws-provider/issues/489): Add support for Global Accelerators.
+
+ISSUES FIXED:
+
+* [](): .
+* [](): .
+
 ## 1.2.2 (June 28th, 2021)
 
 ENHANCEMENTS:
