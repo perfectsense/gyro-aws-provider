@@ -9,8 +9,8 @@ ENHANCEMENTS:
 
 ISSUES FIXED:
 
-* [](): .
-* [](): .
+* [497](https://github.com/perfectsense/gyro-aws-provider/issues/497): Remove required annotation from key-pair field for EC2 Instance.
+* [498](https://github.com/perfectsense/gyro-aws-provider/issues/498): Remove enum validation of type for EC2 Instance.
 
 ## 1.2.2 (June 28th, 2021)
 
