@@ -39,7 +39,6 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
@@ -55,7 +54,6 @@ import software.amazon.awssdk.services.ec2.model.IamInstanceProfileSpecification
 import software.amazon.awssdk.services.ec2.model.Instance;
 import software.amazon.awssdk.services.ec2.model.InstanceAttributeName;
 import software.amazon.awssdk.services.ec2.model.InstanceStateName;
-import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.MonitoringState;
 import software.amazon.awssdk.services.ec2.model.NetworkInterfaceAttribute;
 import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
@@ -131,7 +129,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * The AMI to be used to launch the Instance.
      */
-    @Required
     public AmiResource getAmi() {
         return ami;
     }
@@ -205,6 +202,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
      * Change the Shutdown Behavior options for an instance. Defaults to ``Stop``. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior>`_.
      */
     @Updatable
+    @ValidStrings({ "stop", "terminate" })
     public String getShutdownBehavior() {
         return shutdownBehavior != null ? shutdownBehavior.toLowerCase() : ShutdownBehavior.STOP.toString();
     }
@@ -253,7 +251,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the security groups specified. See `Amazon EC2 Security Groups for Linux Instances <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
      */
-    @Required
     @Updatable
     public Set<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
@@ -559,17 +556,21 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         Ec2Client client = createClient(Ec2Client.class);
 
         RunInstancesRequest.Builder builder = RunInstancesRequest.builder();
-        builder = builder.imageId(getAmi().getId())
+        builder = builder.imageId(getAmi() != null ? getAmi().getId() : null)
             .ebsOptimized(getEbsOptimized())
             .hibernationOptions(o -> o.configured(getConfigureHibernateOption()))
             .instanceInitiatedShutdownBehavior(getShutdownBehavior())
-            .cpuOptions(getCoreCount() > 0 ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build() : SdkBuilder::build)
+            .cpuOptions(getCoreCount() > 0
+                ? o -> o.threadsPerCore(getThreadPerCore()).coreCount(getCoreCount()).build()
+                : SdkBuilder::build)
             .instanceType(getInstanceType())
             .keyName(getKey() != null ? getKey().getName() : null)
             .maxCount(1)
             .minCount(1)
             .monitoring(o -> o.enabled(getEnableMonitoring()))
-            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()) : null)
+            .securityGroupIds(!getSecurityGroups().isEmpty() ? getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId)
+                .collect(Collectors.toList()) : null)
             .subnetId(getSubnet() != null ? getSubnet().getId() : null)
             .disableApiTermination(getDisableApiTermination())
             .userData(new String(Base64.encodeBase64(getUserData().trim().getBytes())))
@@ -793,31 +794,32 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     }
 
     @Override
-    public List<ValidationError> validate() {
+    public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if ((getLaunchTemplate() != null && ObjectUtils.isBlank(getShutdownBehavior()))
-            || (!ObjectUtils.isBlank(getShutdownBehavior()) && ShutdownBehavior.fromValue(getShutdownBehavior()).equals(ShutdownBehavior.UNKNOWN_TO_SDK_VERSION))) {
-            errors.add(new ValidationError(this, "shutdown-behavior", "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
+        if ((getLaunchTemplate() == null || ObjectUtils.isBlank(getLaunchTemplate().getLaunchTemplate()
+            .getInstanceType())) && ObjectUtils.isBlank(getInstanceType())) {
+            errors.add(new ValidationError(this, "instance-type",
+                "'instance-type' is required if it is not specified in 'launch-template'."));
         }
 
-        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))) {
-            errors.add(new ValidationError(this, "instance-type", "'instance-type' is required if 'launch-template' is not specified."));
-        }
-
-        if (!getCapacityReservation().equalsIgnoreCase("none")
-            && !getCapacityReservation().equalsIgnoreCase("open")
+        if (!getCapacityReservation().equalsIgnoreCase("none") && !getCapacityReservation().equalsIgnoreCase("open")
             && !getCapacityReservation().startsWith("cr-")) {
-            errors.add(new ValidationError(this,"capacity-reservation", "The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
-                + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]"));
+            errors.add(new ValidationError(this, "capacity-reservation",
+                "The value - (" + getCapacityReservation() + ") is invalid for parameter 'capacity-reservation'. "
+                    + "Valid values [ 'open', 'none', capacity reservation id like cr-% ]"));
         }
 
-        if (getLaunchTemplate() == null) {
-            if (getAmi() == null) {
-                errors.add(new ValidationError(this, "ami", "ami cannot be blank when launch-template is not used."));
-            }
-        } else if (!getLaunchTemplate().getLaunchTemplate().getSecurityGroups().isEmpty() && getSubnet() == null) {
-            errors.add(new ValidationError(this, "subnet", "Subnet is required when using a launch-template with security group configured."));
+        if ((getLaunchTemplate() == null || ObjectUtils.isBlank(getLaunchTemplate().getLaunchTemplate()
+            .getAmi())) && ObjectUtils.isBlank(getAmi())) {
+            errors.add(new ValidationError(this, "ami",
+                "'ami' is required if it is not specified in 'launch-template'."));
+        }
+
+        if ((!getSecurityGroups().isEmpty() || (getLaunchTemplate() != null && !getLaunchTemplate().getLaunchTemplate()
+            .getSecurityGroups().isEmpty())) && getSubnet() == null) {
+            errors.add(new ValidationError(this, "subnet",
+                "'subnet' is required when 'security-groups' configured in the instance or in the 'launch-template'."));
         }
 
         return errors;
