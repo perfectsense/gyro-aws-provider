@@ -36,13 +36,14 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.binary.Base64;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateResponse;
 import software.amazon.awssdk.services.ec2.model.CreateLaunchTemplateVersionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeLaunchTemplatesResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
-import software.amazon.awssdk.services.ec2.model.InstanceType;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplate;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateIamInstanceProfileSpecificationRequest;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateInstanceNetworkInterfaceSpecificationRequest;
@@ -183,6 +184,7 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
      * The shutdown behavior options for an instance. See `Changing the Instance Initiated Shutdown Behavior <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html#Using_ChangingInstanceInitiatedShutdownBehavior/>`_.
      */
     @Updatable
+    @ValidStrings({ "stop", "terminate" })
     public String getShutdownBehavior() {
         return shutdownBehavior;
     }
@@ -194,7 +196,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     /**
      * The launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html/>`_.
      */
-    @Required
     @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
@@ -555,8 +556,6 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
     protected void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        validate(client);
-
         CreateLaunchTemplateResponse response = client.createLaunchTemplate(
             r -> r.launchTemplateName(getName())
                 .launchTemplateData(requestLaunchTemplateData())
@@ -588,15 +587,16 @@ public class LaunchTemplateResource extends Ec2TaggableResource<LaunchTemplate> 
         client.deleteLaunchTemplate(r -> r.launchTemplateId(getId()));
     }
 
-    private void validate(Ec2Client client) {
-        if (ObjectUtils.isBlank(getInstanceType()) ||
-            InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION)) {
-            throw new GyroException("The value - (" + getInstanceType() + ") is invalid for parameter Instance Type.");
-        }
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
 
         if (!getSecurityGroups().isEmpty() && !getNetworkInterfaces().isEmpty()) {
-            throw new GyroException("Either security group or network interface is to be provided, not both.");
+            new ValidationError(this, null,
+                "Either 'security-groups' or 'network-interfaces' should be provided, not both.");
         }
+
+        return errors;
     }
 
     private LaunchTemplate getLaunchTemplate(Ec2Client client) {
