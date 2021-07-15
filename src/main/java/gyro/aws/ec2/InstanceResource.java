@@ -216,7 +216,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the type of hardware you desire. See `Instance Types <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html>`_.
      */
-    @Required
     @Updatable
     public String getInstanceType() {
         return instanceType != null ? instanceType.toLowerCase() : instanceType;
@@ -229,7 +228,6 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
     /**
      * Launch instance with the key name of an EC2 Key Pair. This is a certificate required to access your instance. See `Amazon EC2 Key Pairs <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html>`_.
      */
-    @Required
     public KeyPairResource getKey() {
         return key;
     }
@@ -803,9 +801,8 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
             errors.add(new ValidationError(this, "shutdown-behavior", "The value - (" + getShutdownBehavior() + ") is invalid for parameter 'shutdown-behavior'."));
         }
 
-        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))
-            || (!ObjectUtils.isBlank(getInstanceType()) && InstanceType.fromValue(getInstanceType()).equals(InstanceType.UNKNOWN_TO_SDK_VERSION))) {
-            errors.add(new ValidationError(this, "instance-type", "The value - (" + getInstanceType() + ") is invalid for parameter 'instance-type'"));
+        if ((getLaunchTemplate() == null && ObjectUtils.isBlank(getInstanceType()))) {
+            errors.add(new ValidationError(this, "instance-type", "'instance-type' is required if 'launch-template' is not specified."));
         }
 
         if (!getCapacityReservation().equalsIgnoreCase("none")

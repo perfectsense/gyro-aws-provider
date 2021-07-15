@@ -1,0 +1,118 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+    provide-ipv6-cidr-block: true
+
+    tags: {
+        Name: "alb-example"
+    }
+end
+
+aws::internet-gateway internet-gateway
+    vpc: $(aws::vpc vpc)
+end
+
+aws::subnet subnet-us-east-2a
+    vpc: $(aws::vpc vpc)
+    availability-zone: 'us-east-2a'
+    cidr-block: '10.0.0.0/24'
+    ipv6-cidr-block: '2600:1f16:84d:da00::/64'
+
+    tags: {
+        Name: "alb example us-east-2a"
+    }
+end
+
+aws::subnet subnet-us-east-2b
+    vpc: $(aws::vpc vpc)
+    availability-zone: 'us-east-2b'
+    cidr-block: '10.0.1.0/24'
+    ipv6-cidr-block: '2600:1f16:84d:da01::/64'
+
+    tags: {
+        Name: "alb example us-east-2b"
+    }
+end
+
+aws::security-group security-group
+    name: "alb example - allow web traffic"
+    vpc: $(aws::vpc vpc)
+    description: "Allow web traffic only"
+end
+
+aws::security-group other-security-group
+    name: "alb example - other - allow web traffic"
+    vpc: $(aws::vpc vpc)
+    description: "Allow web traffic only"
+end
+
+aws::application-load-balancer alb-example
+    name: "alb-example"
+    ip-address-type: "dualstack"
+    scheme: 'internet-facing'
+    security-groups: [
+        $(aws::security-group security-group),
+        $(aws::security-group other-security-group)
+    ]
+    subnets: [
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b)
+    ]
+    tags: {
+        Name: "alb-example"
+    }
+end
+
+aws::s3-bucket bucket-example-acc
+    name: "bucket-example-acc"
+    enable-object-lock: true
+    enable-accelerate-config: true
+
+    tags: {
+        Name: "bucket-example-acc"
+    }
+end
+
+aws::global-accelerator accelerator-example
+    name: "example-test"
+    enabled: true
+
+    attributes
+        flow-logs-s3-bucket: $(aws::s3-bucket bucket-example-acc)
+        flow-logs-s3-prefix: "example"
+    end
+
+    tags: {
+        "beam.project": example
+    }
+end
+
+aws::global-accelerator-listener accelerator-listener-example
+    accelerator: $(aws::global-accelerator accelerator-example)
+    protocol: TCP
+
+    port-range
+        from-port: 80
+        to-port: 80
+    end
+
+    port-range
+        from-port: 443
+        to-port: 443
+    end
+end
+
+aws::global-accelerator-endpoint-group accelerator-end-example
+    listener: $(aws::global-accelerator-listener accelerator-listener-example)
+
+    endpoint-group-region: us-east-2
+    endpoint-configuration
+        client-ip-preservation-enabled: true
+        endpoint-id: $(aws::application-load-balancer alb-example).arn
+        weight: 1.0
+    end
+
+    health-check-path: "/_ping"
+    health-check-interval-seconds: 10
+    health-check-protocol: HTTP
+    health-check-port: 443
+end

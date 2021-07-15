@@ -20,7 +20,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-def releaseVersion = '1.2.3'
+def releaseVersion = '1.4.0'
 def releaseBuild = false;
 
 if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
@@ -77,11 +77,11 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:1.0.2' + (releaseBuild ? '' : '-SNAPSHOT')
+    api 'gyro:gyro-core:1.1.0' + (releaseBuild ? '' : '-SNAPSHOT')
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.60')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.16.96')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:apigatewayv2'
     implementation 'software.amazon.awssdk:autoscaling'
@@ -102,6 +102,7 @@ dependencies {
     implementation 'software.amazon.awssdk:elasticloadbalancing'
     implementation 'software.amazon.awssdk:elasticloadbalancingv2'
     implementation 'software.amazon.awssdk:elasticsearch'
+    implementation 'software.amazon.awssdk:globalaccelerator'
     implementation 'software.amazon.awssdk:iam'
     implementation 'software.amazon.awssdk:kms'
     implementation 'software.amazon.awssdk:lambda'
