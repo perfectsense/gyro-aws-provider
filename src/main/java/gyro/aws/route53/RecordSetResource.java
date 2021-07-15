@@ -282,7 +282,6 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     /**
      * The type of Record Set being created.
      */
-    // TODO: MAKE OUTPUT DEPENDENCIES WORK WITH VALIDATORS
     @Required
     @Updatable
     @ValidStrings({"SOA", "A", "TXT", "NS", "CNAME", "MX", "NAPTR", "PTR", "SRV", "SPF", "AAAA", "CAA"})
