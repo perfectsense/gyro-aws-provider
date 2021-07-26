@@ -72,10 +72,16 @@ public class CertificateWait extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        ui.indent();
-        ui.write(String.format("\nWaiting for certificate (%s) to be issued.", getCertificate().getArn()));
-        ui.unindent();
-        waitForCertificateToBeIssued(TimeoutSettings.Action.CREATE);
+        AcmClient client = createClient(AcmClient.class);
+
+        Wait.atMost(30, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> {
+                CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getCertificate().getArn()))
+                    .certificate();
+                return certificate != null && certificate.status().equals(CertificateStatus.ISSUED);
+            });
     }
 
     @Override
@@ -86,18 +92,5 @@ public class CertificateWait extends AwsResource {
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
 
-    }
-
-    private void waitForCertificateToBeIssued(TimeoutSettings.Action action) {
-        AcmClient client = createClient(AcmClient.class);
-
-        Wait.atMost(30, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
-            .resourceOverrides(this, action)
-            .until(() -> {
-                CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getCertificate().getArn()))
-                    .certificate();
-                return certificate != null && certificate.status().equals(CertificateStatus.ISSUED);
-            });
     }
 }
