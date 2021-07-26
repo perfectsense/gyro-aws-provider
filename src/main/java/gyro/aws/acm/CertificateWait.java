@@ -32,7 +32,8 @@ import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.CertificateStatus;
 
 /**
- * Wait for an ACM certificate to be issued.
+ * Wait for an ACM certificate to be issued. An example use case would be `DNS validation <https://docs.aws.amazon.com/acm/latest/userguide/dns-validation.html>`_.
+ * Note that this resource does not map to any resource on AWS and is used for gyro workflow only.
  *
  * Example
  * -------
@@ -52,6 +53,9 @@ public class CertificateWait extends AwsResource {
 
     private AcmCertificateResource certificate;
 
+    /**
+     * The ACM certificate waiting to be issued.
+     */
     @Required
     public AcmCertificateResource getCertificate() {
         return certificate;
@@ -68,6 +72,9 @@ public class CertificateWait extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
+        ui.indent();
+        ui.write(String.format("\nWaiting for certificate (%s) to be issued.", getCertificate().getArn()));
+        ui.unindent();
         waitForCertificateToBeIssued(TimeoutSettings.Action.CREATE);
     }
 
