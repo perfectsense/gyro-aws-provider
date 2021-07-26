@@ -35,6 +35,7 @@ import gyro.aws.Copyable;
 import gyro.aws.acmpca.AcmPcaCertificateAuthority;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -560,6 +561,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         if (getDomainValidationOption() != null) {
             Wait.atMost(10, TimeUnit.SECONDS)
                 .checkEvery(5, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .until(() -> {
                     CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getArn()))
                         .certificate();

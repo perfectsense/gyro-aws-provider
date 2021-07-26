@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -67,7 +68,7 @@ public class CertificateWait extends AwsResource {
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        waitForCertificateToBeIssued();
+        waitForCertificateToBeIssued(TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -80,11 +81,12 @@ public class CertificateWait extends AwsResource {
 
     }
 
-    private void waitForCertificateToBeIssued() {
+    private void waitForCertificateToBeIssued(TimeoutSettings.Action action) {
         AcmClient client = createClient(AcmClient.class);
 
         Wait.atMost(30, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .until(() -> {
                 CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getCertificate().getArn()))
                     .certificate();
