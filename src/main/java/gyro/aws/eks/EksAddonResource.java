@@ -36,6 +36,7 @@ import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.Addon;
 import software.amazon.awssdk.services.eks.model.AddonStatus;
 import software.amazon.awssdk.services.eks.model.CreateAddonResponse;
+import software.amazon.awssdk.services.eks.model.ResolveConflicts;
 import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
@@ -65,6 +66,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     private String addonName;
     private String addonVersion;
+    private ResolveConflicts resolveConflicts;
     private RoleResource serviceAccountRole;
     private Map<String, String> tags;
 
@@ -93,6 +95,18 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     public void setAddonVersion(String addonVersion) {
         this.addonVersion = addonVersion;
+    }
+
+    /**
+     * Overwrites configuration when set to OVERWRITE.
+     */
+    @Updatable
+    public ResolveConflicts getResolveConflicts() {
+        return resolveConflicts;
+    }
+
+    public void setResolveConflicts(ResolveConflicts resolveConflicts) {
+        this.resolveConflicts = resolveConflicts;
     }
 
     /**
@@ -163,6 +177,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         CreateAddonResponse response = client.createAddon(r -> r.addonName(getAddonName())
             .addonVersion(getAddonVersion())
             .clusterName(parent.getName())
+            .resolveConflicts(getResolveConflicts())
             .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn())
             .tags(getTags()));
 
@@ -196,6 +211,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
             client.updateAddon(r -> r.addonName(getAddonName())
                 .addonVersion(getAddonVersion())
                 .clusterName(parent.getName())
+                .resolveConflicts(getResolveConflicts())
                 .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));
 
             waitForActiveStatus(client, parent.getName(), getAddonName());
