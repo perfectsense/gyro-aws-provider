@@ -45,9 +45,9 @@ import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
-import software.amazon.awssdk.services.eks.model.ListAddonsResponse;
 import software.amazon.awssdk.services.eks.model.IdentityProviderConfig;
 import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
+import software.amazon.awssdk.services.eks.model.ListAddonsResponse;
 import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
 import software.amazon.awssdk.services.eks.model.LogSetup;
 import software.amazon.awssdk.services.eks.model.LogType;
@@ -332,6 +332,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         EksClient client = createClient(EksClient.class);
 
         // load addon
+        List<EksAddonResource> currentAddons = new ArrayList<>(getAddon());
         setAddon(null);
         try {
             ListAddonsResponse response = client.listAddons(r -> r.clusterName(getName()));
@@ -342,6 +343,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                     if (addon != null) {
                         EksAddonResource addonResource = newSubresource(EksAddonResource.class);
                         addonResource.copyFrom(addon);
+                        addonResource.setResolveConflicts(currentAddons.stream()
+                            .filter(r -> r.getAddonName().equals(addonResource.getAddonName()))
+                            .findFirst().map(EksAddonResource::getResolveConflicts)
+                            .orElse(null));
                         getAddon().add(addonResource);
                     }
                 });
