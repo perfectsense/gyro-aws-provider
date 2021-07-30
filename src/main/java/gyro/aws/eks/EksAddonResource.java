@@ -99,7 +99,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     }
 
     /**
-     * Overwrites configuration when set to OVERWRITE.
+     * Overwrites configuration when set to ``OVERWRITE``.
      */
     @Updatable
     @ValidStrings({ "OVERWRITE", "NONE" })
