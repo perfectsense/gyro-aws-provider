@@ -32,6 +32,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.Addon;
 import software.amazon.awssdk.services.eks.model.AddonStatus;
@@ -101,6 +102,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
      * Overwrites configuration when set to OVERWRITE.
      */
     @Updatable
+    @ValidStrings({ "OVERWRITE", "NONE" })
     public ResolveConflicts getResolveConflicts() {
         return resolveConflicts;
     }
