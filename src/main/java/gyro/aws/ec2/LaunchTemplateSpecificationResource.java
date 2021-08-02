@@ -18,6 +18,7 @@ package gyro.aws.ec2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.model.LaunchTemplateSpecification;
 
 public class LaunchTemplateSpecificationResource extends Diffable implements Copyable<LaunchTemplateSpecification> {
@@ -28,6 +29,7 @@ public class LaunchTemplateSpecificationResource extends Diffable implements Cop
     /**
      * The launch template to use for creating the instance.
      */
+    @Required
     public LaunchTemplateResource getLaunchTemplate() {
         return launchTemplate;
     }
