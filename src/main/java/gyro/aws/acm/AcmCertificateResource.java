@@ -16,6 +16,17 @@
 
 package gyro.aws.acm;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.psddev.dari.util.ObjectUtils;
@@ -24,7 +35,9 @@ import gyro.aws.Copyable;
 import gyro.aws.acmpca.AcmPcaCertificateAuthority;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -44,16 +57,6 @@ import software.amazon.awssdk.services.acm.model.RequestCertificateResponse;
 import software.amazon.awssdk.services.acm.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.acm.model.Tag;
 import software.amazon.awssdk.services.acm.model.ValidationMethod;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Creates a ACM Certificate.
@@ -541,16 +544,33 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         AcmClient client = createClient(AcmClient.class);
 
         RequestCertificateResponse response = client.requestCertificate(
-            r -> r.certificateAuthorityArn(getCertificateAuthority() != null ? getCertificateAuthority().getArn() : null)
+            r -> r.certificateAuthorityArn(
+                getCertificateAuthority() != null ? getCertificateAuthority().getArn() : null)
                 .domainName(getDomainName())
-                .domainValidationOptions(getDomainValidationOption().stream().map(AcmDomainValidationOption::toDomainValidationOption).collect(Collectors.toList()))
-                .idempotencyToken(UUID.randomUUID().toString().replaceAll("-",""))
+                .domainValidationOptions(getDomainValidationOption().stream()
+                    .map(AcmDomainValidationOption::toDomainValidationOption)
+                    .collect(Collectors.toList()))
+                .idempotencyToken(UUID.randomUUID().toString().replaceAll("-", ""))
                 .options(getOptions().toCertificateOptions())
                 .subjectAlternativeNames(getSubjectAlternativeNames())
                 .validationMethod(getValidationMethod())
         );
 
         setArn(response.certificateArn());
+
+        if (getDomainValidationOption() != null) {
+            Wait.atMost(10, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+                .until(() -> {
+                    CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getArn()))
+                        .certificate();
+                    return certificate != null && certificate.domainValidationOptions() != null
+                        && !certificate.domainValidationOptions().isEmpty();
+                });
+        }
+
+        refresh();
 
         if (!getTags().isEmpty()) {
             saveTags(client, new HashMap<>());
