@@ -27,6 +27,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -182,6 +183,7 @@ public class EfsMountTargetResource extends AwsResource implements Copyable<Moun
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 MountTargetDescription mountTargetDescription = getMountTarget(client);
@@ -210,6 +212,7 @@ public class EfsMountTargetResource extends AwsResource implements Copyable<Moun
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> {
                 MountTargetDescription mountTargetDescription = getMountTarget(client);

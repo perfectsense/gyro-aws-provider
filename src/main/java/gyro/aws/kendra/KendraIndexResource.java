@@ -27,6 +27,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -269,6 +270,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> getIndex(client).status().equals(IndexStatus.ACTIVE));
 
@@ -280,6 +282,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
             Wait.atMost(30, TimeUnit.MINUTES)
                 .checkEvery(5, TimeUnit.MINUTES)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .prompt(false)
                 .until(() -> getIndex(client).status().equals(IndexStatus.ACTIVE));
         }
@@ -314,6 +317,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(false)
             .until(() -> getIndex(client).status().equals(IndexStatus.ACTIVE));
 
@@ -345,6 +349,7 @@ public class KendraIndexResource extends AwsResource implements Copyable<Describ
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getIndex(client) == null);
     }

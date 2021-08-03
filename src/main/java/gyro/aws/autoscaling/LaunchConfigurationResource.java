@@ -34,6 +34,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -401,6 +402,7 @@ public class LaunchConfigurationResource extends AwsResource implements Copyable
         // Wait for instance profile to be ready for use if present
         boolean status = Wait.atMost(60, TimeUnit.SECONDS)
             .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .checkEvery(10, TimeUnit.SECONDS)
             .until(() -> createLaunchConfig(client, request));
 

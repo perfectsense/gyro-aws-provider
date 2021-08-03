@@ -28,6 +28,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -417,7 +418,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         CreateClusterResponse response = client.createCluster(builder.tags(getTags()).build());
 
-        waitForActiveStatus(client);
+        waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
         copyFrom(getCluster(client));
     }
@@ -429,11 +430,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (changedFieldNames.contains("version")) {
             client.updateClusterVersion(UpdateClusterVersionRequest.builder()
-                    .name(getName())
-                    .version(getVersion())
-                    .build());
+                .name(getName())
+                .version(getVersion())
+                .build());
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
         }
 
         if (changedFieldNames.contains("tags")) {
@@ -451,11 +453,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (changedFieldNames.contains("vpc-config")) {
             client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                    .name(getName())
-                    .resourcesVpcConfig(getVpcConfig().updatedConfig())
-                    .build());
+                .name(getName())
+                .resourcesVpcConfig(getVpcConfig().updatedConfig())
+                .build());
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
         }
 
         if (changedFieldNames.contains("logging")) {
@@ -467,14 +470,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
             } else {
                 client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                        .name(getName())
-                        .logging(Logging.builder().clusterLogging(
-                                LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
-                                .build())
-                        .build());
+                    .name(getName())
+                    .logging(Logging.builder().clusterLogging(
+                        LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
+                        .build())
+                    .build());
             }
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
         }
 
         if (changedFieldNames.contains("encryption-config") && !getEncryptionConfig().isEmpty()) {
@@ -482,9 +486,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                 .encryptionConfig(getEncryptionConfig().stream()
                     .map(EksEncryptionConfig::toEncryptionConfig)
                     .collect(Collectors.toList())
-            ));
+                ));
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
         }
     }
 
@@ -497,6 +501,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         Wait.atMost(20, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getCluster(client) == null);
     }
 
@@ -515,13 +520,14 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         return cluster;
     }
 
-    private void waitForActiveStatus(EksClient client) {
+    private void waitForActiveStatus(EksClient client, TimeoutSettings.Action action) {
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> {
-                    Cluster cluster = getCluster(client);
-                    return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
-                });
+            .resourceOverrides(this, action)
+            .prompt(false)
+            .until(() -> {
+                Cluster cluster = getCluster(client);
+                return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
+            });
     }
 }

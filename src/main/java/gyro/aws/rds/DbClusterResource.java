@@ -29,6 +29,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -663,7 +664,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
             setArn(response.dbCluster().dbClusterArn());
             state.save();
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
             if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
                 || getPreferredMaintenanceWindow() != null) {
@@ -673,7 +674,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .preferredBackupWindow(getPreferredBackupWindow())
                     .preferredMaintenanceWindow(getPreferredMaintenanceWindow()));
 
-                waitForActiveStatus(client);
+                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
             }
 
         } else if (getS3Import() != null) {
@@ -712,7 +713,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
             setArn(response.dbCluster().dbClusterArn());
             state.save();
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
             if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
                 || getPreferredMaintenanceWindow() != null) {
@@ -720,7 +721,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .dbClusterIdentifier(getIdentifier())
                     .scalingConfiguration(scalingConfiguration));
 
-                waitForActiveStatus(client);
+                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
             }
 
         } else {
@@ -760,7 +761,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
             setArn(response.dbCluster().dbClusterArn());
             state.save();
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
         }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
@@ -857,6 +858,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(15, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
     }
@@ -874,9 +876,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         return false;
     }
 
-    private void waitForActiveStatus(RdsClient client) {
+    private void waitForActiveStatus(RdsClient client, TimeoutSettings.Action action) {
         boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> isAvailable(client));
 

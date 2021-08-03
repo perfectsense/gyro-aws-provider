@@ -27,6 +27,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -477,6 +478,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
             state.save();
 
             Wait.atMost(5, TimeUnit.MINUTES)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .prompt(false)
                 .checkEvery(1, TimeUnit.MINUTES)
                 .until(() -> getCluster(client).status().equals("available"));
@@ -509,6 +511,7 @@ public class DaxClusterResource extends AwsResource implements Copyable<Cluster>
         client.deleteCluster(r -> r.clusterName(getName()));
 
         Wait.atMost(5, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
             .until(() -> getCluster(client) == null);

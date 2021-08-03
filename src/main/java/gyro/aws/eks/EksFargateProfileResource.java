@@ -29,6 +29,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -235,6 +236,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 FargateProfile fargateProfile = getFargateProfile(client);
                 return fargateProfile != null && fargateProfile.status().equals(FargateProfileStatus.ACTIVE);
@@ -272,6 +274,7 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getFargateProfile(client) == null);
     }
 

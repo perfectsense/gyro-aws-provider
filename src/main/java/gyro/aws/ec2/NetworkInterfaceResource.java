@@ -28,6 +28,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -418,7 +419,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
                     getId()).instanceId(getInstance().getId()).deviceIndex(getDeviceIndex()));
                 setAttachmentId(attachNetworkInterfaceResponse.attachmentId());
             } else {
-                detachInstance(client);
+                detachInstance(client, TimeoutSettings.Action.UPDATE);
             }
         }
 
@@ -487,13 +488,14 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
     public void delete(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        detachInstance(client);
+        detachInstance(client, TimeoutSettings.Action.DELETE);
 
         client.deleteNetworkInterface(d -> d.networkInterfaceId(getId()));
 
         //wait for the detachment from subnet.
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> client.describeNetworkInterfaces(
                 r -> r.filters(Filter.builder().name("subnet-id").values(getSubnet().getId()).build())
@@ -529,7 +531,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
         return networkInterface != null && networkInterface.attachment() == null;
     }
 
-    private void detachInstance(Ec2Client client) {
+    private void detachInstance(Ec2Client client, TimeoutSettings.Action action) {
         NetworkInterface networkInterface = getNetworkInterface(client);
 
         if (networkInterface != null) {
@@ -541,6 +543,7 @@ public class NetworkInterfaceResource extends Ec2TaggableResource<NetworkInterfa
             Wait.atMost(2, TimeUnit.MINUTES)
                 .prompt(true)
                 .checkEvery(3, TimeUnit.SECONDS)
+                .resourceOverrides(this, action)
                 .until(() -> isInstanceDetached(client));
         }
     }

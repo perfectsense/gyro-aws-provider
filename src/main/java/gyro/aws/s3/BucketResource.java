@@ -16,47 +16,6 @@
 
 package gyro.aws.s3;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.psddev.dari.util.ObjectUtils;
-import gyro.aws.AwsResource;
-import gyro.aws.Copyable;
-import gyro.core.GyroException;
-import gyro.core.GyroUI;
-import gyro.core.Wait;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
-import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
-import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.Bucket;
-import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
-import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
-import software.amazon.awssdk.services.s3.model.CORSRule;
-import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketPolicyResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
-import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
-import software.amazon.awssdk.services.s3.model.LifecycleRule;
-import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
-import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
-import software.amazon.awssdk.services.s3.model.Payer;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.Tag;
-import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
-import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
-import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
-import software.amazon.awssdk.utils.IoUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -66,6 +25,48 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.util.ObjectUtils;
+import gyro.aws.AwsResource;
+import gyro.aws.Copyable;
+import gyro.core.GyroException;
+import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
+import gyro.core.Type;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
+import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
+import gyro.core.scope.State;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
+import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
+import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
+import software.amazon.awssdk.services.s3.model.CORSRule;
+import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLifecycleConfigurationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLocationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketLoggingResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketPolicyResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketReplicationResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
+import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
+import software.amazon.awssdk.services.s3.model.LifecycleRule;
+import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.Payer;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.Tag;
+import software.amazon.awssdk.utils.IoUtils;
 
 /**
  * Creates an S3 bucket with enabled/disabled object lock.
@@ -565,7 +566,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
 
         if (!getCorsRule().isEmpty()) {
-            saveCorsRules(client);
+            saveCorsRules(client, TimeoutSettings.Action.CREATE);
         }
 
         if (!getLifecycleRule().isEmpty()) {
@@ -631,7 +632,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         saveReplicationConfiguration(client);
 
-        saveCorsRules(client);
+        saveCorsRules(client, TimeoutSettings.Action.UPDATE);
 
         saveLifecycleRules(client);
     }
@@ -777,7 +778,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
-    private void saveCorsRules(S3Client client) {
+    private void saveCorsRules(S3Client client, TimeoutSettings.Action action) {
         if (getCorsRule().isEmpty()) {
             client.deleteBucketCors(
                 r -> r.bucket(getName())
@@ -793,6 +794,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             Wait.atMost(2, TimeUnit.MINUTES)
                 .prompt(false)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, action)
                 .until(() -> isCorsSaved(client));
         }
     }

@@ -306,7 +306,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
         client.tagResource(r -> r.resourceArn(getArn()).tags(tagsToAdd()));
 
-        waitForDeployStatus(client);
+        waitForDeployStatus(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -336,7 +336,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
             );
         }
 
-        waitForDeployStatus(client);
+        waitForDeployStatus(client, TimeoutSettings.Action.UPDATE);
     }
 
     @Override
@@ -345,7 +345,7 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
 
         client.updateAccelerator(r -> r.acceleratorArn(getArn()).enabled(false));
 
-        waitForDeployStatus(client);
+        waitForDeployStatus(client, TimeoutSettings.Action.DELETE);
 
         client.deleteAccelerator(r -> r.acceleratorArn(getArn()));
     }
@@ -379,11 +379,11 @@ public class AcceleratorResource extends AwsResource implements Copyable<Acceler
         return new ArrayList<>(currentKeys);
     }
 
-    private void waitForDeployStatus(GlobalAcceleratorClient client) {
+    private void waitForDeployStatus(GlobalAcceleratorClient client, TimeoutSettings.Action action) {
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .resourceOverrides(this, action)
             .until(() -> {
                 Accelerator accelerator = accelerator(client);
                 return accelerator != null && accelerator.status() == DEPLOYED;

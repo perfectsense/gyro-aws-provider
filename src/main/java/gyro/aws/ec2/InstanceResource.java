@@ -32,6 +32,7 @@ import gyro.aws.iam.InstanceProfileResource;
 import gyro.core.GyroException;
 import gyro.core.GyroInstance;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.DiffableInternals;
@@ -598,6 +599,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         boolean status = Wait.atMost(60, TimeUnit.SECONDS)
             .prompt(false)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> createInstance(client, request));
 
         if (!status) {
@@ -607,8 +609,9 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
         state.save();
 
         boolean waitResult = Wait.atMost(3, TimeUnit.MINUTES)
-            .checkEvery(10, TimeUnit.SECONDS)
             .prompt(false)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> isInstanceRunning(client));
 
         if (!waitResult) {
@@ -674,6 +677,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
             Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
                 .prompt(false)
                 .until(() -> isInstanceStopped(client));
         }
@@ -719,6 +723,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
             Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
                 .prompt(false)
                 .until(() -> isInstanceRunning(client));
         }
@@ -736,6 +741,7 @@ public class InstanceResource extends Ec2TaggableResource<Instance> implements G
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isInstanceTerminated(client));
     }

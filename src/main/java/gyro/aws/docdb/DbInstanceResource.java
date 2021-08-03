@@ -20,6 +20,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -241,6 +242,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
 
@@ -265,6 +267,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(true)
             .until(() -> isAvailable(client));
     }
@@ -279,6 +282,7 @@ public class DbInstanceResource extends DocDbTaggableResource implements Copyabl
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> getDbInstance(client) == null);
     }

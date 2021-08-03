@@ -16,18 +16,26 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import com.psddev.dari.util.CompactMap;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.route53.HostedZoneResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
-
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -36,14 +44,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.DescribeTags
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerNotFoundException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.Tag;
-
-import com.psddev.dari.util.CompactMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 public abstract class LoadBalancerResource extends AwsResource implements Copyable<LoadBalancer> {
 
@@ -222,9 +222,10 @@ public abstract class LoadBalancerResource extends AwsResource implements Copyab
         client.deleteLoadBalancer(r -> r.loadBalancerArn(getArn()));
 
         Wait.atMost(2, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
-                .until(() -> getLoadBalancer(client) == null);
+            .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .prompt(true)
+            .until(() -> getLoadBalancer(client) == null);
 
         // Delay for resources has this load balancer as a dependency.
         try {

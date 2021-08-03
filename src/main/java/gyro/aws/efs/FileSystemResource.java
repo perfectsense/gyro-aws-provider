@@ -33,6 +33,7 @@ import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -306,19 +307,21 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
         CreateFileSystemResponse fileSystemResponse = client.createFileSystem(builder.build());
 
-        waitForAvailability(client);
+        waitForAvailability(client, TimeoutSettings.Action.CREATE);
 
         setId(fileSystemResponse.fileSystemId());
         state.save();
 
         if (getBackupPolicy() != null) {
             client.putBackupPolicy(r -> r.fileSystemId(getId()).backupPolicy(getBackupPolicy().toBackupPolicy()));
-            waitForAvailability(client);
+            state.save();
+            waitForAvailability(client, TimeoutSettings.Action.CREATE);
         }
 
         if (getPolicy() != null) {
             client.putFileSystemPolicy(r -> r.fileSystemId(getId()).policy(getPolicy()));
-            waitForAvailability(client);
+            state.save();
+            waitForAvailability(client, TimeoutSettings.Action.CREATE);
         }
 
         if (!getLifecyclePolicy().isEmpty()) {
@@ -326,13 +329,14 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
                 .lifecyclePolicies(getLifecyclePolicy().stream()
                     .map(EfsLifecyclePolicy::toLifecyclePolicy)
                     .collect(Collectors.toList())));
-            waitForAvailability(client);
+            waitForAvailability(client, TimeoutSettings.Action.CREATE);
         }
     }
 
-    private void waitForAvailability(EfsClient client) {
+    private void waitForAvailability(EfsClient client, TimeoutSettings.Action action) {
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> {
                 FileSystemDescription fileSystem = getFileSystem(client);
@@ -356,16 +360,16 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
         client.updateFileSystem(builder.build());
 
-        waitForAvailability(client);
+        waitForAvailability(client, TimeoutSettings.Action.UPDATE);
 
         if (changedFieldNames.contains("backup-policy")) {
             client.putBackupPolicy(r -> r.fileSystemId(getId()).backupPolicy(getBackupPolicy().toBackupPolicy()));
-            waitForAvailability(client);
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("policy")) {
             client.putFileSystemPolicy(r -> r.fileSystemId(getId()).policy(getPolicy()));
-            waitForAvailability(client);
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("lifecycle-policy")) {
@@ -373,7 +377,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
                 .lifecyclePolicies(getLifecyclePolicy().stream()
                     .map(EfsLifecyclePolicy::toLifecyclePolicy)
                     .collect(Collectors.toList())));
-            waitForAvailability(client);
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("tags")) {
@@ -400,6 +404,7 @@ public class FileSystemResource extends AwsResource implements Copyable<FileSyst
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> {
                 FileSystemDescription fileSystem = getFileSystem(client);

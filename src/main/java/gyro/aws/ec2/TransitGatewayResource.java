@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -200,6 +201,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 TransitGateway gateway = getTransitGateway(client);
@@ -220,6 +222,7 @@ public class TransitGatewayResource extends Ec2TaggableResource<TransitGateway> 
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getTransitGateway(client) == null);
     }

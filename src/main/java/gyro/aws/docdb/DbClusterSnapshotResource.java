@@ -20,6 +20,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Output;
@@ -133,6 +134,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         boolean waitResult = Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
 
@@ -156,6 +158,7 @@ public class DbClusterSnapshotResource extends DocDbTaggableResource implements 
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> getDbClusterSnapshot(client) == null);
     }

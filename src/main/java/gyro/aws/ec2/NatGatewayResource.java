@@ -26,6 +26,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -163,6 +164,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         boolean waitResult = Wait.atMost(7, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
 
@@ -186,6 +188,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
     }

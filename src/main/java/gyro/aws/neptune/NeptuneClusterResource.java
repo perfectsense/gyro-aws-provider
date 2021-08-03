@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -501,6 +502,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
     }
@@ -545,6 +547,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(true)
             .until(() -> isAvailable(client));
     }
@@ -565,6 +568,7 @@ public class NeptuneClusterResource extends NeptuneTaggableResource implements C
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(15, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
     }

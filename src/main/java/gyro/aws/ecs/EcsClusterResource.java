@@ -30,6 +30,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -252,6 +253,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isActive(client));
     }
@@ -299,6 +301,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(false)
             .until(() -> isUpdated(client));
     }
@@ -311,6 +314,7 @@ public class EcsClusterResource extends AwsResource implements Copyable<Cluster>
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> isDeleted(client));
     }
