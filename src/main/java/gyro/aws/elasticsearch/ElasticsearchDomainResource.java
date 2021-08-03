@@ -30,6 +30,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -435,7 +436,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
 
         addTags(client);
 
-        waitForAvailability(client);
+        waitForAvailability(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -490,7 +491,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
             addTags(client);
         }
 
-        waitForAvailability(client);
+        waitForAvailability(client, TimeoutSettings.Action.UPDATE);
     }
 
     @Override
@@ -501,6 +502,7 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
 
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(4, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getElasticSearchDomain(client) == null);
     }
@@ -610,9 +612,10 @@ public class ElasticsearchDomainResource extends AwsResource implements Copyable
         }
     }
 
-    private void waitForAvailability(ElasticsearchClient client) {
+    private void waitForAvailability(ElasticsearchClient client, TimeoutSettings.Action action) {
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(4, TimeUnit.MINUTES)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> {
                 ElasticsearchDomainStatus elasticSearchDomain = getElasticSearchDomain(client);

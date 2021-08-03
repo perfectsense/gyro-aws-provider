@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -205,6 +206,7 @@ public class EfsAccessPointResource extends AwsResource implements Copyable<Acce
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 AccessPointDescription accessPointDescription = getAccessPoint(client);
@@ -237,6 +239,7 @@ public class EfsAccessPointResource extends AwsResource implements Copyable<Acce
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> {
                 AccessPointDescription accessPoint = getAccessPoint(client);

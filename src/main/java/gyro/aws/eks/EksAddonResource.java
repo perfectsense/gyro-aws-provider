@@ -25,6 +25,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -185,7 +186,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
         setArn(response.addon().addonArn());
 
-        waitForActiveStatus(client, parent.getName(), getAddonName());
+        waitForActiveStatus(client, parent.getName(), getAddonName(), TimeoutSettings.Action.CREATE);
 
         copyFrom(response.addon());
     }
@@ -216,7 +217,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
                 .resolveConflicts(getResolveConflicts())
                 .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));
 
-            waitForActiveStatus(client, parent.getName(), getAddonName());
+            waitForActiveStatus(client, parent.getName(), getAddonName(), TimeoutSettings.Action.UPDATE);
         }
     }
 
@@ -230,6 +231,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getAddon(client, parent.getName(), getAddonName()) == null);
     }
@@ -247,9 +249,10 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         return addon;
     }
 
-    private void waitForActiveStatus(EksClient client, String clusterName, String name) {
+    private void waitForActiveStatus(EksClient client, String clusterName, String name, TimeoutSettings.Action action) {
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> {
                 Addon addon = getAddon(client, clusterName, name);

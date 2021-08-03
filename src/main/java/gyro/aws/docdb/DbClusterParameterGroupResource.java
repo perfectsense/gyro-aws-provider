@@ -20,6 +20,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -237,6 +238,7 @@ public class DbClusterParameterGroupResource extends DocDbTaggableResource imple
         if (deleting) {
             Wait.atMost(5, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.DELETE)
                 .prompt(true)
                 .until(
                     () -> client.describeDBClusters().dbClusters().stream()

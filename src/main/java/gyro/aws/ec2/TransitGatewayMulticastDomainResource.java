@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -247,6 +248,7 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 TransitGatewayMulticastDomain domain = getTransitGatewayMulticastDomain(client);
@@ -268,6 +270,7 @@ public class TransitGatewayMulticastDomainResource extends Ec2TaggableResource<T
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getTransitGatewayMulticastDomain(client) == null);
     }

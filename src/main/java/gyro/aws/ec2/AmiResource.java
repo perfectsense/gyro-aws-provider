@@ -29,6 +29,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -311,6 +312,7 @@ public class AmiResource extends Ec2TaggableResource<Image> implements Copyable<
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> getImage(client).state().equals(ImageState.AVAILABLE));
 
         if (getPublicLaunchPermission()) {

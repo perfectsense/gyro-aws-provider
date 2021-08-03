@@ -27,6 +27,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -253,6 +254,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> getFaq(client).status().equals(FaqStatus.ACTIVE));
     }
@@ -288,6 +290,7 @@ public class KendraFaqResource extends AwsResource implements Copyable<DescribeF
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getFaq(client) == null);
     }

@@ -33,6 +33,7 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -412,6 +413,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
             // Wait for the queue to be created.
             boolean waitResult = Wait.atMost(4, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .prompt(false)
                 .until(() -> !ObjectUtils.isBlank(getQueue(client)));
 

@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -181,7 +182,7 @@ public class VpnConnectionResource extends Ec2TaggableResource<VpnConnection> im
 
         setId(response.vpnConnection().vpnConnectionId());
 
-        waitForAvailability(client);
+        waitForAvailability(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -190,7 +191,8 @@ public class VpnConnectionResource extends Ec2TaggableResource<VpnConnection> im
 
         if (changedProperties.contains("options")) {
             client.modifyVpnConnectionOptions(getOptions().toModifyVpnConnectionOptionsRequest(getId()));
-            waitForAvailability(client);
+            state.save();
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedProperties.contains("transit-gateway") || changedProperties.contains("vpn-gateway")) {
@@ -198,7 +200,7 @@ public class VpnConnectionResource extends Ec2TaggableResource<VpnConnection> im
                 getCustomerGateway().getId())
                 .transitGatewayId(getTransitGateway() == null ? null : getTransitGateway().getId())
                 .vpnGatewayId(getVpnGateway() == null ? null : getVpnGateway().getId()));
-            waitForAvailability(client);
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
         }
     }
 
@@ -210,6 +212,7 @@ public class VpnConnectionResource extends Ec2TaggableResource<VpnConnection> im
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getVpnConnection(client) == null);
     }
@@ -236,9 +239,10 @@ public class VpnConnectionResource extends Ec2TaggableResource<VpnConnection> im
         return connection;
     }
 
-    private void waitForAvailability(Ec2Client client) {
+    private void waitForAvailability(Ec2Client client, TimeoutSettings.Action action) {
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> {
                 VpnConnection connection = getVpnConnection(client);

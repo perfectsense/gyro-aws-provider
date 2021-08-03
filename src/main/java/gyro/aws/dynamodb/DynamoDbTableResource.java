@@ -34,6 +34,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -488,7 +489,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
 
         CreateTableResponse table = client.createTable(builder.build());
 
-        waitForActive(5, 1, () -> tableActive(client), "ACTIVE");
+        waitForActive(5, 1, () -> tableActive(client), "ACTIVE", TimeoutSettings.Action.CREATE);
 
         copyFrom(table.tableDescription());
     }
@@ -509,8 +510,10 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
             client.updateTable(r -> r.tableName(getName())
                 .globalSecondaryIndexUpdates(GlobalSecondaryIndexUpdate.builder()
                     .delete(d -> d.indexName(delete.getName())).build()));
+            state.save();
 
-            waitForActive(5, 1, () -> gsiDeleted(client, delete.getName()), "INDEX DELETED");
+            waitForActive(5, 1, () -> gsiDeleted(client, delete.getName()), "INDEX DELETED",
+                TimeoutSettings.Action.UPDATE);
         }
 
         UpdateTableRequest.Builder builder = UpdateTableRequest.builder().tableName(getName());
@@ -546,10 +549,11 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
 
         if (hasUpdate || hasGsiUpdate) {
             client.updateTable(builder.build());
+            state.save();
 
-            waitForActive(30, 30, () -> tableActive(client), "ACTIVE");
+            waitForActive(30, 30, () -> tableActive(client), "ACTIVE", TimeoutSettings.Action.UPDATE);
             if (hasGsiUpdate) {
-                waitForActive(30, 10, () -> allGsiActive(client), "INDEX ACTIVE");
+                waitForActive(30, 10, () -> allGsiActive(client), "INDEX ACTIVE", TimeoutSettings.Action.UPDATE);
             }
         }
 
@@ -560,8 +564,9 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
                     .collect(Collectors.toSet()))
                 .globalSecondaryIndexUpdates(GlobalSecondaryIndexUpdate.builder()
                     .create(add.toCreateGlobalSecondaryIndex()).build()));
+            state.save();
 
-            waitForActive(30, 10, () -> allGsiActive(client), "INDEX ACTIVE");
+            waitForActive(30, 10, () -> allGsiActive(client), "INDEX ACTIVE", TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("server-side-encryption")) {
@@ -639,9 +644,12 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
         }
     }
 
-    private void waitForActive(long interval, long duration, BooleanSupplier waitCheck, String state) {
+    private void waitForActive(
+        long interval, long duration, BooleanSupplier waitCheck, String state,
+        TimeoutSettings.Action action) {
         boolean waitResult = Wait.atMost(duration, TimeUnit.MINUTES)
             .checkEvery(interval, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(waitCheck::getAsBoolean);
 

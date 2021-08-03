@@ -24,6 +24,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -141,6 +142,7 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
         if (internetGateway != null && !internetGateway.attachments().isEmpty()) {
             Wait.atMost(1, TimeUnit.MINUTES)
                 .checkEvery(2, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.DELETE)
                 .prompt(false)
                 .until(() -> {
                     try {

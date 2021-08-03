@@ -16,16 +16,21 @@
 
 package gyro.aws.elbv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.ElasticIpResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
-
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
@@ -37,11 +42,6 @@ import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerNotFoundException;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerTypeEnum;
 import software.amazon.awssdk.services.elasticloadbalancingv2.model.SubnetMapping;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -139,9 +139,10 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         state.save();
 
         boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
-                .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> isActiveState(client));
+            .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .prompt(false)
+            .until(() -> isActiveState(client));
 
         if (!waitResult) {
             throw new GyroException("Unable to reach 'Active' state for network load balancer - " + getName());
@@ -162,9 +163,10 @@ public class NetworkLoadBalancerResource extends LoadBalancerResource implements
         super.delete(ui, state);
 
         Wait.atMost(3, TimeUnit.MINUTES)
-                .checkEvery(10, TimeUnit.SECONDS)
-                .prompt(true)
-                .until(() -> isDeleted(client));
+            .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .prompt(true)
+            .until(() -> isDeleted(client));
     }
 
     private List<SubnetMapping> toSubnetMappings() {

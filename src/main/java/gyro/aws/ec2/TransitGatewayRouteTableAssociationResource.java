@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
@@ -121,6 +122,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 List<TransitGatewayRouteTableAssociation> associations = getTransitGatewayRouteTableAssociations(client);
@@ -145,6 +147,7 @@ public class TransitGatewayRouteTableAssociationResource extends AwsResource
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> {
                 List<TransitGatewayRouteTableAssociation> associations = getTransitGatewayRouteTableAssociations(client);

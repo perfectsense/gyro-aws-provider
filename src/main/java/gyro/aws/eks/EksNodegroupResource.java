@@ -29,6 +29,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -379,7 +380,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         state.save();
 
-        waitForActiveState(client);
+        waitForActiveState(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -411,7 +412,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 .nodegroupName(getName())
                 .build());
 
-            waitForActiveState(client);
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("labels")) {
@@ -423,9 +425,10 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                         .build())
                     .nodegroupName(getName())
                     .build());
-            }
 
-            waitForActiveState(client);
+                state.save();
+                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            }
 
             client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                 .clusterName(getCluster().getName())
@@ -435,7 +438,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 .nodegroupName(getName())
                 .build());
 
-            waitForActiveState(client);
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("scaling-config")) {
@@ -470,6 +474,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         Wait.atMost(10, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getNodegroup(client) == null);
     }
 
@@ -491,13 +496,14 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         return nodegroup;
     }
 
-    private void waitForActiveState(EksClient client) {
+    private void waitForActiveState(EksClient client, TimeoutSettings.Action action) {
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
-                .until(() -> {
-                    Nodegroup nodegroup = getNodegroup(client);
-                    return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
-                });
+            .resourceOverrides(this, action)
+            .until(() -> {
+                Nodegroup nodegroup = getNodegroup(client);
+                return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
+            });
     }
 }

@@ -29,6 +29,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -181,6 +182,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isActive(client));
     }
@@ -208,6 +210,7 @@ public class EcsCapacityProviderResource extends AwsResource implements Copyable
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(false)
             .until(() -> isActive(client));
     }
