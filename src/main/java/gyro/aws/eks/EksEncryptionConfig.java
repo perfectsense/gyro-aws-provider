@@ -48,7 +48,7 @@ public class EksEncryptionConfig extends Diffable implements Copyable<Encryption
 
     @Override
     public String primaryKey() {
-        return getProvider().toString();
+        return getProvider().primaryKey();
     }
 
     EncryptionConfig toEncryptionConfig() {

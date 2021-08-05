@@ -189,25 +189,33 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         }
 
         String secondaryKey;
+        String secondaryType;
         if (getGateway() != null) {
             secondaryKey = getGateway().getId();
+            secondaryType = "gateway";
         } else if (getInstance() != null) {
             secondaryKey = getInstance().getId();
+            secondaryType = "instance";
         } else if (getNatGateway() != null) {
             secondaryKey = getNatGateway().getId();
+            secondaryType = "nat gateway";
         } else if (getNetworkInterface() != null) {
             secondaryKey = getNetworkInterface().getId();
+            secondaryType = "network interface";
         } else if (getTransitGateway() != null) {
             secondaryKey = getTransitGateway().getId();
+            secondaryType = "transit gateway";
         } else if (getVpcPeeringConnection() != null) {
             secondaryKey = getVpcPeeringConnection().getId();
+            secondaryType = "vpc peering connection";
         } else if (getEgressGateway() != null) {
             secondaryKey = getEgressGateway().getId();
+            secondaryType = "egress gateway";
         } else {
             throw new GyroException("Invalid route.");
         }
 
-        return String.format("%s to %s", primaryKey, secondaryKey);
+        return String.format("%s to %s", primaryKey, secondaryKey != null ? secondaryKey : secondaryType);
     }
 
     @Override
