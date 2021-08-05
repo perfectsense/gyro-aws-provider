@@ -11,7 +11,7 @@ ENHANCEMENTS:
 ISSUES FIXED:
 
 * [504](https://github.com/perfectsense/gyro-aws-provider/issues/504): Fix validations for EC2 Instances when using Launch Template.
-* [511](https://github.com/perfectsense/gyro-aws-provider/pull/511): Fix validations for EC2 Instances when using Launch Template.
+* [511](https://github.com/perfectsense/gyro-aws-provider/pull/511): Fix null display for fields in Route53 and EKS encryption config.
 
 ## 1.3.0 (July 14th, 2021)
 
