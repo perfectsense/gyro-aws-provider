@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+## 1.4.0 (August 5th, 2021)
+
+ENHANCEMENTS:
+
+* [508](https://github.com/perfectsense/gyro-aws-provider/pull/508): Add support for field `resolve-conflicts` in EKS Addon.
+* [509](https://github.com/perfectsense/gyro-aws-provider/issues/509): Add support for [timeout](https://gyro.dev/guides/language/built-in-directives.html#timeout) overrides for resources that have `wait`.
+
+ISSUES FIXED:
+
+* [504](https://github.com/perfectsense/gyro-aws-provider/issues/504): Fix validations for EC2 Instances when using Launch Template.
+* [511](https://github.com/perfectsense/gyro-aws-provider/pull/511): Fix null display for fields in Route53 and EKS encryption config.
+
 ## 1.3.0 (July 14th, 2021)
 
 ENHANCEMENTS:
