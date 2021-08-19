@@ -50,6 +50,7 @@ import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.CertificateStatus;
 import software.amazon.awssdk.services.acm.model.CertificateType;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
+import software.amazon.awssdk.services.acm.model.DomainValidation;
 import software.amazon.awssdk.services.acm.model.FailureReason;
 import software.amazon.awssdk.services.acm.model.InvalidStateException;
 import software.amazon.awssdk.services.acm.model.RenewalEligibility;
@@ -559,14 +560,17 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         setArn(response.certificateArn());
 
         if (getDomainValidationOption() != null) {
-            Wait.atMost(10, TimeUnit.SECONDS)
+            Wait.atMost(20, TimeUnit.SECONDS)
                 .checkEvery(5, TimeUnit.SECONDS)
                 .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .until(() -> {
                     CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getArn()))
                         .certificate();
                     return certificate != null && certificate.domainValidationOptions() != null
-                        && !certificate.domainValidationOptions().isEmpty();
+                        && !certificate.domainValidationOptions().isEmpty() &&
+                        !(getValidationMethod().equals(ValidationMethod.DNS) && certificate.domainValidationOptions()
+                            .stream().map(DomainValidation::resourceRecord).collect(Collectors.toList())
+                            .contains(null));
                 });
         }
 
