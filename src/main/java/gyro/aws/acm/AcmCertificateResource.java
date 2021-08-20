@@ -50,7 +50,6 @@ import software.amazon.awssdk.services.acm.model.CertificateDetail;
 import software.amazon.awssdk.services.acm.model.CertificateStatus;
 import software.amazon.awssdk.services.acm.model.CertificateType;
 import software.amazon.awssdk.services.acm.model.DescribeCertificateResponse;
-import software.amazon.awssdk.services.acm.model.DomainValidation;
 import software.amazon.awssdk.services.acm.model.FailureReason;
 import software.amazon.awssdk.services.acm.model.InvalidStateException;
 import software.amazon.awssdk.services.acm.model.RenewalEligibility;
@@ -569,8 +568,7 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
                     return certificate != null && certificate.domainValidationOptions() != null
                         && !certificate.domainValidationOptions().isEmpty() &&
                         !(getValidationMethod().equals(ValidationMethod.DNS) && certificate.domainValidationOptions()
-                            .stream().map(DomainValidation::resourceRecord).collect(Collectors.toList())
-                            .contains(null));
+                            .stream().anyMatch(o -> o.resourceRecord() == null));
                 });
         }
 
