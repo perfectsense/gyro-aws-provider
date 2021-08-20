@@ -559,14 +559,16 @@ public class AcmCertificateResource extends AwsResource implements Copyable<Cert
         setArn(response.certificateArn());
 
         if (getDomainValidationOption() != null) {
-            Wait.atMost(10, TimeUnit.SECONDS)
+            Wait.atMost(1, TimeUnit.MINUTES)
                 .checkEvery(5, TimeUnit.SECONDS)
                 .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .until(() -> {
                     CertificateDetail certificate = client.describeCertificate(r -> r.certificateArn(getArn()))
                         .certificate();
                     return certificate != null && certificate.domainValidationOptions() != null
-                        && !certificate.domainValidationOptions().isEmpty();
+                        && !certificate.domainValidationOptions().isEmpty() &&
+                        !(getValidationMethod().equals(ValidationMethod.DNS) && certificate.domainValidationOptions()
+                            .stream().anyMatch(o -> o.resourceRecord() == null));
                 });
         }
 
