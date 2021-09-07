@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.4.2 (September 7th, 2021)
+
+* [519](https://github.com/perfectsense/gyro-aws-provider/issues/519): WAFV2: ip-set-reference-statement error on gyro up if multiple part of an or statement.
+
+## 1.4.1 (August 20th, 2021)
+
+ISSUES FIXED:
+
+* [516](https://github.com/perfectsense/gyro-aws-provider/issues/516): Wait for Resource Record to be populated in the ACM certificate, which fails during creation.
+
 ## 1.4.0 (August 5th, 2021)
 
 ENHANCEMENTS:
