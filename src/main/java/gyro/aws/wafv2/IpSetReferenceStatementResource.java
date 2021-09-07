@@ -46,7 +46,7 @@ public class IpSetReferenceStatementResource extends Diffable implements Copyabl
 
     @Override
     public String primaryKey() {
-        return "";
+        return getIpSet() != null ? getIpSet().primaryKey() : "";
     }
 
     IPSetReferenceStatement toIpSetReferenceStatement() {
