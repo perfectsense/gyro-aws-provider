@@ -376,6 +376,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             success = true;
         } catch (WafUnavailableEntityException ex) {
             // Ignore
+            System.out.println("Waiting for alb to be available.");
         }
 
         return success;
