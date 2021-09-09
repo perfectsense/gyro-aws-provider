@@ -351,7 +351,8 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             state.save();
 
             for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
-                Wait.atMost(5, TimeUnit.MINUTES)
+                // Retry to get passed the WafUnavailableEntityException if the ALB is not ready yet to be associated
+                Wait.atMost(10, TimeUnit.MINUTES)
                     .checkEvery(30, TimeUnit.SECONDS)
                     .prompt(false)
                     .until(() -> associateWebAcl(client, loadBalancer.getArn()));
@@ -376,7 +377,6 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             success = true;
         } catch (WafUnavailableEntityException ex) {
             // Ignore
-            System.out.println("Waiting for alb to be available.");
         }
 
         return success;
