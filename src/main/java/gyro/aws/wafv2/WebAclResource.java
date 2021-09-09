@@ -47,6 +47,7 @@ import software.amazon.awssdk.services.wafv2.model.GetWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ListResourcesForWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ResourceType;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
+import software.amazon.awssdk.services.wafv2.model.WafUnavailableEntityException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
 /**
@@ -348,8 +349,20 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             state.save();
 
             for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
-                client.associateWebACL(r -> r.webACLArn(getArn())
-                    .resourceArn(loadBalancer.getArn()));
+                try {
+                    client.associateWebACL(r -> r.webACLArn(getArn())
+                        .resourceArn(loadBalancer.getArn()));
+                } catch (WafUnavailableEntityException ex) {
+                    // Sometimes the Waf is not available after creation and needs a bit of time
+                    try {
+                        Thread.sleep(30000);
+                    } catch (InterruptedException e) {
+                        throw new GyroException(e);
+                    }
+
+                    client.associateWebACL(r -> r.webACLArn(getArn())
+                        .resourceArn(loadBalancer.getArn()));
+                }
             }
         }
 
