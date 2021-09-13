@@ -392,19 +392,10 @@ public class LoadBalancerResource extends AwsResource implements Copyable<LoadBa
 
         //-- Security Groups
 
-        List<String> pendingSecurityGroupIds = getSecurityGroups().stream()
-            .map(SecurityGroupResource::getId)
-            .collect(Collectors.toList());
-
-        List<String> currentSecurityGroupIds = currentResource.getSecurityGroups().stream()
-            .map(SecurityGroupResource::getId)
-            .collect(Collectors.toList());
-
-        List<String> sgAdditions = new ArrayList<>(pendingSecurityGroupIds);
-        sgAdditions.removeAll(currentSecurityGroupIds);
-
-        if (!sgAdditions.isEmpty()) {
-            client.applySecurityGroupsToLoadBalancer(r -> r.securityGroups(sgAdditions)
+        if (changedFieldNames.contains("security-groups")) {
+            client.applySecurityGroupsToLoadBalancer(r -> r.securityGroups(getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId).collect(
+                    Collectors.toList()))
                 .loadBalancerName(getName()));
         }
 
