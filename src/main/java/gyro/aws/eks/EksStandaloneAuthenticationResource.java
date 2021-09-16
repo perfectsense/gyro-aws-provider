@@ -21,6 +21,7 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.DiffableType;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.EksClient;
+import software.amazon.awssdk.services.eks.model.Addon;
 import software.amazon.awssdk.services.eks.model.IdentityProviderConfig;
 import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
 import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
@@ -64,6 +65,12 @@ public class EksStandaloneAuthenticationResource extends EksAuthentication {
 
     public void setCluster(EksClusterResource cluster) {
         this.cluster = cluster;
+    }
+
+    @Override
+    public void copyFrom(IdentityProviderConfigResponse model) {
+        setCluster(findById(EksClusterResource.class, model.oidc().clusterName()));
+        super.copyFrom(model);
     }
 
     @Override

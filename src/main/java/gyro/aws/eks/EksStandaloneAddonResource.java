@@ -21,6 +21,7 @@ import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.DiffableType;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.EksClient;
+import software.amazon.awssdk.services.eks.model.Addon;
 import software.amazon.awssdk.services.eks.model.DescribeAddonResponse;
 import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
 
@@ -52,6 +53,12 @@ public class EksStandaloneAddonResource extends EksAddonResource {
 
     public void setCluster(EksClusterResource cluster) {
         this.cluster = cluster;
+    }
+
+    @Override
+    public void copyFrom(Addon model) {
+        setCluster(findById(EksClusterResource.class, model.clusterName()));
+        super.copyFrom(model);
     }
 
     @Override

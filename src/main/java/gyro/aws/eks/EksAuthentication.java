@@ -68,7 +68,7 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  */
 public class EksAuthentication extends AwsResource implements Copyable<IdentityProviderConfigResponse> {
 
-    private static final String IDENTITY_PROVIDER_TYPE = "oidc";
+    protected static final String IDENTITY_PROVIDER_TYPE = "oidc";
     private String name;
     private OidcIdentityProviderConfiguration config;
     private Map<String, String> tags;
