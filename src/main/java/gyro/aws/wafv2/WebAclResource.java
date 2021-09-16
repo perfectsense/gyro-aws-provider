@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
@@ -28,6 +29,7 @@ import gyro.aws.elbv2.LoadBalancerResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -47,6 +49,7 @@ import software.amazon.awssdk.services.wafv2.model.GetWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ListResourcesForWebAclResponse;
 import software.amazon.awssdk.services.wafv2.model.ResourceType;
 import software.amazon.awssdk.services.wafv2.model.WafNonexistentItemException;
+import software.amazon.awssdk.services.wafv2.model.WafUnavailableEntityException;
 import software.amazon.awssdk.services.wafv2.model.WebACL;
 
 /**
@@ -348,8 +351,11 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             state.save();
 
             for (ApplicationLoadBalancerResource loadBalancer : getLoadBalancers()) {
-                client.associateWebACL(r -> r.webACLArn(getArn())
-                    .resourceArn(loadBalancer.getArn()));
+                // Retry to get passed the WafUnavailableEntityException if the ALB is not ready yet to be associated
+                Wait.atMost(10, TimeUnit.MINUTES)
+                    .checkEvery(30, TimeUnit.SECONDS)
+                    .prompt(false)
+                    .until(() -> associateWebAcl(client, loadBalancer.getArn()));
             }
         }
 
@@ -360,6 +366,20 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 r -> r.loggingConfiguration(getLoggingConfiguration().toLoggingConfiguration())
             );
         }
+    }
+
+    private boolean associateWebAcl(Wafv2Client client, String loadBalancerArn) {
+        boolean success = false;
+        try {
+            client.associateWebACL(r -> r.webACLArn(getArn())
+                .resourceArn(loadBalancerArn));
+
+            success = true;
+        } catch (WafUnavailableEntityException ex) {
+            // Ignore
+        }
+
+        return success;
     }
 
     @Override
