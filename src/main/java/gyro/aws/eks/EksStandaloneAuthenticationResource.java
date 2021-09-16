@@ -26,6 +26,32 @@ import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
 import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
 import software.amazon.awssdk.services.eks.model.NotFoundException;
 
+/**
+ * Creates an eks authentication.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::eks-authentication eks-authentication-example
+ *         name: "onelogin"
+ *         type: "oidc"
+ *         cluster: $(aws::eks-cluster ex)
+ *
+ *         config
+ *             client-id: "valid client id"
+ *             groups-claim: "groups"
+ *             groups-prefix: "onelogin-group:"
+ *             issuer-url: "valid issuer url"
+ *             username-prefix: "onelogin-user:"
+ *         end
+ *
+ *         tags: {
+ *             Name: "eks-authentication-example"
+ *         }
+ *     end
+ */
 @Type("eks-authentication")
 public class EksStandaloneAuthenticationResource extends EksAuthentication {
 

@@ -24,6 +24,22 @@ import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.DescribeAddonResponse;
 import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
 
+/**
+ * Creates an eks addon.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::eks-addon example-addon
+ *         addon-name: vpc-cni
+ *
+ *         tags : {
+ *             Name: "example-addon"
+ *         }
+ *     end
+ */
 @Type("eks-addon")
 public class EksStandaloneAddonResource extends EksAddonResource {
 
