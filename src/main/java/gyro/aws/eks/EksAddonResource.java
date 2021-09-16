@@ -78,6 +78,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     /**
      * The name of the add-on.
      */
+    @Id
     @Required
     public String getAddonName() {
         return addonName;
@@ -175,18 +176,16 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     public void create(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        EksClusterResource parent = (EksClusterResource) parent();
-
         CreateAddonResponse response = client.createAddon(r -> r.addonName(getAddonName())
             .addonVersion(getAddonVersion())
-            .clusterName(parent.getName())
+            .clusterName(clusterName())
             .resolveConflicts(getResolveConflicts())
             .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn())
             .tags(getTags()));
 
         setArn(response.addon().addonArn());
 
-        waitForActiveStatus(client, parent.getName(), getAddonName(), TimeoutSettings.Action.CREATE);
+        waitForActiveStatus(client, clusterName(), getAddonName(), TimeoutSettings.Action.CREATE);
 
         copyFrom(response.addon());
     }
@@ -194,8 +193,6 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
         EksClient client = createClient(EksClient.class);
-
-        EksClusterResource parent = (EksClusterResource) parent();
 
         if (changedFieldNames.contains("tags")) {
             EksAddonResource currentResource = (EksAddonResource) current;
@@ -213,11 +210,11 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         if (changedFieldNames.contains("addon-version") || changedFieldNames.contains("service-account-role")) {
             client.updateAddon(r -> r.addonName(getAddonName())
                 .addonVersion(getAddonVersion())
-                .clusterName(parent.getName())
+                .clusterName(clusterName())
                 .resolveConflicts(getResolveConflicts())
                 .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));
 
-            waitForActiveStatus(client, parent.getName(), getAddonName(), TimeoutSettings.Action.UPDATE);
+            waitForActiveStatus(client, clusterName(), getAddonName(), TimeoutSettings.Action.UPDATE);
         }
     }
 
@@ -225,15 +222,13 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     public void delete(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        EksClusterResource parent = (EksClusterResource) parent();
-
-        client.deleteAddon(r -> r.addonName(getAddonName()).clusterName(parent.getName()));
+        client.deleteAddon(r -> r.addonName(getAddonName()).clusterName(clusterName()));
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
-            .until(() -> getAddon(client, parent.getName(), getAddonName()) == null);
+            .until(() -> getAddon(client, clusterName(), getAddonName()) == null);
     }
 
     protected static Addon getAddon(EksClient client, String clusterName, String name) {
@@ -258,5 +253,10 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
                 Addon addon = getAddon(client, clusterName, name);
                 return addon != null && addon.status().equals(AddonStatus.ACTIVE);
             });
+    }
+
+    protected String clusterName() {
+        EksClusterResource parent = (EksClusterResource) parent();
+        return parent.getName();
     }
 }

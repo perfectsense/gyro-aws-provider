@@ -340,6 +340,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
             if (response.hasAddons()) {
                 response.addons().forEach(a -> {
+                    // Don't refresh this addon if this it's already defined by a standalone addon resource.
+                    if (findByClass(EksStandaloneAddonResource.class).anyMatch(s ->
+                            s.getAddonName().equals(a) && s.getCluster().getName().equals(getName()))) {
+                        return;
+                    }
+
                     Addon addon = EksAddonResource.getAddon(client, getName(), a);
                     if (addon != null) {
                         EksAddonResource addonResource = newSubresource(EksAddonResource.class);
@@ -361,7 +367,11 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         try {
             ListIdentityProviderConfigsResponse response = client.listIdentityProviderConfigs(r -> r
                 .clusterName(getName()));
-            if (response.hasIdentityProviderConfigs() && !response.identityProviderConfigs().isEmpty()) {
+
+            if (findByClass(EksStandaloneAuthenticationResource.class)
+                    .noneMatch(s -> s.getCluster().getName().equals(getName()))
+                    && response.hasIdentityProviderConfigs()
+                    && !response.identityProviderConfigs().isEmpty()) {
                 IdentityProviderConfig providerConfig = response.identityProviderConfigs().get(0);
 
                 IdentityProviderConfigResponse auth = EksAuthentication.getIdentityProviderConfigResponse(

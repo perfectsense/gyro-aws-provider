@@ -76,6 +76,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
     /**
      * The name of the identity provider configuration.
      */
+    @Id
     @Required
     public String getName() {
         return name;
@@ -141,9 +142,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
     public void create(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        EksClusterResource parent = (EksClusterResource) parent();
-
-        client.associateIdentityProviderConfig(r -> r.clusterName(parent.getName())
+        client.associateIdentityProviderConfig(r -> r.clusterName(clusterName())
             .oidc(getConfig().toOidcIdentityProviderConfig())
             .tags(getTags()));
 
@@ -153,7 +152,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
             .prompt(false)
             .until(() -> {
                 IdentityProviderConfigResponse response = getIdentityProviderConfigResponse(
-                    client, parent.getName(), getName(), IDENTITY_PROVIDER_TYPE);
+                    client, clusterName(), getName(), IDENTITY_PROVIDER_TYPE);
                 return response != null && response.oidc().status() == ConfigStatus.ACTIVE;
             });
     }
@@ -168,17 +167,20 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
     public void delete(GyroUI ui, State state) throws Exception {
         EksClient client = createClient(EksClient.class);
 
-        EksClusterResource parent = (EksClusterResource) parent();
-
-        client.disassociateIdentityProviderConfig(r -> r.clusterName(parent.getName())
+        client.disassociateIdentityProviderConfig(r -> r.clusterName(clusterName())
             .identityProviderConfig(i -> i.name(getName()).type(IDENTITY_PROVIDER_TYPE)));
 
         Wait.atMost(30, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
-            .until(() -> getIdentityProviderConfigResponse(client, parent.getName(), getName(), IDENTITY_PROVIDER_TYPE)
+            .until(() -> getIdentityProviderConfigResponse(client, clusterName(), getName(), IDENTITY_PROVIDER_TYPE)
                 == null);
+    }
+
+    protected String clusterName() {
+        EksClusterResource parent = (EksClusterResource) parent();
+        return parent.getName();
     }
 
     protected static IdentityProviderConfigResponse getIdentityProviderConfigResponse(EksClient client, String clusterName, String name, String type) {
