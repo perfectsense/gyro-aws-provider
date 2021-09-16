@@ -35,6 +35,7 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  *
  *     aws::eks-addon example-addon
  *         addon-name: vpc-cni
+ *         cluster: $(aws::eks-cluster ex)
  *
  *         tags : {
  *             Name: "example-addon"
