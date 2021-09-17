@@ -170,7 +170,7 @@ public class EksAuthentication extends AwsResource implements Copyable<IdentityP
         client.disassociateIdentityProviderConfig(r -> r.clusterName(clusterName())
             .identityProviderConfig(i -> i.name(getName()).type(IDENTITY_PROVIDER_TYPE)));
 
-        Wait.atMost(30, TimeUnit.MINUTES)
+        Wait.atMost(60, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
