@@ -1,7 +1,17 @@
 CHANGELOG
 =========
 
+## 1.4.3 (September 17th, 2021)
+
+ISSUES FIXED:
+
+* [521](https://github.com/perfectsense/gyro-aws-provider/issues/521): Fix WAFV2 ALB association error while creating an WebAcl.
+* [523](https://github.com/perfectsense/gyro-aws-provider/issues/523): Fix classic ELB security group reference updates.
+* [526](https://github.com/perfectsense/gyro-aws-provider/issues/526): Allow EKS Addons and EKS Authentication to be defined as standalone resources.
+
 ## 1.4.2 (September 7th, 2021)
+
+ISSUES FIXED:
 
 * [519](https://github.com/perfectsense/gyro-aws-provider/issues/519): WAFV2: ip-set-reference-statement error on gyro up if multiple part of an or statement.
 
