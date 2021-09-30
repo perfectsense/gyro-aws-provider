@@ -290,6 +290,13 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         visibilityConfig.copyFrom(webACL.visibilityConfig());
         setVisibilityConfig(visibilityConfig);
 
+        // Calculate and set scope
+        if (getArn().split("/webacl/")[0].endsWith("global")) {
+            setScope("CLOUDFRONT");
+        } else {
+            setScope("REGIONAL");
+        }
+
         Wafv2Client client = createClient(Wafv2Client.class);
         // Load associated ALB's
         if (!"CLOUDFRONT".equalsIgnoreCase(getScope())) {
