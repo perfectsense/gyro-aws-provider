@@ -41,6 +41,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.AMITypes;
+import software.amazon.awssdk.services.eks.model.CapacityTypes;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupResponse;
 import software.amazon.awssdk.services.eks.model.DeleteNodegroupRequest;
@@ -94,6 +95,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private Integer diskSize;
     private Map<String, String> tags;
     private EksLaunchTemplateSpecification launchTemplateSpecification;
+    private CapacityTypes capacityType;
 
     // Read-only
     private String arn;
@@ -296,6 +298,17 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         this.launchTemplateSpecification = launchTemplateSpecification;
     }
 
+    /**
+     * Which capacity type to use for this nodegroup.
+     */
+    public CapacityTypes getCapacityType() {
+        return capacityType;
+    }
+
+    public void setCapacityType(CapacityTypes capacityType) {
+        this.capacityType = capacityType;
+    }
+
     @Override
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
@@ -310,6 +323,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         setTags((model.tags()));
         setSubnets((model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList())));
         setNodeRole(findById(RoleResource.class, model.nodeRole()));
+        setCapacityType(model.capacityType());
 
         if (model.scalingConfig() != null) {
             EksNodegroupScalingConfig scalingConfig = newSubresource(EksNodegroupScalingConfig.class);
@@ -360,6 +374,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             .nodeRole(getNodeRole().getArn())
             .labels(getLabels())
             .diskSize(getDiskSize())
+            .capacityType(getCapacityType())
             .tags(getTags());
 
         if (getScalingConfig() != null) {
