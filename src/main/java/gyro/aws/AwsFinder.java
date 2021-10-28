@@ -45,7 +45,7 @@ public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> e
         Class<C> clientClass = (Class<C>) TypeDefinition.getInstance(getClass())
             .getInferredGenericTypeArgumentClass(AwsFinder.class, 0);
 
-        return AwsResource.createClient(clientClass, credentials(AwsCredentials.class), getRegion(), getEndpoint());
+        return AwsResource.createClient(clientClass, credentials(AwsCredentials.class), getRegion(), getEndpoint(), null);
     }
 
     protected String getRegion() {

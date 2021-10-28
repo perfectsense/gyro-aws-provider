@@ -146,7 +146,7 @@ public class S3FileBackend extends FileBackend {
                 .get(String.format("%s::%s", "aws", credentialName));
         }
 
-        return AwsResource.createClient(S3Client.class, (AwsCredentials) credentials);
+        return AwsResource.createClient(S3Client.class, (AwsCredentials) credentials, getRootScope());
     }
 
     private String prefixed(String file) {
