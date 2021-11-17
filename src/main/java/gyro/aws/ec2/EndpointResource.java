@@ -529,7 +529,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
     }
 
     private VpcEndpoint getVpcEndpoint(Ec2Client client) {
-        VpcEndpoint vpcEndpoint = null;
+        List<VpcEndpoint> vpcEndpoint = new ArrayList<>();
 
         if (ObjectUtils.isBlank(getServiceName())) {
             throw new GyroException("service-name is missing, unable to load endpoint.");
@@ -540,14 +540,18 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
         }
 
         try {
-            Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
-            Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
-            DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r ->
-                r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
+            Wait.atMost(30, TimeUnit.SECONDS)
+                .checkEvery(5, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> {
+                    Filter serviceNameFilter = Filter.builder().name("service-name").values(getServiceName()).build();
+                    Filter vpcIdFilter = Filter.builder().name("vpc-id").values(getVpc().getId()).build();
+                    DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r ->
+                        r.maxResults(1).filters(serviceNameFilter, vpcIdFilter));
+                    vpcEndpoint.addAll(response.vpcEndpoints());
 
-            if (!response.vpcEndpoints().isEmpty()) {
-                vpcEndpoint = response.vpcEndpoints().get(0);
-            }
+                    return !response.vpcEndpoints().isEmpty();
+                });
 
         } catch (Ec2Exception ex) {
             if (!ex.getLocalizedMessage().contains("does not exist")) {
@@ -555,6 +559,6 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
             }
         }
 
-        return vpcEndpoint;
+        return vpcEndpoint.isEmpty() ? null : vpcEndpoint.get(0);
     }
 }
