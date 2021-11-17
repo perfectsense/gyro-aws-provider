@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+## 1.4.4 (November 17th, 2021)
+
+ISSUES FIXED:
+
+* [529](https://github.com/perfectsense/gyro-aws-provider/pull/529): Fix WAFV2 error refreshing with a console configured NotStatementResource.
+* [533](https://github.com/perfectsense/gyro-aws-provider/issues/533): Fix NPE when creating EC2 Endpoint.
+
+ENHANCEMENTS:
+
+* [530](https://github.com/perfectsense/gyro-aws-provider/pull/530): Add support for `capacity type` in Nodegroup.
+
 ## 1.4.3 (September 17th, 2021)
 
 ISSUES FIXED:
