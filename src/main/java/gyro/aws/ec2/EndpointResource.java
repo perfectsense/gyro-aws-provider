@@ -407,7 +407,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         setId(endpoint.vpcEndpointId());
 
-        copyFrom(getVpcEndpoint(client));
+        copyFrom(endpoint);
     }
 
     @Override
