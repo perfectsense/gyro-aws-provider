@@ -414,7 +414,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
-                return vpcEndpoint == null ? false : endpoints.add(vpcEndpoint);
+                return vpcEndpoint != null && endpoints.add(vpcEndpoint);
             });
 
         copyFrom(endpoints.get(0));
