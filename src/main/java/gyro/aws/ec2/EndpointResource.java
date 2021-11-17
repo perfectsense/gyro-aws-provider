@@ -407,7 +407,17 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         setId(endpoint.vpcEndpointId());
 
-        copyFrom(getVpcEndpoint(client));
+        ArrayList<VpcEndpoint> endpoints = new ArrayList<>();
+        Wait.atMost(30, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> {
+                VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
+                return vpcEndpoint != null && endpoints.add(vpcEndpoint);
+            });
+
+        copyFrom(endpoints.get(0));
     }
 
     @Override
