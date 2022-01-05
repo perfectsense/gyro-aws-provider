@@ -1,0 +1,7 @@
+aws::event-bus event-bus-example
+    name: "event-bus-example"
+    policy: "policy.json"
+    tags: {
+        Name: event-bus-example
+    }
+end
