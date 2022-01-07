@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class RetryPolicy extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.RetryPolicy> {
@@ -25,7 +26,11 @@ public class RetryPolicy extends Diffable implements Copyable<software.amazon.aw
     private Integer maximumEventAgeInSeconds;
     private Integer maximumRetryAttempts;
 
+    /**
+     * The max age in seconds.
+     */
     @Required
+    @Updatable
     public Integer getMaximumEventAgeInSeconds() {
         return maximumEventAgeInSeconds;
     }
@@ -34,7 +39,11 @@ public class RetryPolicy extends Diffable implements Copyable<software.amazon.aw
         this.maximumEventAgeInSeconds = maximumEventAgeInSeconds;
     }
 
+    /**
+     * The max retry attempts.
+     */
     @Required
+    @Updatable
     public Integer getMaximumRetryAttempts() {
         return maximumRetryAttempts;
     }

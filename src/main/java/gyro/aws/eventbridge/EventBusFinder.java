@@ -43,6 +43,19 @@ import software.amazon.awssdk.services.eventbridge.model.ResourceNotFoundExcepti
 @Type("event-bus")
 public class EventBusFinder extends AwsFinder<EventBridgeClient, DescribeEventBusResponse, EventBusResource> {
 
+    private String name;
+
+    /**
+     * The name of the event bus.
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     protected List<DescribeEventBusResponse> findAllAws(EventBridgeClient client) {
         List<DescribeEventBusResponse> busResponses = new ArrayList<>();

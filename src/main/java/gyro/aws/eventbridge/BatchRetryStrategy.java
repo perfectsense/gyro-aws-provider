@@ -24,6 +24,9 @@ public class BatchRetryStrategy extends Diffable implements Copyable<software.am
 
     private Integer attempts;
 
+    /**
+     * The number of times to attempt retry.
+     */
     @Required
     public Integer getAttempts() {
         return attempts;
@@ -40,7 +43,7 @@ public class BatchRetryStrategy extends Diffable implements Copyable<software.am
 
     @Override
     public String primaryKey() {
-        return getAttempts().toString();
+        return String.format("retry attempts - %s", getAttempts());
     }
 
     software.amazon.awssdk.services.eventbridge.model.BatchRetryStrategy toBatchRetryStrategy() {

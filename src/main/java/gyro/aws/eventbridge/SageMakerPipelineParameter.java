@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.SageMakerPipelineParameters;
 
@@ -29,7 +30,13 @@ public class SageMakerPipelineParameter extends Diffable implements Copyable<Sag
 
     private List<PipelineParameter> pipelineParameters;
 
+    /**
+     * A list of pipeline parameter configs.
+     *
+     * @subresource gyro.aws.eventbridge.PipelineParameter
+     */
     @Required
+    @Updatable
     public List<PipelineParameter> getPipelineParameters() {
         if (pipelineParameters == null) {
             pipelineParameters = new ArrayList<>();

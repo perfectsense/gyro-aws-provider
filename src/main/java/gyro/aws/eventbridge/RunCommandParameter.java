@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.RunCommandParameters;
 
@@ -29,7 +30,13 @@ public class RunCommandParameter extends Diffable implements Copyable<RunCommand
 
     private List<RunCommandTarget> runCommandTargets;
 
+    /**
+     * The run command target configs.
+     *
+     * @subresource gyro.aws.eventbridge.RunCommandTarget
+     */
     @Required
+    @Updatable
     public List<RunCommandTarget> getRunCommandTargets() {
         if (runCommandTargets == null) {
             runCommandTargets = new ArrayList<>();

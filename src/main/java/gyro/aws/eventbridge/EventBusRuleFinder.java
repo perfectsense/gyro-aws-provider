@@ -45,6 +45,9 @@ public class EventBusRuleFinder extends AwsFinder<EventBridgeClient, Rule, Event
     private String eventBusName;
     private String rulePrefix;
 
+    /**
+     * The name of the event bus.
+     */
     public String getEventBusName() {
         return eventBusName;
     }
@@ -53,6 +56,9 @@ public class EventBusRuleFinder extends AwsFinder<EventBridgeClient, Rule, Event
         this.eventBusName = eventBusName;
     }
 
+    /**
+     * The prefix for the event bus rule.
+     */
     public String getRulePrefix() {
         return rulePrefix;
     }

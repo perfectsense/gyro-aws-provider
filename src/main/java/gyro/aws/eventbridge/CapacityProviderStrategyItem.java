@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class CapacityProviderStrategyItem extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.CapacityProviderStrategyItem> {
@@ -26,6 +27,9 @@ public class CapacityProviderStrategyItem extends Diffable implements Copyable<s
     private Integer base;
     private Integer weight;
 
+    /**
+     * The short name of the capacity provider.
+     */
     @Required
     public String getCapacityProvider() {
         return capacityProvider;
@@ -35,7 +39,10 @@ public class CapacityProviderStrategyItem extends Diffable implements Copyable<s
         this.capacityProvider = capacityProvider;
     }
 
-    @Required
+    /**
+     * The weight value designates the relative percentage of the total number of tasks launched that should use the specified capacity provider. The weight value is taken into consideration after the base value, if defined, is satisfied.
+     */
+    @Updatable
     public Integer getBase() {
         return base;
     }
@@ -44,8 +51,15 @@ public class CapacityProviderStrategyItem extends Diffable implements Copyable<s
         this.base = base;
     }
 
-    @Required
+    /**
+     * The base value designates how many tasks, at a minimum, to run on the specified capacity provider. Only one capacity provider in a capacity provider strategy can have a base defined. If no value is specified, the default value of 0 is used.
+     */
+    @Updatable
     public Integer getWeight() {
+        if (weight == null) {
+            weight = 0;
+        }
+
         return weight;
     }
 

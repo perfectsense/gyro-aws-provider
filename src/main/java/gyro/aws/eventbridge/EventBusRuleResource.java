@@ -35,7 +35,9 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.CollectionMin;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.eventbridge.model.Rule;
+import software.amazon.awssdk.services.eventbridge.model.RuleState;
 import software.amazon.awssdk.services.eventbridge.model.Target;
 import software.amazon.awssdk.utils.IoUtils;
 
@@ -61,10 +64,13 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     private RoleResource role;
     private String scheduledExpression;
     private Set<TargetResource> target;
+    private RuleState ruleState;
 
     private String arn;
-    private String ruleState;
 
+    /**
+     * The event bus this rule will belong to.
+     */
     @Required
     public EventBusResource getEventBus() {
         return eventBus;
@@ -74,6 +80,9 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.eventBus = eventBus;
     }
 
+    /**
+     * The name of the rule.
+     */
     @Required
     @Id
     public String getName() {
@@ -84,6 +93,10 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.name = name;
     }
 
+    /**
+     * The description of the rule.
+     */
+    @Updatable
     public String getDescription() {
         return description;
     }
@@ -92,6 +105,10 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.description = description;
     }
 
+    /**
+     * The event pattern for the rule.
+     */
+    @Updatable
     @ConflictsWith("scheduled-expression")
     public String getEventPattern() {
         if (this.eventPattern != null && this.eventPattern.contains(".json")) {
@@ -111,6 +128,10 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.eventPattern = eventPattern;
     }
 
+    /**
+     * The iam role to be associated with the rule.
+     */
+    @Updatable
     public RoleResource getRole() {
         return role;
     }
@@ -119,6 +140,10 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.role = role;
     }
 
+    /**
+     * The scheduled expression for the rule.
+     */
+    @Updatable
     @ConflictsWith("event-pattern")
     public String getScheduledExpression() {
         return scheduledExpression;
@@ -128,6 +153,13 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.scheduledExpression = scheduledExpression;
     }
 
+    /**
+     * One or more targets for the rule.
+     *
+     * @subresource gyro.aws.eventbridge.TargetResource
+     */
+    @Updatable
+    @CollectionMin(1)
     public Set<TargetResource> getTarget() {
         if (target == null) {
             target = new HashSet<>();
@@ -140,6 +172,25 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         this.target = target;
     }
 
+    /**
+     * Enable/Disable the rule. Defaults to ``ENABLED``.
+     */
+    @Updatable
+    public RuleState getRuleState() {
+        if (ruleState == null) {
+            ruleState = RuleState.ENABLED;
+        }
+
+        return ruleState;
+    }
+
+    public void setRuleState(RuleState ruleState) {
+        this.ruleState = ruleState;
+    }
+
+    /**
+     * The arn of the rule.
+     */
     @Output
     public String getArn() {
         return arn;
@@ -147,14 +198,6 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
     public void setArn(String arn) {
         this.arn = arn;
-    }
-
-    public String getRuleState() {
-        return ruleState;
-    }
-
-    public void setRuleState(String ruleState) {
-        this.ruleState = ruleState;
     }
 
     @Override
@@ -166,16 +209,19 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         setEventPattern(model.eventPattern());
         setArn(model.roleArn());
         setScheduledExpression(model.scheduleExpression());
-        setRuleState(model.state().name());
+        setRuleState(model.state());
 
         getTarget().clear();
         loadTargets();
+
+        refreshTags();
     }
 
     @Override
     public boolean refresh() {
         EventBridgeClient client = createClient(EventBridgeClient.class);
         boolean isAvailable = false;
+
         try {
             ListRulesResponse response = client.listRules(r -> r.eventBusName(getEventBus().getName())
                 .namePrefix(getName()));
@@ -196,27 +242,13 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     public void doCreate(GyroUI ui, State state) throws Exception {
         EventBridgeClient client = createClient(EventBridgeClient.class);
 
-        PutRuleRequest.Builder builder = PutRuleRequest.builder()
-            .name(getName())
-            .eventBusName(getEventBus().getName());
-
-        if (!StringUtils.isBlank(getDescription())) {
-            builder = builder.description(getDescription());
-        }
-
-        if (getRole() != null) {
-            builder = builder.roleArn(getRole().getArn());
-        }
-
-        if (!StringUtils.isBlank(getEventPattern())) {
-            builder = builder.eventPattern(getEventPattern());
-        }
-
-        if (!StringUtils.isBlank(getScheduledExpression())) {
-            builder = builder.scheduleExpression(getScheduledExpression());
-        }
-
-        PutRuleResponse response = client.putRule(builder.build());
+        PutRuleResponse response = client.putRule(r -> r.name(getName())
+            .eventBusName(getEventBus().getName())
+            .description(getDescription())
+            .roleArn(getRole().getArn())
+            .eventPattern(getEventPattern())
+            .scheduleExpression(getScheduledExpression())
+            .state(getRuleState()));
 
         setArn(response.ruleArn());
 
@@ -238,7 +270,45 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     @Override
     public void doUpdate(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        EventBridgeClient client = createClient(EventBridgeClient.class);
 
+        HashSet<String> newChangedFields = new HashSet<>(changedFieldNames);
+        newChangedFields.remove("tags");
+        newChangedFields.remove("target");
+
+        if (!newChangedFields.isEmpty()) {
+            client.putRule(r -> r.name(getName())
+                .eventBusName(getEventBus().getName())
+                .description(getDescription())
+                .roleArn(getRole().getArn())
+                .eventPattern(getEventPattern())
+                .scheduleExpression(getScheduledExpression())
+                .state(getRuleState()));
+        }
+
+        if (changedFieldNames.contains("target")) {
+            EventBusRuleResource eventBusRuleResource = (EventBusRuleResource) current;
+
+            Set<String> removeTargetIds = eventBusRuleResource.getTarget()
+                .stream()
+                .map(TargetResource::getId)
+                .collect(Collectors.toSet());
+
+            removeTargetIds.removeAll(getTarget().stream()
+                .map(TargetResource::getId)
+                .collect(Collectors.toList()));
+
+            if (!removeTargetIds.isEmpty()) {
+                client.removeTargets(r -> r.eventBusName(getEventBus().getName()).rule(getName()).ids(removeTargetIds));
+            }
+
+            client.putTargets(r -> r
+                .eventBusName(getEventBus().getName())
+                .rule(getName())
+                .targets(getTarget().stream()
+                    .map(TargetResource::toTarget)
+                    .collect(Collectors.toList())));
+        }
     }
 
     @Override

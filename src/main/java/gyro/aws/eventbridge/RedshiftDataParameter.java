@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.RedshiftDataParameters;
 
@@ -30,6 +31,9 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
     private String statementName;
     private Boolean withEvent;
 
+    /**
+     * The database name.
+     */
     @Required
     public String getDatabase() {
         return database;
@@ -39,6 +43,11 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
         this.database = database;
     }
 
+    /**
+     * The user name for teh database.
+     */
+    @Required
+    @Updatable
     public String getDbUser() {
         return dbUser;
     }
@@ -47,6 +56,10 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
         this.dbUser = dbUser;
     }
 
+    /**
+     * The name or ARN of the secret that enables access to the database.
+     */
+    @Updatable
     public String getSecretManagerArn() {
         return secretManagerArn;
     }
@@ -55,6 +68,10 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
         this.secretManagerArn = secretManagerArn;
     }
 
+    /**
+     * The SQL statement test to run.
+     */
+    @Updatable
     public String getSql() {
         return sql;
     }
@@ -63,6 +80,10 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
         this.sql = sql;
     }
 
+    /**
+     * The name of the sql statement.
+     */
+    @Updatable
     public String getStatementName() {
         return statementName;
     }
@@ -71,6 +92,10 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
         this.statementName = statementName;
     }
 
+    /**
+     * Indicates whether to send an event back to EventBridge after the SQL statement runs.
+     */
+    @Updatable
     public Boolean getWithEvent() {
         return withEvent;
     }

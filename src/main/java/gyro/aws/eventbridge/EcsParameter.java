@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.aws.ecs.EcsTaskDefinitionResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.eventbridge.model.EcsParameters;
 import software.amazon.awssdk.services.eventbridge.model.LaunchType;
 import software.amazon.awssdk.services.eventbridge.model.PropagateTags;
@@ -48,6 +49,12 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
 
     private String referenceId;
 
+    /**
+     * A list of capacity provider strategy item configs.
+     *
+     * @subresource gyro.aws.eventbridge.CapacityProviderStrategyItem
+     */
+    @Updatable
     public List<CapacityProviderStrategyItem> getCapacityProviderStrategy() {
         if (capacityProviderStrategy == null) {
             capacityProviderStrategy = new ArrayList<>();
@@ -60,6 +67,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.capacityProviderStrategy = capacityProviderStrategy;
     }
 
+    /**
+     * Specifies whether to enable Amazon ECS managed tags for the task. Defaults to ``false``.
+     */
+    @Updatable
     public Boolean getEnableEcsManagedTags() {
         if (enableEcsManagedTags == null) {
             enableEcsManagedTags = false;
@@ -72,6 +83,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.enableEcsManagedTags = enableEcsManagedTags;
     }
 
+    /**
+     * Specifies whether or not to enable the execute command functionality for the containers in this task. Defaults to ```false`.
+     */
+    @Updatable
     public Boolean getEnableExecuteCommand() {
         if (enableExecuteCommand == null) {
             enableExecuteCommand = false;
@@ -84,6 +99,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.enableExecuteCommand = enableExecuteCommand;
     }
 
+    /**
+     * Specifies the launch type on which teh task is running.
+     */
+    @Updatable
     public LaunchType getLaunchType() {
         return launchType;
     }
@@ -92,6 +111,12 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.launchType = launchType;
     }
 
+    /**
+     * The network configuration for the ecs task.
+     *
+     * @subresource gyro.aws.eventbridge.NetworkConfiguration
+     */
+    @Updatable
     public NetworkConfiguration getNetworkConfiguration() {
         return networkConfiguration;
     }
@@ -100,6 +125,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.networkConfiguration = networkConfiguration;
     }
 
+    /**
+     * Specifies an ECS task group for the task.
+     */
+    @Updatable
     public String getGroup() {
         return group;
     }
@@ -108,6 +137,12 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.group = group;
     }
 
+    /**
+     * A list of placement group configs.
+     *
+     * @subresource gyro.aws.eventbridge.PlacementConstraint
+     */
+    @Updatable
     public List<PlacementConstraint> getPlacementConstraint() {
         if (placementConstraint == null) {
             placementConstraint = new ArrayList<>();
@@ -120,6 +155,12 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.placementConstraint = placementConstraint;
     }
 
+    /**
+     * A list of placement strategy configs.
+     *
+     * @subresource gyro.aws.eventbridge.PlacementStrategy
+     */
+    @Updatable
     public List<PlacementStrategy> getPlacementStrategy() {
         if (placementStrategy == null) {
             placementStrategy = new ArrayList<>();
@@ -132,6 +173,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.placementStrategy = placementStrategy;
     }
 
+    /**
+     * Specifies the platform version for the task. Specify only the numeric portion of the platform version, such as 1.1.0.
+     */
+    @Updatable
     public String getPlatformVersion() {
         return platformVersion;
     }
@@ -140,6 +185,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.platformVersion = platformVersion;
     }
 
+    /**
+     * Specifies whether to propagate the tags from the task definition to the task.
+     */
+    @Updatable
     public PropagateTags getPropagateTags() {
         return propagateTags;
     }
@@ -148,6 +197,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.propagateTags = propagateTags;
     }
 
+    /**
+     * The metadata that you apply to the task to help you categorize and organize them.
+     */
+    @Updatable
     public Map<String, String> getTags() {
         if (tags == null) {
             tags = new HashMap<>();
@@ -160,6 +213,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.tags = tags;
     }
 
+    /**
+     * The number of tasks to create based on task-definition.
+     */
+    @Updatable
     public Integer getTaskCount() {
         return taskCount;
     }
@@ -168,6 +225,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.taskCount = taskCount;
     }
 
+    /**
+     * The task definition to use if the event target is an Amazon ECS task.
+     */
+    @Updatable
     public EcsTaskDefinitionResource getTaskDefinition() {
         return taskDefinition;
     }
@@ -176,6 +237,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         this.taskDefinition = taskDefinition;
     }
 
+    /**
+     * The reference ID to use for the task.
+     */
+    @Updatable
     public String getReferenceId() {
         return referenceId;
     }
@@ -299,6 +364,21 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
 
         if (getTaskDefinition() != null) {
             builder = builder.taskDefinitionArn(getTaskDefinition().getArn());
+        }
+
+        if (!getTags().isEmpty()) {
+            builder = builder.tags(getTags()
+                .entrySet()
+                .stream()
+                .map(o -> Tag.builder()
+                    .key(o.getKey())
+                    .value(o.getValue())
+                    .build())
+                .collect(Collectors.toList()));
+        }
+
+        if (getReferenceId() != null) {
+            builder = builder.referenceId(getReferenceId());
         }
 
         return builder.build();

@@ -24,6 +24,9 @@ public class DeadLetterConfig extends Diffable implements Copyable<software.amaz
 
     private String arn;
 
+    /**
+     * The arn of sqs queue to be used as the dead letter config.
+     */
     @Required
     public String getArn() {
         return arn;

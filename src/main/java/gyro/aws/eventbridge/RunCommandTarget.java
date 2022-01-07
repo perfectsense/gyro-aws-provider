@@ -21,6 +21,7 @@ import java.util.List;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class RunCommandTarget extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.RunCommandTarget> {
@@ -28,6 +29,9 @@ public class RunCommandTarget extends Diffable implements Copyable<software.amaz
     private String key;
     private List<String> values;
 
+    /**
+     * Tag-key or InstanceIds.
+     */
     @Required
     public String getKey() {
         return key;
@@ -37,7 +41,11 @@ public class RunCommandTarget extends Diffable implements Copyable<software.amaz
         this.key = key;
     }
 
+    /**
+     * If key is InstanceIds, then this is a list of Amazon EC2 instance IDs.
+     */
     @Required
+    @Updatable
     public List<String> getValues() {
         if (values == null) {
             values = new ArrayList<>();

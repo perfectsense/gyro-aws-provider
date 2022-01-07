@@ -25,6 +25,9 @@ public class BatchArrayProperty extends Diffable implements Copyable<BatchArrayP
 
     private Integer size;
 
+    /**
+     * The size of the array.
+     */
     @Required
     public Integer getSize() {
         return size;

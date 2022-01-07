@@ -25,6 +25,9 @@ public class SqsParameter extends Diffable implements Copyable<SqsParameters> {
 
     private String messageGroupId;
 
+    /**
+     * The message group id of the queue.
+     */
     @Required
     public String getMessageGroupId() {
         return messageGroupId;

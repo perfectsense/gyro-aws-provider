@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.BatchParameters;
 
@@ -28,6 +29,12 @@ public class BatchParameter extends Diffable implements Copyable<BatchParameters
     private String jobDefinition;
     private String jobName;
 
+    /**
+     * The batch retry strategy config for the batch parameter.
+     *
+     * @subresource gyro.aws.eventbridge.BatchRetryStrategy
+     */
+    @Updatable
     public BatchRetryStrategy getRetryStrategy() {
         return retryStrategy;
     }
@@ -36,6 +43,12 @@ public class BatchParameter extends Diffable implements Copyable<BatchParameters
         this.retryStrategy = retryStrategy;
     }
 
+    /**
+     * The batch array property config for the batch parameter.
+     *
+     * @subresource gyro.aws.eventbridge.BatchArrayProperty
+     */
+    @Updatable
     public BatchArrayProperty getArrayProperties() {
         return arrayProperties;
     }
@@ -44,6 +57,11 @@ public class BatchParameter extends Diffable implements Copyable<BatchParameters
         this.arrayProperties = arrayProperties;
     }
 
+    /**
+     * The job definition for the batch parameter.
+     */
+    @Required
+    @Updatable
     public String getJobDefinition() {
         return jobDefinition;
     }
@@ -52,6 +70,9 @@ public class BatchParameter extends Diffable implements Copyable<BatchParameters
         this.jobDefinition = jobDefinition;
     }
 
+    /**
+     * The job name for the batch parameter.
+     */
     @Required
     public String getJobName() {
         return jobName;
@@ -88,7 +109,8 @@ public class BatchParameter extends Diffable implements Copyable<BatchParameters
 
     protected BatchParameters toBatchParameters() {
         BatchParameters.Builder builder = BatchParameters.builder()
-            .jobName(getJobName());
+            .jobName(getJobName())
+            .jobDefinition(getJobDefinition());
 
         if (getArrayProperties() != null) {
             builder.arrayProperties(getArrayProperties().toBatchArrayProperties());

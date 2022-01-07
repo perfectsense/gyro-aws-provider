@@ -18,13 +18,20 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class NetworkConfiguration extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.NetworkConfiguration> {
 
     private VpcConfiguration vpcConfiguration;
 
+    /**
+     * The vpc configuration.
+     *
+     * @subresource gyro.aws.eventbridge.VpcConfiguration
+     */
     @Required
+    @Updatable
     public VpcConfiguration getVpcConfiguration() {
         return vpcConfiguration;
     }

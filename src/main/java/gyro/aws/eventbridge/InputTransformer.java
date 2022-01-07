@@ -16,19 +16,65 @@
 
 package gyro.aws.eventbridge;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 
 public class InputTransformer extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.InputTransformer> {
 
+    private Map<String, String> inputPathsMap;
+    private String inputTemplate;
+
+    /**
+     * Map of JSON paths to be extracted from the event.
+     */
+    @Required
+    @Updatable
+    public Map<String, String> getInputPathsMap() {
+        if (inputPathsMap == null) {
+            inputPathsMap = new HashMap<>();
+        }
+
+        return inputPathsMap;
+    }
+
+    public void setInputPathsMap(Map<String, String> inputPathsMap) {
+        this.inputPathsMap = inputPathsMap;
+    }
+
+    /**
+     * Input template where you specify placeholders that will be filled with the values of the keys from input-paths-map to customize the data sent to the target.
+     */
+    @Required
+    @Updatable
+    public String getInputTemplate() {
+        return inputTemplate;
+    }
+
+    public void setInputTemplate(String inputTemplate) {
+        this.inputTemplate = inputTemplate;
+    }
+
     @Override
     public void copyFrom(software.amazon.awssdk.services.eventbridge.model.InputTransformer model) {
-        model.inputPathsMap();
-        model.inputTemplate();
+        setInputPathsMap(model.inputPathsMap());
+        setInputTemplate(model.inputTemplate());
     }
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
+    }
+
+    protected software.amazon.awssdk.services.eventbridge.model.InputTransformer toInputTransformer() {
+        return software.amazon.awssdk.services.eventbridge.model.InputTransformer
+            .builder()
+            .inputPathsMap(getInputPathsMap())
+            .inputTemplate(getInputTemplate())
+            .build();
     }
 }

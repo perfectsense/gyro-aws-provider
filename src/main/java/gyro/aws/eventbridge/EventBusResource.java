@@ -131,7 +131,6 @@ public class EventBusResource extends EventBridgeTaggableResource implements Cop
         setName(model.name());
 
         refreshTags();
-
     }
 
     @Override

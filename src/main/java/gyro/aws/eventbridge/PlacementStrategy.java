@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.PlacementStrategyType;
 
@@ -26,6 +27,9 @@ public class PlacementStrategy extends Diffable implements Copyable<software.ama
     private String field;
     private PlacementStrategyType type;
 
+    /**
+     * The field to apply the placement strategy against.
+     */
     @Required
     public String getField() {
         return field;
@@ -35,6 +39,9 @@ public class PlacementStrategy extends Diffable implements Copyable<software.ama
         this.field = field;
     }
 
+    /**
+     * The type of placement strategy.
+     */
     @Required
     public PlacementStrategyType getType() {
         return type;

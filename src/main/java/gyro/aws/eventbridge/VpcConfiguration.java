@@ -24,6 +24,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.ec2.SubnetResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.AssignPublicIp;
@@ -35,7 +36,11 @@ public class VpcConfiguration extends Diffable implements Copyable<AwsVpcConfigu
     private List<SecurityGroupResource> securityGroups;
     private List<SubnetResource> subnets;
 
+    /**
+     * Specifies whether the task's elastic network interface receives a public IP address.
+     */
     @Required
+    @Updatable
     public AssignPublicIp getAssignPublicIp() {
         return assignPublicIp;
     }
@@ -44,7 +49,11 @@ public class VpcConfiguration extends Diffable implements Copyable<AwsVpcConfigu
         this.assignPublicIp = assignPublicIp;
     }
 
+    /**
+     * Specifies the security groups associated with the task.
+     */
     @CollectionMax(5)
+    @Updatable
     public List<SecurityGroupResource> getSecurityGroups() {
         if (securityGroups == null) {
             securityGroups = new ArrayList<>();
@@ -57,7 +66,11 @@ public class VpcConfiguration extends Diffable implements Copyable<AwsVpcConfigu
         this.securityGroups = securityGroups;
     }
 
+    /**
+     * Specifies the subnets associated with the task.
+     */
     @CollectionMax(16)
+    @Updatable
     public List<SubnetResource> getSubnets() {
         if (subnets == null) {
             subnets = new ArrayList<>();

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.eventbridge.model.HttpParameters;
 
 public class HttpParameter extends Diffable implements Copyable<HttpParameters> {
@@ -31,6 +32,10 @@ public class HttpParameter extends Diffable implements Copyable<HttpParameters> 
     private Map<String, String> queryStringParameters;
     private List<String> pathParameterValues;
 
+    /**
+     * The headers that need to be sent as part of request invoking the API Gateway REST API or EventBridge ApiDestination.
+     */
+    @Updatable
     public Map<String, String> getHeaderParameters() {
         if (headerParameters == null) {
             headerParameters = new HashMap<>();
@@ -43,6 +48,10 @@ public class HttpParameter extends Diffable implements Copyable<HttpParameters> 
         this.headerParameters = headerParameters;
     }
 
+    /**
+     * The query string keys/values that need to be sent as part of request invoking the API Gateway REST API or EventBridge ApiDestination.
+     */
+    @Updatable
     public Map<String, String> getQueryStringParameters() {
         if (queryStringParameters == null) {
             queryStringParameters = new HashMap<>();
@@ -55,6 +64,10 @@ public class HttpParameter extends Diffable implements Copyable<HttpParameters> 
         this.queryStringParameters = queryStringParameters;
     }
 
+    /**
+     * The path parameter values to be used to populate API Gateway REST API or EventBridge ApiDestination path wildcards ("*").
+     */
+    @Updatable
     public List<String> getPathParameterValues() {
         if (pathParameterValues == null) {
             pathParameterValues = new ArrayList<>();
@@ -76,7 +89,7 @@ public class HttpParameter extends Diffable implements Copyable<HttpParameters> 
 
     @Override
     public String primaryKey() {
-        return null;
+        return "";
     }
 
     protected HttpParameters toHttpParameters() {

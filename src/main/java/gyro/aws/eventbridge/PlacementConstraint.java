@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.PlacementConstraintType;
 
@@ -26,6 +27,9 @@ public class PlacementConstraint extends Diffable implements Copyable<software.a
     private PlacementConstraintType type;
     private String expression;
 
+    /**
+     * The type of constraint.
+     */
     @Required
     public PlacementConstraintType getType() {
         return type;
@@ -35,6 +39,9 @@ public class PlacementConstraint extends Diffable implements Copyable<software.a
         this.type = type;
     }
 
+    /**
+     * A cluster query language expression to apply to the constraint.
+     */
     @Required
     public String getExpression() {
         return expression;

@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.eventbridge.model.Target;
@@ -40,6 +41,9 @@ public class TargetResource extends Diffable implements Copyable<Target> {
     private HttpParameter httpParameters;
     private EcsParameter ecsParameters;
 
+    /**
+     * The source arn for the target.
+     */
     @Required
     public String getArn() {
         return arn;
@@ -49,6 +53,9 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.arn = arn;
     }
 
+    /**
+     * A unique id for the target.
+     */
     @Required
     public String getId() {
         return id;
@@ -58,6 +65,10 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.id = id;
     }
 
+    /**
+     * Valid JSON text passed to the target.
+     */
+    @Updatable
     public String getInput() {
         return input;
     }
@@ -66,6 +77,10 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.input = input;
     }
 
+    /**
+     * The value of the JSONPath that is used for extracting part of the matched event when passing it to the target.
+     */
+    @Updatable
     public String getInputPath() {
         return inputPath;
     }
@@ -74,6 +89,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.inputPath = inputPath;
     }
 
+    /**
+     * Batch parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.BatchParameter
+     */
+    @Updatable
     public BatchParameter getBatchParameters() {
         return batchParameters;
     }
@@ -82,6 +103,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.batchParameters = batchParameters;
     }
 
+    /**
+     * Sqs parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.SqsParameter
+     */
+    @Updatable
     public SqsParameter getSqsParameters() {
         return sqsParameters;
     }
@@ -90,6 +117,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.sqsParameters = sqsParameters;
     }
 
+    /**
+     * Dead letter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.DeadLetterConfig
+     */
+    @Updatable
     public DeadLetterConfig getDeadLetterConfig() {
         return deadLetterConfig;
     }
@@ -98,6 +131,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.deadLetterConfig = deadLetterConfig;
     }
 
+    /**
+     * Input transformer for the target.
+     *
+     * @subresource gyro.aws.eventbridge.InputTransformer
+     */
+    @Updatable
     public InputTransformer getInputTransformer() {
         return inputTransformer;
     }
@@ -106,6 +145,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.inputTransformer = inputTransformer;
     }
 
+    /**
+     * Kinesis parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.KinesisParameter
+     */
+    @Updatable
     public KinesisParameter getKinesisParameters() {
         return kinesisParameters;
     }
@@ -114,6 +159,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.kinesisParameters = kinesisParameters;
     }
 
+    /**
+     * Redshift data parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.RedshiftDataParameter
+     */
+    @Updatable
     public RedshiftDataParameter getRedshiftDataParameters() {
         return redshiftDataParameters;
     }
@@ -122,6 +173,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.redshiftDataParameters = redshiftDataParameters;
     }
 
+    /**
+     * The retry policy for the target.
+     *
+     * @subresource gyro.aws.eventbridge.RetryPolicy
+     */
+    @Updatable
     public RetryPolicy getRetryPolicy() {
         return retryPolicy;
     }
@@ -130,6 +187,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.retryPolicy = retryPolicy;
     }
 
+    /**
+     * Run command parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.RunCommandParameter
+     */
+    @Updatable
     public RunCommandParameter getRunCommandParameters() {
         return runCommandParameters;
     }
@@ -138,6 +201,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.runCommandParameters = runCommandParameters;
     }
 
+    /**
+     * Sagemaker pipeline parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.SageMakerPipelineParameter
+     */
+    @Updatable
     public SageMakerPipelineParameter getSageMakerPipelineParameters() {
         return sageMakerPipelineParameters;
     }
@@ -146,6 +215,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.sageMakerPipelineParameters = sageMakerPipelineParameters;
     }
 
+    /**
+     * Http parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.HttpParameter
+     */
+    @Updatable
     public HttpParameter getHttpParameters() {
         return httpParameters;
     }
@@ -154,6 +229,12 @@ public class TargetResource extends Diffable implements Copyable<Target> {
         this.httpParameters = httpParameters;
     }
 
+    /**
+     * Ecs parameter config for the target.
+     *
+     * @subresource gyro.aws.eventbridge.EcsParameter
+     */
+    @Updatable
     public EcsParameter getEcsParameters() {
         return ecsParameters;
     }
@@ -275,6 +356,10 @@ public class TargetResource extends Diffable implements Copyable<Target> {
 
         if (getDeadLetterConfig() != null) {
             builder = builder.deadLetterConfig(getDeadLetterConfig().toDeadLetterConfig());
+        }
+
+        if (getInputTransformer() != null) {
+            builder = builder.inputTransformer(getInputTransformer().toInputTransformer());
         }
 
         if (getKinesisParameters() != null) {

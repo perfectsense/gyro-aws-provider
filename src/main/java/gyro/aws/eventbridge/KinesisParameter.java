@@ -25,6 +25,9 @@ public class KinesisParameter extends Diffable implements Copyable<KinesisParame
 
     private String partitionKeyPath;
 
+    /**
+     * The JSON path to be extracted from the event and used as the partition key.
+     */
     @Required
     public String getPartitionKeyPath() {
         return partitionKeyPath;

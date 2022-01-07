@@ -18,6 +18,7 @@ package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eventbridge.model.SageMakerPipelineParameter;
 
@@ -26,6 +27,9 @@ public class PipelineParameter extends Diffable implements Copyable<SageMakerPip
     private String name;
     private String value;
 
+    /**
+     * Name of parameter to start execution of a SageMaker Model Building Pipeline.
+     */
     @Required
     public String getName() {
         return name;
@@ -35,7 +39,11 @@ public class PipelineParameter extends Diffable implements Copyable<SageMakerPip
         this.name = name;
     }
 
+    /**
+     * Value of parameter to start execution of a SageMaker Model Building Pipeline.
+     */
     @Required
+    @Updatable
     public String getValue() {
         return value;
     }
