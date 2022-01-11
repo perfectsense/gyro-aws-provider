@@ -339,16 +339,20 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         setMaxTtl(cacheBehavior.maxTTL());
 
         // -- Forwarded Values
-        setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
-        if (cacheBehavior.forwardedValues().cookies().forward().equals(ItemSelection.WHITELIST)) {
-            setCookies(new HashSet<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+        if (cacheBehavior.forwardedValues() != null) {
+            setForwardCookies(cacheBehavior.forwardedValues().cookies().forwardAsString());
+            if (cacheBehavior.forwardedValues().cookies().forward().equals(ItemSelection.WHITELIST)) {
+                setCookies(new HashSet<>(cacheBehavior.forwardedValues().cookies().whitelistedNames().items()));
+            } else {
+                setCookies(new HashSet<>());
+            }
+
+            setHeaders(new HashSet<>(cacheBehavior.forwardedValues().headers().items()));
+            setQueryString(cacheBehavior.forwardedValues().queryString());
+            setQueryStringCacheKeys(new HashSet<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
         } else {
             setCookies(new HashSet<>());
         }
-
-        setHeaders(new HashSet<>(cacheBehavior.forwardedValues().headers().items()));
-        setQueryString(cacheBehavior.forwardedValues().queryString());
-        setQueryStringCacheKeys(new HashSet<>(cacheBehavior.forwardedValues().queryStringCacheKeys().items()));
 
         setAllowedMethods(new HashSet<>(cacheBehavior.allowedMethods().itemsAsStrings()));
         setCachedMethods(new HashSet<>(cacheBehavior.allowedMethods().cachedMethods().itemsAsStrings()));
