@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.4.5 (January 11th, 2022)
+
+ISSUES FIXED:
+
+* [538](https://github.com/perfectsense/gyro-aws-provider/pull/538): Fix NPE for forwardedCookies response in CloudFront
+
+ENHANCEMENTS:
+
+* [535](https://github.com/perfectsense/gyro-aws-provider/pull/535): Add support for `BottleRocket` as a managed type in Nodegroup.
+
 ## 1.4.4 (November 17th, 2021)
 
 ISSUES FIXED:
