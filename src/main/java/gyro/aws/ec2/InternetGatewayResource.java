@@ -121,6 +121,8 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         setId(response.internetGateway().internetGatewayId());
 
+        state.save();
+
         if (getVpc() != null) {
             client.attachInternetGateway(r -> r.internetGatewayId(getId())
                     .vpcId(getVpc().getId())
