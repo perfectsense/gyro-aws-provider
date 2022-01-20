@@ -204,6 +204,8 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         setId(response.routeTable().routeTableId());
         setOwnerId(response.routeTable().ownerId());
 
+        state.save();
+
         for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
         }
