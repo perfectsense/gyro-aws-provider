@@ -19,6 +19,7 @@ package gyro.aws.ec2;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -26,7 +27,9 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -205,6 +208,11 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         setOwnerId(response.routeTable().ownerId());
 
         state.save();
+
+        Wait.atMost(10, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> getRouteTable(client) != null);
 
         for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));

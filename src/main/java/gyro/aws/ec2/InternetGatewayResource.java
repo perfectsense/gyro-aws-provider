@@ -123,6 +123,11 @@ public class InternetGatewayResource extends Ec2TaggableResource<InternetGateway
 
         state.save();
 
+        Wait.atMost(10, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> getInternetGateway(client) != null);
+
         if (getVpc() != null) {
             client.attachInternetGateway(r -> r.internetGatewayId(getId())
                     .vpcId(getVpc().getId())
