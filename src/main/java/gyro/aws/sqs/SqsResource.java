@@ -374,6 +374,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
 
             setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
             setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
+            setDeadLetterQueueName(getDeadLetterTargetArn().substring(getDeadLetterTargetArn().lastIndexOf(':') + 1));
         }
 
         if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
@@ -484,6 +485,22 @@ public class SqsResource extends AwsResource implements Copyable<String> {
 
         if (getName().contains(".fifo")) {
             attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+        }
+
+        attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, null);
+        if (!ObjectUtils.isBlank(getDeadLetterTargetArn()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), getDeadLetterTargetArn());
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
+
+        } else if (!ObjectUtils.isBlank(getDeadLetterQueueName()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), createQueueArn(getDeadLetterQueueName()));
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
         }
 
         SqsClient client = createClient(SqsClient.class);
