@@ -39,7 +39,7 @@ Load the AWS provider in your project by consuming it as a `plugin` directive in
 
 ```shell
 @repository: 'https://artifactory.psdops.com/gyro-releases'
-@plugin: 'gyro:gyro-aws-provider:1.0.2'
+@plugin: 'gyro:gyro-aws-provider:1.4.0'
 ```
 
 #### Authentication ####
@@ -61,6 +61,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [ACM PCA](https://gyro.dev/providers/aws/acm-pca/index.html)
 * [API Gateway](https://gyro.dev/providers/aws/api-gateway-v2/index.html)
 * [Autoscaling Groups](https://gyro.dev/providers/aws/autoscaling-groups/index.html)
+* [Backup](https://gyro.dev/providers/aws/backup/index.html)
 * [Cloudfront](https://gyro.dev/providers/aws/cloudfront/index.html)
 * [Cloudtrail](https://gyro.dev/providers/aws/cloudtrail/index.html)
 * [Cloudwatch](https://gyro.dev/providers/aws/cloudwatch/index.html)
@@ -76,6 +77,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [EKS](https://gyro.dev/providers/aws/eks/index.html)
 * [ElastiCache](https://gyro.dev/providers/aws/elasticache/index.html)
 * [Elasticsearch](https://gyro.dev/providers/aws/elasticsearch/index.html)
+* [GlobalAccelerator](https://gyro.dev/providers/aws/globalaccelerator/index.html)
 * [Identity Access Management](https://gyro.dev/providers/aws/identity-access-management/index.html)
 * [Kendra](https://gyro.dev/providers/aws/kendra/index.html)
 * [KMS](https://gyro.dev/providers/aws/kms/index.html)

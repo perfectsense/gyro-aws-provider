@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import gyro.aws.AwsResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Resource;
@@ -126,6 +127,7 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
         Wait.atMost(120, TimeUnit.SECONDS)
             .prompt(false)
             .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> getAttachmentState(client) == ATTACHED);
     }
 
@@ -143,6 +145,7 @@ public class InstanceVolumeAttachmentResource extends AwsResource {
         );
 
         Wait.atMost(120, TimeUnit.SECONDS).prompt(false).checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getAttachmentState(client) == DETACHED);
     }
 

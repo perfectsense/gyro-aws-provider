@@ -24,6 +24,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -172,7 +173,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         state.save();
 
         if (getVpc() != null) {
-            attachVpc(client);
+            attachVpc(client, TimeoutSettings.Action.CREATE);
         }
     }
 
@@ -189,8 +190,9 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         if (getVpc() != null) {
             Wait.atMost(1, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
                 .prompt(true)
-                .until(() -> replaceVpc(client));
+                .until(() -> replaceVpc(client, TimeoutSettings.Action.UPDATE));
         }
     }
 
@@ -206,6 +208,7 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isVpnDeleted(client));
 
@@ -217,9 +220,9 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         }
     }
 
-    private boolean replaceVpc(Ec2Client client) {
+    private boolean replaceVpc(Ec2Client client, TimeoutSettings.Action action) {
         try {
-            attachVpc(client);
+            attachVpc(client, action);
 
             return true;
         } catch (Ec2Exception ex) {
@@ -231,11 +234,12 @@ public class VpnGatewayResource extends Ec2TaggableResource<VpnGateway> implemen
         }
     }
 
-    private void attachVpc(Ec2Client client) {
+    private void attachVpc(Ec2Client client, TimeoutSettings.Action action) {
         client.attachVpnGateway(r -> r.vpcId(getVpc().getResourceId()).vpnGatewayId(getId()));
 
         boolean waitResult = Wait.atMost(90, TimeUnit.SECONDS)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> isVpcAttached(client));
 

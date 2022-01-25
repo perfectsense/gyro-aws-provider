@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -358,6 +359,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
     }
@@ -375,6 +377,7 @@ public class NeptuneClusterSnapshotResource extends NeptuneTaggableResource impl
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> getDbClusterSnapshot(client) == null);
     }

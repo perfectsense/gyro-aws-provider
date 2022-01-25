@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -191,7 +192,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
 
         copyFrom(response.transitGatewayVpcAttachment(), false);
 
-        waitForAvailability(TimeUnit.MINUTES, client);
+        waitForAvailability(TimeUnit.MINUTES, client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -201,7 +202,8 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         if (changedProperties.contains("options")) {
             client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                 .options(getOptions().toModifyTransitGatewayVpcAttachmentRequestOptions()));
-            waitForAvailability(TimeUnit.SECONDS, client);
+            state.save();
+            waitForAvailability(TimeUnit.SECONDS, client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedProperties.contains("subnets")) {
@@ -221,19 +223,19 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .addSubnetIds(subnetsToAdd).removeSubnetIds(subnetsToRemove));
 
-                waitForAvailability(TimeUnit.MINUTES, client);
+                waitForAvailability(TimeUnit.MINUTES, client, TimeoutSettings.Action.UPDATE);
 
             } else if (!subnetsToAdd.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .addSubnetIds(subnetsToAdd));
 
-                waitForAvailability(TimeUnit.MINUTES, client);
+                waitForAvailability(TimeUnit.MINUTES, client, TimeoutSettings.Action.UPDATE);
 
             } else if (!subnetsToRemove.isEmpty()) {
                 client.modifyTransitGatewayVpcAttachment(r -> r.transitGatewayAttachmentId(getId())
                     .removeSubnetIds(subnetsToRemove));
 
-                waitForAvailability(TimeUnit.MINUTES, client);
+                waitForAvailability(TimeUnit.MINUTES, client, TimeoutSettings.Action.UPDATE);
             }
         }
     }
@@ -246,6 +248,7 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getTransitGatewayVpcAttachment(client) == null);
     }
@@ -293,11 +296,10 @@ public class TransitGatewayVpcAttachmentResource extends Ec2TaggableResource<Tra
         }
     }
 
-    private void waitForAvailability(
-        TimeUnit durationUnit,
-        Ec2Client client) {
+    private void waitForAvailability(TimeUnit durationUnit, Ec2Client client, TimeoutSettings.Action action) {
         Wait.atMost(2, durationUnit)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> {
                 TransitGatewayVpcAttachment attachment = getTransitGatewayVpcAttachment(client);

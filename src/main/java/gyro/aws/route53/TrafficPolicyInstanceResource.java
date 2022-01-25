@@ -20,6 +20,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
@@ -210,6 +211,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
         boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isTrafficPolicyInstanceReady(client));
 
@@ -231,6 +233,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(3, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(true)
             .until(() -> isTrafficPolicyInstanceReady(client));
     }
@@ -245,6 +248,7 @@ public class TrafficPolicyInstanceResource extends AwsResource implements Copyab
 
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> getTrafficPolicyInstance(client) == null);
     }

@@ -33,6 +33,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -406,7 +407,17 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         setId(endpoint.vpcEndpointId());
 
-        copyFrom(getVpcEndpoint(client));
+        ArrayList<VpcEndpoint> endpoints = new ArrayList<>();
+        Wait.atMost(30, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> {
+                VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
+                return vpcEndpoint != null && endpoints.add(vpcEndpoint);
+            });
+
+        copyFrom(endpoints.get(0));
     }
 
     @Override
@@ -501,6 +512,7 @@ public class EndpointResource extends Ec2TaggableResource<VpcEndpoint> implement
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getVpcEndpoint(client) == null);
     }

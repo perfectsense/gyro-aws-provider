@@ -25,6 +25,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -166,6 +167,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
@@ -177,6 +179,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(2, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> {
                 TransitGatewayPeeringAttachment attachment = getTransitGatewayPeeringAttachment(client);
@@ -197,6 +200,7 @@ public class TransitGatewayPeeringAttachmentResource extends Ec2TaggableResource
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getTransitGatewayPeeringAttachment(client) == null);
     }

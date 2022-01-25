@@ -1,6 +1,124 @@
 CHANGELOG
 =========
 
+## 1.4.5 (January 11th, 2022)
+
+ISSUES FIXED:
+
+* [538](https://github.com/perfectsense/gyro-aws-provider/pull/538): Fix NPE for forwardedCookies response in CloudFront
+
+ENHANCEMENTS:
+
+* [535](https://github.com/perfectsense/gyro-aws-provider/pull/535): Add support for `BottleRocket` as a managed type in Nodegroup.
+
+## 1.4.4 (November 17th, 2021)
+
+ISSUES FIXED:
+
+* [529](https://github.com/perfectsense/gyro-aws-provider/pull/529): Fix WAFV2 error refreshing with a console configured NotStatementResource.
+* [533](https://github.com/perfectsense/gyro-aws-provider/issues/533): Fix NPE when creating EC2 Endpoint.
+
+ENHANCEMENTS:
+
+* [530](https://github.com/perfectsense/gyro-aws-provider/pull/530): Add support for `capacity type` in Nodegroup.
+
+## 1.4.3 (September 17th, 2021)
+
+ISSUES FIXED:
+
+* [521](https://github.com/perfectsense/gyro-aws-provider/issues/521): Fix WAFV2 ALB association error while creating an WebAcl.
+* [523](https://github.com/perfectsense/gyro-aws-provider/issues/523): Fix classic ELB security group reference updates.
+* [526](https://github.com/perfectsense/gyro-aws-provider/issues/526): Allow EKS Addons and EKS Authentication to be defined as standalone resources.
+
+## 1.4.2 (September 7th, 2021)
+
+ISSUES FIXED:
+
+* [519](https://github.com/perfectsense/gyro-aws-provider/issues/519): WAFV2: ip-set-reference-statement error on gyro up if multiple part of an or statement.
+
+## 1.4.1 (August 20th, 2021)
+
+ISSUES FIXED:
+
+* [516](https://github.com/perfectsense/gyro-aws-provider/issues/516): Wait for Resource Record to be populated in the ACM certificate, which fails during creation.
+
+## 1.4.0 (August 5th, 2021)
+
+ENHANCEMENTS:
+
+* [508](https://github.com/perfectsense/gyro-aws-provider/pull/508): Add support for field `resolve-conflicts` in EKS Addon.
+* [509](https://github.com/perfectsense/gyro-aws-provider/issues/509): Add support for [timeout](https://gyro.dev/guides/language/built-in-directives.html#timeout) overrides for resources that have `wait`.
+
+ISSUES FIXED:
+
+* [504](https://github.com/perfectsense/gyro-aws-provider/issues/504): Fix validations for EC2 Instances when using Launch Template.
+* [511](https://github.com/perfectsense/gyro-aws-provider/pull/511): Fix null display for fields in Route53 and EKS encryption config.
+
+## 1.3.0 (July 14th, 2021)
+
+ENHANCEMENTS:
+
+* [489](https://github.com/perfectsense/gyro-aws-provider/issues/489): Add support for Global Accelerators.
+
+ISSUES FIXED:
+
+* [497](https://github.com/perfectsense/gyro-aws-provider/issues/497): Remove required annotation from key-pair field for EC2 Instance.
+* [498](https://github.com/perfectsense/gyro-aws-provider/issues/498): Remove enum validation of type for EC2 Instance.
+
+## 1.2.2 (June 28th, 2021)
+
+ENHANCEMENTS:
+
+* [464](https://github.com/perfectsense/gyro-aws-provider/issues/464): Expose endpoint and certificate-authority-data for EKS cluster.
+* [487](https://github.com/perfectsense/gyro-aws-provider/pull/487): Allow "gp3" volume type for EC2 BlockDeviceMapping.
+* [488](https://github.com/perfectsense/gyro-aws-provider/pull/488): Allow "CUSTOM" ami type for EKS Nodegroup.
+* [490](https://github.com/perfectsense/gyro-aws-provider/issues/490): Allow updating image-tag-mutability and image-scanning-configuration for ECR repository.
+
+## 1.2.1 (June 21st, 2021)
+
+ISSUES FIXED:
+
+* [476](https://github.com/perfectsense/gyro-aws-provider/issues/476): Fix EKS voc-config update error.
+* [478](https://github.com/perfectsense/gyro-aws-provider/issues/478): Fix EKS addon null display.
+* [479](https://github.com/perfectsense/gyro-aws-provider/issues/479): Fix EKS authentication null display.
+* [480](https://github.com/perfectsense/gyro-aws-provider/issues/480): Fix missing documentation for Launch Template tag-specification.
+
+## 1.2.0 (June 8th, 2021)
+
+ENHANCEMENTS:
+
+* [472](https://github.com/perfectsense/gyro-aws-provider/issues/472): Add support for cleaning AWS client cache.
+* [466](https://github.com/perfectsense/gyro-aws-provider/issues/466): Convert EKS Addon as a subresource.
+* [462](https://github.com/perfectsense/gyro-aws-provider/issues/462): Add support for EKS Authentication.
+* [440](https://github.com/perfectsense/gyro-aws-provider/issues/440): Add support for additional fields in Launch Template.
+
+ISSUES FIXED:
+
+* [468](https://github.com/perfectsense/gyro-aws-provider/issues/468): Fix ECR lifecycle update.
+
+## 1.1.0 (April 27th, 2021)
+
+ENHANCEMENTS:
+
+* [361](https://github.com/perfectsense/gyro-aws-provider/issues/361): Add support for creating EKS Nodegroup Launch Template.
+* [407](https://github.com/perfectsense/gyro-aws-provider/issues/407): Add support for creating RDS cluster/instance from snapshots.
+* [418](https://github.com/perfectsense/gyro-aws-provider/issues/418): Add support for Backup.
+* [448](https://github.com/perfectsense/gyro-aws-provider/issues/448): Allow ALB forwarding action to target multiple groups by weight.
+* [450](https://github.com/perfectsense/gyro-aws-provider/issues/450): Allow EKS to associate a KMS key after creation.
+
+ISSUES FIXED:
+
+* [404](https://github.com/perfectsense/gyro-aws-provider/issues/404): Fix Route53 Record Set refresh error.
+* [420](https://github.com/perfectsense/gyro-aws-provider/issues/420): Update EKS Nodegroup default desired-capacity.
+* [421](https://github.com/perfectsense/gyro-aws-provider/issues/421): Fix delayed wait time for VPC Endpoint.
+* [425](https://github.com/perfectsense/gyro-aws-provider/issues/425): Fix EKS Nodegroup save error.
+* [427](https://github.com/perfectsense/gyro-aws-provider/issues/427): Fix WAFV2 refresh error when associated with a Cloudfront.
+* [428](https://github.com/perfectsense/gyro-aws-provider/issues/428): Fix WAFV2 scoping error.
+* [431](https://github.com/perfectsense/gyro-aws-provider/issues/431): Update EKS examples.
+* [432](https://github.com/perfectsense/gyro-aws-provider/issues/432): Format assume role policy examples.
+* [437](https://github.com/perfectsense/gyro-aws-provider/issues/437): Fix Cloudfront list field confusing change output.
+* [438](https://github.com/perfectsense/gyro-aws-provider/issues/438): Have ELBV2 expose hosted-zone-id.
+
 ## 1.0.2 (March 5th, 2021)
 
 ISSUES FIXED:

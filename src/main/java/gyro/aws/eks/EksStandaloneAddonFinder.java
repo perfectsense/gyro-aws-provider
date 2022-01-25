@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Brightspot.
+ * Copyright 2021, Perfect Sense, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import software.amazon.awssdk.services.eks.model.ResourceNotFoundException;
  *    eks-addon: $(external-query aws::eks-addon { name: 'vpc-cni' })
  */
 @Type("eks-addon")
-public class EksAddonFinder extends AwsFinder<EksClient, Addon, EksAddonResource> {
+public class EksStandaloneAddonFinder extends AwsFinder<EksClient, Addon, EksStandaloneAddonResource> {
 
     private String name;
     private String clusterName;

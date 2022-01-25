@@ -27,6 +27,7 @@ import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -299,6 +300,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
         }
 
         boolean waitResult = Wait.atMost(40, TimeUnit.SECONDS).checkEvery(5, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false).until(() -> isAvailable(client));
 
         if (!waitResult) {
@@ -325,6 +327,7 @@ public class EbsVolumeResource extends Ec2TaggableResource<Volume> implements Co
 
         Wait.atMost(1, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(true)
             .until(() -> isAvailable(client));
     }

@@ -21,13 +21,17 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -105,6 +109,7 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
      *
      * @subresource gyro.aws.ecr.EcrImageScanningConfiguration
      */
+    @Updatable
     public EcrImageScanningConfiguration getImageScanningConfiguration() {
         return imageScanningConfiguration;
     }
@@ -114,10 +119,15 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     }
 
     /**
-     * The tag mutability setting for the repository.
+     * The tag mutability setting for the repository. Defaults to ``MUTABLE``.
      */
+    @Updatable
     @ValidStrings({ "MUTABLE", "IMMUTABLE" })
     public ImageTagMutability getImageTagMutability() {
+        if (imageTagMutability == null) {
+            imageTagMutability = ImageTagMutability.MUTABLE;
+        }
+
         return imageTagMutability;
     }
 
@@ -144,13 +154,13 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     public String getLifecyclePolicy() {
         if (this.lifecyclePolicy != null && this.lifecyclePolicy.contains(".json")) {
             try (InputStream input = openInput(this.lifecyclePolicy)) {
-                this.lifecyclePolicy = formatPolicy(IoUtils.toUtf8String(input));
+                this.lifecyclePolicy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.lifecyclePolicy;
             } catch (IOException err) {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return this.lifecyclePolicy;
+            return PolicyResource.formatPolicy(this.lifecyclePolicy);
         }
     }
 
@@ -298,6 +308,11 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
 
         state.save();
 
+        Wait.atMost(10, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> getRepository(client) != null);
+
         if (getLifecyclePolicy() != null) {
             putLifecyclePolicy(client);
         }
@@ -330,6 +345,18 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
                 putLifecyclePolicy(client);
             }
         }
+
+        if (changedFieldNames.contains("image-tag-mutability")) {
+            client.putImageTagMutability(r -> r.repositoryName(getRepositoryName())
+                .imageTagMutability(getImageTagMutability()));
+        }
+
+        if (changedFieldNames.contains("image-scanning-configuration")) {
+            client.putImageScanningConfiguration(r -> r.repositoryName(getRepositoryName())
+                .imageScanningConfiguration(getImageScanningConfiguration() != null
+                    ? getImageScanningConfiguration().toImageScanningConfiguration()
+                    : newSubresource(EcrImageScanningConfiguration.class).toImageScanningConfiguration()));
+        }
     }
 
     @Override
@@ -356,10 +383,5 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
     private void putLifecyclePolicy(EcrClient client) {
         client.putLifecyclePolicy(r -> r.lifecyclePolicyText(
             getLifecyclePolicy()).repositoryName(getRepositoryName()));
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ")
-            .replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }

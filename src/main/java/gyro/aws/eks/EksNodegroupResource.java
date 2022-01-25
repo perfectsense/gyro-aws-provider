@@ -29,6 +29,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -40,6 +41,7 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.AMITypes;
+import software.amazon.awssdk.services.eks.model.CapacityTypes;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupRequest;
 import software.amazon.awssdk.services.eks.model.CreateNodegroupResponse;
 import software.amazon.awssdk.services.eks.model.DeleteNodegroupRequest;
@@ -93,6 +95,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private Integer diskSize;
     private Map<String, String> tags;
     private EksLaunchTemplateSpecification launchTemplateSpecification;
+    private CapacityTypes capacityType;
 
     // Read-only
     private String arn;
@@ -206,7 +209,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     /**
      * The Ami type of the node group.
      */
-    @ValidStrings({"AL2_x86_64", "AL2_x86_64_GPU", "AL2_ARM_64"})
+    @ValidStrings({"AL2_x86_64", "AL2_x86_64_GPU", "AL2_ARM_64", "BOTTLEROCKET_ARM_64", "BOTTLEROCKET_x86_64", "CUSTOM"})
     public AMITypes getAmiType() {
         return amiType;
     }
@@ -295,6 +298,17 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         this.launchTemplateSpecification = launchTemplateSpecification;
     }
 
+    /**
+     * Which capacity type to use for this nodegroup.
+     */
+    public CapacityTypes getCapacityType() {
+        return capacityType;
+    }
+
+    public void setCapacityType(CapacityTypes capacityType) {
+        this.capacityType = capacityType;
+    }
+
     @Override
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
@@ -309,6 +323,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         setTags((model.tags()));
         setSubnets((model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toList())));
         setNodeRole(findById(RoleResource.class, model.nodeRole()));
+        setCapacityType(model.capacityType());
 
         if (model.scalingConfig() != null) {
             EksNodegroupScalingConfig scalingConfig = newSubresource(EksNodegroupScalingConfig.class);
@@ -359,6 +374,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             .nodeRole(getNodeRole().getArn())
             .labels(getLabels())
             .diskSize(getDiskSize())
+            .capacityType(getCapacityType())
             .tags(getTags());
 
         if (getScalingConfig() != null) {
@@ -379,7 +395,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         state.save();
 
-        waitForActiveState(client);
+        waitForActiveState(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -411,7 +427,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 .nodegroupName(getName())
                 .build());
 
-            waitForActiveState(client);
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("labels")) {
@@ -423,9 +440,10 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                         .build())
                     .nodegroupName(getName())
                     .build());
-            }
 
-            waitForActiveState(client);
+                state.save();
+                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            }
 
             client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                 .clusterName(getCluster().getName())
@@ -435,7 +453,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 .nodegroupName(getName())
                 .build());
 
-            waitForActiveState(client);
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("scaling-config")) {
@@ -470,6 +489,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         Wait.atMost(10, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getNodegroup(client) == null);
     }
 
@@ -491,13 +511,14 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         return nodegroup;
     }
 
-    private void waitForActiveState(EksClient client) {
+    private void waitForActiveState(EksClient client, TimeoutSettings.Action action) {
         Wait.atMost(15, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
-                .until(() -> {
-                    Nodegroup nodegroup = getNodegroup(client);
-                    return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
-                });
+            .resourceOverrides(this, action)
+            .until(() -> {
+                Nodegroup nodegroup = getNodegroup(client);
+                return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
+            });
     }
 }

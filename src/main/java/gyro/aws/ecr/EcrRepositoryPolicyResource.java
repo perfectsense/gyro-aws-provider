@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.resource.Resource;
@@ -45,13 +46,13 @@ public class EcrRepositoryPolicyResource extends AwsResource implements Copyable
     public String getPolicy() {
         if (this.policy != null && this.policy.contains(".json")) {
             try (InputStream input = openInput(this.policy)) {
-                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                this.policy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.policy;
             } catch (IOException err) {
                 throw new GyroException(err.getMessage());
             }
         } else {
-            return formatPolicy(this.policy);
+            return PolicyResource.formatPolicy(this.policy);
         }
     }
 
@@ -101,11 +102,6 @@ public class EcrRepositoryPolicyResource extends AwsResource implements Copyable
 
         client.deleteRepositoryPolicy(r -> r.repositoryName(((EcrRepositoryResource) parentResource()).getRepositoryName()));
 
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\n", "")
-            .replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 
     private void setPolicy() {

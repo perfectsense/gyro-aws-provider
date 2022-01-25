@@ -16,21 +16,30 @@
 
 package gyro.aws.sqs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import com.psddev.dari.util.CompactMap;
+import com.psddev.dari.util.JsonProcessor;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
-import com.psddev.dari.util.JsonProcessor;
-
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -42,14 +51,6 @@ import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -105,7 +106,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     private String deadLetterTargetArn;
     private String maxReceiveCount;
     private String contentBasedDeduplication;
-    private Integer kmsMasterKeyId;
+    private String kmsMasterKeyId;
     private Integer kmsDataKeyReusePeriodSeconds;
     private String policy;
 
@@ -258,11 +259,11 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK.
      */
     @Updatable
-    public Integer getKmsMasterKeyId() {
+    public String getKmsMasterKeyId() {
         return kmsMasterKeyId;
     }
 
-    public void setKmsMasterKeyId(Integer kmsMasterKeyId) {
+    public void setKmsMasterKeyId(String kmsMasterKeyId) {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
@@ -291,14 +292,14 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     public String getPolicy() {
         if (this.policy != null && this.policy.contains(".json")) {
             try (InputStream input = openInput(this.policy)) {
-                this.policy = formatPolicy(IoUtils.toUtf8String(input));
+                this.policy = PolicyResource.formatPolicy(IoUtils.toUtf8String(input));
                 return this.policy;
             } catch (IOException err) {
                 throw new GyroException(MessageFormat
                     .format("Queue - {0} policy error. Unable to read policy from path [{1}]", getName(), policy));
             }
         } else {
-            return this.policy;
+            return PolicyResource.formatPolicy(this.policy);
         }
     }
 
@@ -373,10 +374,11 @@ public class SqsResource extends AwsResource implements Copyable<String> {
 
             setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
             setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
+            setDeadLetterQueueName(getDeadLetterTargetArn().substring(getDeadLetterTargetArn().lastIndexOf(':') + 1));
         }
 
         if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
-            setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
+            setKmsMasterKeyId(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID));
 
             if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
                 setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
@@ -412,6 +414,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
             // Wait for the queue to be created.
             boolean waitResult = Wait.atMost(4, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
                 .prompt(false)
                 .until(() -> !ObjectUtils.isBlank(getQueue(client)));
 
@@ -475,13 +478,29 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         attributeUpdate.put(QueueAttributeName.DELAY_SECONDS, getDelaySeconds().toString());
         attributeUpdate.put(QueueAttributeName.MAXIMUM_MESSAGE_SIZE, getMaximumMessageSize().toString());
         attributeUpdate.put(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS, getReceiveMessageWaitTimeSeconds().toString());
-        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId().toString() : null);
+        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId() : null);
 
         attributeUpdate.put(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds().toString());
         attributeUpdate.put(QueueAttributeName.POLICY, getPolicy());
 
         if (getName().contains(".fifo")) {
             attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+        }
+
+        attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, null);
+        if (!ObjectUtils.isBlank(getDeadLetterTargetArn()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), getDeadLetterTargetArn());
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
+
+        } else if (!ObjectUtils.isBlank(getDeadLetterQueueName()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), createQueueArn(getDeadLetterQueueName()));
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
         }
 
         SqsClient client = createClient(SqsClient.class);
@@ -518,9 +537,5 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         if (value != null) {
             request.put(name, value.toString());
         }
-    }
-
-    private String formatPolicy(String policy) {
-        return policy != null ? policy.replaceAll(System.lineSeparator(), " ").replaceAll("\t", " ").trim().replaceAll(" ", "") : policy;
     }
 }

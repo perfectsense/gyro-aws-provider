@@ -27,6 +27,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -289,6 +290,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> getDataSource(client).status().equals(DataSourceStatus.ACTIVE) && !isSyncing(client));
     }
@@ -304,6 +306,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
             .prompt(false)
             .until(() -> getDataSource(client).status().equals(DataSourceStatus.ACTIVE) && !isSyncing(client));
 
@@ -335,6 +338,7 @@ public class KendraDataSourceResource extends AwsResource implements Copyable<De
 
         Wait.atMost(10, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(false)
             .until(() -> getDataSource(client) == null);
     }

@@ -28,6 +28,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
@@ -37,6 +38,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.eks.EksClient;
+import software.amazon.awssdk.services.eks.model.Addon;
 import software.amazon.awssdk.services.eks.model.Cluster;
 import software.amazon.awssdk.services.eks.model.ClusterStatus;
 import software.amazon.awssdk.services.eks.model.CreateClusterRequest;
@@ -44,9 +46,14 @@ import software.amazon.awssdk.services.eks.model.CreateClusterResponse;
 import software.amazon.awssdk.services.eks.model.DeleteClusterRequest;
 import software.amazon.awssdk.services.eks.model.DescribeClusterRequest;
 import software.amazon.awssdk.services.eks.model.EksException;
+import software.amazon.awssdk.services.eks.model.IdentityProviderConfig;
+import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
+import software.amazon.awssdk.services.eks.model.ListAddonsResponse;
+import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
 import software.amazon.awssdk.services.eks.model.LogSetup;
 import software.amazon.awssdk.services.eks.model.LogType;
 import software.amazon.awssdk.services.eks.model.Logging;
+import software.amazon.awssdk.services.eks.model.NotFoundException;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
@@ -110,10 +117,14 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     private EksLogging logging;
     private List<EksEncryptionConfig> encryptionConfig;
     private Map<String, String> tags;
+    private List<EksAddonResource> addon;
+    private EksAuthentication authentication;
 
     // Read-only
     private String arn;
     private String oidcProviderUrl;
+    private String endpoint;
+    private String certificateAuthorityData;
 
     /**
      * The name of the EKS cluster.
@@ -183,7 +194,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     /**
      * The encryption configuration used by the cluster.
+     *
+     * @subresource gyro.aws.eks.EksEncryptionConfig
      */
+    @Updatable
     public List<EksEncryptionConfig> getEncryptionConfig() {
         if (encryptionConfig == null) {
             encryptionConfig = new ArrayList<>();
@@ -194,6 +208,24 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     public void setEncryptionConfig(List<EksEncryptionConfig> encryptionConfig) {
         this.encryptionConfig = encryptionConfig;
+    }
+
+    /**
+     * The addon configuration for the cluster.
+     *
+     * @subresource gyro.aws.eks.EksAddonResource
+     */
+    @Updatable
+    public List<EksAddonResource> getAddon() {
+        if (addon == null) {
+            addon = new ArrayList<>();
+        }
+
+        return addon;
+    }
+
+    public void setAddon(List<EksAddonResource> addon) {
+        this.addon = addon;
     }
 
     /**
@@ -210,6 +242,20 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
     public void setTags(Map<String, String> tags) {
         this.tags = tags;
+    }
+
+    /**
+     * The authentication config for the cluster.
+     *
+     * @subresource gyro.aws.eks.EksAuthentication
+     */
+    @Updatable
+    public EksAuthentication getAuthentication() {
+        return authentication;
+    }
+
+    public void setAuthentication(EksAuthentication authentication) {
+        this.authentication = authentication;
     }
 
     /**
@@ -236,12 +282,37 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         this.oidcProviderUrl = oidcProviderUrl;
     }
 
+    /**
+     * The endpoint for the cluster.
+     */
+    @Output
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    /**
+     * The certificate authority to verify when connecting to the cluster.
+     */
+    @Output
+    public String getCertificateAuthorityData() {
+        return certificateAuthorityData;
+    }
+
+    public void setCertificateAuthorityData(String certificateAuthorityData) {
+        this.certificateAuthorityData = certificateAuthorityData;
+    }
+
     @Override
     public void copyFrom(Cluster model) {
         setName(model.name());
         setRole(findById(RoleResource.class, model.roleArn()));
         setVersion(model.version());
         setArn(model.arn());
+        setEndpoint(model.endpoint());
 
         EksVpcConfig eksVpcConfig = newSubresource(EksVpcConfig.class);
         eksVpcConfig.copyFrom(model.resourcesVpcConfig());
@@ -253,6 +324,70 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (model.identity() != null && model.identity().oidc() != null) {
             setOidcProviderUrl(model.identity().oidc().issuer());
+        }
+
+        if (model.certificateAuthority() != null) {
+            setCertificateAuthorityData(model.certificateAuthority().data());
+        }
+
+        EksClient client = createClient(EksClient.class);
+
+        // load addon
+        List<EksAddonResource> currentAddons = new ArrayList<>(getAddon());
+        setAddon(null);
+        try {
+            ListAddonsResponse response = client.listAddons(r -> r.clusterName(getName()));
+
+            if (response.hasAddons()) {
+                response.addons().forEach(a -> {
+                    // Don't refresh this addon if this it's already defined by a standalone addon resource.
+                    if (findByClass(EksStandaloneAddonResource.class).anyMatch(s ->
+                            s.getAddonName().equals(a) && s.getCluster().getName().equals(getName()))) {
+                        return;
+                    }
+
+                    Addon addon = EksAddonResource.getAddon(client, getName(), a);
+                    if (addon != null) {
+                        EksAddonResource addonResource = newSubresource(EksAddonResource.class);
+                        addonResource.copyFrom(addon);
+                        addonResource.setResolveConflicts(currentAddons.stream()
+                            .filter(r -> r.getAddonName().equals(addonResource.getAddonName()))
+                            .findFirst().map(EksAddonResource::getResolveConflicts)
+                            .orElse(null));
+                        getAddon().add(addonResource);
+                    }
+                });
+            }
+        } catch (NotFoundException ex) {
+            // Ignore
+        }
+
+        // load eks authentication
+        setAuthentication(null);
+        try {
+            ListIdentityProviderConfigsResponse response = client.listIdentityProviderConfigs(r -> r
+                .clusterName(getName()));
+
+            if (findByClass(EksStandaloneAuthenticationResource.class)
+                    .noneMatch(s -> s.getCluster().getName().equals(getName()))
+                    && response.hasIdentityProviderConfigs()
+                    && !response.identityProviderConfigs().isEmpty()) {
+                IdentityProviderConfig providerConfig = response.identityProviderConfigs().get(0);
+
+                IdentityProviderConfigResponse auth = EksAuthentication.getIdentityProviderConfigResponse(
+                    client,
+                    getName(),
+                    providerConfig.name(),
+                    providerConfig.type());
+
+                if (auth != null) {
+                    EksAuthentication authentication = newSubresource(EksAuthentication.class);
+                    authentication.copyFrom(auth);
+                    setAuthentication(authentication);
+                }
+            }
+        } catch (NotFoundException ex) {
+            // Ignore
         }
     }
 
@@ -293,7 +428,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         CreateClusterResponse response = client.createCluster(builder.tags(getTags()).build());
 
-        waitForActiveStatus(client);
+        waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
         copyFrom(getCluster(client));
     }
@@ -305,11 +440,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (changedFieldNames.contains("version")) {
             client.updateClusterVersion(UpdateClusterVersionRequest.builder()
-                    .name(getName())
-                    .version(getVersion())
-                    .build());
+                .name(getName())
+                .version(getVersion())
+                .build());
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
         }
 
         if (changedFieldNames.contains("tags")) {
@@ -327,11 +463,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
         if (changedFieldNames.contains("vpc-config")) {
             client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                    .name(getName())
-                    .resourcesVpcConfig(getVpcConfig().updatedConfig())
-                    .build());
+                .name(getName())
+                .resourcesVpcConfig(getVpcConfig().updatedConfig())
+                .build());
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
         }
 
         if (changedFieldNames.contains("logging")) {
@@ -343,14 +480,25 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
             } else {
                 client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                        .name(getName())
-                        .logging(Logging.builder().clusterLogging(
-                                LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
-                                .build())
-                        .build());
+                    .name(getName())
+                    .logging(Logging.builder().clusterLogging(
+                        LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
+                        .build())
+                    .build());
             }
 
-            waitForActiveStatus(client);
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
+            state.save();
+        }
+
+        if (changedFieldNames.contains("encryption-config") && !getEncryptionConfig().isEmpty()) {
+            client.associateEncryptionConfig(r -> r.clusterName(getName())
+                .encryptionConfig(getEncryptionConfig().stream()
+                    .map(EksEncryptionConfig::toEncryptionConfig)
+                    .collect(Collectors.toList())
+                ));
+
+            waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
         }
     }
 
@@ -363,6 +511,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         Wait.atMost(20, TimeUnit.MINUTES)
             .prompt(false)
             .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getCluster(client) == null);
     }
 
@@ -381,13 +530,14 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         return cluster;
     }
 
-    private void waitForActiveStatus(EksClient client) {
+    private void waitForActiveStatus(EksClient client, TimeoutSettings.Action action) {
         Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
-                .prompt(false)
-                .until(() -> {
-                    Cluster cluster = getCluster(client);
-                    return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
-                });
+            .resourceOverrides(this, action)
+            .prompt(false)
+            .until(() -> {
+                Cluster cluster = getCluster(client);
+                return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
+            });
     }
 }

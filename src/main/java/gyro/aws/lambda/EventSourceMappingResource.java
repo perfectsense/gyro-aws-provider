@@ -21,6 +21,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -341,7 +342,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
 
         state.save();
 
-        waitToSave(client);
+        waitToSave(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -369,7 +370,7 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
 
         client.updateEventSourceMapping(builder.build());
 
-        waitToSave(client);
+        waitToSave(client, TimeoutSettings.Action.UPDATE);
     }
 
     @Override
@@ -381,9 +382,10 @@ public class EventSourceMappingResource extends AwsResource implements Copyable<
         );
     }
 
-    private void waitToSave(LambdaClient client) {
+    private void waitToSave(LambdaClient client, TimeoutSettings.Action action) {
         boolean waitResult = Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
             .prompt(false)
             .until(() -> client.getEventSourceMapping(
                 r -> r.uuid(getId()))

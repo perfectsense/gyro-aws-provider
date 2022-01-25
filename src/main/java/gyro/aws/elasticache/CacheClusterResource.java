@@ -26,6 +26,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.sns.TopicResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
@@ -528,6 +529,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
 
@@ -596,6 +598,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
             Wait.atMost(3, TimeUnit.MINUTES)
                 .checkEvery(10, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
                 .prompt(true)
                 .until(() -> isAvailable(client));
 
@@ -623,6 +626,7 @@ public class CacheClusterResource extends AwsResource implements Copyable<CacheC
 
         Wait.atMost(3, TimeUnit.MINUTES)
             .checkEvery(10, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> getCacheCluster(client) == null);
     }

@@ -46,7 +46,7 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
 
     @Override
     public String primaryKey() {
-        return getStatement().primaryKey();
+        return getStatement() != null ? getStatement().primaryKey() : "";
     }
 
     @Override

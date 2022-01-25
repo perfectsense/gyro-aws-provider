@@ -21,6 +21,7 @@ import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Updatable;
@@ -872,6 +873,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         boolean waitResult = Wait.atMost(20, TimeUnit.MINUTES)
             .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .prompt(false)
             .until(() -> isAvailable(client));
 
@@ -977,6 +979,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         Wait.atMost(5, TimeUnit.MINUTES)
             .checkEvery(15, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
     }
