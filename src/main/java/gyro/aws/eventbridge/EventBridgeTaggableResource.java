@@ -39,6 +39,22 @@ public abstract class EventBridgeTaggableResource extends AwsResource {
 
     public abstract String resourceArn();
 
+    /**
+     * Tags for the resource.
+     */
+    @Updatable
+    public Map<String, String> getTags() {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
+
+        return tags;
+    }
+
+    public void setTags(Map<String, String> tags) {
+        this.tags = tags;
+    }
+
     @Override
     public void create(GyroUI ui, State state) throws Exception {
         doCreate(ui, state);
@@ -72,22 +88,6 @@ public abstract class EventBridgeTaggableResource extends AwsResource {
                     .collect(Collectors.toList())));
             }
         }
-    }
-
-    /**
-     * Tags for the resource.
-     */
-    @Updatable
-    public Map<String, String> getTags() {
-        if (tags == null) {
-            tags = new HashMap<>();
-        }
-
-        return tags;
-    }
-
-    public void setTags(Map<String, String> tags) {
-        this.tags = tags;
     }
 
     protected void refreshTags() {

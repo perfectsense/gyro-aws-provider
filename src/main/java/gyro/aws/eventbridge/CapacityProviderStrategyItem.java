@@ -17,30 +17,31 @@
 package gyro.aws.eventbridge;
 
 import gyro.aws.Copyable;
+import gyro.aws.ecs.EcsCapacityProviderResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 
 public class CapacityProviderStrategyItem extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.CapacityProviderStrategyItem> {
 
-    private String capacityProvider;
+    private EcsCapacityProviderResource capacityProvider;
     private Integer base;
     private Integer weight;
 
     /**
-     * The short name of the capacity provider.
+     * The source capacity provider.
      */
     @Required
-    public String getCapacityProvider() {
+    public EcsCapacityProviderResource getCapacityProvider() {
         return capacityProvider;
     }
 
-    public void setCapacityProvider(String capacityProvider) {
+    public void setCapacityProvider(EcsCapacityProviderResource capacityProvider) {
         this.capacityProvider = capacityProvider;
     }
 
     /**
-     * The weight value designates the relative percentage of the total number of tasks launched that should use the specified capacity provider. The weight value is taken into consideration after the base value, if defined, is satisfied.
+     * The base value designates how many tasks, at a minimum, to run on the specified capacity provider. Only one capacity provider in a capacity provider strategy can have a base defined. If no value is specified, the default value of 0 is used.
      */
     @Updatable
     public Integer getBase() {
@@ -52,7 +53,7 @@ public class CapacityProviderStrategyItem extends Diffable implements Copyable<s
     }
 
     /**
-     * The base value designates how many tasks, at a minimum, to run on the specified capacity provider. Only one capacity provider in a capacity provider strategy can have a base defined. If no value is specified, the default value of 0 is used.
+     * The weight value designates the relative percentage of the total number of tasks launched that should use the specified capacity provider. The weight value is taken into consideration after the base value, if defined, is satisfied.
      */
     @Updatable
     public Integer getWeight() {
@@ -69,19 +70,19 @@ public class CapacityProviderStrategyItem extends Diffable implements Copyable<s
 
     @Override
     public void copyFrom(software.amazon.awssdk.services.eventbridge.model.CapacityProviderStrategyItem model) {
-        setCapacityProvider(model.capacityProvider());
+        setCapacityProvider(findById(EcsCapacityProviderResource.class, model.capacityProvider()));
         setBase(model.base());
         setWeight(model.weight());
     }
 
     @Override
     public String primaryKey() {
-        return getCapacityProvider();
+        return getCapacityProvider() != null ? getCapacityProvider().getName() : "";
     }
 
     protected software.amazon.awssdk.services.eventbridge.model.CapacityProviderStrategyItem toCapacityProviderStrategyItem() {
         return software.amazon.awssdk.services.eventbridge.model.CapacityProviderStrategyItem.builder()
-            .capacityProvider(getCapacityProvider())
+            .capacityProvider(getCapacityProvider().getName())
             .base(getBase())
             .weight(getWeight())
             .build();

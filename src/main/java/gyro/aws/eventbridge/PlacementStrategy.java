@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eventbridge.model.PlacementStrategyType;
 
 public class PlacementStrategy extends Diffable implements Copyable<software.amazon.awssdk.services.eventbridge.model.PlacementStrategy> {
@@ -43,6 +44,7 @@ public class PlacementStrategy extends Diffable implements Copyable<software.ama
      * The type of placement strategy.
      */
     @Required
+    @ValidStrings({"random", "spread", "binpack"})
     public PlacementStrategyType getType() {
         return type;
     }

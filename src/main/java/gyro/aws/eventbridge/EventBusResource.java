@@ -63,6 +63,8 @@ public class EventBusResource extends EventBridgeTaggableResource implements Cop
     private String name;
     private String eventSource;
     private String policy;
+
+    // Read-only
     private String arn;
 
     /**
@@ -79,7 +81,7 @@ public class EventBusResource extends EventBridgeTaggableResource implements Cop
     }
 
     /**
-     * Event source for the event bus.
+     * The Event source for the event bus.
      */
     public String getEventSource() {
         return eventSource;
@@ -114,7 +116,6 @@ public class EventBusResource extends EventBridgeTaggableResource implements Cop
     /**
      * The arn for the event bus.
      */
-    @Id
     @Output
     public String getArn() {
         return arn;

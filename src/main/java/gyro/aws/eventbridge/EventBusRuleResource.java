@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
 import gyro.aws.iam.RoleResource;
@@ -40,13 +39,12 @@ import gyro.core.scope.State;
 import gyro.core.validation.CollectionMin;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-import software.amazon.awssdk.services.eventbridge.model.DescribeRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.ListRulesResponse;
 import software.amazon.awssdk.services.eventbridge.model.ListTargetsByRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.ListTargetsByRuleResponse;
-import software.amazon.awssdk.services.eventbridge.model.PutRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.eventbridge.model.Rule;
@@ -66,6 +64,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     private Set<TargetResource> target;
     private RuleState ruleState;
 
+    // Read-only
     private String arn;
 
     /**
@@ -154,7 +153,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     }
 
     /**
-     * One or more targets for the rule.
+     * The list of targets for the rule.
      *
      * @subresource gyro.aws.eventbridge.TargetResource
      */
@@ -176,6 +175,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
      * Enable/Disable the rule. Defaults to ``ENABLED``.
      */
     @Updatable
+    @ValidStrings({"ENABLED", "DISABLED"})
     public RuleState getRuleState() {
         if (ruleState == null) {
             ruleState = RuleState.ENABLED;
@@ -220,22 +220,15 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     @Override
     public boolean refresh() {
         EventBridgeClient client = createClient(EventBridgeClient.class);
-        boolean isAvailable = false;
 
-        try {
-            ListRulesResponse response = client.listRules(r -> r.eventBusName(getEventBus().getName())
-                .namePrefix(getName()));
+        Rule rule = getRule(client);
 
-            if (response.rules() != null && response.rules().stream().anyMatch(o -> o.name().equals(getName()))) {
-                isAvailable = true;
-                copyFrom(response.rules().stream().filter(o -> o.name().equals(getName())).findFirst().get());
-            }
-
-        } catch (ResourceNotFoundException ex) {
-            // ignore
+        if (rule == null) {
+            return false;
         }
 
-        return isAvailable;
+        copyFrom(rule);
+        return true;
     }
 
     @Override
@@ -325,6 +318,22 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     @Override
     public String resourceArn() {
         return getArn();
+    }
+
+    private Rule getRule(EventBridgeClient client) {
+        Rule rule = null;
+        try {
+            ListRulesResponse response = client.listRules(r -> r.eventBusName(getEventBus().getName())
+                .namePrefix(getName()));
+
+            if (response.rules() != null && response.rules().stream().anyMatch(o -> o.name().equals(getName()))) {
+                rule = response.rules().stream().filter(o -> o.name().equals(getName())).findFirst().get();
+            }
+        } catch (ResourceNotFoundException ex) {
+            // ignore
+        }
+
+        return rule;
     }
 
     private void loadTargets() {

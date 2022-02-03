@@ -44,7 +44,7 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
     }
 
     /**
-     * The user name for teh database.
+     * The user name for the database.
      */
     @Required
     @Updatable
@@ -93,7 +93,7 @@ public class RedshiftDataParameter extends Diffable implements Copyable<Redshift
     }
 
     /**
-     * Indicates whether to send an event back to EventBridge after the SQL statement runs.
+     * When set to ``true``, an event is sent back to EventBridge after the SQL statement runs.
      */
     @Updatable
     public Boolean getWithEvent() {

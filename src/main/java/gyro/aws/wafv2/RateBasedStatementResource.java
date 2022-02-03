@@ -61,7 +61,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     /**
      * The statement resource associated with the rate based statement.
      *
-     * @subresource gyro.aws.wafv2.StatementResource
+     * @subresourcee gyro.aws.wafv2.StatementResource
      */
     public StatementResource getScopeDownStatement() {
         return scopeDownStatement;

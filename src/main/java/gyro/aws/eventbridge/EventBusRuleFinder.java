@@ -23,6 +23,7 @@ import java.util.Map;
 import gyro.aws.AwsFinder;
 import gyro.core.GyroException;
 import gyro.core.Type;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.ListRulesRequest;
 import software.amazon.awssdk.services.eventbridge.model.ListRulesResponse;
@@ -86,11 +87,22 @@ public class EventBusRuleFinder extends AwsFinder<EventBridgeClient, Rule, Event
                 builder = builder.namePrefix(filters.get("rule-prefix"));
             }
 
-            ListRulesResponse response = client.listRules(builder.build());
+            ListRulesResponse response;
+            String token = "";
 
-            if (response.rules() != null) {
-                rules = response.rules();
-            }
+            do {
+                if (StringUtils.isBlank(token)) {
+                    response = client.listRules(builder.build());
+                } else {
+                    response = client.listRules(builder.nextToken(token).build());
+                }
+
+                token = response.nextToken();
+
+                if (response.rules() != null) {
+                    rules = response.rules();
+                }
+            } while (!StringUtils.isBlank(token));
         } catch (ResourceNotFoundException ex) {
             // Ignore
         }

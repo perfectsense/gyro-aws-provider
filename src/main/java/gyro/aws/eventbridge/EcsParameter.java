@@ -26,6 +26,7 @@ import gyro.aws.Copyable;
 import gyro.aws.ecs.EcsTaskDefinitionResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.eventbridge.model.EcsParameters;
 import software.amazon.awssdk.services.eventbridge.model.LaunchType;
 import software.amazon.awssdk.services.eventbridge.model.PropagateTags;
@@ -46,7 +47,6 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     private Map<String, String> tags;
     private Integer taskCount;
     private EcsTaskDefinitionResource taskDefinition;
-
     private String referenceId;
 
     /**
@@ -68,7 +68,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * Specifies whether to enable Amazon ECS managed tags for the task. Defaults to ``false``.
+     * When set to ``true``, Amazon ECS managed tags are enabled for the task. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableEcsManagedTags() {
@@ -84,7 +84,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * Specifies whether or not to enable the execute command functionality for the containers in this task. Defaults to ```false`.
+     * When set to ``true``, the execute command functionality for the containers in this task is enabled. Defaults to ```false`.
      */
     @Updatable
     public Boolean getEnableExecuteCommand() {
@@ -100,9 +100,10 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * Specifies the launch type on which teh task is running.
+     * The launch type on which the task is running.
      */
     @Updatable
+    @ValidStrings({"EC2", "FARGATE", "EXTERNAL"})
     public LaunchType getLaunchType() {
         return launchType;
     }
@@ -112,7 +113,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * The network configuration for the ecs task.
+     * The network configuration for the ECS task.
      *
      * @subresource gyro.aws.eventbridge.NetworkConfiguration
      */
@@ -126,7 +127,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * Specifies an ECS task group for the task.
+     * The ECS task group for the task.
      */
     @Updatable
     public String getGroup() {
@@ -138,7 +139,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * A list of placement group configs.
+     * The list of placement group configs.
      *
      * @subresource gyro.aws.eventbridge.PlacementConstraint
      */
@@ -156,7 +157,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * A list of placement strategy configs.
+     * The list of placement strategy configs.
      *
      * @subresource gyro.aws.eventbridge.PlacementStrategy
      */
@@ -174,7 +175,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
     }
 
     /**
-     * Specifies the platform version for the task. Specify only the numeric portion of the platform version, such as 1.1.0.
+     * The platform version for the task. Specify only the numeric portion of the platform version, such as 1.1.0.
      */
     @Updatable
     public String getPlatformVersion() {
@@ -189,6 +190,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
      * Specifies whether to propagate the tags from the task definition to the task.
      */
     @Updatable
+    @ValidStrings("TASK_DEFINITION")
     public PropagateTags getPropagateTags() {
         return propagateTags;
     }
@@ -298,6 +300,7 @@ public class EcsParameter extends Diffable implements Copyable<EcsParameters> {
         setPropagateTags(model.propagateTags());
         setReferenceId(model.referenceId());
         setTaskCount(model.taskCount());
+
         setTaskDefinition(null);
         if (model.taskDefinitionArn() != null) {
             setTaskDefinition(findById(EcsTaskDefinitionResource.class, model.taskDefinitionArn()));
