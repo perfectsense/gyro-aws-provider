@@ -35,8 +35,6 @@ public class OrStatementResource extends Diffable implements Copyable<OrStatemen
 
     /**
      * The set of statement resource associated with the OR statement.
-     *
-     * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
     @CollectionMin(2)
