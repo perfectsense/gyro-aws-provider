@@ -54,8 +54,8 @@ public class RetryPolicy extends Diffable implements Copyable<software.amazon.aw
 
     @Override
     public void copyFrom(software.amazon.awssdk.services.eventbridge.model.RetryPolicy model) {
-        setMaximumRetryAttempts(model.maximumEventAgeInSeconds());
-        setMaximumEventAgeInSeconds(model.maximumRetryAttempts());
+        setMaximumEventAgeInSeconds(model.maximumEventAgeInSeconds());
+        setMaximumRetryAttempts(model.maximumRetryAttempts());
     }
 
     @Override
