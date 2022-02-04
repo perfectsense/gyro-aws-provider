@@ -114,7 +114,7 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
     /**
      * The statement configuration having the individual conditions.
      *
-     * @subresourse gyro.aws.wafv2.StatementResource
+     * @subresource gyro.aws.wafv2.StatementResource
      */
     @Updatable
     public StatementResource getStatement() {

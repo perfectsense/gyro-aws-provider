@@ -34,8 +34,6 @@ public class AndStatementResource extends Diffable implements Copyable<AndStatem
 
     /**
      * The set of statement resource associated with the AND statement.
-     *
-     * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
     public Set<StatementResource> getStatement() {
