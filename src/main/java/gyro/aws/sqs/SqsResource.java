@@ -106,7 +106,7 @@ public class SqsResource extends AwsResource implements Copyable<String> {
     private String deadLetterTargetArn;
     private String maxReceiveCount;
     private String contentBasedDeduplication;
-    private Integer kmsMasterKeyId;
+    private String kmsMasterKeyId;
     private Integer kmsDataKeyReusePeriodSeconds;
     private String policy;
 
@@ -259,11 +259,11 @@ public class SqsResource extends AwsResource implements Copyable<String> {
      * The ID of an AWS-managed customer master key (CMK) for Amazon SQS or a custom CMK.
      */
     @Updatable
-    public Integer getKmsMasterKeyId() {
+    public String getKmsMasterKeyId() {
         return kmsMasterKeyId;
     }
 
-    public void setKmsMasterKeyId(Integer kmsMasterKeyId) {
+    public void setKmsMasterKeyId(String kmsMasterKeyId) {
         this.kmsMasterKeyId = kmsMasterKeyId;
     }
 
@@ -374,10 +374,11 @@ public class SqsResource extends AwsResource implements Copyable<String> {
 
             setDeadLetterTargetArn(((CompactMap) parse).get("deadLetterTargetArn").toString());
             setMaxReceiveCount(((CompactMap) parse).get("maxReceiveCount").toString());
+            setDeadLetterQueueName(getDeadLetterTargetArn().substring(getDeadLetterTargetArn().lastIndexOf(':') + 1));
         }
 
         if (response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID) != null) {
-            setKmsMasterKeyId(Integer.valueOf(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID)));
+            setKmsMasterKeyId(response.attributes().get(QueueAttributeName.KMS_MASTER_KEY_ID));
 
             if (response.attributes().get(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS) != null) {
                 setKmsDataKeyReusePeriodSeconds(Integer.valueOf(response.attributes()
@@ -477,13 +478,29 @@ public class SqsResource extends AwsResource implements Copyable<String> {
         attributeUpdate.put(QueueAttributeName.DELAY_SECONDS, getDelaySeconds().toString());
         attributeUpdate.put(QueueAttributeName.MAXIMUM_MESSAGE_SIZE, getMaximumMessageSize().toString());
         attributeUpdate.put(QueueAttributeName.RECEIVE_MESSAGE_WAIT_TIME_SECONDS, getReceiveMessageWaitTimeSeconds().toString());
-        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId().toString() : null);
+        attributeUpdate.put(QueueAttributeName.KMS_MASTER_KEY_ID, getKmsMasterKeyId() != null ? getKmsMasterKeyId() : null);
 
         attributeUpdate.put(QueueAttributeName.KMS_DATA_KEY_REUSE_PERIOD_SECONDS, getKmsDataKeyReusePeriodSeconds().toString());
         attributeUpdate.put(QueueAttributeName.POLICY, getPolicy());
 
         if (getName().contains(".fifo")) {
             attributeUpdate.put(QueueAttributeName.CONTENT_BASED_DEDUPLICATION, getContentBasedDeduplication());
+        }
+
+        attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, null);
+        if (!ObjectUtils.isBlank(getDeadLetterTargetArn()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), getDeadLetterTargetArn());
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
+
+        } else if (!ObjectUtils.isBlank(getDeadLetterQueueName()) && !ObjectUtils.isBlank(getMaxReceiveCount())) {
+
+            String policy = String.format("{\"maxReceiveCount\": \"%s\", \"deadLetterTargetArn\": \"%s\"}",
+                getMaxReceiveCount(), createQueueArn(getDeadLetterQueueName()));
+
+            attributeUpdate.put(QueueAttributeName.REDRIVE_POLICY, policy);
         }
 
         SqsClient client = createClient(SqsClient.class);

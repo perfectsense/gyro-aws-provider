@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import gyro.aws.AwsResource;
@@ -28,7 +29,9 @@ import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -304,6 +307,11 @@ public class EcrRepositoryResource extends AwsResource implements Copyable<Repos
         setArn(response.repository().repositoryArn());
 
         state.save();
+
+        Wait.atMost(10, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> getRepository(client) != null);
 
         if (getLifecyclePolicy() != null) {
             putLifecyclePolicy(client);

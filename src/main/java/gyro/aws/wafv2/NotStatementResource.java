@@ -32,8 +32,6 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
 
     /**
      * The statement resource associated with the NOT statement.
-     *
-     * @subresource gyro.aws.wafv2.StatementResource
      */
     @Required
     public StatementResource getStatement() {
@@ -46,7 +44,7 @@ public class NotStatementResource extends Diffable implements Copyable<NotStatem
 
     @Override
     public String primaryKey() {
-        return getStatement().primaryKey();
+        return getStatement() != null ? getStatement().primaryKey() : "";
     }
 
     @Override

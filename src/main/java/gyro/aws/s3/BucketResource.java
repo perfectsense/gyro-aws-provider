@@ -547,7 +547,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             r -> r.bucket(getName())
                 .objectLockEnabledForBucket(getEnableObjectLock())
         );
+
         state.save();
+
+        Wait.atMost(10, TimeUnit.SECONDS)
+            .checkEvery(2, TimeUnit.SECONDS)
+            .until(() -> getBucket(client) != null);
 
         if (!getTags().isEmpty()) {
             saveTags(client);

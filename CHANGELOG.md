@@ -1,6 +1,27 @@
 CHANGELOG
 =========
 
+## 1.4.5 (January 11th, 2022)
+
+ISSUES FIXED:
+
+* [538](https://github.com/perfectsense/gyro-aws-provider/pull/538): Fix NPE for forwardedCookies response in CloudFront
+
+ENHANCEMENTS:
+
+* [535](https://github.com/perfectsense/gyro-aws-provider/pull/535): Add support for `BottleRocket` as a managed type in Nodegroup.
+
+## 1.4.4 (November 17th, 2021)
+
+ISSUES FIXED:
+
+* [529](https://github.com/perfectsense/gyro-aws-provider/pull/529): Fix WAFV2 error refreshing with a console configured NotStatementResource.
+* [533](https://github.com/perfectsense/gyro-aws-provider/issues/533): Fix NPE when creating EC2 Endpoint.
+
+ENHANCEMENTS:
+
+* [530](https://github.com/perfectsense/gyro-aws-provider/pull/530): Add support for `capacity type` in Nodegroup.
+
 ## 1.4.3 (September 17th, 2021)
 
 ISSUES FIXED:

@@ -38,6 +38,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 import software.amazon.awssdk.services.sns.model.GetTopicAttributesResponse;
@@ -68,6 +69,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     private String deliveryPolicy;
     private String policy;
     private String displayName;
+    private String kmsMasterKeyId;
     private Map<String, String> tags;
 
     // Output
@@ -128,6 +130,18 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
     }
 
     /**
+     * The kms master key id for the sns topic to be encrypted at rest.
+     */
+    @Updatable
+    public String getKmsMasterKeyId() {
+        return kmsMasterKeyId;
+    }
+
+    public void setKmsMasterKeyId(String kmsMasterKeyId) {
+        this.kmsMasterKeyId = kmsMasterKeyId;
+    }
+
+    /**
      * The tags for the sns topic.
      */
     @Updatable
@@ -166,6 +180,7 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
         setDisplayName(attributesResponse.attributes().get("DisplayName"));
         setPolicy(attributesResponse.attributes().get("Policy"));
         setDeliveryPolicy(attributesResponse.attributes().get("DeliveryPolicy"));
+        setKmsMasterKeyId(attributesResponse.attributes().get("KmsMasterKeyId"));
 
         setArn(attributesResponse.attributes().get("TopicArn"));
         setName(getArn().split(":")[getArn().split(":").length - 1]);
@@ -236,6 +251,12 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
                 .topicArn(getArn()));
         }
 
+        if (changedFieldNames.contains("kms-master-key-id")) {
+            client.setTopicAttributes(r -> r.attributeName("KmsMasterKeyId")
+                .attributeValue(getKmsMasterKeyId())
+                .topicArn(getArn()));
+        }
+
         if (changedFieldNames.contains("tags")) {
             TopicResource currentResource = (TopicResource) current;
 
@@ -274,6 +295,10 @@ public class TopicResource extends AwsResource implements Copyable<Topic> {
 
         if (!ObjectUtils.isBlank(getDeliveryPolicy())) {
             attributes.put("DeliveryPolicy", getDeliveryPolicy());
+        }
+
+        if (!StringUtils.isBlank(getKmsMasterKeyId())) {
+            attributes.put("KmsMasterKeyId", getKmsMasterKeyId());
         }
 
         return attributes;
