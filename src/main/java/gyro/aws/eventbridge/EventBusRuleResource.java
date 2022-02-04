@@ -52,6 +52,39 @@ import software.amazon.awssdk.services.eventbridge.model.RuleState;
 import software.amazon.awssdk.services.eventbridge.model.Target;
 import software.amazon.awssdk.utils.IoUtils;
 
+/**
+ * Create a event bus rule.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *      aws::event-bus-rule event-bus-rule
+ *         event-bus: $(aws::event-bus event-bus-example)
+ *         name: "EventBusRuleExample"
+ *         description: "Event Bus rule example"
+ *         event-pattern : "rule-policy.json"
+ *
+ *         target
+ *             arn: $(aws::sns-topic sns-topic-example).arn
+ *             id: "target-example"
+ *             input-path: "$.detail"
+ *
+ *             retry-policy
+ *                 maximum-event-age-in-seconds: 6900
+ *                 maximum-retry-attempts: 100
+ *             end
+ *         end
+ *
+ *         rule-state: ENABLED
+ *
+ *         tags: {
+ *             Name: "EventBusRuleExample"
+ *         }
+ *     end
+ *
+ */
 @Type("event-bus-rule")
 public class EventBusRuleResource extends EventBridgeTaggableResource implements Copyable<Rule> {
 
@@ -207,9 +240,9 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         setDescription(model.description());
         setEventBus(findById(EventBusResource.class, model.eventBusName()));
         setEventPattern(model.eventPattern());
-        setArn(model.roleArn());
         setScheduledExpression(model.scheduleExpression());
         setRuleState(model.state());
+        setRole(findById(RoleResource.class, model.roleArn()));
 
         getTarget().clear();
         loadTargets();
@@ -238,7 +271,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         PutRuleResponse response = client.putRule(r -> r.name(getName())
             .eventBusName(getEventBus().getName())
             .description(getDescription())
-            .roleArn(getRole().getArn())
+            .roleArn(getRole() != null ? getRole().getArn() : null)
             .eventPattern(getEventPattern())
             .scheduleExpression(getScheduledExpression())
             .state(getRuleState()));
@@ -309,6 +342,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         EventBridgeClient client = createClient(EventBridgeClient.class);
 
         try {
+            removeTargets(client);
             client.deleteRule(r -> r.eventBusName(getEventBus().getName()).name(getName()));
         } catch (ResourceNotFoundException ex) {
             // ignore
@@ -318,6 +352,17 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     @Override
     public String resourceArn() {
         return getArn();
+    }
+
+    private void removeTargets(EventBridgeClient client) {
+        List<Target> targets = listTargets(client);
+
+        if (!targets.isEmpty()) {
+            client.removeTargets(r -> r
+                .eventBusName(getEventBus().getName())
+                .rule(getName())
+                .ids(targets.stream().map(Target::id).collect(Collectors.toList())));
+        }
     }
 
     private Rule getRule(EventBridgeClient client) {
@@ -336,9 +381,9 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         return rule;
     }
 
-    private void loadTargets() {
-        EventBridgeClient client = createClient(EventBridgeClient.class);
+    private List<Target> listTargets(EventBridgeClient client) {
         ListTargetsByRuleResponse response;
+
         List<Target> targets = new ArrayList<>();
         String token = "";
 
@@ -358,6 +403,14 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
                 targets.addAll(response.targets());
             }
         } while (!StringUtils.isBlank(token));
+
+        return targets;
+    }
+
+    private void loadTargets() {
+        EventBridgeClient client = createClient(EventBridgeClient.class);
+
+        List<Target> targets = listTargets(client);
 
         targets.forEach(o -> {
             TargetResource targetResource = newSubresource(TargetResource.class);

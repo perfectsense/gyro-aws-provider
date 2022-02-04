@@ -1,0 +1,7 @@
+{
+  "source":["aws.ec2"],
+  "detail-type": [
+    "EC2 Instance Rebalance Recommendation",
+    "EC2 Spot Instance Interruption Warning"
+  ]
+}

@@ -41,7 +41,7 @@ import software.amazon.awssdk.services.eventbridge.model.ResourceNotFoundExcepti
 import software.amazon.awssdk.utils.IoUtils;
 
 /**
- * Create a event bus.
+ * Create an event bus.
  *
  * Example
  * -------
