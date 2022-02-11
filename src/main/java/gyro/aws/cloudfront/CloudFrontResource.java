@@ -692,6 +692,8 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         if (getGeoRestriction() != null) {
             builder.restrictions(getGeoRestriction().toRestrictions());
+        } else {
+            builder.restrictions(new CloudFrontGeoRestriction().toRestrictions());
         }
 
         return builder.build();
