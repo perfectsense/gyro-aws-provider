@@ -454,10 +454,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      */
     @Updatable
     public CloudFrontGeoRestriction getGeoRestriction() {
-        if (geoRestriction == null) {
-            geoRestriction = newSubresource(CloudFrontGeoRestriction.class);
-        }
-
         return geoRestriction;
     }
 
@@ -686,7 +682,6 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .isIPV6Enabled(getIpv6Enabled())
             .webACLId(getWebAcl() != null ? getWebAcl().getWebAclId() : "")
             .aliases(a -> a.items(getCnames()).quantity(getCnames().size()))
-            .restrictions(getGeoRestriction().toRestrictions())
             .customErrorResponses(customErrorResponses)
             .defaultCacheBehavior(defaultCacheBehavior.toDefaultCacheBehavior())
             .cacheBehaviors(cacheBehaviors)
@@ -694,6 +689,10 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .logging(getLogging() != null ? getLogging().toLoggingConfig() : CloudFrontLogging.defaultLoggingConfig())
             .viewerCertificate(viewerCertificate.toViewerCertificate())
             .callerReference(getCallerReference() != null ? getCallerReference() : Long.toString(new Date().getTime()));
+
+        if (getGeoRestriction() != null) {
+            builder.restrictions(getGeoRestriction().toRestrictions());
+        }
 
         return builder.build();
     }
