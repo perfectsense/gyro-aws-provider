@@ -33,6 +33,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
@@ -205,8 +206,17 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
         List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
 
-        if (!policyVersions.isEmpty()) {
-            setPastVersionId(policyVersions.get(policyVersions.size() - 1).versionId());
+        String policyVersionToDelete = "";
+        for (PolicyVersion policyVersion : policyVersions) {
+            setPastVersionId(policyVersion.versionId());
+
+            if (!policyVersion.isDefaultVersion()) {
+                policyVersionToDelete = policyVersion.versionId();
+            }
+        }
+
+        if (StringUtils.isBlank(policyVersionToDelete)) {
+            policyVersionToDelete = getPastVersionId();
         }
 
         // policy version creation done first, before version deletion
@@ -218,9 +228,8 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
             limitExceeded = true;
         }
 
-        deletePolicyVersion(client, getPastVersionId());
-
         if (limitExceeded) {
+            deletePolicyVersion(client, policyVersionToDelete);
             createPolicyVersion(client);
         }
     }
