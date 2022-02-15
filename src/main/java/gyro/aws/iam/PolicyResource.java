@@ -218,10 +218,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
             limitExceeded = true;
         }
 
-        client.deletePolicyVersion(
-            r -> r.policyArn(getArn())
-                        .versionId(getPastVersionId())
-        );
+        deletePolicyVersion(client, getPastVersionId());
 
         if (limitExceeded) {
             createPolicyVersion(client);
@@ -231,6 +228,14 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     @Override
     public void delete(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+
+        List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
+
+        for (PolicyVersion version : policyVersions) {
+            if (!version.isDefaultVersion()) {
+                deletePolicyVersion(client, version.versionId());
+            }
+        }
 
         client.deletePolicy(r -> r.policyArn(this.getArn()));
     }
@@ -276,6 +281,13 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
             r -> r.policyArn(getArn())
                 .policyDocument(getPolicyDocument())
                 .setAsDefault(true)
+        );
+    }
+
+    private void deletePolicyVersion(IamClient client, String versionId) {
+        client.deletePolicyVersion(
+            r -> r.policyArn(getArn())
+                .versionId(versionId)
         );
     }
 }
