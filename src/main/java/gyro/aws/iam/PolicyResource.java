@@ -19,6 +19,7 @@ package gyro.aws.iam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Set;
 
 import gyro.aws.AwsResource;
@@ -36,6 +37,7 @@ import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyVersionResponse;
+import software.amazon.awssdk.services.iam.model.LimitExceededException;
 import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Policy;
 import software.amazon.awssdk.services.iam.model.PolicyVersion;
@@ -201,20 +203,29 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
-            setPastVersionId(versions.versionId());
+        List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
+
+        if (!policyVersions.isEmpty()) {
+            setPastVersionId(policyVersions.get(policyVersions.size() - 1).versionId());
         }
 
-        client.createPolicyVersion(
-            r -> r.policyArn(getArn())
-                    .policyDocument(getPolicyDocument())
-                    .setAsDefault(true)
-        );
+        // policy version creation done first, before version deletion
+        // to ensure policy version deletion does not happen if a new version cannot be created
+        boolean limitExceeded = false;
+        try {
+            createPolicyVersion(client);
+        } catch (LimitExceededException ex) {
+            limitExceeded = true;
+        }
 
         client.deletePolicyVersion(
             r -> r.policyArn(getArn())
                         .versionId(getPastVersionId())
         );
+
+        if (limitExceeded) {
+            createPolicyVersion(client);
+        }
     }
 
     @Override
@@ -258,5 +269,13 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         } catch (NoSuchEntityException ex) {
             return null;
         }
+    }
+
+    private void createPolicyVersion(IamClient client) {
+        client.createPolicyVersion(
+            r -> r.policyArn(getArn())
+                .policyDocument(getPolicyDocument())
+                .setAsDefault(true)
+        );
     }
 }
