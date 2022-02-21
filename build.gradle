@@ -23,10 +23,11 @@ plugins {
 def releaseVersion = '1.5.0'
 def releaseBuild = false;
 
-if (System.getenv('TRAVIS_BRANCH') && System.getenv('TRAVIS_PULL_REQUEST') == 'false') {
+if (System.getenv('CI')) {
     defaultTasks 'build', 'publish'
 
-    releaseBuild = System.getenv('TRAVIS_BRANCH').startsWith("release/");
+    releaseBuild = System.getenv('GITHUB_ACTIONS_PULL_REQUEST') == '' &&
+            System.getenv('GITHUB_REF').startsWith("refs/head/release/");
 } else {
     defaultTasks 'build', 'publishToMavenLocal'
 }
