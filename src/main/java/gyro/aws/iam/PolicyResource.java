@@ -19,6 +19,7 @@ package gyro.aws.iam;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Set;
 
 import gyro.aws.AwsResource;
@@ -32,10 +33,12 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.iam.IamClient;
 import software.amazon.awssdk.services.iam.model.CreatePolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyResponse;
 import software.amazon.awssdk.services.iam.model.GetPolicyVersionResponse;
+import software.amazon.awssdk.services.iam.model.LimitExceededException;
 import software.amazon.awssdk.services.iam.model.NoSuchEntityException;
 import software.amazon.awssdk.services.iam.model.Policy;
 import software.amazon.awssdk.services.iam.model.PolicyVersion;
@@ -201,25 +204,47 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
-        for (PolicyVersion versions : client.listPolicyVersions(r -> r.policyArn(getArn())).versions()) {
-            setPastVersionId(versions.versionId());
+        List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
+
+        String policyVersionToDelete = "";
+        for (PolicyVersion policyVersion : policyVersions) {
+            setPastVersionId(policyVersion.versionId());
+
+            if (!policyVersion.isDefaultVersion()) {
+                policyVersionToDelete = policyVersion.versionId();
+            }
         }
 
-        client.createPolicyVersion(
-            r -> r.policyArn(getArn())
-                    .policyDocument(getPolicyDocument())
-                    .setAsDefault(true)
-        );
+        if (StringUtils.isBlank(policyVersionToDelete)) {
+            policyVersionToDelete = getPastVersionId();
+        }
 
-        client.deletePolicyVersion(
-            r -> r.policyArn(getArn())
-                        .versionId(getPastVersionId())
-        );
+        // policy version creation done first, before version deletion
+        // to ensure policy version deletion does not happen if a new version cannot be created
+        boolean limitExceeded = false;
+        try {
+            createPolicyVersion(client);
+        } catch (LimitExceededException ex) {
+            limitExceeded = true;
+        }
+
+        if (limitExceeded) {
+            deletePolicyVersion(client, policyVersionToDelete);
+            createPolicyVersion(client);
+        }
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+
+        List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
+
+        for (PolicyVersion version : policyVersions) {
+            if (!version.isDefaultVersion()) {
+                deletePolicyVersion(client, version.versionId());
+            }
+        }
 
         client.deletePolicy(r -> r.policyArn(this.getArn()));
     }
@@ -258,5 +283,20 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
         } catch (NoSuchEntityException ex) {
             return null;
         }
+    }
+
+    private void createPolicyVersion(IamClient client) {
+        client.createPolicyVersion(
+            r -> r.policyArn(getArn())
+                .policyDocument(getPolicyDocument())
+                .setAsDefault(true)
+        );
+    }
+
+    private void deletePolicyVersion(IamClient client, String versionId) {
+        client.deletePolicyVersion(
+            r -> r.policyArn(getArn())
+                .versionId(versionId)
+        );
     }
 }
