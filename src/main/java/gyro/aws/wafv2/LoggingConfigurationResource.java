@@ -114,7 +114,7 @@ public class LoggingConfigurationResource extends Diffable implements Copyable<L
             errors.add(new ValidationError(
                 this,
                 null,
-                "Atleast one off 'redacted-field' or 'log-destination-configs' needs to be set."));
+                "At least one of 'redacted-field' or 'log-destination-configs' must be set."));
         }
 
         return errors;
