@@ -17,7 +17,9 @@
 package gyro.aws;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +32,9 @@ import software.amazon.awssdk.core.SdkClient;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.retry.RetryPolicy;
 import software.amazon.awssdk.core.retry.conditions.RetryOnThrottlingCondition;
+import software.amazon.awssdk.http.SdkHttpClient;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.http.apache.ProxyConfiguration;
 import software.amazon.awssdk.regions.Region;
 
 public abstract class AwsResource extends Resource {
@@ -110,8 +114,21 @@ public abstract class AwsResource extends Resource {
                 AwsDefaultClientBuilder builder = (AwsDefaultClientBuilder) method.invoke(null);
                 builder.credentialsProvider(provider);
                 builder.region(Region.of(region != null ? region : credentials.getRegion()));
-                builder.httpClientBuilder(ApacheHttpClient.builder());
                 builder.overrideConfiguration(retryPolicy.build());
+
+
+                URL proxyUrl = proxy();
+                if (proxyUrl != null) {
+                    SdkHttpClient httpClient = ApacheHttpClient.builder()
+                        .proxyConfiguration(ProxyConfiguration.builder()
+                            .endpoint(proxyUrl.toURI())
+                            .build())
+                        .build();
+
+                    builder.httpClient(httpClient);
+                } else {
+                    builder.httpClientBuilder(ApacheHttpClient.builder());
+                }
 
                 if (endpoint != null) {
                     builder.endpointOverride(URI.create(endpoint));
@@ -158,6 +175,22 @@ public abstract class AwsResource extends Resource {
         }
 
         return result;
+    }
+
+    private static URL proxy() {
+        String proxy = System.getenv("http_proxy") != null
+            ? System.getenv("http_proxy")
+            : System.getenv("https_proxy");
+
+        if (proxy != null) {
+            try {
+                return new URL(proxy);
+            } catch (MalformedURLException ex) {
+                throw new GyroException(ex);
+            }
+        }
+
+        return null;
     }
 
 }
