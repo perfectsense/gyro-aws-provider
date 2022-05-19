@@ -77,6 +77,7 @@ See [AWS authentication for Gyro](https://gyro.dev/providers/aws/index.html#auth
 * [EKS](https://gyro.dev/providers/aws/eks/index.html)
 * [ElastiCache](https://gyro.dev/providers/aws/elasticache/index.html)
 * [Elasticsearch](https://gyro.dev/providers/aws/elasticsearch/index.html)
+* [EventBridge](https://gyro.dev/providers/aws/eventbridge/index.html)
 * [GlobalAccelerator](https://gyro.dev/providers/aws/globalaccelerator/index.html)
 * [Identity Access Management](https://gyro.dev/providers/aws/identity-access-management/index.html)
 * [Kendra](https://gyro.dev/providers/aws/kendra/index.html)
