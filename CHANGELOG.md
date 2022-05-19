@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.4.8 (May 19th, 2022)
+
+ENHANCEMENTS:
+
+* [536](https://github.com/perfectsense/gyro-aws-provider/issues/536): Add support for Event Bridge.
+
 ## 1.4.7 (March 2nd, 2022)
 
 ISSUES FIXED:
