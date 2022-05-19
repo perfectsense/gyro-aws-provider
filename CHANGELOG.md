@@ -1,6 +1,34 @@
 CHANGELOG
 =========
 
+## 1.4.7 (March 2nd, 2022)
+
+ISSUES FIXED:
+
+* [549](https://github.com/perfectsense/gyro-aws-provider/issues/549): Fix subresource doc for WAF-V2.
+
+* [551](https://github.com/perfectsense/gyro-aws-provider/issues/551): Add support for `TLSv1.2_2021` minimum protocol version for CloudFront.
+
+* [554](https://github.com/perfectsense/gyro-aws-provider/pull/554): Fix GeoRestriction error when not set on CloudFront.
+
+* [555](https://github.com/perfectsense/gyro-aws-provider/issues/555): Fix max policy version reached error when updating IAM Policy.
+
+* [559](https://github.com/perfectsense/gyro-aws-provider/issues/559): Fix logging configuration validation for WAF-V2.
+
+## 1.4.6 (January 24th, 2022)
+
+ISSUES FIXED:
+
+* [540](https://github.com/perfectsense/gyro-aws-provider/pull/540): Fix resource creation error when state is not saved.
+
+* [544](https://github.com/perfectsense/gyro-aws-provider/pull/544): Allow updating Dead Letter Queue on SQS.
+
+* [545](https://github.com/perfectsense/gyro-aws-provider/pull/545): Fix error setting Kms Master Key Id on SQS.
+
+ENHANCEMENTS:
+
+* [546](https://github.com/perfectsense/gyro-aws-provider/pull/546): Add support for setting Kms Master Key Id on SNS Topic.
+
 ## 1.4.5 (January 11th, 2022)
 
 ISSUES FIXED:
