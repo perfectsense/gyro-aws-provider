@@ -103,7 +103,6 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     /**
      * The event bus this rule will belong to.
      */
-    @Required
     public EventBusResource getEventBus() {
         return eventBus;
     }
@@ -149,7 +148,10 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
                 return this.eventPattern;
             } catch (IOException err) {
                 throw new GyroException(MessageFormat
-                    .format("Event Bus Rule - {0} event pattern error. Unable to read event pattern from path [{1}]", getName(), eventPattern));
+                    .format(
+                        "Event Bus Rule - {0} event pattern error. Unable to read event pattern from path [{1}]",
+                        getName(),
+                        eventPattern));
             }
         } else {
             return PolicyResource.formatPolicy(this.eventPattern);
@@ -208,7 +210,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
      * Enable/Disable the rule. Defaults to ``ENABLED``.
      */
     @Updatable
-    @ValidStrings({"ENABLED", "DISABLED"})
+    @ValidStrings({ "ENABLED", "DISABLED" })
     public RuleState getRuleState() {
         if (ruleState == null) {
             ruleState = RuleState.ENABLED;
@@ -269,7 +271,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
         EventBridgeClient client = createClient(EventBridgeClient.class);
 
         PutRuleResponse response = client.putRule(r -> r.name(getName())
-            .eventBusName(getEventBus().getName())
+            .eventBusName(getEventBus() == null ? null : getEventBus().getName())
             .description(getDescription())
             .roleArn(getRole() != null ? getRole().getArn() : null)
             .eventPattern(getEventPattern())
@@ -285,7 +287,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
             setTarget(targetResources);
             client.putTargets(r -> r
-                .eventBusName(getEventBus().getName())
+                .eventBusName(getEventBus() == null ? null : getEventBus().getName())
                 .rule(getName())
                 .targets(getTarget().stream()
                     .map(TargetResource::toTarget)
@@ -304,7 +306,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
         if (!newChangedFields.isEmpty()) {
             client.putRule(r -> r.name(getName())
-                .eventBusName(getEventBus().getName())
+                .eventBusName(getEventBus() == null ? null : getEventBus().getName())
                 .description(getDescription())
                 .roleArn(getRole().getArn())
                 .eventPattern(getEventPattern())
@@ -325,11 +327,13 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
                 .collect(Collectors.toList()));
 
             if (!removeTargetIds.isEmpty()) {
-                client.removeTargets(r -> r.eventBusName(getEventBus().getName()).rule(getName()).ids(removeTargetIds));
+                client.removeTargets(r -> r.eventBusName(getEventBus() == null ? null : getEventBus().getName())
+                    .rule(getName())
+                    .ids(removeTargetIds));
             }
 
             client.putTargets(r -> r
-                .eventBusName(getEventBus().getName())
+                .eventBusName(getEventBus() == null ? null : getEventBus().getName())
                 .rule(getName())
                 .targets(getTarget().stream()
                     .map(TargetResource::toTarget)
@@ -343,7 +347,8 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
         try {
             removeTargets(client);
-            client.deleteRule(r -> r.eventBusName(getEventBus().getName()).name(getName()));
+            client.deleteRule(r -> r.eventBusName(getEventBus() == null ? null : getEventBus().getName())
+                .name(getName()));
         } catch (ResourceNotFoundException ex) {
             // ignore
         }
@@ -359,7 +364,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
         if (!targets.isEmpty()) {
             client.removeTargets(r -> r
-                .eventBusName(getEventBus().getName())
+                .eventBusName(getEventBus() == null ? null : getEventBus().getName())
                 .rule(getName())
                 .ids(targets.stream().map(Target::id).collect(Collectors.toList())));
         }
@@ -368,7 +373,8 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
     private Rule getRule(EventBridgeClient client) {
         Rule rule = null;
         try {
-            ListRulesResponse response = client.listRules(r -> r.eventBusName(getEventBus().getName())
+            ListRulesResponse response = client.listRules(r -> r.eventBusName(
+                getEventBus() == null ? null : getEventBus().getName())
                 .namePrefix(getName()));
 
             if (response.rules() != null && response.rules().stream().anyMatch(o -> o.name().equals(getName()))) {
@@ -389,7 +395,7 @@ public class EventBusRuleResource extends EventBridgeTaggableResource implements
 
         do {
             ListTargetsByRuleRequest.Builder builder = ListTargetsByRuleRequest.builder()
-                .eventBusName(getEventBus().getName())
+                .eventBusName(getEventBus() == null ? null : getEventBus().getName())
                 .rule(getName());
 
             if (!StringUtils.isBlank(token)) {
