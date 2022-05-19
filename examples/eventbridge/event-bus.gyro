@@ -1,0 +1,37 @@
+aws::sns-topic sns-topic-example
+    name: "sns-topic-event-bridge"
+    display-name: "sns-topic-example-ex-event-bridge"
+    policy: "../sns/sns-policy.json"
+end
+
+aws::event-bus event-bus-example
+    name: "event-bus-example"
+    policy: "policy.json"
+    tags: {
+        Name: event-bus-example
+    }
+end
+
+aws::event-bus-rule event-bus-rule
+    event-bus: $(aws::event-bus event-bus-example)
+    name: "EventBusRuleExample"
+    description: "Event Bus rule example"
+    event-pattern : "rule-policy.json"
+
+    target
+        arn: $(aws::sns-topic sns-topic-example).arn
+        id: "target-example"
+        input-path: "$.detail"
+
+        retry-policy
+            maximum-event-age-in-seconds: 6900
+            maximum-retry-attempts: 100
+        end
+    end
+
+    rule-state: ENABLED
+
+    tags: {
+        Name: "EventBusRuleExample"
+    }
+end
