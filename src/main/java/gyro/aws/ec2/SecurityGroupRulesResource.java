@@ -16,7 +16,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.ec2.model.Filter;
@@ -245,14 +244,13 @@ public class SecurityGroupRulesResource extends AwsResource implements Copyable<
         }
 
         try {
-            Filter groupFilter = Filter.builder().name("group-id").values(getSecurityGroup().getId()).build();
-            DescribeSecurityGroupsRequest request = DescribeSecurityGroupsRequest.builder().filters(groupFilter).build();
-            Filter vpcFilter = Filter.builder().name("vpc-id").values(getSecurityGroup().getId()).build();
+            List<Filter> filters = new ArrayList<>();
+            filters.add(Filter.builder().name("group-id").values(getSecurityGroup().getId()).build());
             if (getSecurityGroup().getVpc() != null) {
-                request.filters().add(vpcFilter);
+                filters.add(Filter.builder().name("vpc-id").values(getSecurityGroup().getVpc().getId()).build());
             }
 
-            DescribeSecurityGroupsResponse response = client.describeSecurityGroups(request);
+            DescribeSecurityGroupsResponse response = client.describeSecurityGroups(r -> r.filters(filters).build());
 
             if (!response.securityGroups().isEmpty()) {
                 securityGroup = response.securityGroups().get(0);
