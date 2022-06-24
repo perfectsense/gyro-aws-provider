@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.4.9 (June 24th, 2022)
+
+ISSUES FIXED:
+
+* [569](https://github.com/perfectsense/gyro-aws-provider/issues/569): Fix NPE on Security Group Rule refresh.
+
 ## 1.4.8 (May 19th, 2022)
 
 ENHANCEMENTS:
