@@ -19,6 +19,7 @@ package gyro.aws.s3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
@@ -61,6 +63,8 @@ import software.amazon.awssdk.services.s3.model.GetBucketRequestPaymentResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketTaggingResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
 import software.amazon.awssdk.services.s3.model.LifecycleRule;
+import software.amazon.awssdk.services.s3.model.ListBucketIntelligentTieringConfigurationsRequest;
+import software.amazon.awssdk.services.s3.model.ListBucketIntelligentTieringConfigurationsResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.Payer;
@@ -290,6 +294,50 @@ import software.amazon.awssdk.utils.IoUtils;
  *             end
  *         end
  *     end
+ *
+ * Example with intelligent tiering
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example-with-intelligent-tiering
+ *         name: "example-bucket-with-intelligent-tiering"
+ *         enable-object-lock: true
+ *
+ *         intelligent-tiering-configuration
+ *            id: test-config
+ *
+ *            tiering
+ *                 days: 90
+ *                 access-tier: "ARCHIVE_ACCESS"
+ *            end
+ *
+ *            tiering
+ *                 days: 182
+ *                 access-tier: "DEEP_ARCHIVE_ACCESS"
+ *            end
+ *
+ *            filter
+ *                 prefix: "something"
+ *
+ *                 tag
+ *                     key: "name1"
+ *                     value: "value1"
+ *                 end
+ *
+ *                 tag
+ *                     key: "name2"
+ *                     value: "value2"
+ *                 end
+ *            end
+ *
+ *            status: "Disabled"
+ *         end
+ *
+ *         tags: {
+ *             Name: "bucket-example--with-intelligent-tiering"
+ *         }
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -308,6 +356,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3ServerSideEncryptionConfiguration encryptionConfiguration;
     private String policy;
     private S3AccessControlPolicy accessControlPolicy;
+    private List<IntelligentTieringConfiguration> intelligentTieringConfiguration;
 
     /**
      * The name of the bucket.
@@ -507,6 +556,24 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.accessControlPolicy = accessControlPolicy;
     }
 
+    /**
+     * Configure intelligent tiering on the bucket.
+     *
+     * @subresource gyro.aws.s3.IntelligentTieringConfiguration
+     */
+    @Updatable
+    public List<IntelligentTieringConfiguration> getIntelligentTieringConfiguration() {
+        if (intelligentTieringConfiguration == null) {
+            intelligentTieringConfiguration = new ArrayList<>();
+        }
+
+        return intelligentTieringConfiguration;
+    }
+
+    public void setIntelligentTieringConfiguration(List<IntelligentTieringConfiguration> intelligentTieringConfiguration) {
+        this.intelligentTieringConfiguration = intelligentTieringConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -522,6 +589,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadBucketEncryptionConfiguration(client);
         loadPolicy(client);
         loadAccessControlPolicy(client);
+        loadIntelligentTieringConfiguration(client);
     }
 
     @Override
@@ -597,6 +665,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (getAccessControlPolicy() != null) {
             saveAccessControlPolicy(client);
         }
+
+        if (getIntelligentTieringConfiguration() != null) {
+            saveIntelligentTieringConfiguration(client, Collections.emptyList());
+        }
     }
 
     @Override
@@ -633,6 +705,11 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         if (changedFieldNames.contains("access-control-policy")) {
             saveAccessControlPolicy(client);
+        }
+
+        if (changedFieldNames.contains("intelligent-tiering-configuration")) {
+            BucketResource bucket = (BucketResource) current;
+            saveIntelligentTieringConfiguration(client, bucket.getIntelligentTieringConfiguration());
         }
 
         saveReplicationConfiguration(client);
@@ -972,6 +1049,48 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             client.putBucketAcl(p -> p.bucket(getName())
                     .accessControlPolicy(getAccessControlPolicy().toAccessControlPolicy(client)));
         }
+    }
+
+    private void loadIntelligentTieringConfiguration(S3Client client) {
+        String nextToken = null;
+        getIntelligentTieringConfiguration().clear();
+
+        do {
+            ListBucketIntelligentTieringConfigurationsRequest.Builder request = ListBucketIntelligentTieringConfigurationsRequest.builder()
+                .bucket(getName());
+
+            if (!StringUtils.isBlank(nextToken)) {
+                request.continuationToken(nextToken);
+            }
+
+            ListBucketIntelligentTieringConfigurationsResponse response = client
+                .listBucketIntelligentTieringConfigurations(request.build());
+
+            nextToken = response.continuationToken();
+            getIntelligentTieringConfiguration().addAll(response.intelligentTieringConfigurationList().stream().map(config -> {
+                IntelligentTieringConfiguration configObj = newSubresource(IntelligentTieringConfiguration.class);
+                configObj.copyFrom(config);
+                return configObj;
+            }).collect(Collectors.toList()));
+        } while (!StringUtils.isBlank(nextToken));
+    }
+
+    private void saveIntelligentTieringConfiguration(S3Client client, List<IntelligentTieringConfiguration> oldConfigs) {
+        Set<String> currentConfigIdSet = getIntelligentTieringConfiguration().stream()
+            .map(IntelligentTieringConfiguration::getId)
+            .collect(Collectors.toSet());
+
+        Set<String> deleteIds = oldConfigs.stream().map(IntelligentTieringConfiguration::getId)
+            .filter(id -> !currentConfigIdSet.contains(id))
+            .collect(Collectors.toSet());
+
+        deleteIds.forEach(id -> client.deleteBucketIntelligentTieringConfiguration(r -> r.bucket(getName()).id(id)));
+
+        getIntelligentTieringConfiguration().forEach( config -> {
+            client.putBucketIntelligentTieringConfiguration(r -> r.bucket(getName())
+                .intelligentTieringConfiguration(config.toIntelligentTieringConfiguration())
+                .id(config.getId()));
+        });
     }
 
     public String getDomainName() {
