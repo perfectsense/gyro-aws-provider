@@ -50,10 +50,12 @@ import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponses;
 import software.amazon.awssdk.services.cloudfront.model.Distribution;
 import software.amazon.awssdk.services.cloudfront.model.DistributionConfig;
 import software.amazon.awssdk.services.cloudfront.model.GetDistributionResponse;
+import software.amazon.awssdk.services.cloudfront.model.GetMonitoringSubscriptionResponse;
 import software.amazon.awssdk.services.cloudfront.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchDistributionException;
 import software.amazon.awssdk.services.cloudfront.model.Origin;
 import software.amazon.awssdk.services.cloudfront.model.Origins;
+import software.amazon.awssdk.services.cloudfront.model.RealtimeMetricsSubscriptionStatus;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
 import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionResponse;
@@ -138,6 +140,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private CloudFrontLogging logging;
     private List<CloudFrontCustomErrorResponse> customErrorResponse;
     private CloudFrontGeoRestriction geoRestriction;
+    private Boolean monitoringSubscription;
 
     // -- Read only
     private String id;
@@ -461,6 +464,18 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         this.geoRestriction = geoRestriction;
     }
 
+    /**
+     * When set to ``true`` enables monitoring subscription.
+     */
+    @Updatable
+    public Boolean getMonitoringSubscription() {
+        return monitoringSubscription;
+    }
+
+    public void setMonitoringSubscription(Boolean monitoringSubscription) {
+        this.monitoringSubscription = monitoringSubscription;
+    }
+
     @Override
     public void copyFrom(Distribution distribution) {
         setArn(distribution.arn());
@@ -541,6 +556,13 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
         setEtag(response.eTag());
+
+        GetMonitoringSubscriptionResponse monitoringSubscription = client.getMonitoringSubscription(r -> r.distributionId(
+            getId()));
+        setMonitoringSubscription(monitoringSubscription
+            .monitoringSubscription()
+            .realtimeMetricsSubscriptionConfig()
+            .realtimeMetricsSubscriptionStatus() == RealtimeMetricsSubscriptionStatus.ENABLED);
     }
 
     @Override
@@ -572,20 +594,29 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setEtag(response.eTag());
 
         applyTags(client);
+        applyMonitoringSubscription(client, false);
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         CloudFrontClient client = createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
 
-        UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
-            .id(getId())
-            .ifMatch(getEtag()));
-
-        setEtag(response.eTag());
-
         if (changedFieldNames.contains("tags")) {
             applyTags(client);
+            changedFieldNames.remove("tags");
+        }
+
+        if (changedFieldNames.contains("monitoring-subscription")) {
+            applyMonitoringSubscription(client, true);
+            changedFieldNames.remove("monitoring-subscription");
+        }
+
+        if (!changedFieldNames.isEmpty()) {
+            UpdateDistributionResponse response = client.updateDistribution(r -> r.distributionConfig(distributionConfig())
+                .id(getId())
+                .ifMatch(getEtag()));
+
+            setEtag(response.eTag());
         }
     }
 
@@ -697,5 +728,16 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         }
 
         return builder.build();
+    }
+
+    private void applyMonitoringSubscription(CloudFrontClient client, boolean isUpdate) {
+        if (getMonitoringSubscription()) {
+            client.createMonitoringSubscription(r -> r
+                .monitoringSubscription(rr -> rr
+                    .realtimeMetricsSubscriptionConfig(rrr-> rrr
+                        .realtimeMetricsSubscriptionStatus(RealtimeMetricsSubscriptionStatus.ENABLED))));
+        } else if (isUpdate) {
+            client.deleteMonitoringSubscription(r -> r.distributionId(getId()));
+        }
     }
 }
