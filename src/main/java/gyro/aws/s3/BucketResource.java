@@ -666,7 +666,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             saveAccessControlPolicy(client);
         }
 
-        if (getIntelligentTieringConfiguration() != null) {
+        if (!getIntelligentTieringConfiguration().isEmpty()) {
             saveIntelligentTieringConfiguration(client, Collections.emptyList());
         }
     }
