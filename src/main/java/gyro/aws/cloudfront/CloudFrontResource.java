@@ -50,6 +50,7 @@ import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponses;
 import software.amazon.awssdk.services.cloudfront.model.Distribution;
 import software.amazon.awssdk.services.cloudfront.model.DistributionConfig;
 import software.amazon.awssdk.services.cloudfront.model.GetDistributionResponse;
+import software.amazon.awssdk.services.cloudfront.model.GetMonitoringSubscriptionResponse;
 import software.amazon.awssdk.services.cloudfront.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchDistributionException;
 import software.amazon.awssdk.services.cloudfront.model.Origin;
@@ -138,6 +139,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private CloudFrontLogging logging;
     private List<CloudFrontCustomErrorResponse> customErrorResponse;
     private CloudFrontGeoRestriction geoRestriction;
+    private MonitoringSubscription monitoringSubscription;
 
     // -- Read only
     private String id;
@@ -461,6 +463,20 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         this.geoRestriction = geoRestriction;
     }
 
+    /**
+     * Monitoring subscription configuration for cloudfront.
+     *
+     * @subresource gyro.aws.cloudfront.MonitoringSubscription
+     */
+    @Updatable
+    public MonitoringSubscription getMonitoringSubscription() {
+        return monitoringSubscription;
+    }
+
+    public void setMonitoringSubscription(MonitoringSubscription monitoringSubscription) {
+        this.monitoringSubscription = monitoringSubscription;
+    }
+
     @Override
     public void copyFrom(Distribution distribution) {
         setArn(distribution.arn());
@@ -541,6 +557,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
         GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
         setEtag(response.eTag());
+
+        setMonitoringSubscription(null);
+        GetMonitoringSubscriptionResponse monitoringSubscription = client.getMonitoringSubscription(r -> r.distributionId(
+            getId()));
+        if (monitoringSubscription != null) {
+            MonitoringSubscription monitoringSubscriptionObj = newSubresource(MonitoringSubscription.class);
+            monitoringSubscriptionObj.copyFrom(monitoringSubscription.monitoringSubscription());
+            setMonitoringSubscription(monitoringSubscriptionObj);
+        }
     }
 
     @Override
