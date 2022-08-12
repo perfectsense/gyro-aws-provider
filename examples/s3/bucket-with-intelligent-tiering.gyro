@@ -1,0 +1,38 @@
+aws::s3-bucket bucket-example-with-intelligent-tiering
+    name: "example-bucket-with-intelligent-tiering"
+    enable-object-lock: true
+
+    intelligent-tiering-configuration
+       id: test-config
+
+       tiering
+            days: 90
+            access-tier: "ARCHIVE_ACCESS"
+       end
+
+       tiering
+            days: 182
+            access-tier: "DEEP_ARCHIVE_ACCESS"
+       end
+
+       filter
+            prefix: "something"
+
+            tag
+                key: "name1"
+                value: "value1"
+            end
+
+            tag
+                key: "name2"
+                value: "value2"
+            end
+       end
+
+       status: "Disabled"
+    end
+
+    tags: {
+        Name: "bucket-example--with-intelligent-tiering"
+    }
+end
