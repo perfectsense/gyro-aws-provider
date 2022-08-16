@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 1.4.10 (August 15th, 2022)
+
+ENHANCEMENTS:
+
+* [572](https://github.com/perfectsense/gyro-aws-provider/issues/572): Add support for `Subscription Monitoring` in Cloudfront.
+* [574](https://github.com/perfectsense/gyro-aws-provider/issues/574): Add support for `Intelligent Tiering` for S3 Buckets.
+
 ## 1.4.9 (June 24th, 2022)
 
 ISSUES FIXED:
