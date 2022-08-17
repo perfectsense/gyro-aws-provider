@@ -18,6 +18,7 @@ package gyro.aws.iam;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.aws.route53.RecordSetResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
@@ -278,6 +279,29 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
     }
 
     @Override
+    public Map<? extends Resource, Boolean> batchRefresh(List<? extends Resource> resources) {
+        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        Map<RoleResource, Boolean> refreshStatus = new HashMap<>();
+
+        List<Role> roles = getRoles(client);
+
+        for (Resource resource : resources) {
+            RoleResource roleResource = (RoleResource) resource;
+
+            Role role = getRole(roles, roleResource.getName());
+            if (role != null) {
+                roleResource.copyFrom(role);
+                refreshStatus.put(roleResource, true);
+            } else {
+                refreshStatus.put(roleResource, false);
+            }
+
+        }
+
+        return refreshStatus;
+    }
+
+    @Override
     public void create(GyroUI ui, State state) {
         IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
 
@@ -362,6 +386,21 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
             return response.role();
         } catch (NoSuchEntityException ex) {
             return null;
+        }
+    }
+
+    private static Role getRole(List<Role> roles, String name) {
+        return roles.stream()
+            .filter(r -> r.roleName().equals(name))
+            .findFirst()
+            .orElse(null);
+    }
+
+    private static List<Role> getRoles(IamClient client) {
+        try {
+            return client.listRolesPaginator().roles().stream().collect(Collectors.toList());
+        } catch (NoSuchEntityException ex) {
+            return new ArrayList<>();
         }
     }
 
