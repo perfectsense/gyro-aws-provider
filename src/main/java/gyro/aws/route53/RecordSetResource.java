@@ -17,8 +17,10 @@
 package gyro.aws.route53;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,7 @@ import com.psddev.dari.util.ObjectUtils;
 import com.psddev.dari.util.StringUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
+import gyro.core.GyroCore;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.resource.Id;
@@ -122,6 +125,8 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     private Set<String> records;
     private String routingPolicy;
     private String id;
+
+    private static transient Map<String, List<ResourceRecordSet>> recordSetCache;
 
     private static final Set<String> ROUTING_POLICY_SET = ImmutableSet.of("geolocation", "failover", "multivalue", "weighted", "latency", "simple");
 
@@ -385,7 +390,8 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
     public boolean refresh() {
         Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
 
-        ResourceRecordSet recordSet = getResourceRecordSet(client);
+        List<ResourceRecordSet> records = getResourceRecordSets(client, getHostedZone().getId());
+        ResourceRecordSet recordSet = getResourceRecordSet(records);
 
         if (recordSet == null) {
             return false;
@@ -394,6 +400,34 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         copyFrom(recordSet);
 
         return true;
+    }
+
+    @Override
+    public Map<? extends Resource, Boolean> batchRefresh(List<? extends Resource> resources) {
+        Route53Client client = createClient(Route53Client.class, Region.AWS_GLOBAL.toString(), null);
+
+        Map<RecordSetResource, Boolean> refreshStatus = new HashMap<>();
+        Map<String, List<ResourceRecordSet>> zoneRecordCache = new HashMap<>();
+
+        for (Resource resource : resources) {
+            RecordSetResource recordSetResource = (RecordSetResource) resource;
+            String hostedZoneId = recordSetResource.getHostedZone().getId();
+
+            List<ResourceRecordSet> recordSets = zoneRecordCache.computeIfAbsent(hostedZoneId,
+                    m -> RecordSetResource.getResourceRecordSets(client, m));
+
+            ResourceRecordSet recordSet = recordSetResource.getResourceRecordSet(recordSets);
+
+            if (recordSet == null) {
+                refreshStatus.put(recordSetResource, false);
+            } else {
+                recordSetResource.copyFrom(recordSet);
+            }
+
+            refreshStatus.put(recordSetResource, true);
+        }
+
+        return refreshStatus;
     }
 
     @Override
@@ -433,24 +467,27 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
         saveResourceRecordSet(client, this, ChangeAction.DELETE);
     }
 
-    private ResourceRecordSet getResourceRecordSet(Route53Client client) {
-        ResourceRecordSet recordSet = null;
-
+    private static List<ResourceRecordSet> getResourceRecordSets(Route53Client client, String hostedZoneId) {
         try {
-            List<ResourceRecordSet> records = client.listResourceRecordSetsPaginator(
-                r -> r.hostedZoneId(getHostedZone().getId())
+            return client.listResourceRecordSetsPaginator(
+                r -> r.hostedZoneId(hostedZoneId)
             ).resourceRecordSets().stream().collect(Collectors.toList());
 
-            if (!records.isEmpty()) {
-                recordSet = records
-                    .stream()
-                    .filter(o -> o.name().equals(getName().replace("*", "\\052")))
-                    .filter(o -> o.type().name().equalsIgnoreCase(getType()))
-                    .findFirst()
-                    .orElse(null);
-            }
         } catch (HostedZoneNotFoundException | NoSuchHostedZoneException ignore) {
-            // ignore
+            return new ArrayList<>();
+        }
+    }
+
+    private ResourceRecordSet getResourceRecordSet(List<ResourceRecordSet> records) {
+        ResourceRecordSet recordSet = null;
+
+        if (!records.isEmpty()) {
+            recordSet = records
+                .stream()
+                .filter(o -> o.name().equals(getName().replace("*", "\\052")))
+                .filter(o -> o.type().name().equalsIgnoreCase(getType()))
+                .findFirst()
+                .orElse(null);
         }
 
         return recordSet;
