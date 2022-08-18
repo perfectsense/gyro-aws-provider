@@ -577,8 +577,10 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
 
                     return true;
                 } catch (CloudFrontException ex) {
-                    if (ex.retryable() || ex.getMessage().contains("try again"))  {
+                    if (ex.retryable() || ex.getMessage().contains("try again")) {
                         return false;
+                    } else if (ex.statusCode() == 404) {
+                        return true;
                     } else {
                         throw ex;
                     }
