@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+## 1.4.11 (August 23rd, 2022)
+
+ISSUES FIXED:
+
+* [579](https://github.com/perfectsense/gyro-aws-provider/pull/579): Fix TransitGateway null on Route.
+
+* [580](https://github.com/perfectsense/gyro-aws-provider/pull/580): Fix CloudFront refresh error when subscription monitor is not enabled.
+
 ## 1.4.10 (August 15th, 2022)
 
 ENHANCEMENTS:
