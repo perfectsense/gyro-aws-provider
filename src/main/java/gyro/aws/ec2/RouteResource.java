@@ -146,7 +146,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
         return transitGateway;
     }
 
-    public void setTransitGateway(TransitGatewayResource transitGatewayId) {
+    public void setTransitGateway(TransitGatewayResource transitGateway) {
         this.transitGateway = transitGateway;
     }
 
