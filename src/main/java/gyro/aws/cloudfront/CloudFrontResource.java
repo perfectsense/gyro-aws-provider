@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -34,6 +35,7 @@ import gyro.aws.waf.global.WebAclResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -44,6 +46,7 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehaviors;
+import software.amazon.awssdk.services.cloudfront.model.CloudFrontException;
 import software.amazon.awssdk.services.cloudfront.model.CreateDistributionResponse;
 import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponse;
 import software.amazon.awssdk.services.cloudfront.model.CustomErrorResponses;
@@ -558,14 +561,33 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         GetDistributionResponse response = client.getDistribution(r -> r.id(getId()));
         setEtag(response.eTag());
 
-        setMonitoringSubscription(null);
-        GetMonitoringSubscriptionResponse monitoringSubscription = client.getMonitoringSubscription(r -> r.distributionId(
-            getId()));
-        if (monitoringSubscription != null) {
-            MonitoringSubscription monitoringSubscriptionObj = newSubresource(MonitoringSubscription.class);
-            monitoringSubscriptionObj.copyFrom(monitoringSubscription.monitoringSubscription());
-            setMonitoringSubscription(monitoringSubscriptionObj);
-        }
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(10, TimeUnit.SECONDS)
+            .prompt(false)
+            .until(() -> {
+                try {
+                    GetMonitoringSubscriptionResponse monitoringSubscription = client.getMonitoringSubscription(r -> r.distributionId(getId()));
+
+                    setMonitoringSubscription(null);
+                    if (monitoringSubscription != null) {
+                        MonitoringSubscription monitoringSubscriptionObj = newSubresource(MonitoringSubscription.class);
+                        monitoringSubscriptionObj.copyFrom(monitoringSubscription.monitoringSubscription());
+                        setMonitoringSubscription(monitoringSubscriptionObj);
+                    }
+
+                    return true;
+                } catch (CloudFrontException ex) {
+                    if (ex.retryable() || ex.getMessage().contains("try again"))  {
+                        return false;
+                    } else if (ex.statusCode() == 404) {
+                        return true;
+                    } else {
+                        throw ex;
+                    }
+                }
+            });
+
+
     }
 
     @Override
