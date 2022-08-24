@@ -618,7 +618,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setDomainName(response.distribution().domainName());
         setEtag(response.eTag());
 
-        applyTags(client);
+        applyTags(client, Collections.emptyMap());
     }
 
     @Override
@@ -632,7 +632,9 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         setEtag(response.eTag());
 
         if (changedFieldNames.contains("tags")) {
-            applyTags(client);
+            CloudFrontResource currentCf = (CloudFrontResource) current;
+
+            applyTags(client, currentCf.getTags());
         }
     }
 
@@ -667,7 +669,11 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         client.deleteDistribution(r -> r.id(getId()).ifMatch(getEtag()));
     }
 
-    private void applyTags(CloudFrontClient client) {
+    private void applyTags(CloudFrontClient client, Map<String, String> oldTags) {
+        if (!oldTags.isEmpty()) {
+            client.untagResource(r -> r.resource(getArn()).tagKeys(t -> t.items(oldTags.keySet())));
+        }
+
         List<Tag> tags = new ArrayList<>();
         for (String key : getTags().keySet()) {
             Tag tag = Tag.builder().key(key).value(getTags().get(key)).build();
