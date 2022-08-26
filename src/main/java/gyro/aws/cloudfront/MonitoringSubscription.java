@@ -11,6 +11,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
+import software.amazon.awssdk.services.cloudfront.model.CloudFrontException;
 import software.amazon.awssdk.services.cloudfront.model.RealtimeMetricsSubscriptionStatus;
 
 public class MonitoringSubscription extends AwsResource implements Copyable<software.amazon.awssdk.services.cloudfront.model.MonitoringSubscription> {
@@ -73,10 +74,14 @@ public class MonitoringSubscription extends AwsResource implements Copyable<soft
             "us-east-1",
             "https://cloudfront.amazonaws.com");
 
-        client.createMonitoringSubscription(r -> r.distributionId(parent.getId())
-            .monitoringSubscription(rr -> rr
-                .realtimeMetricsSubscriptionConfig(rrr -> rrr
-                    .realtimeMetricsSubscriptionStatus(getStatus()))));
+        if (getStatus().equals(RealtimeMetricsSubscriptionStatus.DISABLED)) {
+            client.deleteMonitoringSubscription(r -> r.distributionId(parent.getId()));
+        } else {
+            client.createMonitoringSubscription(r -> r.distributionId(parent.getId())
+                .monitoringSubscription(rr -> rr
+                    .realtimeMetricsSubscriptionConfig(rrr -> rrr
+                        .realtimeMetricsSubscriptionStatus(RealtimeMetricsSubscriptionStatus.ENABLED))));
+        }
     }
 
     @Override
@@ -88,9 +93,18 @@ public class MonitoringSubscription extends AwsResource implements Copyable<soft
             "us-east-1",
             "https://cloudfront.amazonaws.com");
 
-        client.createMonitoringSubscription(r -> r.distributionId(parent.getId())
-            .monitoringSubscription(rr -> rr
-                .realtimeMetricsSubscriptionConfig(rrr -> rrr
-                    .realtimeMetricsSubscriptionStatus(RealtimeMetricsSubscriptionStatus.DISABLED))));
+        try {
+            client.deleteMonitoringSubscription(r -> r.distributionId(parent.getId()));
+        } catch (CloudFrontException ex) {
+            if (ex.statusCode() == 404) {
+                // ignore
+            } else {
+                throw ex;
+            }
+        }
+    }
+
+    protected void setDisabledObj() {
+        setStatus(RealtimeMetricsSubscriptionStatus.DISABLED);
     }
 }
