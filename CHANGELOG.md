@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+## 1.4.12 (August 26th, 2022)
+
+ISSUES FIXED:
+
+* [582](https://github.com/perfectsense/gyro-aws-provider/pull/582): Fix CloudFront tag update.
+
+* [583](https://github.com/perfectsense/gyro-aws-provider/pull/583): Fix CloudFront Monitoring subscription delete error.
+
 ## 1.4.11 (August 23rd, 2022)
 
 ISSUES FIXED:
