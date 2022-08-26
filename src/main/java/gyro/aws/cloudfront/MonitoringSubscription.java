@@ -88,9 +88,6 @@ public class MonitoringSubscription extends AwsResource implements Copyable<soft
             "us-east-1",
             "https://cloudfront.amazonaws.com");
 
-        client.createMonitoringSubscription(r -> r.distributionId(parent.getId())
-            .monitoringSubscription(rr -> rr
-                .realtimeMetricsSubscriptionConfig(rrr -> rrr
-                    .realtimeMetricsSubscriptionStatus(RealtimeMetricsSubscriptionStatus.DISABLED))));
+        client.deleteMonitoringSubscription(r -> r.distributionId(parent.getId()));
     }
 }
