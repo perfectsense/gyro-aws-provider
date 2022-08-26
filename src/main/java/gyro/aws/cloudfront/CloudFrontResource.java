@@ -580,7 +580,9 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
                     if (ex.retryable() || ex.getMessage().contains("try again"))  {
                         return false;
                     } else if (ex.statusCode() == 404) {
-                        setMonitoringSubscription(null);
+                        MonitoringSubscription monitoringSubscriptionObj = newSubresource(MonitoringSubscription.class);
+                        monitoringSubscriptionObj.setDisabledObj();
+                        setMonitoringSubscription(monitoringSubscriptionObj);
                         return true;
                     } else {
                         throw ex;
