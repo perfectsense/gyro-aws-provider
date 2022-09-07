@@ -16,17 +16,17 @@
 
 package gyro.aws.cloudfront;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.cloudfront.model.CustomHeaders;
 import software.amazon.awssdk.services.cloudfront.model.Origin;
 import software.amazon.awssdk.services.cloudfront.model.OriginCustomHeader;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
 
@@ -37,6 +37,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     private CloudFrontS3Origin s3Origin;
     private CloudFrontCustomOrigin customOrigin;
     private CloudFrontOriginShield originShield;
+    private OriginAccessControlResource originAccessControl;
 
     /**
      * A unique ID for this origin.
@@ -139,11 +140,24 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
         this.originShield = originShield;
     }
 
+    /**
+     * The origin access control for this origin.
+     */
+    @Updatable
+    public OriginAccessControlResource getOriginAccessControl() {
+        return originAccessControl;
+    }
+
+    public void setOriginAccessControl(OriginAccessControlResource originAccessControl) {
+        this.originAccessControl = originAccessControl;
+    }
+
     @Override
     public void copyFrom(Origin origin) {
         setId(origin.id());
         setDomainName(origin.domainName());
         setOriginPath(origin.originPath());
+        setOriginAccessControl(findById(OriginAccessControlResource.class, origin.originAccessControlId()));
 
         getCustomHeaders().clear();
         if (origin.customHeaders().quantity() > 0) {
@@ -199,6 +213,7 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
             .s3OriginConfig(getS3Origin() != null ? getS3Origin().toS3OriginConfig() : null)
             .customOriginConfig(getCustomOrigin() != null ? getCustomOrigin().toCustomOriginConfig() : null)
             .originShield(getOriginShield() != null ? getOriginShield().toOriginShield() : null)
+            .originAccessControlId(getOriginAccessControl() != null ? getOriginAccessControl().getId() : null)
             .build();
     }
 }
