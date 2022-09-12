@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Perfect Sense, Inc.
+ * Copyright 2022, Brightspot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ public class OriginAccessControlResource extends AwsResource implements Copyable
 
     /**
      * The configuration for the Origin Access Control (OAC).
+     *
+     * @subresource gyro.aws.cloudfront.OriginAccessControlConfig
      */
     @Updatable
     @Required
