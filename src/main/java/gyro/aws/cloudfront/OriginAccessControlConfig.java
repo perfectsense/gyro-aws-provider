@@ -92,6 +92,7 @@ public class OriginAccessControlConfig extends Diffable
      * The signing protocol of the Origin Access Control (OAC) that determines how the Cloudfront signs requests.
      */
     @Required
+    @ValidStrings("SIGV4")
     public OriginAccessControlSigningProtocols getSigningProtocol() {
         return signingProtocol;
     }
