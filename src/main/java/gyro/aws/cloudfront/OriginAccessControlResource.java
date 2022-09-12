@@ -28,6 +28,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import software.amazon.awssdk.services.cloudfront.model.NoSuchOriginAccessControlException;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CreateOriginAccessControlRequest;
 import software.amazon.awssdk.services.cloudfront.model.CreateOriginAccessControlResponse;
@@ -118,9 +119,8 @@ public class OriginAccessControlResource extends AwsResource implements Copyable
 
         // set eTag
         CloudFrontClient client = getCloudFrontClient();
-        GetOriginAccessControlResponse accessControl =
-            client.getOriginAccessControl(GetOriginAccessControlRequest.builder().id(getId()).build());
-        setETag(accessControl.eTag());
+        GetOriginAccessControlResponse accessControl = getOriginAccessControl(client);
+        setETag(accessControl != null ? accessControl.eTag() : null);
     }
 
     @Override
@@ -128,9 +128,9 @@ public class OriginAccessControlResource extends AwsResource implements Copyable
         CloudFrontClient client = getCloudFrontClient();
 
         GetOriginAccessControlResponse accessControl =
-            client.getOriginAccessControl(GetOriginAccessControlRequest.builder().id(getId()).build());
+            getOriginAccessControl(client);
 
-        if (accessControl == null) {
+        if (accessControl == null || accessControl.originAccessControl() == null) {
             return false;
         }
 
@@ -172,5 +172,17 @@ public class OriginAccessControlResource extends AwsResource implements Copyable
 
     private CloudFrontClient getCloudFrontClient() {
         return createClient(CloudFrontClient.class, "us-east-1", "https://cloudfront.amazonaws.com");
+    }
+
+    private GetOriginAccessControlResponse getOriginAccessControl(CloudFrontClient client) {
+        GetOriginAccessControlResponse response = null;
+
+        try {
+            response = client.getOriginAccessControl(GetOriginAccessControlRequest.builder().id(getId()).build());
+        } catch (NoSuchOriginAccessControlException ex) {
+            // ignore
+        }
+
+        return response;
     }
 }
