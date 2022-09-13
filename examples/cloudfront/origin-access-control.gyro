@@ -1,0 +1,9 @@
+aws::origin-access-control origin-access-control-example
+    config
+        name: "example-oac"
+        origin-type: S3
+        description: "example description"
+        signing-behavior: NEVER
+        signing-protocol: SIGV4
+    end
+end
