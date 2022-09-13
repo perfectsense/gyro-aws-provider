@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.4.13 (September 13th, 2022)
+
+ENHANCEMENTS::
+
+* [587](https://github.com/perfectsense/gyro-aws-provider/pull/587): Implement Origin Access Control for CloudFront.
+
+ISSUES FIXED:
+
+* [585](https://github.com/perfectsense/gyro-aws-provider/pull/585): Fix error refreshing WAFV2 if rule deleted from console.
+
 ## 1.4.12 (August 26th, 2022)
 
 ISSUES FIXED:
