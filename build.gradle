@@ -78,7 +78,7 @@ shadowJar {
 build.dependsOn shadowJar
 
 dependencies {
-    api 'gyro:gyro-core:1.1.2'
+    api 'gyro:gyro-core:1.2.0'
 
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
@@ -129,7 +129,7 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-    
+
     gyroDoclet "gyro:gyro-doclet:1.0.0"
 }
 
