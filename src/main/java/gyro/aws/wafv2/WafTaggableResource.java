@@ -115,7 +115,9 @@ public abstract class WafTaggableResource extends AwsResource {
     public final boolean refresh() {
         boolean refreshed = doRefresh();
 
-        refreshTags();
+        if (refreshed) {
+            refreshTags();
+        }
 
         return refreshed;
     }

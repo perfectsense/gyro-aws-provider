@@ -1,6 +1,32 @@
 CHANGELOG
 =========
 
+## 1.4.13 (September 13th, 2022)
+
+ENHANCEMENTS::
+
+* [587](https://github.com/perfectsense/gyro-aws-provider/pull/587): Implement Origin Access Control for CloudFront.
+
+ISSUES FIXED:
+
+* [585](https://github.com/perfectsense/gyro-aws-provider/pull/585): Fix error refreshing WAFV2 if rule deleted from console.
+
+## 1.4.12 (August 26th, 2022)
+
+ISSUES FIXED:
+
+* [582](https://github.com/perfectsense/gyro-aws-provider/pull/582): Fix CloudFront tag update.
+
+* [583](https://github.com/perfectsense/gyro-aws-provider/pull/583): Fix CloudFront Monitoring subscription delete error.
+
+## 1.4.11 (August 23rd, 2022)
+
+ISSUES FIXED:
+
+* [579](https://github.com/perfectsense/gyro-aws-provider/pull/579): Fix TransitGateway null on Route.
+
+* [580](https://github.com/perfectsense/gyro-aws-provider/pull/580): Fix CloudFront refresh error when subscription monitor is not enabled.
+
 ## 1.4.10 (August 15th, 2022)
 
 ENHANCEMENTS:
