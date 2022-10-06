@@ -31,6 +31,7 @@ import com.psddev.dari.util.CompactMap;
 
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.kms.model.CreateKeyResponse;
 import software.amazon.awssdk.services.kms.model.DescribeKeyResponse;
 import software.amazon.awssdk.services.kms.model.GetKeyPolicyResponse;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
+import software.amazon.awssdk.services.kms.model.KeySpec;
 import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
@@ -91,6 +93,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private Boolean keyRotation;
     private String keyState;
     private String keyUsage;
+    private KeySpec keySpec;
     private String origin;
     private String pendingWindow;
     private String policy;
@@ -162,7 +165,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     @Updatable
     public Boolean getKeyRotation() {
         if (keyRotation == null) {
-            keyRotation = true;
+            keyRotation = false;
         }
 
         return keyRotation;
@@ -222,7 +225,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
-     * The usage of the key. The only Defaults to ``ENCRYPT_DECRYPT``.
+     * The usage of the key. Defaults to ``ENCRYPT_DECRYPT``.
      */
     @Required
     public String getKeyUsage() {
@@ -235,6 +238,18 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
     public void setKeyUsage(String keyUsage) {
         this.keyUsage = keyUsage;
+    }
+
+    /**
+     * The spec for the key.
+     */
+    @ValidStrings({"RSA_2048","RSA_3072","RSA_4096","ECC_NIST_P256","ECC_NIST_P384","ECC_NIST_P521","ECC_SECG_P256K1","SYMMETRIC_DEFAULT","HMAC_224","HMAC_256","HMAC_384","HMAC_512","SM2"})
+    public KeySpec getKeySpec() {
+        return keySpec;
+    }
+
+    public void setKeySpec(KeySpec keySpec) {
+        this.keySpec = keySpec;
     }
 
     /**
@@ -366,6 +381,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                             .keyUsage(getKeyUsage())
                             .origin(getOrigin())
                             .policy(getPolicy())
+                            .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
                             .tags(toTag())
             );
 
@@ -373,6 +389,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             setId(response.keyMetadata().keyId());
             setKeyManager(response.keyMetadata().keyManagerAsString());
             setKeyState(response.keyMetadata().keyStateAsString());
+
+            state.save();
 
             try {
                 if (getAliases() != null) {
