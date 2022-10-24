@@ -20,9 +20,11 @@ import gyro.aws.AwsFinder;
 import gyro.core.Type;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
+import software.amazon.awssdk.services.acm.model.CertificateSummary;
 import software.amazon.awssdk.services.acm.model.Filters;
 import software.amazon.awssdk.services.acm.model.ListCertificatesRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,6 +45,7 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
     private String extendedKeyUsage;
     private String keyAlgorithm;
     private String keyUsage;
+    private String arn;
 
     /**
      * Status of the certificate. Valid values are ``PENDING_VALIDATION`` or ``ISSUED`` or ``INACTIVE`` or ``EXPIRED`` or ``VALIDATION_TIMED_OUT`` or ``REVOKED`` or ``FAILED``
@@ -88,6 +91,17 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
         this.keyUsage = keyUsage;
     }
 
+    /**
+     * The arn of the certificate.
+     */
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     protected List<CertificateDetail> findAllAws(AcmClient client) {
         return client.listCertificatesPaginator().certificateSummaryList().stream()
@@ -119,12 +133,21 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
             filterBuilder = filterBuilder.keyUsageWithStrings(filters.get("key-algorithm"));
         }
 
+        List<String> certArns = new ArrayList<>();
         if (filterPresent) {
             builder = builder.includes(filterBuilder.build());
+
+            certArns.addAll(client.listCertificatesPaginator(builder.build()).certificateSummaryList()
+                .stream()
+                .map(CertificateSummary::certificateArn)
+                .collect(Collectors.toList()));
         }
 
-        return client.listCertificatesPaginator(builder.build()).certificateSummaryList().stream()
-            .map(o -> client.describeCertificate(r -> r.certificateArn(o.certificateArn())).certificate())
+        if (filters.containsKey("arn")) {
+            certArns.add(filters.get("arn"));
+        }
+
+        return certArns.stream().map(o -> client.describeCertificate(r -> r.certificateArn(o)).certificate())
             .collect(Collectors.toList());
     }
 }
