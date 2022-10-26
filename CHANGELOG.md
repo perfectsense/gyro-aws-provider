@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.0 (September 14th, 2022)
+
+ENHANCEMENTS::
+
+* [578](https://github.com/perfectsense/gyro-aws-provider/pull/578): Implement batch refresh for RoleResource and RecordsetResource.
+
 ## 1.4.13 (September 13th, 2022)
 
 ENHANCEMENTS::
