@@ -130,7 +130,7 @@ public class AmiFinder extends Ec2TaggableAwsFinder<Ec2Client, Image, AmiResourc
     }
 
     /**
-     * The volume type of the EBS volume. Valid values are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     * The volume type of the EBS volume. Valid values are ``gp2`` or ``gp3`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
      */
     @Filter("block-device-mapping.volume-type")
     public String getBlockDeviceMappingVolumeType() {

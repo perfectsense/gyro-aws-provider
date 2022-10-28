@@ -141,7 +141,7 @@ public class BlockDeviceMapping extends Diffable
     }
 
     /**
-     * The type of volume being created. Defaults to ``gp2``.
+     * The type of volume being created. Defaults to ``gp3``.
      *
      */
     @Updatable

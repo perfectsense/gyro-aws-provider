@@ -219,7 +219,7 @@ public class EbsVolumeFinder extends Ec2TaggableAwsFinder<Ec2Client, Volume, Ebs
     }
 
     /**
-     * The amazon EBS volume type. Valid values are ``gp2`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
+     * The amazon EBS volume type. Valid values are ``gp2`` or ``gp3`` or ``io1`` or ``st1`` or ``sc1`` or ``standard``.
      */
     public String getVolumeType() {
         return volumeType;
