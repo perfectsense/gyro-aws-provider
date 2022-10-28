@@ -650,7 +650,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The storage type for the DB instance.
      */
     @Updatable
-    @ValidStrings({"standard", "gp2", "io1"})
+    @ValidStrings({"standard", "gp2", "gp3", "io1"})
     public String getStorageType() {
         return storageType;
     }

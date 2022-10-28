@@ -54,7 +54,7 @@ public class ElasticsearchEbsOptions extends Diffable implements Copyable<EBSOpt
      * The volume type for the EBS-based storage. Can only be set if ``enable-ebs`` is set to ``true``.
      */
     @Updatable
-    @ValidStrings({"standard", "gp2", "io1"})
+    @ValidStrings({"standard", "gp2", "gp3", "io1"})
     public VolumeType getVolumeType() {
         return volumeType;
     }
