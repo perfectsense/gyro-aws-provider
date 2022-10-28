@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.1 (October 25th, 2022)
+
+ENHANCEMENTS::
+
+* [593](https://github.com/perfectsense/gyro-aws-provider/issues/593): Add support for `gp3` type in EBS Volume.
+
 ## 1.5.0 (September 14th, 2022)
 
 ENHANCEMENTS::
