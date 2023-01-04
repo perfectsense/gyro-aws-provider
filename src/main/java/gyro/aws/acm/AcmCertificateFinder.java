@@ -24,9 +24,10 @@ import software.amazon.awssdk.services.acm.model.CertificateSummary;
 import software.amazon.awssdk.services.acm.model.Filters;
 import software.amazon.awssdk.services.acm.model.ListCertificatesRequest;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -133,7 +134,7 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
             filterBuilder = filterBuilder.keyUsageWithStrings(filters.get("key-algorithm"));
         }
 
-        List<String> certArns = new ArrayList<>();
+        Set<String> certArns = new LinkedHashSet<>();
         if (filterPresent) {
             builder = builder.includes(filterBuilder.build());
 
