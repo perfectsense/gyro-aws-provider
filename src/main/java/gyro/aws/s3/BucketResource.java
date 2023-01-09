@@ -68,6 +68,8 @@ import software.amazon.awssdk.services.s3.model.ListBucketIntelligentTieringConf
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.Payer;
+import software.amazon.awssdk.services.s3.model.PublicAccessBlockConfiguration;
+import software.amazon.awssdk.services.s3.model.PutPublicAccessBlockRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
 import software.amazon.awssdk.utils.IoUtils;
@@ -338,6 +340,32 @@ import software.amazon.awssdk.utils.IoUtils;
  *             Name: "bucket-example--with-intelligent-tiering"
  *         }
  *     end
+ *
+ * Example with Public Access Blocks
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::s3-bucket bucket-example
+ *         name: "bucket-example"
+ *         enable-object-lock: true
+ *
+ *         tags: {
+ *             Name: "bucket-example",
+ *             Name2: "something"
+ *         }
+ *
+ *         public-access-block-configuration
+ *             block-public-acls: true
+ *             ignore-public-acls: true
+ *             block-public-policy: false
+ *             restrict-public-buckets: true
+ *         end
+ *
+ *         enable-accelerate-config: true
+ *         enable-versioning: true
+ *         policy: "policy.json"
+ *     end
  */
 @Type("s3-bucket")
 public class BucketResource extends AwsResource implements Copyable<Bucket> {
@@ -357,6 +385,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private String policy;
     private S3AccessControlPolicy accessControlPolicy;
     private List<IntelligentTieringConfiguration> intelligentTieringConfiguration;
+    private S3PublicAccessBlockConfiguration publicAccessBlockConfiguration;
 
     /**
      * The name of the bucket.
@@ -574,6 +603,18 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         this.intelligentTieringConfiguration = intelligentTieringConfiguration;
     }
 
+    /**
+     * The PublicAccessBlock configuration that you want to apply to this Amazon S3 bucket.
+     */
+    @Updatable
+    public S3PublicAccessBlockConfiguration getPublicAccessBlockConfiguration() {
+        return publicAccessBlockConfiguration;
+    }
+
+    public void setPublicAccessBlockConfiguration(S3PublicAccessBlockConfiguration publicAccessBlockConfiguration) {
+        this.publicAccessBlockConfiguration = publicAccessBlockConfiguration;
+    }
+
     @Override
     public void copyFrom(Bucket bucket) {
         S3Client client = createClient(S3Client.class);
@@ -590,6 +631,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadPolicy(client);
         loadAccessControlPolicy(client);
         loadIntelligentTieringConfiguration(client);
+        loadPublicAccessBlockConfiguration(client);
     }
 
     @Override
@@ -669,6 +711,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (!getIntelligentTieringConfiguration().isEmpty()) {
             saveIntelligentTieringConfiguration(client, Collections.emptyList());
         }
+
+        if (getPublicAccessBlockConfiguration() != null) {
+            savePublicAccessBlockConfiguration(client);
+        }
     }
 
     @Override
@@ -710,6 +756,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (changedFieldNames.contains("intelligent-tiering-configuration")) {
             BucketResource bucket = (BucketResource) current;
             saveIntelligentTieringConfiguration(client, bucket.getIntelligentTieringConfiguration());
+        }
+
+        if (changedFieldNames.contains("public-access-block-configuration")) {
+            savePublicAccessBlockConfiguration(client);
         }
 
         saveReplicationConfiguration(client);
@@ -1091,6 +1141,28 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                 .intelligentTieringConfiguration(config.toIntelligentTieringConfiguration())
                 .id(config.getId()));
         });
+    }
+
+    private void loadPublicAccessBlockConfiguration(S3Client client) {
+        try {
+            S3PublicAccessBlockConfiguration config = newSubresource(S3PublicAccessBlockConfiguration.class);
+            config.copyFrom(client.getPublicAccessBlock(a -> a.bucket(getName())).publicAccessBlockConfiguration());
+            setPublicAccessBlockConfiguration(config);
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("NoSuchPublicAccessBlockConfiguration")) {
+                throw ex;
+
+            } else {
+                setEncryptionConfiguration(null);
+            }
+        }
+    }
+
+    private void savePublicAccessBlockConfiguration(S3Client client) {
+        client.putPublicAccessBlock(PutPublicAccessBlockRequest.builder().publicAccessBlockConfiguration(
+            getPublicAccessBlockConfiguration() == null ? S3PublicAccessBlockConfiguration.getDefaultConfiguration()
+                : getPublicAccessBlockConfiguration().toPublicAccessBlockConfiguration()).bucket(getName()).build());
     }
 
     public String getDomainName() {

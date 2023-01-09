@@ -1,0 +1,20 @@
+aws::s3-bucket bucket-example
+    name: "bucket-example"
+    enable-object-lock: true
+
+    tags: {
+        Name: "bucket-example",
+        Name2: "something"
+    }
+
+    enable-accelerate-config: true
+    enable-versioning: true
+    policy: "policy.json"
+
+    public-access-block-configuration
+        block-public-acls: true
+        ignore-public-acls: true
+        block-public-policy: false
+        restrict-public-buckets: true
+    end
+end
