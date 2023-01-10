@@ -17,6 +17,7 @@
 package gyro.aws.acm;
 
 import gyro.aws.AwsFinder;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
@@ -24,6 +25,7 @@ import software.amazon.awssdk.services.acm.model.CertificateSummary;
 import software.amazon.awssdk.services.acm.model.Filters;
 import software.amazon.awssdk.services.acm.model.ListCertificatesRequest;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +95,7 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
     }
 
     /**
-     * The arn of the certificate.
+     * The arn of the certificate. Specify more than one arn by separating with comma ",".
      */
     public String getArn() {
         return arn;
@@ -112,13 +114,18 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
 
     @Override
     protected List<CertificateDetail> findAws(AcmClient client, Map<String, String> filters) {
+        if (filters.size() > 1 && filters.containsKey("arn")) {
+            throw new GyroException("Cannot using any other filter when using 'arn' !!");
+        }
+
         ListCertificatesRequest.Builder builder = ListCertificatesRequest.builder();
+        boolean filterPresent = false;
         if (filters.containsKey("certificate-status")) {
+            filterPresent = true;
             builder = builder.certificateStatusesWithStrings(filters.get("certificate-status"));
         }
 
         Filters.Builder filterBuilder = Filters.builder();
-        boolean filterPresent = false;
         if (filters.containsKey("extended-key-usage")) {
             filterPresent = true;
             filterBuilder = filterBuilder.extendedKeyUsageWithStrings(filters.get("extended-key-usage"));
@@ -145,7 +152,7 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
         }
 
         if (filters.containsKey("arn")) {
-            certArns.add(filters.get("arn"));
+            certArns.addAll(Arrays.stream(filters.get("arn").split(",")).collect(Collectors.toList()));
         }
 
         return certArns.stream().map(o -> client.describeCertificate(r -> r.certificateArn(o)).certificate())
