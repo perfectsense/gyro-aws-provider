@@ -152,7 +152,9 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
         }
 
         if (filters.containsKey("arn")) {
-            certArns.addAll(Arrays.stream(filters.get("arn").split(",")).collect(Collectors.toList()));
+            certArns.addAll(Arrays.stream(filters.get("arn").split(","))
+                .map(String::trim)
+                .collect(Collectors.toList()));
         }
 
         return certArns.stream().map(o -> client.describeCertificate(r -> r.certificateArn(o)).certificate())
