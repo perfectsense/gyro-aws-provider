@@ -17,14 +17,19 @@
 package gyro.aws.acm;
 
 import gyro.aws.AwsFinder;
+import gyro.core.GyroException;
 import gyro.core.Type;
 import software.amazon.awssdk.services.acm.AcmClient;
 import software.amazon.awssdk.services.acm.model.CertificateDetail;
+import software.amazon.awssdk.services.acm.model.CertificateSummary;
 import software.amazon.awssdk.services.acm.model.Filters;
 import software.amazon.awssdk.services.acm.model.ListCertificatesRequest;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +48,7 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
     private String extendedKeyUsage;
     private String keyAlgorithm;
     private String keyUsage;
+    private String arn;
 
     /**
      * Status of the certificate. Valid values are ``PENDING_VALIDATION`` or ``ISSUED`` or ``INACTIVE`` or ``EXPIRED`` or ``VALIDATION_TIMED_OUT`` or ``REVOKED`` or ``FAILED``
@@ -88,6 +94,17 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
         this.keyUsage = keyUsage;
     }
 
+    /**
+     * The arn of the certificate. Specify more than one arn by separating with comma ",".
+     */
+    public String getArn() {
+        return arn;
+    }
+
+    public void setArn(String arn) {
+        this.arn = arn;
+    }
+
     @Override
     protected List<CertificateDetail> findAllAws(AcmClient client) {
         return client.listCertificatesPaginator().certificateSummaryList().stream()
@@ -97,13 +114,18 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
 
     @Override
     protected List<CertificateDetail> findAws(AcmClient client, Map<String, String> filters) {
+        if (filters.size() > 1 && filters.containsKey("arn")) {
+            throw new GyroException("Cannot using any other filter when using 'arn' !!");
+        }
+
         ListCertificatesRequest.Builder builder = ListCertificatesRequest.builder();
+        boolean filterPresent = false;
         if (filters.containsKey("certificate-status")) {
+            filterPresent = true;
             builder = builder.certificateStatusesWithStrings(filters.get("certificate-status"));
         }
 
         Filters.Builder filterBuilder = Filters.builder();
-        boolean filterPresent = false;
         if (filters.containsKey("extended-key-usage")) {
             filterPresent = true;
             filterBuilder = filterBuilder.extendedKeyUsageWithStrings(filters.get("extended-key-usage"));
@@ -119,12 +141,23 @@ public class AcmCertificateFinder extends AwsFinder<AcmClient, CertificateDetail
             filterBuilder = filterBuilder.keyUsageWithStrings(filters.get("key-algorithm"));
         }
 
+        Set<String> certArns = new LinkedHashSet<>();
         if (filterPresent) {
             builder = builder.includes(filterBuilder.build());
+
+            certArns.addAll(client.listCertificatesPaginator(builder.build()).certificateSummaryList()
+                .stream()
+                .map(CertificateSummary::certificateArn)
+                .collect(Collectors.toList()));
         }
 
-        return client.listCertificatesPaginator(builder.build()).certificateSummaryList().stream()
-            .map(o -> client.describeCertificate(r -> r.certificateArn(o.certificateArn())).certificate())
+        if (filters.containsKey("arn")) {
+            certArns.addAll(Arrays.stream(filters.get("arn").split(","))
+                .map(String::trim)
+                .collect(Collectors.toList()));
+        }
+
+        return certArns.stream().map(o -> client.describeCertificate(r -> r.certificateArn(o)).certificate())
             .collect(Collectors.toList());
     }
 }
