@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+## 1.5.2 (January 17th, 2023)
+
+ENHANCEMENTS::
+
+* [568](https://github.com/perfectsense/gyro-aws-provider/issues/568): Add support for `public access block` in S3 Bucket.
+* [590](https://github.com/perfectsense/gyro-aws-provider/pull/590): Add support for specifying `keyspec` in KMS Key.
+* [592](https://github.com/perfectsense/gyro-aws-provider/pull/592): Add support for `arn` in ACM Finder.
+
 ## 1.5.1 (October 25th, 2022)
 
 ENHANCEMENTS::
