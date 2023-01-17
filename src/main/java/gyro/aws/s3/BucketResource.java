@@ -51,6 +51,7 @@ import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
 import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.CORSRule;
+import software.amazon.awssdk.services.s3.model.DeletePublicAccessBlockRequest;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketEncryptionResponse;
@@ -605,6 +606,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     /**
      * The PublicAccessBlock configuration that you want to apply to this Amazon S3 bucket.
+     * @subresource gyro.aws.s3.S3PublicAccessBlockConfiguration
      */
     @Updatable
     public S3PublicAccessBlockConfiguration getPublicAccessBlockConfiguration() {
