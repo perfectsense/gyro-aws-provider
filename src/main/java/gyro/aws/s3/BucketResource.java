@@ -1162,9 +1162,12 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     private void savePublicAccessBlockConfiguration(S3Client client) {
-        client.putPublicAccessBlock(PutPublicAccessBlockRequest.builder().publicAccessBlockConfiguration(
-            getPublicAccessBlockConfiguration() == null ? S3PublicAccessBlockConfiguration.getDefaultConfiguration()
-                : getPublicAccessBlockConfiguration().toPublicAccessBlockConfiguration()).bucket(getName()).build());
+        if (getPublicAccessBlockConfiguration() == null) {
+            client.deletePublicAccessBlock(DeletePublicAccessBlockRequest.builder().bucket(getName()).build());
+        } else {
+            client.putPublicAccessBlock(PutPublicAccessBlockRequest.builder().publicAccessBlockConfiguration(
+                getPublicAccessBlockConfiguration().toPublicAccessBlockConfiguration()).bucket(getName()).build());
+        }
     }
 
     public String getDomainName() {

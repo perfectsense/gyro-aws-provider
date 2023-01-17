@@ -97,13 +97,4 @@ public class S3PublicAccessBlockConfiguration extends Diffable implements Copyab
             .restrictPublicBuckets(getRestrictPublicBuckets())
             .build();
     }
-
-    public static PublicAccessBlockConfiguration getDefaultConfiguration() {
-        return PublicAccessBlockConfiguration.builder()
-            .blockPublicAcls(false)
-            .ignorePublicAcls(false)
-            .blockPublicPolicy(false)
-            .restrictPublicBuckets(false)
-            .build();
-    }
 }
