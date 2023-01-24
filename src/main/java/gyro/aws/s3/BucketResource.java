@@ -1156,7 +1156,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
                 throw ex;
 
             } else {
-                setEncryptionConfiguration(null);
+                setPublicAccessBlockConfiguration(null);
             }
         }
     }
