@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.3 (January 24th, 2023)
+
+ISSUES FIXED:
+
+* [599](https://github.com/perfectsense/gyro-aws-provider/pull/599): Fix S3 trying to recreate encryption configuration.
+
 ## 1.5.2 (January 17th, 2023)
 
 ENHANCEMENTS::
