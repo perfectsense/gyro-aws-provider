@@ -445,7 +445,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                     try {
                         client.associateWebACL(r -> r.webACLArn(getArn()).resourceArn(arn));
                     } catch (Exception ex) {
-                        throw new GyroException(String.format("Failed to associate loadbalancer %s", arn));
+                        throw new GyroException(String.format("Failed to associate loadbalancer %s. Error - %s", arn, ex.getMessage()));
                     }
                 }
             }
