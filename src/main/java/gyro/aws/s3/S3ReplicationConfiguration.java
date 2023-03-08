@@ -49,7 +49,7 @@ public class S3ReplicationConfiguration extends Diffable implements Copyable<Rep
     /**
      * Configure cross region replication rules.
      *
-     * @subresource gyro.aws.s3.ReplicationRule
+     * @subresource gyro.aws.s3.S3ReplicationRule
      */
     @Required
     @Updatable
