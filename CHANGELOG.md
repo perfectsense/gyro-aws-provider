@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.4 (April 12th, 2023)
+
+ENHANCEMENTS:
+
+* [605](https://github.com/perfectsense/gyro-aws-provider/issues/605): Allow configuring the object ownership for S3 buckets.
+
 ## 1.5.3 (January 24th, 2023)
 
 ISSUES FIXED:
