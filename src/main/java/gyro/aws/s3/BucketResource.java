@@ -51,6 +51,7 @@ import software.amazon.awssdk.services.s3.model.BucketAccelerateStatus;
 import software.amazon.awssdk.services.s3.model.BucketLoggingStatus;
 import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
 import software.amazon.awssdk.services.s3.model.CORSRule;
+import software.amazon.awssdk.services.s3.model.DeleteBucketOwnershipControlsRequest;
 import software.amazon.awssdk.services.s3.model.DeletePublicAccessBlockRequest;
 import software.amazon.awssdk.services.s3.model.GetBucketAccelerateConfigurationResponse;
 import software.amazon.awssdk.services.s3.model.GetBucketCorsResponse;
@@ -68,8 +69,11 @@ import software.amazon.awssdk.services.s3.model.ListBucketIntelligentTieringConf
 import software.amazon.awssdk.services.s3.model.ListBucketIntelligentTieringConfigurationsResponse;
 import software.amazon.awssdk.services.s3.model.ListBucketsResponse;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.ObjectOwnership;
+import software.amazon.awssdk.services.s3.model.OwnershipControls;
+import software.amazon.awssdk.services.s3.model.OwnershipControlsRule;
 import software.amazon.awssdk.services.s3.model.Payer;
-import software.amazon.awssdk.services.s3.model.PublicAccessBlockConfiguration;
+import software.amazon.awssdk.services.s3.model.PutBucketOwnershipControlsRequest;
 import software.amazon.awssdk.services.s3.model.PutPublicAccessBlockRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.Tag;
@@ -387,6 +391,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     private S3AccessControlPolicy accessControlPolicy;
     private List<IntelligentTieringConfiguration> intelligentTieringConfiguration;
     private S3PublicAccessBlockConfiguration publicAccessBlockConfiguration;
+    private ObjectOwnership objectOwnership;
 
     /**
      * The name of the bucket.
@@ -528,7 +533,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     public void setLogging(S3LoggingEnabled logging) {
-        this.logging= logging;
+        this.logging = logging;
     }
 
     /**
@@ -600,7 +605,8 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         return intelligentTieringConfiguration;
     }
 
-    public void setIntelligentTieringConfiguration(List<IntelligentTieringConfiguration> intelligentTieringConfiguration) {
+    public void setIntelligentTieringConfiguration(
+        List<IntelligentTieringConfiguration> intelligentTieringConfiguration) {
         this.intelligentTieringConfiguration = intelligentTieringConfiguration;
     }
 
@@ -615,6 +621,19 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
     public void setPublicAccessBlockConfiguration(S3PublicAccessBlockConfiguration publicAccessBlockConfiguration) {
         this.publicAccessBlockConfiguration = publicAccessBlockConfiguration;
+    }
+
+    /**
+     * The bucket's ownership controls.
+     */
+    @Updatable
+    @ValidStrings({ "BucketOwnerPreferred", "ObjectWriter", "BucketOwnerEnforced" })
+    public ObjectOwnership getObjectOwnership() {
+        return objectOwnership;
+    }
+
+    public void setObjectOwnership(ObjectOwnership objectOwnership) {
+        this.objectOwnership = objectOwnership;
     }
 
     @Override
@@ -634,6 +653,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         loadAccessControlPolicy(client);
         loadIntelligentTieringConfiguration(client);
         loadPublicAccessBlockConfiguration(client);
+        loadObjectOwnership(client);
     }
 
     @Override
@@ -717,6 +737,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         if (getPublicAccessBlockConfiguration() != null) {
             savePublicAccessBlockConfiguration(client);
         }
+
+        if (getObjectOwnership() != null) {
+            saveObjectOwnership(client);
+        }
     }
 
     @Override
@@ -764,6 +788,10 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             savePublicAccessBlockConfiguration(client);
         }
 
+        if (changedFieldNames.contains("object-ownership")) {
+            saveObjectOwnership(client);
+        }
+
         saveReplicationConfiguration(client);
 
         saveCorsRules(client, TimeoutSettings.Action.UPDATE);
@@ -791,7 +819,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
             bucket = listBucketsResponse.buckets().stream().filter(o -> o.name().equals(getName())).findFirst().orElse(null);
 
-        } catch (S3Exception ex ) {
+        } catch (S3Exception ex) {
             if (!ex.getLocalizedMessage().contains("does not exist")) {
                 throw ex;
             }
@@ -1138,7 +1166,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
 
         deleteIds.forEach(id -> client.deleteBucketIntelligentTieringConfiguration(r -> r.bucket(getName()).id(id)));
 
-        getIntelligentTieringConfiguration().forEach( config -> {
+        getIntelligentTieringConfiguration().forEach(config -> {
             client.putBucketIntelligentTieringConfiguration(r -> r.bucket(getName())
                 .intelligentTieringConfiguration(config.toIntelligentTieringConfiguration())
                 .id(config.getId()));
@@ -1161,12 +1189,41 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
         }
     }
 
+    private void loadObjectOwnership(S3Client client) {
+        ObjectOwnership ownership = null;
+
+        try {
+            OwnershipControls ownershipControls =
+                client.getBucketOwnershipControls(r -> r.bucket(getName())).ownershipControls();
+
+            if (ownershipControls != null && ownershipControls.hasRules()) {
+                ownership = ownershipControls.rules().get(0).objectOwnership();
+            }
+
+        } catch (S3Exception ex) {
+            if (!ex.awsErrorDetails().errorCode().equals("OwnershipControlsNotFoundError")) {
+                throw ex;
+            }
+        }
+
+        setObjectOwnership(ownership);
+    }
+
     private void savePublicAccessBlockConfiguration(S3Client client) {
         if (getPublicAccessBlockConfiguration() == null) {
             client.deletePublicAccessBlock(DeletePublicAccessBlockRequest.builder().bucket(getName()).build());
         } else {
             client.putPublicAccessBlock(PutPublicAccessBlockRequest.builder().publicAccessBlockConfiguration(
                 getPublicAccessBlockConfiguration().toPublicAccessBlockConfiguration()).bucket(getName()).build());
+        }
+    }
+
+    private void saveObjectOwnership(S3Client client) {
+        if (getObjectOwnership() == null) {
+            client.deleteBucketOwnershipControls(DeleteBucketOwnershipControlsRequest.builder().bucket(getName()).build());
+        } else {
+            client.putBucketOwnershipControls(PutBucketOwnershipControlsRequest.builder().bucket(getName()).ownershipControls(
+                OwnershipControls.builder().rules(OwnershipControlsRule.builder().objectOwnership(getObjectOwnership()).build()).build()).build());
         }
     }
 
@@ -1207,7 +1264,7 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
             JsonNode jsonNode = obj.readTree(policy);
             return jsonNode.toString();
         } catch (IOException ex) {
-            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+            throw new GyroException(String.format("Could not read the json `%s`", policy), ex);
         }
     }
 }
