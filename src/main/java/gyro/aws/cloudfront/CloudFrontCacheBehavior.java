@@ -23,6 +23,8 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.DefaultCacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.ForwardedValues;
+import software.amazon.awssdk.services.cloudfront.model.FunctionAssociation;
+import software.amazon.awssdk.services.cloudfront.model.FunctionAssociations;
 import software.amazon.awssdk.services.cloudfront.model.ItemSelection;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociations;
@@ -52,6 +54,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     private Set<String> trustedSigners;
     private String fieldLevelEncryptionId;
     private Set<CloudFrontCacheBehaviorLambdaFunction> lambdaFunctions;
+    private Set<CloudFrontCacheBehaviorFunctionAssociation> functionAssociations;
 
     /**
      * The ID for the origin to route requests to when the path pattern matches this cache behavior.
@@ -301,6 +304,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         this.trustedSigners = trustedSigners;
     }
 
+    /**
+     * The Field Level Encryption configuration ID.
+     */
     @Updatable
     public String getFieldLevelEncryptionId() {
         if (fieldLevelEncryptionId == null) {
@@ -314,6 +320,11 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         this.fieldLevelEncryptionId = fieldLevelEncryptionId;
     }
 
+    /**
+     * The lambda functions associated with this cache behavior.
+     *
+     * @subresource gyro.aws.cloudfront.CloudFrontCacheBehaviorLambdaFunction
+     */
     @Updatable
     public Set<CloudFrontCacheBehaviorLambdaFunction> getLambdaFunctions() {
         if (lambdaFunctions == null) {
@@ -324,6 +335,24 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     public void setLambdaFunctions(Set<CloudFrontCacheBehaviorLambdaFunction> lambdaFunctions) {
         this.lambdaFunctions = lambdaFunctions;
+    }
+
+    /**
+     * The cloudfront function associations with this cache behavior.
+     *
+     * @subresource gyro.aws.cloudfront.CloudFrontCacheBehaviorFunctionAssociation
+     */
+    @Updatable
+    public Set<CloudFrontCacheBehaviorFunctionAssociation> getFunctionAssociations() {
+        if (functionAssociations == null) {
+            functionAssociations = new HashSet<>();
+        }
+
+        return functionAssociations;
+    }
+
+    public void setFunctionAssociations(Set<CloudFrontCacheBehaviorFunctionAssociation> functionAssociations) {
+        this.functionAssociations = functionAssociations;
     }
 
     @Override
@@ -368,6 +397,15 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
                 getLambdaFunctions().add(cloudFrontCacheBehaviorLambdaFunction);
             }
         }
+
+        getFunctionAssociations().clear();
+        if (cacheBehavior.functionAssociations() != null && !cacheBehavior.functionAssociations().items().isEmpty()) {
+            for (FunctionAssociation functionAssociation : cacheBehavior.functionAssociations().items()) {
+                CloudFrontCacheBehaviorFunctionAssociation cloudFrontCacheBehaviorFunctionAssociation = newSubresource(CloudFrontCacheBehaviorFunctionAssociation.class);
+                cloudFrontCacheBehaviorFunctionAssociation.copyFrom(functionAssociation);
+                getFunctionAssociations().add(cloudFrontCacheBehaviorFunctionAssociation);
+            }
+        }
     }
 
     @Override
@@ -388,7 +426,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .compress(defaultCacheBehavior.compress())
             .fieldLevelEncryptionId(defaultCacheBehavior.fieldLevelEncryptionId())
             .smoothStreaming(defaultCacheBehavior.smoothStreaming())
-            .lambdaFunctionAssociations(defaultCacheBehavior.lambdaFunctionAssociations()).build();
+            .lambdaFunctionAssociations(defaultCacheBehavior.lambdaFunctionAssociations())
+            .functionAssociations(defaultCacheBehavior.functionAssociations())
+            .build();
     }
 
     DefaultCacheBehavior toDefaultCacheBehavior() {
@@ -410,6 +450,11 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .quantity(getLambdaFunctions().size())
             .build();
 
+        FunctionAssociations functionAssociations = FunctionAssociations.builder()
+            .items(getFunctionAssociations().stream().map(f -> f.toFunctionAssociation()).collect(Collectors.toList()))
+            .quantity(getFunctionAssociations().size())
+            .build();
+
         return DefaultCacheBehavior.builder()
             .allowedMethods(am -> am.itemsWithStrings(getAllowedMethods())
                 .quantity(getAllowedMethods().size())
@@ -423,6 +468,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .forwardedValues(forwardedValues)
             .trustedSigners(trustedSigners)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
+            .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
             .fieldLevelEncryptionId(getFieldLevelEncryptionId())
             .compress(getCompress())
@@ -448,6 +494,11 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .quantity(getLambdaFunctions().size())
             .build();
 
+        FunctionAssociations functionAssociations = FunctionAssociations.builder()
+            .items(getFunctionAssociations().stream().map(f -> f.toFunctionAssociation()).collect(Collectors.toList()))
+            .quantity(getFunctionAssociations().size())
+            .build();
+
         return CacheBehavior.builder()
             .allowedMethods(am -> am.itemsWithStrings(getAllowedMethods())
                 .quantity(getAllowedMethods().size())
@@ -462,6 +513,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .forwardedValues(forwardedValues)
             .trustedSigners(trustedSigners)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
+            .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
             .fieldLevelEncryptionId(getFieldLevelEncryptionId())
             .compress(getCompress())
