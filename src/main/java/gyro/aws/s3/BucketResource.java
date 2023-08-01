@@ -870,20 +870,26 @@ public class BucketResource extends AwsResource implements Copyable<Bucket> {
     }
 
     private void loadAccelerateConfig(S3Client client) {
-        GetBucketAccelerateConfigurationResponse response = client.getBucketAccelerateConfiguration(
-            r -> r.bucket(getName()).build()
-        );
+        try {
+            GetBucketAccelerateConfigurationResponse response = client.getBucketAccelerateConfiguration(
+                r -> r.bucket(getName()).build()
+            );
 
-        setEnableAccelerateConfig(response.status() != null && response.status().equals(BucketAccelerateStatus.ENABLED));
+            setEnableAccelerateConfig(
+                response.status() != null && response.status().equals(BucketAccelerateStatus.ENABLED));
+        } catch (S3Exception ex) {
+            // This error is thrown when trying to loadAccelerateConfig in regions where accelerate config is disabled
+            if (!ex.awsErrorDetails().errorCode().contains("MethodNotAllowed")) {
+                throw ex;
+            }
+        }
     }
 
     private void saveAccelerateConfig(S3Client client) {
-        client.putBucketAccelerateConfiguration(
-            r -> r.bucket(getName())
-                .accelerateConfiguration(
-                    ac -> ac.status(getEnableAccelerateConfig() ? BucketAccelerateStatus.ENABLED : BucketAccelerateStatus.SUSPENDED)
-                )
-        );
+        client.putBucketAccelerateConfiguration(r -> r.bucket(getName()).accelerateConfiguration(
+            ac -> ac.status(getEnableAccelerateConfig() ? BucketAccelerateStatus.ENABLED :
+                BucketAccelerateStatus.SUSPENDED)
+        ));
     }
 
     private void loadEnableVersioning(S3Client client) {
