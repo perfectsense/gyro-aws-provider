@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.5 (August 1st, 2023)
+
+ISSUES FIXED:
+
+* [609](https://github.com/perfectsense/gyro-aws-provider/issues/609): Fix S3 erroring out when trying to load accelerate configs in unsupported region.
+
 ## 1.5.4 (April 12th, 2023)
 
 ENHANCEMENTS:
