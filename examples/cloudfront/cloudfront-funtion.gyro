@@ -1,10 +1,10 @@
 aws::cloudfront-function cloudfront-function
     name: "cloudfront-function-example-function"
 
-    content-zip-path: "example-function.js"
+    content-file-path: "example-function.js"
 
     config
         runtime: "cloudfront-js-1.0"
-        comment: "test-function-n"
+        comment: "test-function"
     end
 end

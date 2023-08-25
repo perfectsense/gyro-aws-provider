@@ -33,6 +33,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CreateFunctionResponse;
@@ -44,12 +45,31 @@ import software.amazon.awssdk.services.cloudfront.model.NoSuchFunctionExistsExce
 import software.amazon.awssdk.services.cloudfront.model.PublishFunctionResponse;
 import software.amazon.awssdk.services.cloudfront.model.UpdateFunctionResponse;
 
+/**
+ * Create Cloudfront Function.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    aws::cloudfront-function cloudfront-function
+ *     name: "cloudfront-function-example-function"
+ *
+ *     content-file-path: "example-function.js"
+ *
+ *     config
+ *         runtime: "cloudfront-js-1.0"
+ *         comment: "test-function"
+ *     end
+ * end
+ */
 @Type("cloudfront-function")
 public class CloudFrontFunctionResource extends AwsResource implements Copyable<FunctionSummary> {
 
     private String name;
     private CloudFrontFunctionConfig config;
-    private String contentZipPath;
+    private String contentFilePath;
     private Boolean publish;
 
     private String createdTime;
@@ -61,7 +81,6 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
     /**
      * The name of the function.
      */
-    @Id
     @Required
     public String getName() {
         return name;
@@ -129,6 +148,7 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
     /**
      * The ARN of the function.
      */
+    @Id
     @Output
     public String getArn() {
         return arn;
@@ -164,20 +184,20 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
 
     @Required
     @Updatable
-    public String getContentZipPath() {
-        if (!ObjectUtils.isBlank(contentZipPath) && !contentZipPath.startsWith("Path:")) {
-            return String.format("Path: %s, Hash: %s", contentZipPath, getFileHashFromPath());
+    public String getContentFilePath() {
+        if (!ObjectUtils.isBlank(contentFilePath) && !contentFilePath.startsWith("Path:")) {
+            return String.format("Path: %s, Hash: %s", contentFilePath, getFileHashFromPath());
         } else {
-            return contentZipPath;
+            return contentFilePath;
         }
     }
 
     private String getContentZipPathRaw() {
-        return contentZipPath;
+        return contentFilePath;
     }
 
-    public void setContentZipPath(String contentZipPath) {
-        this.contentZipPath = contentZipPath;
+    public void setContentFilePath(String contentFilePath) {
+        this.contentFilePath = contentFilePath;
     }
 
     @Override
@@ -203,13 +223,10 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
 
     @Override
     public boolean refresh() {
-        CloudFrontClient client = createClient(
-            CloudFrontClient.class,
-            "us-east-1",
-            "https://cloudfront.amazonaws.com");
+        CloudFrontClient client = getCloudFrontClient();
 
         try {
-            DescribeFunctionResponse response = client.describeFunction(r -> r.name(getName()));
+            DescribeFunctionResponse response = client.describeFunction(r -> r.name(getFunctionName()));
 
             copyFrom(response.functionSummary());
 
@@ -221,21 +238,18 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        CloudFrontClient client = createClient(
-            CloudFrontClient.class,
-            "us-east-1",
-            "https://cloudfront.amazonaws.com");
+        CloudFrontClient client = getCloudFrontClient();
 
         CreateFunctionResponse function = client.createFunction(r -> r
-            .name(getName())
-            .functionCode(getZipFile())
+            .name(getFunctionName())
+            .functionCode(getContentFile())
             .functionConfig(getConfig().toFunctionConfig())
             .build());
 
         copyFrom(function.functionSummary());
 
         if (getPublish()) {
-            PublishFunctionResponse response = client.publishFunction(r -> r.name(getName())
+            PublishFunctionResponse response = client.publishFunction(r -> r.name(getFunctionName())
                 .ifMatch(function.eTag()));
 
             copyFrom(response.functionSummary());
@@ -251,21 +265,18 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
             }
         }
 
-        CloudFrontClient client = createClient(
-            CloudFrontClient.class,
-            "us-east-1",
-            "https://cloudfront.amazonaws.com");
+        CloudFrontClient client = getCloudFrontClient();
 
         GetFunctionResponse fn = getFunction(client);
 
-        UpdateFunctionResponse function = client.updateFunction(r -> r.name(getName())
-            .functionCode(getZipFile())
+        UpdateFunctionResponse function = client.updateFunction(r -> r.name(getFunctionName())
+            .functionCode(getContentFile())
             .functionConfig(getConfig().toFunctionConfig())
             .ifMatch(fn.eTag())
             .build());
 
         if (getPublish()) {
-            PublishFunctionResponse response = client.publishFunction(r -> r.name(getName())
+            PublishFunctionResponse response = client.publishFunction(r -> r.name(getFunctionName())
                 .ifMatch(function.eTag()));
 
             copyFrom(response.functionSummary());
@@ -274,27 +285,33 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        CloudFrontClient client = createClient(
-            CloudFrontClient.class,
-            "us-east-1",
-            "https://cloudfront.amazonaws.com");
+        CloudFrontClient client = getCloudFrontClient();
 
         GetFunctionResponse fn = getFunction(client);
 
         if (fn != null) {
             try {
-                client.deleteFunction(r -> r.name(getName()).ifMatch(fn.eTag()));
+                client.deleteFunction(r -> r.name(getFunctionName()).ifMatch(fn.eTag()));
             } catch (NoSuchFunctionExistsException ex) {
                 // ignore
             }
         }
     }
 
+    private CloudFrontClient getCloudFrontClient() {
+        CloudFrontClient client = createClient(
+            CloudFrontClient.class,
+            "us-east-1",
+            "https://cloudfront.amazonaws.com");
+
+        return client;
+    }
+
     private GetFunctionResponse getFunction(CloudFrontClient client) {
         GetFunctionResponse function = null;
 
         try {
-            function = client.getFunction(r -> r.name(getName()));
+            function = client.getFunction(r -> r.name(getFunctionName()));
         } catch (NoSuchFunctionExistsException ex) {
             // ignore
         }
@@ -302,7 +319,7 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
         return function;
     }
 
-    private SdkBytes getZipFile() {
+    private SdkBytes getContentFile() {
         try (InputStream input = openInput(getContentZipPathRaw())) {
             return SdkBytes.fromInputStream(input);
 
@@ -321,5 +338,15 @@ public class CloudFrontFunctionResource extends AwsResource implements Copyable<
         }
 
         return hash;
+    }
+
+    private String getFunctionName() {
+        String functionName = getName();
+
+        if (StringUtils.isBlank(functionName)) {
+            functionName = getArn().substring(getArn().lastIndexOf("/") + 1);
+        }
+
+        return functionName;
     }
 }

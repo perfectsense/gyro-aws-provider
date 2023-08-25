@@ -28,6 +28,16 @@ import software.amazon.awssdk.services.cloudfront.model.ListFunctionsRequest;
 import software.amazon.awssdk.services.cloudfront.model.ListFunctionsResponse;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchFunctionExistsException;
 
+/**
+ * Query cloudfront function.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cloudfront-function: $(external-query aws::cloudfront-function { })
+ */
 @Type("cloudfront-function")
 public class CloudFrontFunctionFinder extends AwsFinder<CloudFrontClient, FunctionSummary, CloudFrontFunctionResource> {
 

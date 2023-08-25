@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.cloudfront.model.FunctionAssociation;
 
 public class CloudFrontCacheBehaviorFunctionAssociation extends Diffable implements Copyable<FunctionAssociation> {
 
-    private String arn;
+    private CloudFrontFunctionResource function;
     private EventType eventType;
 
     /**
@@ -34,12 +34,12 @@ public class CloudFrontCacheBehaviorFunctionAssociation extends Diffable impleme
      */
     @Required
     @Updatable
-    public String getArn() {
-        return arn;
+    public CloudFrontFunctionResource getFunction() {
+        return function;
     }
 
-    public void setArn(String arn) {
-        this.arn = arn;
+    public void setFunction(CloudFrontFunctionResource function) {
+        this.function = function;
     }
 
     /**
@@ -59,7 +59,7 @@ public class CloudFrontCacheBehaviorFunctionAssociation extends Diffable impleme
     @Override
     public void copyFrom(FunctionAssociation model) {
         setEventType(model.eventType());
-        setArn(model.functionARN());
+        setFunction(findById(CloudFrontFunctionResource.class, model.functionARN()));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CloudFrontCacheBehaviorFunctionAssociation extends Diffable impleme
     FunctionAssociation toFunctionAssociation() {
         return FunctionAssociation.builder()
             .eventType(getEventType())
-            .functionARN(getArn())
+            .functionARN(getFunction().getArn())
             .build();
     }
 }
