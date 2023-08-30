@@ -1,0 +1,10 @@
+aws::cloudfront-function cloudfront-function
+    name: "cloudfront-function-example-function"
+
+    content-file-path: "example-function.js"
+
+    config
+        runtime: "cloudfront-js-1.0"
+        comment: "test-function"
+    end
+end
