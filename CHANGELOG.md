@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.6 (August 30th, 2023)
+
+ENHANCEMENTS:
+
+* [608](https://github.com/perfectsense/gyro-aws-provider/pull/608): Allow configuring Cloudfront Functions.
+
 ## 1.5.5 (August 1st, 2023)
 
 ISSUES FIXED:
