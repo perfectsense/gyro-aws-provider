@@ -16,6 +16,7 @@
 
 package gyro.aws.ec2;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateRouteTableResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeRouteTablesResponse;
@@ -71,6 +73,7 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
     private VpcResource vpc;
     private Set<SubnetResource> subnets;
     private Set<RouteResource> route;
+    private VpnGatewayResource vpnGateway;
     private String id;
     private String ownerId;
 
@@ -118,6 +121,18 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
 
     public void setRoute(Set<RouteResource> route) {
         this.route = route;
+    }
+
+    /**
+     * The VPN Gateway to associate with this Route Table.
+     */
+    @Updatable
+    public VpnGatewayResource getVpnGateway() {
+        return vpnGateway;
+    }
+
+    public void setVpnGateway(VpnGatewayResource vpnGateway) {
+        this.vpnGateway = vpnGateway;
     }
 
     /**
@@ -180,6 +195,11 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
             getRoute().add(routeResource);
         }
 
+        setVpnGateway(null);
+        if (!routeTable.propagatingVgws().isEmpty()) {
+            setVpnGateway(findById(VpnGatewayResource.class, routeTable.propagatingVgws().get(0).gatewayId()));
+        }
+
         refreshTags();
     }
 
@@ -217,32 +237,63 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         for (String subnetId : getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList())) {
             client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
         }
+
+        VpnGatewayResource gateway = getVpnGateway();
+        if (gateway != null) {
+            state.save();
+            
+            if (gateway.getVpc() == null) {
+                throw new GyroException("Cannot attach VPN Gateway to Route Table without a VPC!");
+            }
+
+            client.enableVgwRoutePropagation(r -> r.routeTableId(getId()).gatewayId(gateway.getId()));
+        }
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource current, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
 
-        RouteTableResource currentResource = (RouteTableResource) current;
+        if (changedProperties.contains("subnets")) {
+            RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<String> additions = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
-        additions.removeAll(currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()));
+            List<String> additions = getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList());
+            additions.removeAll(currentResource.getSubnets()
+                .stream()
+                .map(SubnetResource::getId)
+                .collect(Collectors.toList()));
 
-        Set<String> subtractions = currentResource.getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet());
-        subtractions.removeAll(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()));
+            Set<String> subtractions = currentResource.getSubnets()
+                .stream()
+                .map(SubnetResource::getId)
+                .collect(Collectors.toSet());
+            subtractions.removeAll(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()));
 
-        for (String subnetId : additions) {
-            client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
+            for (String subnetId : additions) {
+                client.associateRouteTable(r -> r.routeTableId(getId()).subnetId(subnetId));
+            }
+
+            RouteTable routeTable = getRouteTable(client);
+
+            List<String> routeTableAssociations = routeTable.associations().stream()
+                .filter(o -> !o.main() && subtractions.contains(o.subnetId()))
+                .map(RouteTableAssociation::routeTableAssociationId)
+                .collect(Collectors.toList());
+
+            routeTableAssociations.forEach(o -> client.disassociateRouteTable(r -> r.associationId(o)));
         }
 
-        RouteTable routeTable = getRouteTable(client);
+        if (changedProperties.contains("vpn-gateway")) {
+            RouteTableResource currentResource = (RouteTableResource) current;
 
-        List<String> routeTableAssociations = routeTable.associations().stream()
-            .filter(o -> !o.main() && subtractions.contains(o.subnetId()))
-            .map(RouteTableAssociation::routeTableAssociationId)
-            .collect(Collectors.toList());
+            if (currentResource.getVpnGateway() != null) {
+                client.disableVgwRoutePropagation(r -> r.routeTableId(getId()).gatewayId(currentResource.getVpnGateway().getId()));
+            }
 
-        routeTableAssociations.forEach(o ->  client.disassociateRouteTable(r -> r.associationId(o)));
+            if (getVpnGateway() != null) {
+                client.enableVgwRoutePropagation(r -> r.routeTableId(getId()).gatewayId(getVpnGateway().getId()));
+            }
+        }
     }
 
     @Override
@@ -283,5 +334,24 @@ public class RouteTableResource extends Ec2TaggableResource<RouteTable> implemen
         }
 
         return routeTable;
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("vpn-gateway") && getVpnGateway() != null
+            && ((getVpnGateway().getVpc() == null)
+            || (getVpnGateway().getVpc() != null
+            && !getVpc().equals(getVpnGateway().getVpc())))) {
+            //&& !isVpcSame(getVpc(), getVpnGateway().getVpc())))) {
+            errors.add(new ValidationError(
+                this,
+                "vpn-gateway",
+                "Can only attach a 'vpn-gateway' that is attached to the same vpc as the one associated with the route table"
+            ));
+        }
+
+        return errors;
     }
 }
