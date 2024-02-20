@@ -16,23 +16,35 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.RateBasedStatement;
+import software.amazon.awssdk.services.wafv2.model.RateBasedStatementCustomKey;
 
 public class RateBasedStatementResource extends Diffable implements Copyable<RateBasedStatement> {
 
     private String aggregateKeyType;
     private Long limit;
     private StatementResource scopeDownStatement;
+    private Set<RateBasedStatementCustomKeyResource> customKeys;
 
     /**
      * The aggregate key type for the rate based statement. Defaults to ``IP``.
      */
-    @ValidStrings("IP")
+    @ValidStrings({"IP", "FORWARDED_IP", "CONSTANT", "CUSTOM_KEYS"})
     public String getAggregateKeyType() {
         if (aggregateKeyType == null) {
             aggregateKeyType = "IP";
@@ -69,6 +81,24 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
         this.scopeDownStatement = scopeDownStatement;
     }
 
+    /**
+     * The list of custom key configs for the rate based statement.
+     *
+     * @subresource gyro.aws.wafv2.RateBasedStatementCustomKeyResource
+     */
+    @Updatable
+    public Set<RateBasedStatementCustomKeyResource> getCustomKeys() {
+        if (customKeys == null) {
+            customKeys = new HashSet<>();
+        }
+
+        return customKeys;
+    }
+
+    public void setCustomKeys(Set<RateBasedStatementCustomKeyResource> customKeys) {
+        this.customKeys = customKeys;
+    }
+
     @Override
     public String primaryKey() {
         return String.format(
@@ -90,6 +120,16 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
             statement.copyFrom(rateBasedStatement.scopeDownStatement());
             setScopeDownStatement(statement);
         }
+
+        setCustomKeys(null);
+        if (rateBasedStatement.customKeys() != null) {
+            setCustomKeys(rateBasedStatement.customKeys().stream()
+                .map(customKey -> {
+                    RateBasedStatementCustomKeyResource customKeyResource = newSubresource(RateBasedStatementCustomKeyResource.class);
+                    customKeyResource.copyFrom(customKey);
+                    return customKeyResource;
+                }).collect(Collectors.toSet()));
+        }
     }
 
     RateBasedStatement toRateBasedStatement() {
@@ -99,9 +139,33 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
 
         if (getScopeDownStatement() != null) {
             builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
+        }
 
+        if (!getCustomKeys().isEmpty()) {
+            builder.customKeys(getCustomKeys().stream()
+                .map(RateBasedStatementCustomKeyResource::toRateBasedStatementCustomKey)
+                .collect(Collectors.toList()));
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getAggregateKeyType().equals("CUSTOM_KEYS") && getCustomKeys().isEmpty()) {
+            errors.add(new ValidationError(
+                this,
+                "custom-keys",
+                "'custom-keys' is required when 'aggregate-key-type' is set to 'CUSTOM_KEYS'."));
+        } else if (!getAggregateKeyType().equals("CUSTOM_KEYS") && !getCustomKeys().isEmpty()) {
+                errors.add(new ValidationError(
+                    this,
+                    "custom-keys",
+                    "'custom-keys' is not allowed when 'aggregate-key-type' is not set to 'CUSTOM_KEYS'."));
+        }
+
+        return errors;
     }
 }

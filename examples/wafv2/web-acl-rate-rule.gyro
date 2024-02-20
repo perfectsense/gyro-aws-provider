@@ -1,0 +1,62 @@
+aws::wafv2-web-acl web-acl-example
+    name: "web-acl-example"
+    description: "web-acl-example-desc"
+    scope: "CLOUDFRONT"
+    default-action: "BLOCK"
+
+    visibility-config
+        metric-name: "web-acl-example"
+        cloud-watch-metrics-enabled: false
+        sampled-requests-enabled: false
+    end
+
+    rule
+        name: web-acl-example-rule-1
+        priority: 0
+        action: "COUNT"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-1"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            rate-based-statement
+                aggregate-key-type: "CUSTOM_KEYS"
+                limit: 1000
+
+                custom-keys
+                    header
+                        name: "X-Forwarded-For"
+
+                        text-transformation
+                            priority: 1
+                            type: "HTML_ENTITY_DECODE"
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    rule
+        name: web-acl-example-rule-2
+        priority: 1
+        action: "COUNT"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-1"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            rate-based-statement
+                aggregate-key-type: "IP"
+                limit: 1000
+            end
+        end
+    end
+end
+
