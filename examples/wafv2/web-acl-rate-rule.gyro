@@ -36,6 +36,17 @@ aws::wafv2-web-acl web-acl-example
                         end
                     end
                 end
+
+                custom-keys
+                    forwarded-ip
+
+                    end
+                end
+
+                forwarded-ip-config
+                    header-name: "X-Forwarded-For"
+                    fallback-behavior: "MATCH"
+                end
             end
         end
     end
@@ -53,8 +64,54 @@ aws::wafv2-web-acl web-acl-example
 
         statement
             rate-based-statement
-                aggregate-key-type: "IP"
+                aggregate-key-type: "FORWARDED_IP"
                 limit: 1000
+
+                forwarded-ip-config
+                    header-name: "X-Forwarded-For"
+                    fallback-behavior: "MATCH"
+                end
+            end
+        end
+    end
+
+    rule
+        name: web-acl-example-rule-3
+        priority: 2
+        action: "COUNT"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-1"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            rate-based-statement
+                aggregate-key-type: "CONSTANT"
+                limit: 1000
+
+                scope-down-statement
+                    size-constraint-statement
+                        field-to-match
+                            match-type: "URI_PATH"
+                        end
+
+                        comparison-operator: "EQ"
+
+                        text-transformation
+                            priority: 0
+                            type: "COMPRESS_WHITE_SPACE"
+                        end
+
+                        text-transformation
+                            priority: 1
+                            type: "HTML_ENTITY_DECODE"
+                        end
+
+                        size: 3
+                    end
+                end
             end
         end
     end
