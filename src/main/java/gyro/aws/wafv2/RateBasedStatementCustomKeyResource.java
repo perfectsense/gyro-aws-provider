@@ -16,8 +16,15 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.RateBasedStatementCustomKey;
 
 public class RateBasedStatementCustomKeyResource extends Diffable implements Copyable<RateBasedStatementCustomKey> {
@@ -30,7 +37,7 @@ public class RateBasedStatementCustomKeyResource extends Diffable implements Cop
     private RateLimitIPResource ip;
     private RateLimitLabelNamespaceResource labelNamespace;
     private RateLimitUriPathResource uriPath;
-    private RateLimitForwardedIPResource forwardedIP;
+    private RateLimitForwardedIPResource forwardedIp;
 
     /**
      * The header to use for the rate limit.
@@ -141,12 +148,12 @@ public class RateBasedStatementCustomKeyResource extends Diffable implements Cop
      *
      * @subresource gyro.aws.wafv2.RateLimitForwardedIPResource
      */
-    public RateLimitForwardedIPResource getForwardedIP() {
-        return forwardedIP;
+    public RateLimitForwardedIPResource getForwardedIp() {
+        return forwardedIp;
     }
 
-    public void setForwardedIP(RateLimitForwardedIPResource forwardedIP) {
-        this.forwardedIP = forwardedIP;
+    public void setForwardedIp(RateLimitForwardedIPResource forwardedIp) {
+        this.forwardedIp = forwardedIp;
     }
 
     @Override
@@ -208,11 +215,11 @@ public class RateBasedStatementCustomKeyResource extends Diffable implements Cop
             setUriPath(uriPath);
         }
 
-        setForwardedIP(null);
+        setForwardedIp(null);
         if (model.forwardedIP() != null) {
             RateLimitForwardedIPResource forwardedIP = newSubresource(RateLimitForwardedIPResource.class);
             forwardedIP.copyFrom(model.forwardedIP());
-            setForwardedIP(forwardedIP);
+            setForwardedIp(forwardedIP);
         }
     }
 
@@ -222,37 +229,21 @@ public class RateBasedStatementCustomKeyResource extends Diffable implements Cop
 
         if (getHeader() != null) {
             sb.append("with header: ").append(getHeader().primaryKey());
-        }
-
-        if (getCookie() != null) {
+        } else if (getCookie() != null) {
             sb.append("with cookie: ").append(getCookie().primaryKey());
-        }
-
-        if (getQueryString() != null) {
+        } else if (getQueryString() != null) {
             sb.append("with query string");
-        }
-
-        if (getQueryArgument() != null) {
+        } else if (getQueryArgument() != null) {
             sb.append("with query argument: ").append(getQueryArgument().primaryKey());
-        }
-
-        if (getHttpMethod() != null) {
+        } else if (getHttpMethod() != null) {
             sb.append("with http method");
-        }
-
-        if (getIp() != null) {
+        } else if (getIp() != null) {
             sb.append("with ip");
-        }
-
-        if (getLabelNamespace() != null) {
+        } else if (getLabelNamespace() != null) {
             sb.append("with label namespace: ").append(getLabelNamespace().primaryKey());
-        }
-
-        if (getUriPath() != null) {
+        } else if (getUriPath() != null) {
             sb.append("with uri path");
-        }
-
-        if (getForwardedIP() != null) {
+        } else if (getForwardedIp() != null) {
             sb.append("with forwarded IP");
         }
 
@@ -264,40 +255,53 @@ public class RateBasedStatementCustomKeyResource extends Diffable implements Cop
 
         if (getHeader() != null) {
             builder = builder.header(getHeader().toRateLimitHeader());
-        }
-
-        if (getCookie() != null) {
+        } else if (getCookie() != null) {
             builder = builder.cookie(getCookie().toRateLimitCookie());
-        }
-
-        if (getQueryString() != null) {
+        } else if (getQueryString() != null) {
             builder = builder.queryString(getQueryString().toRateLimitQueryString());
-        }
-
-        if (getQueryArgument() != null) {
+        } else if (getQueryArgument() != null) {
             builder = builder.queryArgument(getQueryArgument().toRateLimitQueryArgument());
-        }
-
-        if (getHttpMethod() != null) {
+        } else if (getHttpMethod() != null) {
             builder = builder.httpMethod(getHttpMethod().toRateLimitHTTPMethod());
-        }
-
-        if (getIp() != null) {
+        } else if (getIp() != null) {
             builder = builder.ip(getIp().toRateLimitIP());
-        }
-
-        if (getLabelNamespace() != null) {
+        } else if (getLabelNamespace() != null) {
             builder = builder.labelNamespace(getLabelNamespace().toRateLimitLabelNamespace());
-        }
-
-        if (getUriPath() != null) {
+        } else if (getUriPath() != null) {
             builder = builder.uriPath(getUriPath().toRateLimitUriPath());
-        }
-
-        if (getForwardedIP() != null) {
-            builder = builder.forwardedIP(getForwardedIP().toRateLimitForwardedIP());
+        } else if (getForwardedIp() != null) {
+            builder = builder.forwardedIP(getForwardedIp().toRateLimitForwardedIP());
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        long count  = Stream.of(
+            getHeader(),
+            getCookie(),
+            getQueryString(),
+            getQueryArgument(),
+            getHttpMethod(),
+            getIp(),
+            getLabelNamespace(),
+            getUriPath(),
+            getForwardedIp())
+            .filter(Objects::nonNull)
+            .count();
+
+        if (count != 1) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "One and only one of [ 'header', 'cookie', 'query-string', "
+                    + "'query-argument', 'http-method', 'ip', 'label-namespace', "
+                    + "'uri-path', 'forwarded-ip' ] is required!"));
+        }
+
+        return errors;
     }
 }
