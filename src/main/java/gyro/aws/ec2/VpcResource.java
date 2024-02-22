@@ -19,6 +19,7 @@ package gyro.aws.ec2;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsCredentials;
@@ -27,12 +28,14 @@ import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import org.apache.commons.lang3.StringUtils;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.ClassicLinkDnsSupport;
@@ -84,6 +87,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
     private Boolean defaultVpc;
     private String region;
     private String account;
+    private String ipv6CidrBlock;
 
     /**
      * The IPv4 network range for the VPC, in CIDR notation.
@@ -262,6 +266,18 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         this.account = account;
     }
 
+    /**
+     * The IPv6 CIDR block associated with the VPC.
+     */
+    @Output
+    public String getIpv6CidrBlock() {
+        return ipv6CidrBlock;
+    }
+
+    public void setIpv6CidrBlock(String ipv6CidrBlock) {
+        this.ipv6CidrBlock = ipv6CidrBlock;
+    }
+
     @Override
     public String getResourceId() {
         return getId();
@@ -276,6 +292,7 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setOwnerId(vpc.ownerId());
         setDefaultVpc(vpc.isDefault());
         setProvideIpv6CidrBlock(!vpc.ipv6CidrBlockAssociationSet().isEmpty());
+        setIpv6CidrBlock(vpc.ipv6CidrBlockAssociationSet().isEmpty() ? null : vpc.ipv6CidrBlockAssociationSet().get(0).ipv6CidrBlock());
 
         Ec2Client client = createClient(Ec2Client.class);
 
@@ -349,6 +366,20 @@ public class VpcResource extends Ec2TaggableResource<Vpc> implements Copyable<Vp
         setOwnerId(vpc.ownerId());
         setInstanceTenancy(vpc.instanceTenancyAsString());
         setRegion(credentials(AwsCredentials.class).getRegion());
+
+        if (getProvideIpv6CidrBlock() != null && getProvideIpv6CidrBlock()) {
+            Wait.atMost(1, TimeUnit.MINUTES)
+                .checkEvery(10, TimeUnit.SECONDS)
+                .prompt(false)
+                .until(() -> {
+                    Vpc vpcResponse = getVpc(client);
+
+                    setIpv6CidrBlock(vpcResponse.ipv6CidrBlockAssociationSet().isEmpty()
+                        ? null : vpcResponse.ipv6CidrBlockAssociationSet().get(0).ipv6CidrBlock());
+                    return !StringUtils.isBlank(getIpv6CidrBlock());
+                });
+        }
+
 
         modifySettings(client, new HashSet<>());
     }
