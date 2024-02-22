@@ -32,7 +32,7 @@ public class RuleActionChallengeConfig extends Diffable implements Copyable<Chal
      */
     @Required
     @Updatable
-    @Min(60)
+    @Min(300)
     public Long getImmunityTime() {
         return immunityTime;
     }
