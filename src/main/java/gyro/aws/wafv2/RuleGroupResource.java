@@ -254,6 +254,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     private Long capacity;
     private Set<RuleResource> rule;
     private VisibilityConfigResource visibilityConfig;
+    private Set<CustomResponseBodyResource> customResponseBody;
     private String policy;
     private String arn;
     private String id;
@@ -329,6 +330,24 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     }
 
     /**
+     * A set of custom response body for the rule group.
+     *
+     * @subresource gyro.aws.wafv2.CustomResponseBodyResource
+     */
+    @Updatable
+    public Set<CustomResponseBodyResource> getCustomResponseBody() {
+        if (customResponseBody == null) {
+            customResponseBody = new HashSet<>();
+        }
+
+        return customResponseBody;
+    }
+
+    public void setCustomResponseBody(Set<CustomResponseBodyResource> customResponseBody) {
+        this.customResponseBody = customResponseBody;
+    }
+
+    /**
      * The policy document. A policy path or policy string is allowed.
      */
     @Updatable
@@ -394,6 +413,16 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
         visibilityConfig.copyFrom(ruleGroup.visibilityConfig());
         setVisibilityConfig(visibilityConfig);
 
+        setCustomResponseBody(null);
+        if (ruleGroup.customResponseBodies() != null) {
+            ruleGroup.customResponseBodies().forEach((key, value) -> {
+                CustomResponseBodyResource customResponseBody = newSubresource(CustomResponseBodyResource.class);
+                customResponseBody.copyFrom(value);
+                customResponseBody.setName(key);
+                getCustomResponseBody().add(customResponseBody);
+            });
+        }
+
         Wafv2Client client = createClient(Wafv2Client.class);
         try {
             GetPermissionPolicyResponse response = client.getPermissionPolicy(r -> r.resourceArn(getArn()));
@@ -444,6 +473,9 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
             .capacity(capacity)
             .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
             .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
+            .customResponseBodies(getCustomResponseBody().stream()
+                .collect(Collectors.toMap(CustomResponseBodyResource::getName,
+                    CustomResponseBodyResource::toCustomResponseBody)))
             .build());
 
         setId(response.summary().id());
@@ -463,14 +495,18 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
 
         if (changedProperties.contains("rule")
             || changedProperties.contains("description")
-            || changedProperties.contains("visibility-config")) {
+            || changedProperties.contains("visibility-config")
+            || changedProperties.contains("custom-response-body")) {
             client.updateRuleGroup(r -> r.id(getId())
                 .name(getName())
                 .scope(getScope())
                 .description(getDescription())
                 .lockToken(lockToken(client))
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
-                .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+                .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
+                    .customResponseBodies(getCustomResponseBody().stream()
+                        .collect(Collectors.toMap(CustomResponseBodyResource::getName,
+                            CustomResponseBodyResource::toCustomResponseBody))));
         }
 
         if (changedProperties.contains("policy")) {
