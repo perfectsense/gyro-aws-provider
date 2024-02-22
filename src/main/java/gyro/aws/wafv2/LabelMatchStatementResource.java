@@ -27,7 +27,6 @@ public class LabelMatchStatementResource extends Diffable implements Copyable<La
 
     private LabelMatchScope scope;
     private String key;
-    private String label;
 
     /**
      * The part of the web request that you want AWS WAF to inspect.
@@ -52,18 +51,6 @@ public class LabelMatchStatementResource extends Diffable implements Copyable<La
 
     public void setKey(String key) {
         this.key = key;
-    }
-
-    /**
-     * The label that you want AWS WAF to search for.
-     */
-    @Required
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     @Override
