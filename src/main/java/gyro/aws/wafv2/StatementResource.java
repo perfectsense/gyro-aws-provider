@@ -39,6 +39,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
     private SizeConstraintStatementResource sizeConstraintStatement;
     private SqliMatchStatementResource sqliMatchStatement;
     private XssMatchStatementResource xssMatchStatement;
+    private LabelMatchStatementResource labelMatchStatement;
     private RateBasedStatementResource rateBasedStatement;
     private ManagedRuleGroupStatementResource managedRuleGroupStatement;
     private RuleGroupReferenceStatementResource ruleGroupReferenceStatement;
@@ -174,6 +175,19 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
     }
 
     /**
+     * Label match statement configuration.
+     *
+     * @subresource gyro.aws.wafv2.LabelMatchStatementResource
+     */
+    public LabelMatchStatementResource getLabelMatchStatement() {
+        return labelMatchStatement;
+    }
+
+    public void setLabelMatchStatement(LabelMatchStatementResource labelMatchStatement) {
+        this.labelMatchStatement = labelMatchStatement;
+    }
+
+    /**
      * Rate based statement configuration.
      *
      * @subresource gyro.aws.wafv2.RateBasedStatementResource
@@ -286,6 +300,13 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             setXssMatchStatement(xssMatchStatement);
         }
 
+        setLabelMatchStatement(null);
+        if (statement.labelMatchStatement() != null) {
+            LabelMatchStatementResource labelMatchStatement = newSubresource(LabelMatchStatementResource.class);
+            labelMatchStatement.copyFrom(statement.labelMatchStatement());
+            setLabelMatchStatement(labelMatchStatement);
+        }
+
         setRateBasedStatement(null);
         if (statement.rateBasedStatement() != null) {
             RateBasedStatementResource rateBasedStatement = newSubresource(RateBasedStatementResource.class);
@@ -335,6 +356,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             builder = builder.xssMatchStatement(getXssMatchStatement().toXssMatchStatement());
         } else if (getRateBasedStatement() != null) {
             builder = builder.rateBasedStatement(getRateBasedStatement().toRateBasedStatement());
+        } else if (getLabelMatchStatement() !=null) {
+            builder = builder.labelMatchStatement(getLabelMatchStatement().toLabelMatchStatement());
         } else if (getManagedRuleGroupStatement() != null) {
             builder = builder.managedRuleGroupStatement(getManagedRuleGroupStatement().toManagedRuleGroupStatement());
         } else if (getRuleGroupReferenceStatement() != null) {
@@ -359,6 +382,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             getSizeConstraintStatement(),
             getSqliMatchStatement(),
             getXssMatchStatement(),
+            getLabelMatchStatement(),
             getRateBasedStatement(),
             getManagedRuleGroupStatement(),
             getRuleGroupReferenceStatement())
@@ -373,7 +397,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
                 "One and only one of [ 'and-statement', 'not-statement', 'or-statement', 'byte-match-statement',"
                     + "'geo-match-statement', 'ip-set-reference-statement', 'regex-pattern-set-reference-statement',"
                     + "'size-constraint-statement', 'sqli-match-statement', 'xss-match-statement',"
-                    + "'rate-based-statement', 'managed-rule-group-statement' or 'rule-group-reference-statement' ] "
+                    + "'rate-based-statement', 'label-match-statement', 'managed-rule-group-statement' or 'rule-group-reference-statement' ] "
                     + "is required"));
         }
 
@@ -403,6 +427,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             type = "sql injection match";
         } else if (getXssMatchStatement() != null) {
             type = "xss match";
+        } else if (getLabelMatchStatement() != null) {
+            type = "label match";
         } else if (getRateBasedStatement() != null) {
             type = "rate based";
         } else if (getManagedRuleGroupStatement() != null) {
@@ -437,6 +463,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             key = getSqliMatchStatement().primaryKey();
         } else if (getXssMatchStatement() != null) {
             key = getXssMatchStatement().primaryKey();
+        } else if (getLabelMatchStatement() != null) {
+            key = getLabelMatchStatement().primaryKey();
         } else if (getRateBasedStatement() != null) {
             key = getRateBasedStatement().primaryKey();
         } else if (getManagedRuleGroupStatement() != null) {
