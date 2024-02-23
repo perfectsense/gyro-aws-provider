@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -85,6 +86,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
      * @subresource gyro.aws.wafv2.RateBasedStatementCustomKeyResource
      */
     @Updatable
+    @CollectionMax(5)
     public Set<RateBasedStatementCustomKeyResource> getCustomKeys() {
         if (customKeys == null) {
             customKeys = new HashSet<>();
