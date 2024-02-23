@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Regex;
 import software.amazon.awssdk.services.wafv2.model.RateLimitLabelNamespace;
 
 public class RateLimitLabelNamespaceResource extends Diffable implements Copyable<RateLimitLabelNamespace> {
@@ -26,6 +27,10 @@ public class RateLimitLabelNamespaceResource extends Diffable implements Copyabl
     /**
      * The namespace to use for the rate limit.
      */
+    @Regex(value = "^(?!:)(?:[A-Za-z0-9_-]+:){1,1023}$",
+        message = "a string of 1 to 1024 characters and ends with a colon (:). "
+            + "The string can contain only alphanumeric characters (A-Z, a-z, 0-9), hyphen (-), "
+            + "underscore (_), and colon (:). The string cannot start with a colon (:).")
     public String getNamespace() {
         return namespace;
     }
