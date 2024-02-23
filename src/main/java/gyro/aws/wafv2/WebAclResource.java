@@ -43,6 +43,7 @@ import software.amazon.awssdk.services.wafv2.Wafv2Client;
 import software.amazon.awssdk.services.wafv2.model.AllowAction;
 import software.amazon.awssdk.services.wafv2.model.BlockAction;
 import software.amazon.awssdk.services.wafv2.model.CreateWebAclResponse;
+import software.amazon.awssdk.services.wafv2.model.CustomResponseBody;
 import software.amazon.awssdk.services.wafv2.model.DefaultAction;
 import software.amazon.awssdk.services.wafv2.model.GetLoggingConfigurationResponse;
 import software.amazon.awssdk.services.wafv2.model.GetWebAclResponse;
@@ -120,6 +121,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     private VisibilityConfigResource visibilityConfig;
     private Set<ApplicationLoadBalancerResource> loadBalancers;
     private LoggingConfigurationResource loggingConfiguration;
+    private Set<CustomResponseBodyResource> customResponseBody;
     private String id;
     private String arn;
     private Long capacity;
@@ -228,6 +230,24 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
     }
 
     /**
+     * A set of custom response body for the web acl.
+     *
+     * @subresource gyro.aws.wafv2.CustomResponseBodyResource
+     */
+    @Updatable
+    public Set<CustomResponseBodyResource> getCustomResponseBody() {
+        if (customResponseBody == null) {
+            customResponseBody = new HashSet<>();
+        }
+
+        return customResponseBody;
+    }
+
+    public void setCustomResponseBody(Set<CustomResponseBodyResource> customResponseBody) {
+        this.customResponseBody = customResponseBody;
+    }
+
+    /**
      * The id of the web acl.
      */
     @Output
@@ -297,6 +317,16 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
             setScope("REGIONAL");
         }
 
+        setCustomResponseBody(null);
+        if (webACL.customResponseBodies() != null) {
+            webACL.customResponseBodies().forEach((key, value) -> {
+                CustomResponseBodyResource customResponseBody = newSubresource(CustomResponseBodyResource.class);
+                customResponseBody.copyFrom(value);
+                customResponseBody.setName(key);
+                getCustomResponseBody().add(customResponseBody);
+            });
+        }
+
         Wafv2Client client = createClient(Wafv2Client.class);
         // Load associated ALB's
         if (!"CLOUDFRONT".equalsIgnoreCase(getScope())) {
@@ -349,6 +379,9 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 .defaultAction(toDefaultAction())
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
                 .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
+                .customResponseBodies(getCustomResponseBody().stream()
+                    .collect(Collectors.toMap(CustomResponseBodyResource::getName,
+                        CustomResponseBodyResource::toCustomResponseBody)))
         );
 
         setArn(response.summary().arn());
@@ -397,7 +430,8 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
         if (changedFieldNames.contains("rule")
             || changedFieldNames.contains("description")
             || changedFieldNames.contains("visibility-config")
-            || changedFieldNames.contains("default-action")) {
+            || changedFieldNames.contains("default-action")
+            || changedFieldNames.contains("custom-response-body")) {
             client.updateWebACL(r -> r.id(getId())
                 .name(getName())
                 .description(getDescription())
@@ -405,7 +439,10 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 .lockToken(lockToken(client))
                 .defaultAction(toDefaultAction())
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
-                .visibilityConfig(getVisibilityConfig().toVisibilityConfig()));
+                .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
+                .customResponseBodies(getCustomResponseBody().stream()
+                    .collect(Collectors.toMap(CustomResponseBodyResource::getName,
+                        CustomResponseBodyResource::toCustomResponseBody))));
         }
 
         if (changedFieldNames.contains("load-balancers")) {

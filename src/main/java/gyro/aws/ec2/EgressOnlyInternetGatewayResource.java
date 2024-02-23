@@ -48,7 +48,7 @@ import software.amazon.awssdk.services.ec2.model.EgressOnlyInternetGateway;
  *     end
  */
 @Type("egress-only-internet-gateway")
-public class EgressOnlyInternetGatewayResource extends AwsResource implements Copyable<EgressOnlyInternetGateway> {
+public class EgressOnlyInternetGatewayResource extends Ec2TaggableResource<EgressOnlyInternetGateway> implements Copyable<EgressOnlyInternetGateway> {
 
     private VpcResource vpc;
 
@@ -81,6 +81,11 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
+    protected String getResourceId() {
+        return getId();
+    }
+
+    @Override
     public void copyFrom(EgressOnlyInternetGateway egressOnlyInternetGateway) {
         setId(egressOnlyInternetGateway.egressOnlyInternetGatewayId());
 
@@ -90,7 +95,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public boolean refresh() {
+    public boolean doRefresh() {
         Ec2Client client = createClient(Ec2Client.class);
 
         EgressOnlyInternetGateway egressOnlyInternetGateway = getEgressOnlyInternetGateway(client);
@@ -105,7 +110,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void create(GyroUI ui, State state) {
+    public void doCreate(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
         if (getVpc() != null) {
@@ -116,7 +121,7 @@ public class EgressOnlyInternetGatewayResource extends AwsResource implements Co
     }
 
     @Override
-    public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
+    public void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
 
     }
 
