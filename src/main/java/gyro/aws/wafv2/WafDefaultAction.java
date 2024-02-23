@@ -26,7 +26,9 @@ public class WafDefaultAction {
     enum RuleAction {
         ALLOW,
         BLOCK,
-        COUNT
+        COUNT,
+        CAPTCHA,
+        CHALLENGE
     }
 
     enum OverrideAction {
