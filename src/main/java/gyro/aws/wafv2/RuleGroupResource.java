@@ -473,7 +473,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
             .capacity(capacity)
             .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
             .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
-            .customResponseBodies(getCustomResponseBody().stream()
+            .customResponseBodies(getCustomResponseBody().isEmpty() ? null : getCustomResponseBody().stream()
                 .collect(Collectors.toMap(CustomResponseBodyResource::getName,
                     CustomResponseBodyResource::toCustomResponseBody)))
             .build());
@@ -504,7 +504,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
                 .lockToken(lockToken(client))
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
                 .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
-                    .customResponseBodies(getCustomResponseBody().stream()
+                    .customResponseBodies(getCustomResponseBody().isEmpty() ? null : getCustomResponseBody().stream()
                         .collect(Collectors.toMap(CustomResponseBodyResource::getName,
                             CustomResponseBodyResource::toCustomResponseBody))));
         }

@@ -379,7 +379,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 .defaultAction(toDefaultAction())
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
                 .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
-                .customResponseBodies(getCustomResponseBody().stream()
+                .customResponseBodies(getCustomResponseBody().isEmpty() ? null : getCustomResponseBody().stream()
                     .collect(Collectors.toMap(CustomResponseBodyResource::getName,
                         CustomResponseBodyResource::toCustomResponseBody)))
         );
@@ -440,7 +440,7 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
                 .defaultAction(toDefaultAction())
                 .rules(getRule().stream().map(RuleResource::toRule).collect(Collectors.toList()))
                 .visibilityConfig(getVisibilityConfig().toVisibilityConfig())
-                .customResponseBodies(getCustomResponseBody().stream()
+                .customResponseBodies(getCustomResponseBody().isEmpty() ? null : getCustomResponseBody().stream()
                     .collect(Collectors.toMap(CustomResponseBodyResource::getName,
                         CustomResponseBodyResource::toCustomResponseBody))));
         }
