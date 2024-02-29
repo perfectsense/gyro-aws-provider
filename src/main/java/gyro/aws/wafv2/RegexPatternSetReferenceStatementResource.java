@@ -66,7 +66,7 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
      * @subresource gyro.aws.wafv2.TextTransformationResource
      */
     @Updatable
-    @CollectionMax(3)
+    @CollectionMax(10)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();
