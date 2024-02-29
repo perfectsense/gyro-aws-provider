@@ -25,6 +25,7 @@ import software.amazon.awssdk.services.wafv2.model.IPSetReferenceStatement;
 public class IpSetReferenceStatementResource extends Diffable implements Copyable<IPSetReferenceStatement> {
 
     private IpSetResource ipSet;
+    private IpSetForwardedIpConfigResource ipSetForwardedIpConfig;
 
     /**
      * The ip set resource to associate with.
@@ -39,9 +40,29 @@ public class IpSetReferenceStatementResource extends Diffable implements Copyabl
         this.ipSet = ipSet;
     }
 
+    /**
+     * The forwarded IP configuration for the ip set.
+     *
+     * @subresource gyro.aws.wafv2.IpSetForwardedIpConfigResource
+     */
+    @Updatable
+    public IpSetForwardedIpConfigResource getIpSetForwardedIpConfig() {
+        return ipSetForwardedIpConfig;
+    }
+
+    public void setIpSetForwardedIpConfig(IpSetForwardedIpConfigResource ipSetForwardedIpConfig) {
+        this.ipSetForwardedIpConfig = ipSetForwardedIpConfig;
+    }
+
     @Override
     public void copyFrom(IPSetReferenceStatement ipSetReferenceStatement) {
         setIpSet(findById(IpSetResource.class, ipSetReferenceStatement.arn()));
+        setIpSetForwardedIpConfig(null);
+        if (ipSetReferenceStatement.ipSetForwardedIPConfig() != null) {
+            IpSetForwardedIpConfigResource ipSetForwardedIpConfigResource = newSubresource(IpSetForwardedIpConfigResource.class);
+            ipSetForwardedIpConfigResource.copyFrom(ipSetReferenceStatement.ipSetForwardedIPConfig());
+            setIpSetForwardedIpConfig(ipSetForwardedIpConfigResource);
+        }
     }
 
     @Override
@@ -51,6 +72,7 @@ public class IpSetReferenceStatementResource extends Diffable implements Copyabl
 
     IPSetReferenceStatement toIpSetReferenceStatement() {
         return IPSetReferenceStatement.builder()
+            .ipSetForwardedIPConfig(getIpSetForwardedIpConfig() != null ? getIpSetForwardedIpConfig().toForwardedIPConfig() : null)
             .arn(getIpSet().getArn())
             .build();
     }
