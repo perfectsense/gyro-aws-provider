@@ -36,6 +36,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
     private GeoMatchStatementResource geoMatchStatement;
     private IpSetReferenceStatementResource ipSetReferenceStatement;
     private RegexPatternSetReferenceStatementResource regexPatternSetReferenceStatement;
+    private RegexMatchStatementResource regexMatchStatement;
     private SizeConstraintStatementResource sizeConstraintStatement;
     private SqliMatchStatementResource sqliMatchStatement;
     private XssMatchStatementResource xssMatchStatement;
@@ -133,6 +134,19 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
 
     public void setRegexPatternSetReferenceStatement(RegexPatternSetReferenceStatementResource regexPatternSetReferenceStatement) {
         this.regexPatternSetReferenceStatement = regexPatternSetReferenceStatement;
+    }
+
+    /**
+     * Regex match statement configuration.
+     *
+     * @subresource gyro.aws.wafv2.RegexMatchStatementResource
+     */
+    public RegexMatchStatementResource getRegexMatchStatement() {
+        return regexMatchStatement;
+    }
+
+    public void setRegexMatchStatement(RegexMatchStatementResource regexMatchStatement) {
+        this.regexMatchStatement = regexMatchStatement;
     }
 
     /**
@@ -279,6 +293,13 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             setRegexPatternSetReferenceStatement(regexPatternSetReferenceStatement);
         }
 
+        setRegexMatchStatement(null);
+        if (statement.regexMatchStatement() != null) {
+            RegexMatchStatementResource regexMatchStatement = newSubresource(RegexMatchStatementResource.class);
+            regexMatchStatement.copyFrom(statement.regexMatchStatement());
+            setRegexMatchStatement(regexMatchStatement);
+        }
+
         setSizeConstraintStatement(null);
         if (statement.sizeConstraintStatement() != null) {
             SizeConstraintStatementResource sizeConstraintStatement = newSubresource(SizeConstraintStatementResource.class);
@@ -348,6 +369,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             builder = builder.ipSetReferenceStatement(getIpSetReferenceStatement().toIpSetReferenceStatement());
         } else if (getRegexPatternSetReferenceStatement() != null) {
             builder = builder.regexPatternSetReferenceStatement(getRegexPatternSetReferenceStatement().toRegexPatternSetReferenceStatement());
+        } else if (getRegexMatchStatement() != null) {
+            builder = builder.regexMatchStatement(getRegexMatchStatement().toRegexMatchStatement());
         } else if (getSizeConstraintStatement() != null) {
             builder = builder.sizeConstraintStatement(getSizeConstraintStatement().toSizeConstraintStatement());
         } else if (getSqliMatchStatement() != null) {
@@ -379,6 +402,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             getGeoMatchStatement(),
             getIpSetReferenceStatement(),
             getRegexPatternSetReferenceStatement(),
+            getRegexMatchStatement(),
             getSizeConstraintStatement(),
             getSqliMatchStatement(),
             getXssMatchStatement(),
@@ -396,7 +420,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
                 null,
                 "One and only one of [ 'and-statement', 'not-statement', 'or-statement', 'byte-match-statement',"
                     + "'geo-match-statement', 'ip-set-reference-statement', 'regex-pattern-set-reference-statement',"
-                    + "'size-constraint-statement', 'sqli-match-statement', 'xss-match-statement',"
+                    + "'regex-match-statement', 'size-constraint-statement', 'sqli-match-statement', 'xss-match-statement',"
                     + "'rate-based-statement', 'label-match-statement', 'managed-rule-group-statement' or 'rule-group-reference-statement' ] "
                     + "is required"));
         }
@@ -421,6 +445,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             type = "ip set reference";
         } else if (getRegexPatternSetReferenceStatement() != null) {
             type = "regex pattern reference";
+        } else if (getRegexMatchStatement() != null) {
+            type = "regex match";
         } else if (getSizeConstraintStatement() != null) {
             type = "size constraint";
         } else if (getSqliMatchStatement() != null) {
@@ -457,6 +483,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             key = getIpSetReferenceStatement().primaryKey();
         } else if (getRegexPatternSetReferenceStatement() != null) {
             key = getRegexPatternSetReferenceStatement().primaryKey();
+        } else if (getRegexMatchStatement() != null) {
+            key = getRegexMatchStatement().primaryKey();
         } else if (getSizeConstraintStatement() != null) {
             key = getSizeConstraintStatement().primaryKey();
         } else if (getSqliMatchStatement() != null) {
