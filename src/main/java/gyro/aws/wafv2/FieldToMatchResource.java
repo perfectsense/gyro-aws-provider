@@ -226,7 +226,11 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
         FieldToMatch.Builder builder = FieldToMatch.builder();
 
         if (getMatchType() == FieldMatchType.BODY) {
-            builder.body(getBody().toBody());
+            if (getBody() == null) {
+                builder.body(Body.builder().build());
+            } else {
+                builder.body(getBody().toBody());
+            }
         } else if (getMatchType() == FieldMatchType.ALL_QUERY_ARGUMENTS) {
             builder.allQueryArguments(AllQueryArguments.builder().build());
         } else if (getMatchType() == FieldMatchType.QUERY_STRING) {
@@ -276,12 +280,7 @@ public class FieldToMatchResource extends Diffable implements Copyable<FieldToMa
                 "'name' is required if 'match-type' is set to either 'SINGLE_HEADER' or 'SINGLE_QUERY_ARGUMENT'"));
         }
 
-        if (getMatchType() == FieldMatchType.BODY && getBody() == null) {
-            errors.add(new ValidationError(
-                this,
-                "body",
-                "'body' is required if 'match-type' is set to 'BODY'"));
-        } else if (getMatchType() == FieldMatchType.HEADERS && getHeaders() == null) {
+        if (getMatchType() == FieldMatchType.HEADERS && getHeaders() == null) {
             errors.add(new ValidationError(
                 this,
                 "headers",
