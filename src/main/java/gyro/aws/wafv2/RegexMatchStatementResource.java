@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Brightspot.
+ * Copyright 2024, Brightspot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,25 @@ import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Required;
-import software.amazon.awssdk.services.wafv2.model.RegexPatternSetReferenceStatement;
+import software.amazon.awssdk.services.wafv2.model.RegexMatchStatement;
 
-public class RegexPatternSetReferenceStatementResource extends Diffable
-    implements Copyable<RegexPatternSetReferenceStatement> {
+public class RegexMatchStatementResource extends Diffable implements Copyable<RegexMatchStatement> {
 
+    private String regexString;
     private FieldToMatchResource fieldToMatch;
-    private RegexPatternSetResource regexPatternSet;
     private Set<TextTransformationResource> textTransformation;
+
+    /**
+     * The regex pattern to match the condition.
+     */
+    @Required
+    public String getRegexString() {
+        return regexString;
+    }
+
+    public void setRegexString(String regexString) {
+        this.regexString = regexString;
+    }
 
     /**
      * The field setting to match the condition.
@@ -46,18 +57,6 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
 
     public void setFieldToMatch(FieldToMatchResource fieldToMatch) {
         this.fieldToMatch = fieldToMatch;
-    }
-
-    /**
-     * The regex pattern set to associate with the statement.
-     */
-    @Required
-    public RegexPatternSetResource getRegexPatternSet() {
-        return regexPatternSet;
-    }
-
-    public void setRegexPatternSet(RegexPatternSetResource regexPatternSet) {
-        this.regexPatternSet = regexPatternSet;
     }
 
     /**
@@ -82,18 +81,18 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
     @Override
     public String primaryKey() {
         return String.format(
-            "referencing pattern - '%s' and field to match - '%s'",
-            getRegexPatternSet().getArn(),
+            "regex pattern - '%s' and field to match - '%s'",
+            getRegexString() != null ? getRegexString() : "",
             getFieldToMatch() != null ? getFieldToMatch().primaryKey() : "");
     }
 
     @Override
-    public void copyFrom(RegexPatternSetReferenceStatement regexPatternSetReferenceStatement) {
-        setRegexPatternSet(findById(RegexPatternSetResource.class, regexPatternSetReferenceStatement.arn()));
+    public void copyFrom(RegexMatchStatement model) {
+        setRegexString(model.regexString());
 
         getTextTransformation().clear();
-        if (regexPatternSetReferenceStatement.textTransformations() != null) {
-            regexPatternSetReferenceStatement.textTransformations().forEach(o -> {
+        if (model.textTransformations() != null) {
+            model.textTransformations().forEach(o -> {
                 TextTransformationResource textTransformation = newSubresource(TextTransformationResource.class);
                 textTransformation.copyFrom(o);
                 getTextTransformation().add(textTransformation);
@@ -101,13 +100,13 @@ public class RegexPatternSetReferenceStatementResource extends Diffable
         }
 
         FieldToMatchResource fieldToMatch = newSubresource(FieldToMatchResource.class);
-        fieldToMatch.copyFrom(regexPatternSetReferenceStatement.fieldToMatch());
+        fieldToMatch.copyFrom(model.fieldToMatch());
         setFieldToMatch(fieldToMatch);
     }
 
-    RegexPatternSetReferenceStatement toRegexPatternSetReferenceStatement() {
-        RegexPatternSetReferenceStatement.Builder builder = RegexPatternSetReferenceStatement.builder()
-            .arn(getRegexPatternSet().getArn())
+    public RegexMatchStatement toRegexMatchStatement() {
+        RegexMatchStatement.Builder builder = RegexMatchStatement.builder()
+            .regexString(getRegexString())
             .fieldToMatch(getFieldToMatch().toFieldToMatch());
 
         if (!getTextTransformation().isEmpty()) {

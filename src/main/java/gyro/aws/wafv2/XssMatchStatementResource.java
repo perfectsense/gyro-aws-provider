@@ -52,7 +52,7 @@ public class XssMatchStatementResource extends Diffable implements Copyable<XssM
      * @subresource gyro.aws.wafv2.TextTransformationResource
      */
     @Updatable
-    @CollectionMax(3)
+    @CollectionMax(10)
     public Set<TextTransformationResource> getTextTransformation() {
         if (textTransformation == null) {
             textTransformation = new HashSet<>();
