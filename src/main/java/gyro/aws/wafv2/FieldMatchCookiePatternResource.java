@@ -96,8 +96,8 @@ public class FieldMatchCookiePatternResource extends Diffable implements Copyabl
     CookieMatchPattern toCookieMatchPattern() {
         return CookieMatchPattern.builder()
             .all(getAll() != null && getAll() ? All.builder().build() : null)
-            .excludedCookies(getExcludedCookies())
-            .includedCookies(getIncludedCookies())
+            .excludedCookies(getExcludedCookies().isEmpty() ? null : getExcludedCookies())
+            .includedCookies(getIncludedCookies().isEmpty() ? null : getIncludedCookies())
             .build();
     }
 
