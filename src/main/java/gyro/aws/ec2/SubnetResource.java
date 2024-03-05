@@ -175,6 +175,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.aclAssociationId = aclAssociationId;
     }
 
+    /**
+     * When set to ``true``, DNS queries made to the Amazon-provided DNS Resolver in this subnet should return synthetic IPv6 addresses for IPv4-only destinations.
+     */
     @Updatable
     public Boolean getEnableDns64() {
         return enableDns64;
@@ -184,6 +187,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.enableDns64 = enableDns64;
     }
 
+    /**
+     * When set to ``true``, responds to DNS queries for instance hostnames with DNS AAAA records.
+     */
     @Updatable
     public Boolean getEnableResourceNameDnsAaaaRecordOnLaunch() {
         return enableResourceNameDnsAaaaRecordOnLaunch;
@@ -193,6 +199,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.enableResourceNameDnsAaaaRecordOnLaunch = enableResourceNameDnsAaaaRecordOnLaunch;
     }
 
+    /**
+     * When set to ``true``, responds to DNS queries for instance hostnames with DNS A records.
+     */
     @Updatable
     public Boolean getEnableResourceNameDnsARecordOnLaunch() {
         return enableResourceNameDnsARecordOnLaunch;
@@ -202,6 +211,9 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
         this.enableResourceNameDnsARecordOnLaunch = enableResourceNameDnsARecordOnLaunch;
     }
 
+    /**
+     * When set to ``true``, indicates that network interfaces created in the specified subnet should be assigned an IPv6 address.
+     */
     @Updatable
     public Boolean getAssignIpv6AddressOnCreation() {
         return assignIpv6AddressOnCreation;
