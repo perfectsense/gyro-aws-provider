@@ -20,8 +20,13 @@ public enum FieldMatchType {
     SINGLE_HEADER,
     SINGLE_QUERY_ARGUMENT,
     ALL_QUERY_ARGUMENTS,
-    BODY,
+    URI_PATH,
     QUERY_STRING,
+    BODY,
     METHOD,
-    URI_PATH
+    JSON_BODY,
+    HEADERS,
+    COOKIES,
+    HEADER_ORDER,
+    JA3_FINGERPRINT
 }
