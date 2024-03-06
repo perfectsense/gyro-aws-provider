@@ -16,6 +16,7 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.psddev.dari.util.ObjectUtils;
@@ -30,7 +31,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.AttributeBooleanValue;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetRequest;
 import software.amazon.awssdk.services.ec2.model.CreateSubnetResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNetworkAclsResponse;
@@ -363,7 +363,7 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
 
         state.save();
 
-        modifyAttribute(client);
+        modifyAttribute(client, Collections.emptySet());
     }
 
     @Override
@@ -385,47 +385,48 @@ public class SubnetResource extends Ec2TaggableResource<Subnet> implements Copya
             client.associateSubnetCidrBlock(r -> r.ipv6CidrBlock(getIpv6CidrBlock()).subnetId(getId()));
         }
 
-        modifyAttribute(client);
+        modifyAttribute(client, changedProperties);
     }
 
-    private void modifyAttribute(Ec2Client client) {
-        if (getMapPublicIpOnLaunch() != null) {
-            ModifySubnetAttributeRequest request = ModifySubnetAttributeRequest.builder()
-                .subnetId(getId())
-                .mapPublicIpOnLaunch(AttributeBooleanValue.builder().value(getMapPublicIpOnLaunch()).build())
-                .build();
-
-            client.modifySubnetAttribute(request);
-        }
-
-        if (getEnableDns64() != null) {
+    private void modifyAttribute(Ec2Client client, Set<String> changedProperties) {
+        if ((changedProperties.isEmpty() && getMapPublicIpOnLaunch() != null) ||
+            changedProperties.contains("map-public-ip-on-launch")) {
             client.modifySubnetAttribute(ModifySubnetAttributeRequest.builder()
                 .subnetId(getId())
-                .enableDns64(AttributeBooleanValue.builder().value(getEnableDns64()).build())
+                .mapPublicIpOnLaunch(r -> r.value(Boolean.TRUE.equals(getMapPublicIpOnLaunch())))
                 .build());
         }
 
-        if (getEnableResourceNameDnsAaaaRecordOnLaunch() != null) {
+        if ((changedProperties.isEmpty() && getEnableDns64() != null) || changedProperties.contains("enable-dns64")) {
+            client.modifySubnetAttribute(ModifySubnetAttributeRequest.builder()
+                .subnetId(getId())
+                .enableDns64(r -> r.value(Boolean.TRUE.equals(getEnableDns64())))
+                .build());
+        }
+
+        if ((changedProperties.isEmpty() && getEnableResourceNameDnsAaaaRecordOnLaunch() != null) ||
+            changedProperties.contains("enable-resource-name-dns-aaaa-record-on-launch")) {
             client.modifySubnetAttribute(ModifySubnetAttributeRequest.builder()
                 .subnetId(getId())
                 .enableResourceNameDnsAAAARecordOnLaunch(
-                    AttributeBooleanValue.builder().value(getEnableResourceNameDnsAaaaRecordOnLaunch()).build())
+                    r -> r.value(Boolean.TRUE.equals(getEnableResourceNameDnsAaaaRecordOnLaunch())))
                 .build());
         }
 
-        if (getEnableResourceNameDnsARecordOnLaunch() != null) {
+        if ((changedProperties.isEmpty() && getEnableResourceNameDnsARecordOnLaunch() != null) ||
+            changedProperties.contains("enable-resource-name-dns-a-record-on-launch")) {
             client.modifySubnetAttribute(ModifySubnetAttributeRequest.builder()
                 .subnetId(getId())
                 .enableResourceNameDnsARecordOnLaunch(
-                    AttributeBooleanValue.builder().value(getEnableResourceNameDnsARecordOnLaunch()).build())
+                    r -> r.value(Boolean.TRUE.equals(getEnableResourceNameDnsARecordOnLaunch())))
                 .build());
         }
 
-        if (getAssignIpv6AddressOnCreation() != null) {
+        if ((changedProperties.isEmpty() && getAssignIpv6AddressOnCreation() != null) ||
+            changedProperties.contains("assign-ipv6-address-on-creation")) {
             client.modifySubnetAttribute(ModifySubnetAttributeRequest.builder()
                 .subnetId(getId())
-                .assignIpv6AddressOnCreation(
-                    AttributeBooleanValue.builder().value(getAssignIpv6AddressOnCreation()).build())
+                .assignIpv6AddressOnCreation(r -> r.value(Boolean.TRUE.equals(getAssignIpv6AddressOnCreation())))
                 .build());
         }
     }
