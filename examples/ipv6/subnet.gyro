@@ -1,15 +1,20 @@
 aws::vpc example-vpc
-    cidr-block: 10.0.0.0/16
+    cidr-block: "10.0.0.0/16"
     provide-ipv6-cidr-block: true
 end
 
-@for zone, cidr, ipv6-cidr -in ['us-east-2a', '10.0.0.0/24', '2600:1f16:90f:2601::/64', 'us-east-2b', '10.0.1.0/24', '2600:1f16:90f:2602::/64']
+@for zone, cidr, ipv6-cidr -in ['us-east-2a', '10.0.0.0/24', '2600:1f16:122b:ac00::/64']
     aws::subnet "subnet-$(zone)"
         vpc: $(aws::vpc example-vpc)
-        network-acl: $(aws::network-acl network-acl)
         availability-zone: $(zone)
         cidr-block: $(cidr)
-        ipv6-cidr-block
+        ipv6-cidr-block: $(ipv6-cidr)
+
+        map-public-ip-on-launch: true
+        enable-dns64: true
+        enable-resource-name-dns-aaaa-record-on-launch: true
+        enable-resource-name-dns-a-record-on-launch: true
+        assign-ipv6-address-on-creation: true
 
         tags: {
             Name: "subnet-example $(zone) $(cidr)"
