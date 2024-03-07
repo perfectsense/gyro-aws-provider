@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+## 1.5.7 (March 7th, 2024)
+
+ENHANCEMENTS:
+
+* [632](https://github.com/perfectsense/gyro-aws-provider/issues/632): Add support in WafV2 for Regex Match Statement.
+* [630](https://github.com/perfectsense/gyro-aws-provider/issues/630): Add support for WafV2 Forwarded IP Config options for IP Set Refernece.
+* [628](https://github.com/perfectsense/gyro-aws-provider/issues/628): Add support for additional attributes for Subnet.
+* [626](https://github.com/perfectsense/gyro-aws-provider/issues/626): Add support for WafV2 Additional Field_To_Match options for Statements.
+* [625](https://github.com/perfectsense/gyro-aws-provider/issues/625): Add support for WafV2 additional options for TextTransformations.
+* [622](https://github.com/perfectsense/gyro-aws-provider/issues/622): Add support for additional action options for wafv2.
+* [621](https://github.com/perfectsense/gyro-aws-provider/issues/621): Add support for exposing ipv6 cidr block for vpc when auto assigned .
+* [620](https://github.com/perfectsense/gyro-aws-provider/issues/620): Add support for name and tag fields for aws::egress-only-internet-gateway.
+* [617](https://github.com/perfectsense/gyro-aws-provider/issues/617): Add support for rate limit request aggregation keys in WAFv2.
+* [616](https://github.com/perfectsense/gyro-aws-provider/issues/616): Add support for AWS WafV2 LabelMatchStatement Statements.
+
 ## 1.5.6 (August 30th, 2023)
 
 ENHANCEMENTS:
