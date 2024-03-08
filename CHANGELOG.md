@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.5.8 (March 8th, 2024)
+
+ENHANCEMENTS:
+
+* [637](https://github.com/perfectsense/gyro-aws-provider/issues/637): Add support for evaluating-window for Rate Limit Criteria in WafV2.
+
+ISSUES FIXED:
+
+* [636](https://github.com/perfectsense/gyro-aws-provider/issues/636): Fix Credential should be scoped to a valid region Error of Iam Clients.
+
 ## 1.5.7 (March 7th, 2024)
 
 ENHANCEMENTS:
