@@ -28,6 +28,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.Min;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.RateBasedStatement;
@@ -39,6 +40,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     private StatementResource scopeDownStatement;
     private Set<RateBasedStatementCustomKeyResource> customKeys;
     private RateLimitForwardedIpConfigResource forwardedIpConfig;
+    private Long evaluationWindow;
 
     /**
      * The aggregate key type for the rate based statement. Defaults to ``IP``.
@@ -113,6 +115,23 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
         this.forwardedIpConfig = forwardedIpConfig;
     }
 
+    /**
+     * The evaluation window in sec for the rate based statement. Defaults to ``300``.
+     */
+    @Updatable
+    @ValidNumbers({ 60, 120, 300, 600 })
+    public Long getEvaluationWindow() {
+        if (evaluationWindow == null) {
+            evaluationWindow = 300L;
+        }
+
+        return evaluationWindow;
+    }
+
+    public void setEvaluationWindow(Long evaluationWindow) {
+        this.evaluationWindow = evaluationWindow;
+    }
+
     @Override
     public String primaryKey() {
         return String.format(
@@ -152,12 +171,15 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
             forwardedIpConfig.copyFrom(rateBasedStatement.forwardedIPConfig());
             setForwardedIpConfig(forwardedIpConfig);
         }
+
+        setEvaluationWindow(rateBasedStatement.evaluationWindowSec());
     }
 
     RateBasedStatement toRateBasedStatement() {
         RateBasedStatement.Builder builder = RateBasedStatement.builder()
             .aggregateKeyType(getAggregateKeyType())
-            .limit(getLimit());
+            .limit(getLimit())
+            .evaluationWindowSec(getEvaluationWindow());
 
         if (getScopeDownStatement() != null) {
             builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
