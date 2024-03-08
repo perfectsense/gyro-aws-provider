@@ -78,7 +78,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         RoleResource roleResource = (RoleResource) parent();
 
@@ -87,7 +87,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         RoleResource roleResource = (RoleResource) parent();
 
@@ -96,7 +96,7 @@ public class RoleInlinePolicyResource extends AwsResource implements Copyable<Ge
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         RoleResource roleResource = (RoleResource) parent();
 

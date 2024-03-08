@@ -152,7 +152,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public void copyFrom(Policy policy) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         setName(policy.policyName());
         setDescription(policy.description());
@@ -173,7 +173,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public boolean refresh() {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         Policy policy = getPolicy(client);
 
@@ -188,7 +188,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         CreatePolicyResponse response = client.createPolicy(
             r -> r.policyName(getName())
@@ -202,7 +202,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
 
@@ -236,7 +236,7 @@ public class PolicyResource extends AwsResource implements Copyable<Policy> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         List<PolicyVersion> policyVersions = client.listPolicyVersions(r -> r.policyArn(getArn())).versions();
 
