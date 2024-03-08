@@ -209,7 +209,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
 
     @Override
     public boolean refresh() {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         try {
             GetOpenIdConnectProviderResponse response = client.getOpenIDConnectProvider(r -> r.openIDConnectProviderArn(
@@ -231,7 +231,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         List<String> thumbPrints = new ArrayList<>(getThumbPrints());
         if (getAutogenThumbprint()) {
@@ -257,7 +257,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
     public void update(
         GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
 
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         if (changedFieldNames.contains("thumb-prints")) {
             List<String> thumbPrints = new ArrayList<>(getThumbPrints());
@@ -303,7 +303,7 @@ public class OpenIdConnectProviderResource extends AwsResource implements Copyab
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         client.deleteOpenIDConnectProvider(r -> r.openIDConnectProviderArn(getArn()));
     }

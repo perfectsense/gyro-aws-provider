@@ -235,7 +235,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void copyFrom(Role role) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         setArn(role.arn());
         setName(role.roleName());
@@ -265,7 +265,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public boolean refresh() {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         Role role = getRole(client);
 
@@ -280,7 +280,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public Map<? extends Resource, Boolean> batchRefresh(List<? extends Resource> resources) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
         Map<RoleResource, Boolean> refreshStatus = new HashMap<>();
 
         List<Role> roles = getRoles(client);
@@ -303,7 +303,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void create(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         CreateRoleResponse response = client.createRole(r -> r.assumeRolePolicyDocument(getAssumeRolePolicy())
                 .description(getDescription())
@@ -327,7 +327,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         client.updateAssumeRolePolicy(r -> r.policyDocument(PolicyResource.formatPolicy(getAssumeRolePolicy()))
                                             .roleName(getName()));
@@ -369,7 +369,7 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
 
     @Override
     public void delete(GyroUI ui, State state) {
-        IamClient client = createClient(IamClient.class, "aws-global", "https://iam.amazonaws.com");
+        IamClient client = createClient(IamClient.class);
 
         ListAttachedRolePoliciesResponse response = client.listAttachedRolePolicies(r -> r.roleName(getName()));
         for (AttachedPolicy policies : response.attachedPolicies()) {
