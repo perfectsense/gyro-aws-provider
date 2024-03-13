@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.9 (March 13th, 2024)
+
+ISSUES FIXED:
+
+* [642](https://github.com/perfectsense/gyro-aws-provider/issues/642): Fix DynamoDB Validation. Fails on valid PAY_PER_REQUEST Table and allows incorrect PROVISIONED tables.
+
 ## 1.5.8 (March 8th, 2024)
 
 ENHANCEMENTS:
