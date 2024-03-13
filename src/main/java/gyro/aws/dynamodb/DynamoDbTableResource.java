@@ -42,6 +42,7 @@ import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.Min;
 import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
@@ -253,6 +254,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
      * The maximum number of writes per second for this table before an exception is thrown. Required if ``billing-mode`` is set to ``PROVISIONED``.
      */
     @Updatable
+    @Min(1)
     public Long getWriteCapacity() {
         return writeCapacity;
     }
@@ -265,6 +267,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
      * The maximum number of reads per second for this table before an exception is thrown. Required if ``billing-mode`` is set to ``PROVISIONED``.
      */
     @Updatable
+    @Min(1)
     public Long getReadCapacity() {
         return readCapacity;
     }
@@ -591,7 +594,7 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if ("PROVISIONED".equals(getBillingMode()) && (getReadCapacity() == null || getWriteCapacity() == null || getReadCapacity() <= 0L || getWriteCapacity() <= 0L)) {
+        if ("PROVISIONED".equals(getBillingMode()) && (getReadCapacity() == null || getWriteCapacity() == null)) {
             errors.add(new ValidationError(
                 this,
                 null,

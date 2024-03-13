@@ -24,6 +24,7 @@ import java.util.Set;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Min;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -84,6 +85,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
      * The maximum number of writes per second for this table before an exception is thrown. Required if ``billing-mode`` is set to ``PROVISIONED``.
      */
     @Updatable
+    @Min(1)
     public Long getWriteCapacity() {
         return writeCapacity;
     }
@@ -96,6 +98,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
      * The maximum number of reads per second for this table before an exception is thrown. Required if ``billing-mode`` is set to ``PROVISIONED``.
      */
     @Updatable
+    @Min(1)
     public Long getReadCapacity() {
         return readCapacity;
     }
@@ -227,7 +230,7 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
         }
 
         if ("PROVISIONED".equals(parentTable.getBillingMode()) && (getReadCapacity() == null
-            || getWriteCapacity() == null || getReadCapacity() <= 0L || getWriteCapacity() <= 0L)) {
+            || getWriteCapacity() == null)) {
             errors.add(new ValidationError(
                 this,
                 null,
