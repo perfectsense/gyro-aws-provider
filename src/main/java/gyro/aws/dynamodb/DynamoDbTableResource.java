@@ -591,14 +591,14 @@ public class DynamoDbTableResource extends AwsResource implements Copyable<Table
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if ("PROVISIONED".equals(getBillingMode()) && (getReadCapacity() == null || getWriteCapacity() == null)) {
+        if ("PROVISIONED".equals(getBillingMode()) && (getReadCapacity() == null || getWriteCapacity() == null || getReadCapacity() <= 0L || getWriteCapacity() <= 0L)) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "'read-capacity' and 'write-capacity' must both be provided when 'billing-mode' is set to 'PROVISIONED'!"));
         }
 
-        if ("PAY_PER_REQUEST".equals(getBillingMode()) && (getReadCapacity() != null || getWriteCapacity() != null)) {
+        if ("PAY_PER_REQUEST".equals(getBillingMode()) && ((getReadCapacity() != null && getReadCapacity() > 0) || (getWriteCapacity() != null && getWriteCapacity() > 0))) {
             errors.add(new ValidationError(
                 this,
                 null,
