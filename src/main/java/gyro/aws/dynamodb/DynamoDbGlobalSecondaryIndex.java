@@ -227,15 +227,14 @@ public class DynamoDbGlobalSecondaryIndex extends Diffable implements Copyable<G
         }
 
         if ("PROVISIONED".equals(parentTable.getBillingMode()) && (getReadCapacity() == null
-            || getWriteCapacity() == null)) {
+            || getWriteCapacity() == null || getReadCapacity() <= 0L || getWriteCapacity() <= 0L)) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "'read-capacity' and 'write-capacity' must both be provided when the table 'billing-mode' is set to 'PROVISIONED'!"));
         }
 
-        if ("PAY_PER_REQUEST".equals(parentTable.getBillingMode()) && (getReadCapacity() != null
-            || getWriteCapacity() != null)) {
+        if ("PAY_PER_REQUEST".equals(parentTable.getBillingMode()) && ((getReadCapacity() != null && getReadCapacity() > 0) || (getWriteCapacity() != null && getWriteCapacity() > 0))) {
             errors.add(new ValidationError(
                 this,
                 null,
