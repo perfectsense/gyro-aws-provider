@@ -130,13 +130,22 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private String preSignedUrl;
     private String replicationSourceIdentifier;
     private String snapshotIdentifier;
+    private DbClusterS3Import s3Import;
     private ScalingConfiguration scalingConfiguration;
     private Boolean skipFinalSnapshot;
     private Boolean storageEncrypted;
     private List<SecurityGroupResource> vpcSecurityGroups;
+    private String dbClusterInstanceClass;
+    private Boolean enableGlobalWriteForwarding;
+    private Integer iops;
+    private Boolean manageMasterUserPassword;
+    private KmsKeyResource masterUserSecretKmsKey;
+    private ServerlessV2ScalingConfig serverlessV2ScalingConfiguration;
+    private String storageType;
+
+    // Read-only
     private String endpointAddress;
     private String readerEndpointAddress;
-    private DbClusterS3Import s3Import;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -291,7 +300,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The name of the database engine.
      */
     @Required
-    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql"})
+    @ValidStrings({"mysql", "postgres", "aurora-mysql", "aurora-postgresql"})
     public String getEngine() {
         return engine;
     }
@@ -466,7 +475,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The s3 import to restore the database from.
      */
-    @ConflictsWith({ "snapshot-identifier" })
+    @ConflictsWith({"snapshot-identifier"})
     public DbClusterS3Import getS3Import() {
         return s3Import;
     }
@@ -522,6 +531,92 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
     public void setVpcSecurityGroups(List<SecurityGroupResource> vpcSecurityGroups) {
         this.vpcSecurityGroups = vpcSecurityGroups;
+    }
+
+    /**
+     * The compute and memory capacity of each DB instance in the Multi-AZ DB cluster.
+     * See `DB instance classes <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html>`_.
+     */
+    @Updatable
+    public String getDbClusterInstanceClass() {
+        return dbClusterInstanceClass;
+    }
+
+    public void setDbClusterInstanceClass(String dbClusterInstanceClass) {
+        this.dbClusterInstanceClass = dbClusterInstanceClass;
+    }
+
+    /**
+     * When set to ``true``, enable this DB cluster to forward write operations to the primary cluster of a global cluster (Aurora global database).
+     */
+    @Updatable
+    public Boolean getEnableGlobalWriteForwarding() {
+        return enableGlobalWriteForwarding;
+    }
+
+    public void setEnableGlobalWriteForwarding(Boolean enableGlobalWriteForwarding) {
+        this.enableGlobalWriteForwarding = enableGlobalWriteForwarding;
+    }
+
+    /**
+     * The amount of Provisioned IOPS (input/output operations per second) to be initially allocated for each DB instance in the Multi-AZ DB cluster.
+     */
+    @Updatable
+    public Integer getIops() {
+        return iops;
+    }
+
+    public void setIops(Integer iops) {
+        this.iops = iops;
+    }
+
+    /**
+     * When set to ``true``, manage the master user password with Amazon Web Services Secrets Manager.
+     */
+    @Updatable
+    public Boolean getManageMasterUserPassword() {
+        return manageMasterUserPassword;
+    }
+
+    public void setManageMasterUserPassword(Boolean manageMasterUserPassword) {
+        this.manageMasterUserPassword = manageMasterUserPassword;
+    }
+
+    /**
+     * The Amazon Web Services KMS key to encrypt a secret that is automatically generated and managed in Amazon Web Services Secrets Manager.
+     */
+    @Updatable
+    public KmsKeyResource getMasterUserSecretKmsKey() {
+        return masterUserSecretKmsKey;
+    }
+
+    public void setMasterUserSecretKmsKey(KmsKeyResource masterUserSecretKmsKey) {
+        this.masterUserSecretKmsKey = masterUserSecretKmsKey;
+    }
+
+    /**
+     * The serverless scaling configuration.
+     */
+    @Updatable
+    public ServerlessV2ScalingConfig getServerlessV2ScalingConfiguration() {
+        return serverlessV2ScalingConfiguration;
+    }
+
+    public void setServerlessV2ScalingConfiguration(ServerlessV2ScalingConfig serverlessV2ScalingConfiguration) {
+        this.serverlessV2ScalingConfiguration = serverlessV2ScalingConfiguration;
+    }
+
+    /**
+     * The storage type to associate with the DB cluster.
+     */
+    @Updatable
+    @ValidStrings({"gp3", "io1", "io2", "aurora", "aurora-iopt1"})
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
     }
 
     /**
@@ -600,6 +695,21 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         setEndpointAddress(cluster.endpoint());
         setReaderEndpointAddress(cluster.readerEndpoint());
+        setDbClusterInstanceClass(cluster.dbClusterInstanceClass());
+        setEnableGlobalWriteForwarding(cluster.globalWriteForwardingRequested());
+        setIops(cluster.iops());
+        setStorageType(cluster.storageType());
+
+        if (cluster.masterUserSecret() != null && cluster.masterUserSecret().kmsKeyId() != null) {
+            setManageMasterUserPassword(true);
+            setMasterUserSecretKmsKey(findById(KmsKeyResource.class, cluster.masterUserSecret().kmsKeyId()));
+        }
+
+        if (cluster.serverlessV2ScalingConfiguration() != null) {
+            ServerlessV2ScalingConfig config = new ServerlessV2ScalingConfig();
+            config.copyFrom(cluster.serverlessV2ScalingConfiguration());
+            setServerlessV2ScalingConfiguration(config);
+        }
     }
 
     @Override
@@ -627,14 +737,15 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     @Override
     protected void doCreate(GyroUI ui, State state) {
         RdsClient client = createClient(RdsClient.class);
-        software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration = getScalingConfiguration() != null
-            ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
+        software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration =
+            getScalingConfiguration() != null
+                ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
                 .autoPause(getScalingConfiguration().getAutoPause())
                 .maxCapacity(getScalingConfiguration().getMaxCapacity())
                 .minCapacity(getScalingConfiguration().getMinCapacity())
                 .secondsUntilAutoPause(getScalingConfiguration().getSecondsUntilAutoPause())
                 .build()
-            : null;
+                : null;
 
         if (getSnapshotIdentifier() != null) {
             RestoreDbClusterFromSnapshotResponse response = client.restoreDBClusterFromSnapshot(
@@ -660,6 +771,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .stream()
                         .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
+                    .dbClusterInstanceClass(getDbClusterInstanceClass())
+                    .iops(getIops())
+                    .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
+                        getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
+                    .storageType(getStorageType())
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -709,7 +825,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
                         .stream()
                         .map(SecurityGroupResource::getId)
-                        .collect(Collectors.toList()) : null));
+                        .collect(Collectors.toList()) : null)
+                    .manageMasterUserPassword(getManageMasterUserPassword())
+                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
+                        getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
+                    .storageType(getStorageType())
+            );
 
             setArn(response.dbCluster().dbClusterArn());
             state.save();
@@ -757,6 +879,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .stream()
                         .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
+                    .dbClusterInstanceClass(getDbClusterInstanceClass())
+                    .enableGlobalWriteForwarding(getEnableGlobalWriteForwarding())
+                    .iops(getIops())
+                    .manageMasterUserPassword(getManageMasterUserPassword())
+                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
+                        getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
+                    .storageType(getStorageType())
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -784,16 +914,18 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     protected void doUpdate(Resource config, Set<String> changedProperties) {
         RdsClient client = createClient(RdsClient.class);
         DbClusterResource current = (DbClusterResource) config;
-        software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration = getScalingConfiguration() != null
-            ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
+        software.amazon.awssdk.services.rds.model.ScalingConfiguration scalingConfiguration =
+            getScalingConfiguration() != null
+                ? software.amazon.awssdk.services.rds.model.ScalingConfiguration.builder()
                 .autoPause(getScalingConfiguration().getAutoPause())
                 .maxCapacity(getScalingConfiguration().getMaxCapacity())
                 .minCapacity(getScalingConfiguration().getMinCapacity())
                 .secondsUntilAutoPause(getScalingConfiguration().getSecondsUntilAutoPause())
                 .build()
-            : null;
+                : null;
 
-        String clusterParameterGroupName = getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null;
+        String clusterParameterGroupName =
+            getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
@@ -834,6 +966,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .scalingConfiguration(scalingConfiguration)
                     .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
                         ? null : vpcSecurityGroupIds)
+                    .dbClusterInstanceClass(getDbClusterInstanceClass())
+                    .enableGlobalWriteForwarding(getEnableGlobalWriteForwarding())
+                    .iops(getIops())
+                    .manageMasterUserPassword(getManageMasterUserPassword())
+                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
+                        getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
+                    .storageType(getStorageType())
             );
         } catch (InvalidDbClusterStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
@@ -846,14 +986,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (getGlobalCluster() != null) {
             client.removeFromGlobalCluster(
                 r -> r.dbClusterIdentifier(getArn())
-                        .globalClusterIdentifier(getGlobalCluster().getIdentifier())
+                    .globalClusterIdentifier(getGlobalCluster().getIdentifier())
             );
         }
 
         client.deleteDBCluster(
             r -> r.dbClusterIdentifier(getIdentifier())
-                    .finalDBSnapshotIdentifier(!getSkipFinalSnapshot() ? getFinalDbSnapshotIdentifier() : null)
-                    .skipFinalSnapshot(getSkipFinalSnapshot())
+                .finalDBSnapshotIdentifier(!getSkipFinalSnapshot() ? getFinalDbSnapshotIdentifier() : null)
+                .skipFinalSnapshot(getSkipFinalSnapshot())
         );
 
         Wait.atMost(5, TimeUnit.MINUTES)
