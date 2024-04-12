@@ -142,6 +142,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private KmsKeyResource masterUserSecretKmsKey;
     private ServerlessV2ScalingConfig serverlessV2ScalingConfiguration;
     private String storageType;
+    private Integer allocatedStorage;
+    private Boolean autoMinorVersionUpgrade;
+    private Boolean copyTagsToSnapshot;
 
     // Read-only
     private String endpointAddress;
@@ -620,6 +623,43 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
+     * The amount of storage in gibibytes (GiB) to allocate to each DB instance in the Multi-AZ DB cluster.
+     * Valid for Cluster Type: Multi-AZ DB clusters only
+     */
+    @Updatable
+    public Integer getAllocatedStorage() {
+        return allocatedStorage;
+    }
+
+    public void setAllocatedStorage(Integer allocatedStorage) {
+        this.allocatedStorage = allocatedStorage;
+    }
+
+    /**
+     * When set to ``true``, minor engine upgrades are applied automatically to the DB cluster during the maintenance window. Defaults to ``true``.
+     */
+    @Updatable
+    public Boolean getAutoMinorVersionUpgrade() {
+        return autoMinorVersionUpgrade;
+    }
+
+    public void setAutoMinorVersionUpgrade(Boolean autoMinorVersionUpgrade) {
+        this.autoMinorVersionUpgrade = autoMinorVersionUpgrade;
+    }
+
+    /**
+     * When set to ``true``, copies all tags from the DB cluster to snapshots of the DB cluster. The defaults to ``false``.
+     */
+    @Updatable
+    public Boolean getCopyTagsToSnapshot() {
+        return copyTagsToSnapshot;
+    }
+
+    public void setCopyTagsToSnapshot(Boolean copyTagsToSnapshot) {
+        this.copyTagsToSnapshot = copyTagsToSnapshot;
+    }
+
+    /**
      * DNS hostname to access the primary instance of the cluster.
      */
     @Output
@@ -698,7 +738,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setDbClusterInstanceClass(cluster.dbClusterInstanceClass());
         setEnableGlobalWriteForwarding(cluster.globalWriteForwardingRequested());
         setIops(cluster.iops());
-        setStorageType(cluster.storageType());
+        setStorageType(cluster.storageType() == null ? "aurora" : cluster.storageType());
+        setAllocatedStorage(cluster.allocatedStorage());
+        setAutoMinorVersionUpgrade(cluster.autoMinorVersionUpgrade());
+        setCopyTagsToSnapshot(cluster.copyTagsToSnapshot());
 
         if (cluster.masterUserSecret() != null && cluster.masterUserSecret().kmsKeyId() != null) {
             setManageMasterUserPassword(true);
@@ -776,6 +819,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
+                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -831,6 +875,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
+                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -887,6 +932,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
+                    .allocatedStorage(getAllocatedStorage())
+                    .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -974,6 +1022,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
+                    .allocatedStorage(getAllocatedStorage())
+                    .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
             );
         } catch (InvalidDbClusterStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
