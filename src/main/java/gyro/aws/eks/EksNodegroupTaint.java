@@ -58,6 +58,6 @@ public class EksNodegroupTaint extends Diffable implements Copyable<Taint> {
 
     @Override
     public String primaryKey() {
-        return "key";
+        return getKey() + " : " + getValue() + " : " + getTaintEffect();
     }
 }
