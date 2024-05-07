@@ -18,6 +18,7 @@ package gyro.aws.eks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,10 +51,12 @@ import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.Nodegroup;
 import software.amazon.awssdk.services.eks.model.NodegroupStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
+import software.amazon.awssdk.services.eks.model.Taint;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateLabelsPayload;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupVersionRequest;
+import software.amazon.awssdk.services.eks.model.UpdateTaintsPayload;
 
 /**
  * Creates an eks nodegroup.
@@ -96,6 +99,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private Map<String, String> tags;
     private EksLaunchTemplateSpecification launchTemplateSpecification;
     private CapacityTypes capacityType;
+    private Set<EksNodegroupTaint> taint;
 
     // Read-only
     private String arn;
@@ -309,6 +313,21 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         this.capacityType = capacityType;
     }
 
+    /**
+     * Set of nodegroup Taints
+     */
+    @Updatable
+    public Set<EksNodegroupTaint> getTaint() {
+        if (taint == null) {
+            taint = new HashSet<>();
+        }
+        return taint;
+    }
+
+    public void setTaint(Set<EksNodegroupTaint> taint) {
+        this.taint = this.taint;
+    }
+
     @Override
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
@@ -341,6 +360,16 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             EksLaunchTemplateSpecification specification = newSubresource(EksLaunchTemplateSpecification.class);
             specification.copyFrom(model.launchTemplate());
             setLaunchTemplateSpecification(specification);
+        }
+
+        if (model.hasTaints()) {
+            Set<EksNodegroupTaint> taints = new HashSet<>();
+            for (Taint t : model.taints()) {
+                EksNodegroupTaint taint = newSubresource(EksNodegroupTaint.class);
+                taint.copyFrom(t);
+                taints.add(taint);
+            }
+            setTaint(taints);
         }
     }
 
@@ -387,6 +416,13 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         if (getLaunchTemplateSpecification() != null) {
             builder = builder.launchTemplate(getLaunchTemplateSpecification().toLaunchTemplateSpecification());
+        }
+
+        if (!getTaint().isEmpty()) {
+            builder = builder.taints(getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toList()));
         }
 
         CreateNodegroupResponse response = client.createNodegroup(builder.build());
@@ -474,6 +510,42 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             }
 
             client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
+        }
+
+        if (changedFieldNames.contains("taint")) {
+            if (!currentResource.getTaint().isEmpty()) {
+                Set<Taint> removeTaints = currentResource.getTaint()
+                        .stream()
+                        .map(EksNodegroupTaint::toTaint)
+                        .collect(Collectors.toSet());
+
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(UpdateTaintsPayload.builder()
+                                .removeTaints(removeTaints)
+                                .build())
+                        .build());
+
+                state.save();
+                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            }
+
+            Set<Taint> taints = getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toSet());
+
+            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                    .clusterName(getCluster().getName())
+                    .nodegroupName(getName())
+                    .taints(UpdateTaintsPayload.builder()
+                            .addOrUpdateTaints(taints)
+                            .build())
+                    .build());
+
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
     }
 
