@@ -531,21 +531,23 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 waitForActiveState(client, TimeoutSettings.Action.UPDATE);
             }
 
-            Set<Taint> taints = getTaint()
-                    .stream()
-                    .map(EksNodegroupTaint::toTaint)
-                    .collect(Collectors.toSet());
+            if (!getTaint().isEmpty()) {
+                Set<Taint> taints = getTaint()
+                        .stream()
+                        .map(EksNodegroupTaint::toTaint)
+                        .collect(Collectors.toSet());
 
-            client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                    .clusterName(getCluster().getName())
-                    .nodegroupName(getName())
-                    .taints(UpdateTaintsPayload.builder()
-                            .addOrUpdateTaints(taints)
-                            .build())
-                    .build());
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(UpdateTaintsPayload.builder()
+                                .addOrUpdateTaints(taints)
+                                .build())
+                        .build());
 
-            state.save();
-            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+                state.save();
+                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            }
         }
     }
 
