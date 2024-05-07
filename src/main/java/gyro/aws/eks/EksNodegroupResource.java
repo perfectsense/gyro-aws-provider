@@ -325,7 +325,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     public void setTaint(Set<EksNodegroupTaint> taint) {
-        this.taint = this.taint;
+        this.taint = taint;
     }
 
     @Override
