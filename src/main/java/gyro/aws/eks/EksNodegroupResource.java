@@ -543,40 +543,35 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             }
             taintsToRemove.removeAll(taintsToUpdate);
 
+            UpdateTaintsPayload updateTaintsPayload = null;
             // Both add / update and remove
             if (!taintsToAddOrUpdate.isEmpty() && !taintsToRemove.isEmpty()) {
-                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .nodegroupName(getName())
-                        .taints(UpdateTaintsPayload.builder()
-                                .addOrUpdateTaints(taintsToAddOrUpdate)
-                                .removeTaints(taintsToRemove)
-                                .build())
-                        .build());
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                    .addOrUpdateTaints(taintsToAddOrUpdate)
+                    .removeTaints(taintsToRemove)
+                    .build();
 
             // Only add / update
             } else if (!taintsToAddOrUpdate.isEmpty()) {
-                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .nodegroupName(getName())
-                        .taints(UpdateTaintsPayload.builder()
-                                .addOrUpdateTaints(taintsToAddOrUpdate)
-                                .build())
-                        .build());
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                        .addOrUpdateTaints(taintsToAddOrUpdate)
+                        .build();
 
             // Only remove
             } else if (!taintsToRemove.isEmpty()) {
-                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .nodegroupName(getName())
-                        .taints(UpdateTaintsPayload.builder()
-                                .removeTaints(taintsToRemove)
-                                .build())
-                        .build());
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                        .removeTaints(taintsToRemove)
+                        .build();
             }
 
             // Update if something actually changed
-            if (!taintsToAddOrUpdate.isEmpty() || !taintsToRemove.isEmpty()) {
+            if (updateTaintsPayload != null) {
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(updateTaintsPayload)
+                        .build());
+
                 state.save();
                 waitForActiveState(client, TimeoutSettings.Action.UPDATE);
             }
