@@ -41,6 +41,9 @@ public class EksNodegroupTaint extends Diffable implements Copyable<Taint> {
         this.key = key;
     }
 
+    /*
+    * The value of the taint.
+    */
     @Required
     public String getValue() {
         return value;
