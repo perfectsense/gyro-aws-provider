@@ -53,6 +53,9 @@ public class EksNodegroupTaint extends Diffable implements Copyable<Taint> {
         this.value = value;
     }
 
+    /*
+    * The effect of the taint.
+    */
     @ValidStrings({"NO_SCHEDULE", "NO_EXECUTE", "PREFER_NO_SCHEDULE"})
     @Required
     public TaintEffect getTaintEffect() {
