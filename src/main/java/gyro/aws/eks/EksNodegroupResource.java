@@ -362,6 +362,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             setLaunchTemplateSpecification(specification);
         }
 
+        getTaint().clear();
         if (model.hasTaints()) {
             Set<EksNodegroupTaint> taints = new HashSet<>();
             for (Taint t : model.taints()) {
