@@ -514,38 +514,69 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         }
 
         if (changedFieldNames.contains("taint")) {
-            if (!currentResource.getTaint().isEmpty()) {
-                Set<Taint> removeTaints = currentResource.getTaint()
-                        .stream()
-                        .map(EksNodegroupTaint::toTaint)
-                        .collect(Collectors.toSet());
+            Set<Taint> taints = getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toSet());
+            Set<Taint> currentTaints = currentResource.getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toSet());
 
+            // Find taints that need to be added or updated
+            Set<Taint> taintsToAddOrUpdate = new HashSet<>(taints);
+            taintsToAddOrUpdate.removeAll(currentTaints);
+
+            // Find taints that need to be removed
+            Set<Taint> taintsToRemove = new HashSet<>(currentTaints);
+            taintsToRemove.removeAll(taints);
+
+            // Taint key cannot be in both added and removed, this means it's an update, so remove from remove set.
+            Set<String> taintKeysToAddOrUpdate = taintsToAddOrUpdate.stream()
+                    .map(Taint::key)
+                    .collect(Collectors.toSet());
+            Set<Taint> taintsToUpdate = new HashSet<>();
+            for (Taint taint : taintsToRemove) {
+                if (taintKeysToAddOrUpdate.contains(taint.key())) {
+                    taintsToUpdate.add(taint);
+                }
+            }
+            taintsToRemove.removeAll(taintsToUpdate);
+
+            // Both add / update and remove
+            if (!taintsToAddOrUpdate.isEmpty() && !taintsToRemove.isEmpty()) {
                 client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
                         .clusterName(getCluster().getName())
                         .nodegroupName(getName())
                         .taints(UpdateTaintsPayload.builder()
-                                .removeTaints(removeTaints)
+                                .addOrUpdateTaints(taintsToAddOrUpdate)
+                                .removeTaints(taintsToRemove)
                                 .build())
                         .build());
 
-                state.save();
-                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            // Only add / update
+            } else if (!taintsToAddOrUpdate.isEmpty()) {
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(UpdateTaintsPayload.builder()
+                                .addOrUpdateTaints(taintsToAddOrUpdate)
+                                .build())
+                        .build());
+
+            // Only remove
+            } else if (!taintsToRemove.isEmpty()) {
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(UpdateTaintsPayload.builder()
+                                .removeTaints(taintsToRemove)
+                                .build())
+                        .build());
             }
 
-            if (!getTaint().isEmpty()) {
-                Set<Taint> taints = getTaint()
-                        .stream()
-                        .map(EksNodegroupTaint::toTaint)
-                        .collect(Collectors.toSet());
-
-                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
-                        .clusterName(getCluster().getName())
-                        .nodegroupName(getName())
-                        .taints(UpdateTaintsPayload.builder()
-                                .addOrUpdateTaints(taints)
-                                .build())
-                        .build());
-
+            // Update if something actually changed
+            if (!taintsToAddOrUpdate.isEmpty() || !taintsToRemove.isEmpty()) {
                 state.save();
                 waitForActiveState(client, TimeoutSettings.Action.UPDATE);
             }
