@@ -18,6 +18,7 @@ package gyro.aws.eks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,10 +51,12 @@ import software.amazon.awssdk.services.eks.model.EksException;
 import software.amazon.awssdk.services.eks.model.Nodegroup;
 import software.amazon.awssdk.services.eks.model.NodegroupStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
+import software.amazon.awssdk.services.eks.model.Taint;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateLabelsPayload;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupVersionRequest;
+import software.amazon.awssdk.services.eks.model.UpdateTaintsPayload;
 
 /**
  * Creates an eks nodegroup.
@@ -96,6 +99,7 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     private Map<String, String> tags;
     private EksLaunchTemplateSpecification launchTemplateSpecification;
     private CapacityTypes capacityType;
+    private Set<EksNodegroupTaint> taint;
 
     // Read-only
     private String arn;
@@ -309,6 +313,21 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         this.capacityType = capacityType;
     }
 
+    /**
+     * Set of nodegroup Taints
+     */
+    @Updatable
+    public Set<EksNodegroupTaint> getTaint() {
+        if (taint == null) {
+            taint = new HashSet<>();
+        }
+        return taint;
+    }
+
+    public void setTaint(Set<EksNodegroupTaint> taint) {
+        this.taint = taint;
+    }
+
     @Override
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
@@ -341,6 +360,17 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             EksLaunchTemplateSpecification specification = newSubresource(EksLaunchTemplateSpecification.class);
             specification.copyFrom(model.launchTemplate());
             setLaunchTemplateSpecification(specification);
+        }
+
+        getTaint().clear();
+        if (model.hasTaints()) {
+            Set<EksNodegroupTaint> taints = new HashSet<>();
+            for (Taint t : model.taints()) {
+                EksNodegroupTaint taint = newSubresource(EksNodegroupTaint.class);
+                taint.copyFrom(t);
+                taints.add(taint);
+            }
+            setTaint(taints);
         }
     }
 
@@ -387,6 +417,13 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
 
         if (getLaunchTemplateSpecification() != null) {
             builder = builder.launchTemplate(getLaunchTemplateSpecification().toLaunchTemplateSpecification());
+        }
+
+        if (!getTaint().isEmpty()) {
+            builder = builder.taints(getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toList()));
         }
 
         CreateNodegroupResponse response = client.createNodegroup(builder.build());
@@ -474,6 +511,70 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             }
 
             client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
+        }
+
+        if (changedFieldNames.contains("taint")) {
+            Set<Taint> taints = getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toSet());
+            Set<Taint> currentTaints = currentResource.getTaint()
+                    .stream()
+                    .map(EksNodegroupTaint::toTaint)
+                    .collect(Collectors.toSet());
+
+            // Find taints that need to be added or updated
+            Set<Taint> taintsToAddOrUpdate = new HashSet<>(taints);
+            taintsToAddOrUpdate.removeAll(currentTaints);
+
+            // Find taints that need to be removed
+            Set<Taint> taintsToRemove = new HashSet<>(currentTaints);
+            taintsToRemove.removeAll(taints);
+
+            // Taint key cannot be in both added and removed, this means it's an update, so remove from remove set.
+            Set<String> taintKeysToAddOrUpdate = taintsToAddOrUpdate.stream()
+                    .map(Taint::key)
+                    .collect(Collectors.toSet());
+            Set<Taint> taintsToUpdate = new HashSet<>();
+            for (Taint taint : taintsToRemove) {
+                if (taintKeysToAddOrUpdate.contains(taint.key())) {
+                    taintsToUpdate.add(taint);
+                }
+            }
+            taintsToRemove.removeAll(taintsToUpdate);
+
+            UpdateTaintsPayload updateTaintsPayload = null;
+            // Both add / update and remove
+            if (!taintsToAddOrUpdate.isEmpty() && !taintsToRemove.isEmpty()) {
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                    .addOrUpdateTaints(taintsToAddOrUpdate)
+                    .removeTaints(taintsToRemove)
+                    .build();
+
+            // Only add / update
+            } else if (!taintsToAddOrUpdate.isEmpty()) {
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                        .addOrUpdateTaints(taintsToAddOrUpdate)
+                        .build();
+
+            // Only remove
+            } else if (!taintsToRemove.isEmpty()) {
+                updateTaintsPayload = UpdateTaintsPayload.builder()
+                        .removeTaints(taintsToRemove)
+                        .build();
+            }
+
+            // Update if something actually changed
+            if (updateTaintsPayload != null) {
+                client.updateNodegroupConfig(UpdateNodegroupConfigRequest.builder()
+                        .clusterName(getCluster().getName())
+                        .nodegroupName(getName())
+                        .taints(updateTaintsPayload)
+                        .build());
+
+                state.save();
+                waitForActiveState(client, TimeoutSettings.Action.UPDATE);
+            }
         }
     }
 
