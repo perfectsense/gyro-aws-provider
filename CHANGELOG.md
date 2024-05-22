@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.5.10 (May 22nd, 2024)
+
+ENHANCEMENTS:
+
+* [644](https://github.com/perfectsense/gyro-aws-provider/issues/644): Implement node Taints on managed node groups.
+
 ## 1.5.9 (March 13th, 2024)
 
 ISSUES FIXED:
