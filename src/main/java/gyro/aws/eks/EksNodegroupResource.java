@@ -314,7 +314,9 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     }
 
     /**
-     * Set of nodegroup Taints
+     * Set of nodegroup Taints.
+     *
+     * @subresource gyro.aws.eks.EksNodegroupTaint
      */
     @Updatable
     public Set<EksNodegroupTaint> getTaint() {
