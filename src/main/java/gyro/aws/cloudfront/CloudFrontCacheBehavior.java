@@ -357,6 +357,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         this.functionAssociations = functionAssociations;
     }
 
+    /**
+     * The cache policy that is attached to this cache behavior.
+     */
     @Updatable
     public CachePolicyResource getCachePolicy() {
         return cachePolicy;
@@ -366,6 +369,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         this.cachePolicy = cachePolicy;
     }
 
+    /**
+     * The origin request policy that is attached to this cache behavior.
+     */
     @Updatable
     public OriginRequestPolicyResource getOriginRequestPolicy() {
         return originRequestPolicy;
