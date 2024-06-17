@@ -101,6 +101,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The minimum time objects will be cached in this distribution.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -151,6 +154,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Headers to include the cache key for an object.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -169,6 +180,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whether to forward to cookies to the origin.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -187,6 +206,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whitelist of cookies to include the cache key for an object.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -221,6 +248,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The time objects will be cached in this distribution. Only applies when one of ``Cache-Control: max-age``, ``Cache-Control: s-maxage``, or ``Expires`` are not returned by the origin.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -239,6 +269,9 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The maximum time objects will be cached in this distribution.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -273,6 +306,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whether to forward query strings to origin. If true, query string parameters become part of the cache key.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
     @Deprecated
@@ -291,6 +332,14 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Query string parameters that should be used in the cache key.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
     @Deprecated
