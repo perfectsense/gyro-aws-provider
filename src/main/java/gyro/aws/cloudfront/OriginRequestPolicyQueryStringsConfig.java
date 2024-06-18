@@ -29,7 +29,8 @@ import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringBehavior;
 
-public class OriginRequestPolicyQueryStringsConfig extends Diffable implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig> {
+public class OriginRequestPolicyQueryStringsConfig extends Diffable
+    implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig> {
 
     private OriginRequestPolicyQueryStringBehavior queryStringBehavior;
     private Set<String> queryStrings;
@@ -78,10 +79,15 @@ public class OriginRequestPolicyQueryStringsConfig extends Diffable implements C
     }
 
     software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig toOriginRequestPolicyQueryStringsConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig.builder()
-            .queryStrings(r -> r.items(getQueryStrings()).quantity(getQueryStrings().size()))
-            .queryStringBehavior(getQueryStringBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyQueryStringsConfig.builder()
+                .queryStringBehavior(getQueryStringBehavior());
+
+        if (!getQueryStrings().isEmpty()) {
+            builder.queryStrings(r -> r.items(getQueryStrings()).quantity(getQueryStrings().size()));
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -90,7 +96,7 @@ public class OriginRequestPolicyQueryStringsConfig extends Diffable implements C
 
         if (getQueryStringBehavior() != null) {
             if ((getQueryStringBehavior() != OriginRequestPolicyQueryStringBehavior.NONE
-                || getQueryStringBehavior() != OriginRequestPolicyQueryStringBehavior.ALL)
+                && getQueryStringBehavior() != OriginRequestPolicyQueryStringBehavior.ALL)
                 && getQueryStrings().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
@@ -98,7 +104,9 @@ public class OriginRequestPolicyQueryStringsConfig extends Diffable implements C
                     "'query-strings' is required when 'query-string-behavior' is not 'none' or 'all'."));
             }
 
-            if (getQueryStringBehavior() == OriginRequestPolicyQueryStringBehavior.NONE && !getQueryStrings().isEmpty()) {
+            if ((getQueryStringBehavior() == OriginRequestPolicyQueryStringBehavior.NONE ||
+                getQueryStringBehavior() == OriginRequestPolicyQueryStringBehavior.ALL) &&
+                !getQueryStrings().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
                     null,

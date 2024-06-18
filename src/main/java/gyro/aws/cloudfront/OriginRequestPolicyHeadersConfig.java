@@ -30,7 +30,8 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeaderBehavior;
 
 public class OriginRequestPolicyHeadersConfig
-    extends Diffable implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig> {
+    extends Diffable
+    implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig> {
 
     private OriginRequestPolicyHeaderBehavior headerBehavior;
     private Set<String> headers;
@@ -39,7 +40,7 @@ public class OriginRequestPolicyHeadersConfig
      * The header behavior for the origin request policy.
      */
     @Required
-    @ValidStrings({ "none", "whitelist", "allViewer", "allExcept", "allViewerAndWhitelistCloudFront" })
+    @ValidStrings({"none", "whitelist", "allViewer", "allExcept", "allViewerAndWhitelistCloudFront"})
     public OriginRequestPolicyHeaderBehavior getHeaderBehavior() {
         return headerBehavior;
     }
@@ -79,10 +80,15 @@ public class OriginRequestPolicyHeadersConfig
     }
 
     software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig toOriginRequestPolicyHeadersConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig.builder()
-            .headers(r -> r.items(getHeaders()).quantity(getHeaders().size()))
-            .headerBehavior(getHeaderBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyHeadersConfig.builder()
+                .headerBehavior(getHeaderBehavior());
+
+        if (!getHeaders().isEmpty()) {
+            builder.headers(r -> r.items(getHeaders()).quantity(getHeaders().size()));
+        }
+
+        return builder.build();
     }
 
     @Override

@@ -30,7 +30,8 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookieBehavior;
 
 public class OriginRequestPolicyCookiesConfig
-    extends Diffable implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig> {
+    extends Diffable
+    implements Copyable<software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig> {
 
     private OriginRequestPolicyCookieBehavior cookieBehavior;
     private Set<String> cookies;
@@ -79,10 +80,15 @@ public class OriginRequestPolicyCookiesConfig
     }
 
     software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig toOriginRequestPolicyCookiesConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig.builder()
-            .cookies(r -> r.items(getCookies()).quantity(getCookies().size()))
-            .cookieBehavior(getCookieBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.OriginRequestPolicyCookiesConfig.builder()
+                .cookieBehavior(getCookieBehavior());
+
+        if (!getCookies().isEmpty()) {
+            builder.cookies(r -> r.items(getCookies()).quantity(getCookies().size()));
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -91,7 +97,7 @@ public class OriginRequestPolicyCookiesConfig
 
         if (getCookieBehavior() != null) {
             if ((getCookieBehavior() != OriginRequestPolicyCookieBehavior.NONE
-                || getCookieBehavior() != OriginRequestPolicyCookieBehavior.ALL)
+                && getCookieBehavior() != OriginRequestPolicyCookieBehavior.ALL)
                 && getCookies().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
@@ -99,7 +105,8 @@ public class OriginRequestPolicyCookiesConfig
                     "'cookies' is required when 'cookie-behavior' is not 'none' or 'all'."));
             }
 
-            if (getCookieBehavior() == OriginRequestPolicyCookieBehavior.NONE && !getCookies().isEmpty()) {
+            if ((getCookieBehavior() == OriginRequestPolicyCookieBehavior.NONE ||
+                getCookieBehavior() == OriginRequestPolicyCookieBehavior.ALL) && !getCookies().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
                     null,

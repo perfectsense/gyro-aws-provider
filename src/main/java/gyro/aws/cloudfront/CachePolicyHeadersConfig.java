@@ -39,7 +39,7 @@ public class CachePolicyHeadersConfig
      * The header behavior for the cache policy.
      */
     @Required
-    @ValidStrings({ "none", "whitelist" })
+    @ValidStrings({"none", "whitelist"})
     public CachePolicyHeaderBehavior getHeaderBehavior() {
         return headerBehavior;
     }
@@ -79,10 +79,15 @@ public class CachePolicyHeadersConfig
     }
 
     software.amazon.awssdk.services.cloudfront.model.CachePolicyHeadersConfig toCachePolicyHeadersConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.CachePolicyHeadersConfig.builder()
-            .headers(r -> r.items(getHeaders()).quantity(getHeaders().size()))
-            .headerBehavior(getHeaderBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.CachePolicyHeadersConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.CachePolicyHeadersConfig.builder()
+                .headerBehavior(getHeaderBehavior());
+
+        if (!getHeaders().isEmpty()) {
+            builder.headers(r -> r.items(getHeaders()).quantity(getHeaders().size()));
+        }
+
+        return builder.build();
     }
 
     @Override

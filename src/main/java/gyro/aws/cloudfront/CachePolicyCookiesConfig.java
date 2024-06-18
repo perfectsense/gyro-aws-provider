@@ -79,10 +79,15 @@ public class CachePolicyCookiesConfig
     }
 
     software.amazon.awssdk.services.cloudfront.model.CachePolicyCookiesConfig toCachePolicyCookiesConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.CachePolicyCookiesConfig.builder()
-            .cookies(r -> r.items(getCookies()).quantity(getCookies().size()))
-            .cookieBehavior(getCookieBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.CachePolicyCookiesConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.CachePolicyCookiesConfig.builder()
+                .cookieBehavior(getCookieBehavior());
+
+        if (!getCookies().isEmpty()) {
+            builder.cookies(r -> r.items(getCookies()).quantity(getCookies().size()));
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -91,7 +96,7 @@ public class CachePolicyCookiesConfig
 
         if (getCookieBehavior() != null) {
             if ((getCookieBehavior() != CachePolicyCookieBehavior.NONE
-                || getCookieBehavior() != CachePolicyCookieBehavior.ALL)
+                && getCookieBehavior() != CachePolicyCookieBehavior.ALL)
                 && getCookies().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
@@ -99,7 +104,8 @@ public class CachePolicyCookiesConfig
                     "'cookies' is required when 'cookie-behavior' is not 'none' or 'all'."));
             }
 
-            if (getCookieBehavior() == CachePolicyCookieBehavior.NONE && !getCookies().isEmpty()) {
+            if ((getCookieBehavior() == CachePolicyCookieBehavior.NONE ||
+                getCookieBehavior() == CachePolicyCookieBehavior.ALL) && !getCookies().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
                     null,

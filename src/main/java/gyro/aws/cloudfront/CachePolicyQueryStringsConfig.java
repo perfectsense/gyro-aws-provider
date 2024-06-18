@@ -29,7 +29,8 @@ import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringBehavior;
 
-public class CachePolicyQueryStringsConfig extends Diffable implements Copyable<software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig> {
+public class CachePolicyQueryStringsConfig extends Diffable
+    implements Copyable<software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig> {
 
     private CachePolicyQueryStringBehavior queryStringBehavior;
     private Set<String> queryStrings;
@@ -78,10 +79,15 @@ public class CachePolicyQueryStringsConfig extends Diffable implements Copyable<
     }
 
     software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig toCachePolicyQueryStringsConfig() {
-        return software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig.builder()
-            .queryStrings(r -> r.items(getQueryStrings()).quantity(getQueryStrings().size()))
-            .queryStringBehavior(getQueryStringBehavior())
-            .build();
+        software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig.Builder builder =
+            software.amazon.awssdk.services.cloudfront.model.CachePolicyQueryStringsConfig.builder()
+                .queryStringBehavior(getQueryStringBehavior());
+
+        if (!getQueryStrings().isEmpty()) {
+            builder.queryStrings(r -> r.items(getQueryStrings()).quantity(getQueryStrings().size()));
+        }
+
+        return builder.build();
     }
 
     @Override
@@ -90,7 +96,7 @@ public class CachePolicyQueryStringsConfig extends Diffable implements Copyable<
 
         if (getQueryStringBehavior() != null) {
             if ((getQueryStringBehavior() != CachePolicyQueryStringBehavior.NONE
-                || getQueryStringBehavior() != CachePolicyQueryStringBehavior.ALL)
+                && getQueryStringBehavior() != CachePolicyQueryStringBehavior.ALL)
                 && getQueryStrings().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
@@ -98,7 +104,8 @@ public class CachePolicyQueryStringsConfig extends Diffable implements Copyable<
                     "'query-strings' is required when 'query-string-behavior' is not 'none' or 'all'."));
             }
 
-            if (getQueryStringBehavior() == CachePolicyQueryStringBehavior.NONE && !getQueryStrings().isEmpty()) {
+            if ((getQueryStringBehavior() == CachePolicyQueryStringBehavior.NONE ||
+                getQueryStringBehavior() == CachePolicyQueryStringBehavior.ALL) && !getQueryStrings().isEmpty()) {
                 errors.add(new ValidationError(
                     this,
                     null,
