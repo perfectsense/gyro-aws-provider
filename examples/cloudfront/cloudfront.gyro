@@ -1,3 +1,71 @@
+aws::cloudfront-cache-policy cache-policy-example
+    cache-policy-config
+        default-ttl: 3600
+        max-ttl: 86400
+        min-ttl: 0
+        name: "cache-policy-example"
+
+        key-param
+            accept-encoding-brotli: true
+            accept-encoding-gzip: true
+
+            headers-config
+                header-behavior: "whitelist"
+                headers: [
+                    "example-header1",
+                    "example-header2"
+                ]
+            end
+
+            query-strings-config
+                query-string-behavior: "whitelist"
+                query-strings: [
+                    "example-query1",
+                    "example-query2"
+                ]
+            end
+
+            cookies-config
+                cookie-behavior: "whitelist"
+                cookies: [
+                    "example-cookie1",
+                    "example-cookie2"
+                ]
+            end
+        end
+    end
+end
+
+aws::cloudfront-origin-request-policy origin-request-policy-example
+    origin-request-policy-config
+        name: "origin-request-policy-example"
+
+        headers-config
+            header-behavior: "whitelist"
+            headers: [
+                "example-header1",
+                "example-header2"
+            ]
+        end
+
+        query-strings-config
+            query-string-behavior: "whitelist"
+            query-strings: [
+                "example-query1",
+                "example-query2"
+            ]
+        end
+
+        cookies-config
+            cookie-behavior: "whitelist"
+            cookies: [
+                "example-cookie1",
+                "example-cookie2"
+            ]
+        end
+    end
+end
+
 aws::cloudfront cloudfront-example
     enabled: true
     ipv6-enabled: false
@@ -22,7 +90,8 @@ aws::cloudfront cloudfront-example
         viewer-protocol-policy: "allow-all"
         allowed-methods: ["GET", "HEAD"]
         cached-methods: ["GET", "HEAD"]
-        headers: ["Origin"]
+        cache-policy: $(aws::cloudfront-cache-policy cache-policy-example)
+        origin-request-policy: $(aws::cloudfront-origin-request-policy origin-request-policy-example)
     end
 
     behavior

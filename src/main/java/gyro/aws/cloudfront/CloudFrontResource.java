@@ -73,10 +73,15 @@ import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionRespon
  *    aws::cloudfront cloudfront-example
  *        enabled: true
  *        ipv6-enabled: false
- *        comment: "cloudfront-example - static asset cache"
+ *        comment: "$(project) - static asset cache"
  *
  *        origin
- *            id: $(aws::s3-bucket bucket).name
+ *            id: "S3-$(project)-brightspot"
+ *            domain-name: "$(project)-brightspot.s3.us-east-1.amazonaws.com"
+ *        end
+ *
+ *        origin
+ *            id: "elb-$(project)-web"
  *            domain-name: "www.google.com"
  *
  *            custom-origin
@@ -85,16 +90,17 @@ import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionRespon
  *        end
  *
  *        default-cache-behavior
- *            target-origin-id: $(aws::s3-bucket bucket).name
+ *            target-origin-id: "S3-$(project)-brightspot"
  *            viewer-protocol-policy: "allow-all"
  *            allowed-methods: ["GET", "HEAD"]
  *            cached-methods: ["GET", "HEAD"]
- *            headers: ["Origin"]
+ *            cache-policy: $(aws::cloudfront-cache-policy cache-policy-example)
+ *            origin-request-policy: $(aws::cloudfront-origin-request-policy origin-request-policy-example)
  *        end
  *
  *        behavior
  *            path-pattern: "/dims?/*"
- *            target-origin-id: $(aws::s3-bucket bucket).name
+ *            target-origin-id: "elb-$(project)-web"
  *            viewer-protocol-policy: "allow-all"
  *            allowed-methods: ["GET", "HEAD"]
  *            query-string: true
@@ -105,21 +111,17 @@ import software.amazon.awssdk.services.cloudfront.model.UpdateDistributionRespon
  *            restrictions: ["US"]
  *        end
  *
- *        custom-error-response
- *            error-code: 400
- *            ttl: 0
- *        end
- *
- *        logging
- *            bucket: $(aws::s3-bucket bucket)
- *            bucket-prefix: "my-bucket/logs"
- *            include-cookies: false
- *        end
+ *        @for error-code, ttl -in [400, 0, 403, 5, 404, 5, 500, 0, 502, 0, 503, 0, 504, 0]
+ *            custom-error-response
+ *                error-code: $(error-code)
+ *                ttl: $(ttl)
+ *            end
+ *        @end
  *
  *        tags: {
  *            Name: "content cache"
  *        }
- *     end
+ *    end
  */
 @Type("cloudfront")
 public class CloudFrontResource extends AwsResource implements Copyable<Distribution> {
