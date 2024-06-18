@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.6.0 (June 18th, 2024)
+
+ENHANCEMENTS:
+
+* [604](https://github.com/perfectsense/gyro-aws-provider/issues/604): Implement Cloudfront Policies.
+
 ## 1.5.10 (May 22nd, 2024)
 
 ENHANCEMENTS:
