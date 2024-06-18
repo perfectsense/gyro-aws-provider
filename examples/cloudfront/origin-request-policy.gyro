@@ -1,0 +1,29 @@
+aws::cloudfront-origin-request-policy origin-request-policy-example
+    origin-request-policy-config
+        name: "origin-request-policy-example"
+
+        headers-config
+            header-behavior: "whitelist"
+            headers: [
+                "example-header1",
+                "example-header2"
+            ]
+        end
+
+        query-strings-config
+            query-string-behavior: "whitelist"
+            query-strings: [
+                "example-query1",
+                "example-query2"
+            ]
+        end
+
+        cookies-config
+            cookie-behavior: "whitelist"
+            cookies: [
+                "example-cookie1",
+                "example-cookie2"
+            ]
+        end
+    end
+end

@@ -16,9 +16,14 @@
 
 package gyro.aws.cloudfront;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.DefaultCacheBehavior;
@@ -29,10 +34,6 @@ import software.amazon.awssdk.services.cloudfront.model.ItemSelection;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociations;
 import software.amazon.awssdk.services.cloudfront.model.TrustedSigners;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheBehavior> {
 
@@ -55,6 +56,8 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     private String fieldLevelEncryptionId;
     private Set<CloudFrontCacheBehaviorLambdaFunction> lambdaFunctions;
     private Set<CloudFrontCacheBehaviorFunctionAssociation> functionAssociations;
+    private CachePolicyResource cachePolicy;
+    private OriginRequestPolicyResource originRequestPolicy;
 
     /**
      * The ID for the origin to route requests to when the path pattern matches this cache behavior.
@@ -98,8 +101,13 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The minimum time objects will be cached in this distribution.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Long getMinTtl() {
         if (minTtl == null) {
             minTtl = 0L;
@@ -146,8 +154,18 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Headers to include the cache key for an object.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Set<String> getHeaders() {
         if (headers == null) {
             headers = new HashSet<>();
@@ -162,8 +180,18 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whether to forward to cookies to the origin.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public String getForwardCookies() {
         if (forwardCookies != null) {
             return forwardCookies.toLowerCase();
@@ -178,8 +206,18 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whitelist of cookies to include the cache key for an object.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Set<String> getCookies() {
         if (cookies == null) {
             cookies = new HashSet<>();
@@ -210,8 +248,13 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The time objects will be cached in this distribution. Only applies when one of ``Cache-Control: max-age``, ``Cache-Control: s-maxage``, or ``Expires`` are not returned by the origin.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Long getDefaultTtl() {
         if (defaultTtl == null) {
             defaultTtl = 86400L;
@@ -226,8 +269,13 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * The maximum time objects will be cached in this distribution.
+     * Deprecated in favor of {@link CachePolicyResource}. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Long getMaxTtl() {
         if (maxTtl == null) {
             maxTtl = 31536000L;
@@ -258,8 +306,18 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Whether to forward query strings to origin. If true, query string parameters become part of the cache key.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Boolean getQueryString() {
         if (queryString == null) {
             queryString = false;
@@ -274,8 +332,18 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
 
     /**
      * Query string parameters that should be used in the cache key.
+     * Deprecated in favor of {@link CachePolicyResource} or {@link OriginRequestPolicyResource}
+     * If you want to include values in the cache key, use a cache policy. For more information, See
+     * `Creating cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-the-cache-key.html#cache-key-create-cache-policy">` or
+     * `Using the managed cache policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html">`
+     * If you want to send values to the origin but not include them in the cache key, use an origin request policy.
+     * For more information, See
+     * `Creating origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/controlling-origin-requests.html#origin-request-create-origin-request-policy">` or
+     * `Using the managed origin request policies <"https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html">`
      */
     @Updatable
+    @Deprecated
+    @ConflictsWith("cache-policy")
     public Set<String> getQueryStringCacheKeys() {
         if (queryStringCacheKeys == null) {
             queryStringCacheKeys = new HashSet<>();
@@ -355,6 +423,30 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         this.functionAssociations = functionAssociations;
     }
 
+    /**
+     * The cache policy that is attached to this cache behavior.
+     */
+    @Updatable
+    public CachePolicyResource getCachePolicy() {
+        return cachePolicy;
+    }
+
+    public void setCachePolicy(CachePolicyResource cachePolicy) {
+        this.cachePolicy = cachePolicy;
+    }
+
+    /**
+     * The origin request policy that is attached to this cache behavior.
+     */
+    @Updatable
+    public OriginRequestPolicyResource getOriginRequestPolicy() {
+        return originRequestPolicy;
+    }
+
+    public void setOriginRequestPolicy(OriginRequestPolicyResource originRequestPolicy) {
+        this.originRequestPolicy = originRequestPolicy;
+    }
+
     @Override
     public void copyFrom(CacheBehavior cacheBehavior) {
         setTargetOriginId(cacheBehavior.targetOriginId());
@@ -390,9 +482,12 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         setSmoothStreaming(cacheBehavior.smoothStreaming());
 
         getLambdaFunctions().clear();
-        if (cacheBehavior.lambdaFunctionAssociations() != null && !cacheBehavior.lambdaFunctionAssociations().items().isEmpty()) {
-            for (LambdaFunctionAssociation lambdaFunctionAssociation : cacheBehavior.lambdaFunctionAssociations().items()) {
-                CloudFrontCacheBehaviorLambdaFunction cloudFrontCacheBehaviorLambdaFunction = newSubresource(CloudFrontCacheBehaviorLambdaFunction.class);
+        if (cacheBehavior.lambdaFunctionAssociations() != null &&
+            !cacheBehavior.lambdaFunctionAssociations().items().isEmpty()) {
+            for (LambdaFunctionAssociation lambdaFunctionAssociation : cacheBehavior.lambdaFunctionAssociations()
+                .items()) {
+                CloudFrontCacheBehaviorLambdaFunction cloudFrontCacheBehaviorLambdaFunction =
+                    newSubresource(CloudFrontCacheBehaviorLambdaFunction.class);
                 cloudFrontCacheBehaviorLambdaFunction.copyFrom(lambdaFunctionAssociation);
                 getLambdaFunctions().add(cloudFrontCacheBehaviorLambdaFunction);
             }
@@ -401,11 +496,15 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         getFunctionAssociations().clear();
         if (cacheBehavior.functionAssociations() != null && !cacheBehavior.functionAssociations().items().isEmpty()) {
             for (FunctionAssociation functionAssociation : cacheBehavior.functionAssociations().items()) {
-                CloudFrontCacheBehaviorFunctionAssociation cloudFrontCacheBehaviorFunctionAssociation = newSubresource(CloudFrontCacheBehaviorFunctionAssociation.class);
+                CloudFrontCacheBehaviorFunctionAssociation cloudFrontCacheBehaviorFunctionAssociation =
+                    newSubresource(CloudFrontCacheBehaviorFunctionAssociation.class);
                 cloudFrontCacheBehaviorFunctionAssociation.copyFrom(functionAssociation);
                 getFunctionAssociations().add(cloudFrontCacheBehaviorFunctionAssociation);
             }
         }
+
+        setCachePolicy(findById(CachePolicyResource.class, cacheBehavior.cachePolicyId()));
+        setOriginRequestPolicy(findById(OriginRequestPolicyResource.class, cacheBehavior.originRequestPolicyId()));
     }
 
     @Override
@@ -428,17 +527,12 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .smoothStreaming(defaultCacheBehavior.smoothStreaming())
             .lambdaFunctionAssociations(defaultCacheBehavior.lambdaFunctionAssociations())
             .functionAssociations(defaultCacheBehavior.functionAssociations())
+            .cachePolicyId(defaultCacheBehavior.cachePolicyId())
+            .originRequestPolicyId(defaultCacheBehavior.originRequestPolicyId())
             .build();
     }
 
     DefaultCacheBehavior toDefaultCacheBehavior() {
-        ForwardedValues forwardedValues = ForwardedValues.builder()
-            .headers(h -> h.items(getHeaders()).quantity(getHeaders().size()))
-            .cookies(c -> c.forward(getForwardCookies()).whitelistedNames(w -> w.items(getCookies()).quantity(getCookies().size())))
-            .queryString(getQueryString())
-            .queryStringCacheKeys(q -> q.items(getQueryStringCacheKeys()).quantity(getQueryStringCacheKeys().size()))
-            .build();
-
         TrustedSigners trustedSigners = TrustedSigners.builder()
             .items(getTrustedSigners())
             .quantity(getTrustedSigners().size())
@@ -455,33 +549,41 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .quantity(getFunctionAssociations().size())
             .build();
 
-        return DefaultCacheBehavior.builder()
+        DefaultCacheBehavior.Builder builder = DefaultCacheBehavior.builder()
             .allowedMethods(am -> am.itemsWithStrings(getAllowedMethods())
                 .quantity(getAllowedMethods().size())
                 .cachedMethods(cm -> cm.itemsWithStrings(getCachedMethods()).quantity(getCachedMethods().size()))
             )
-            .defaultTTL(getDefaultTtl())
-            .maxTTL(getMaxTtl())
-            .minTTL(getMinTtl())
             .smoothStreaming(getSmoothStreaming())
             .targetOriginId(getTargetOriginId())
-            .forwardedValues(forwardedValues)
             .trustedSigners(trustedSigners)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
             .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
             .fieldLevelEncryptionId(getFieldLevelEncryptionId())
             .compress(getCompress())
-            .build();
+            .cachePolicyId(getCachePolicy() != null ? getCachePolicy().getId() : null)
+            .originRequestPolicyId(getOriginRequestPolicy() != null ? getOriginRequestPolicy().getId() : null);
+
+        if (getCachePolicy() == null) {
+            ForwardedValues forwardedValues = ForwardedValues.builder()
+                .headers(h -> h.items(getHeaders()).quantity(getHeaders().size()))
+                .cookies(c -> c.forward(getForwardCookies())
+                    .whitelistedNames(w -> w.items(getCookies()).quantity(getCookies().size())))
+                .queryString(getQueryString())
+                .queryStringCacheKeys(
+                    q -> q.items(getQueryStringCacheKeys()).quantity(getQueryStringCacheKeys().size()))
+                .build();
+            builder.forwardedValues(forwardedValues)
+                .defaultTTL(getDefaultTtl())
+                .maxTTL(getMaxTtl())
+                .minTTL(getMinTtl());
+        }
+
+        return builder.build();
     }
 
     CacheBehavior toCachBehavior() {
-        ForwardedValues forwardedValues = ForwardedValues.builder()
-            .headers(h -> h.items(getHeaders()).quantity(getHeaders().size()))
-            .cookies(c -> c.forward(getForwardCookies()).whitelistedNames(w -> w.items(getCookies()).quantity(getCookies().size())))
-            .queryString(getQueryString())
-            .queryStringCacheKeys(q -> q.items(getQueryStringCacheKeys()).quantity(getQueryStringCacheKeys().size()))
-            .build();
 
         TrustedSigners trustedSigners = TrustedSigners.builder()
             .items(getTrustedSigners())
@@ -499,24 +601,38 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .quantity(getFunctionAssociations().size())
             .build();
 
-        return CacheBehavior.builder()
+        CacheBehavior.Builder builder = CacheBehavior.builder()
             .allowedMethods(am -> am.itemsWithStrings(getAllowedMethods())
                 .quantity(getAllowedMethods().size())
                 .cachedMethods(cm -> cm.itemsWithStrings(getCachedMethods()).quantity(getCachedMethods().size()))
             )
-            .defaultTTL(getDefaultTtl())
-            .maxTTL(getMaxTtl())
-            .minTTL(getMinTtl())
             .smoothStreaming(getSmoothStreaming())
             .targetOriginId(getTargetOriginId())
             .pathPattern(getPathPattern())
-            .forwardedValues(forwardedValues)
             .trustedSigners(trustedSigners)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
             .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
             .fieldLevelEncryptionId(getFieldLevelEncryptionId())
             .compress(getCompress())
-            .build();
+            .cachePolicyId(getCachePolicy() != null ? getCachePolicy().getId() : null)
+            .originRequestPolicyId(getOriginRequestPolicy() != null ? getOriginRequestPolicy().getId() : null);
+
+        if (getCachePolicy() == null) {
+            ForwardedValues forwardedValues = ForwardedValues.builder()
+                .headers(h -> h.items(getHeaders()).quantity(getHeaders().size()))
+                .cookies(c -> c.forward(getForwardCookies())
+                    .whitelistedNames(w -> w.items(getCookies()).quantity(getCookies().size())))
+                .queryString(getQueryString())
+                .queryStringCacheKeys(
+                    q -> q.items(getQueryStringCacheKeys()).quantity(getQueryStringCacheKeys().size()))
+                .build();
+            builder.forwardedValues(forwardedValues)
+                .defaultTTL(getDefaultTtl())
+                .maxTTL(getMaxTtl())
+                .minTTL(getMinTtl());
+        }
+
+        return builder.build();
     }
 }
