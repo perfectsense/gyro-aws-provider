@@ -40,6 +40,7 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.eks.EksClient;
 import software.amazon.awssdk.services.eks.model.AMITypes;
 import software.amazon.awssdk.services.eks.model.CapacityTypes;
@@ -533,14 +534,15 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             Set<Taint> taintsToRemove = new HashSet<>(currentTaints);
             taintsToRemove.removeAll(taints);
 
-            // Taint key cannot be in both added and removed, this means it's an update, so remove from remove set.
-            Set<String> taintKeysToAddOrUpdate = taintsToAddOrUpdate.stream()
-                    .map(Taint::key)
-                    .collect(Collectors.toSet());
+            // Detect true updates.
+            // taint key and effect is the same, but the value is different.
             Set<Taint> taintsToUpdate = new HashSet<>();
-            for (Taint taint : taintsToRemove) {
-                if (taintKeysToAddOrUpdate.contains(taint.key())) {
-                    taintsToUpdate.add(taint);
+            for (Taint taintToBeRemoved : taintsToRemove) {
+                for (Taint taintToBeAdded : taintsToAddOrUpdate) {
+                    if (taintToBeRemoved.key().equals(taintToBeAdded.key()) &&
+                            taintToBeRemoved.effect().equals(taintToBeAdded.effect())) {
+                        taintsToUpdate.add(taintToBeRemoved);
+                    }
                 }
             }
             taintsToRemove.removeAll(taintsToUpdate);
@@ -594,6 +596,26 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
             .checkEvery(30, TimeUnit.SECONDS)
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .until(() -> getNodegroup(client) == null);
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("taint")) {
+            // Key-Effect combination must be unique
+            Set<String> keyEffect = new HashSet<>();
+            for (EksNodegroupTaint taint : getTaint()) {
+                if (!keyEffect.add(taint.getKey() + taint.getTaintEffect())) {
+                    errors.add(new ValidationError(
+                            this,
+                            "taint",
+                            "Found multiple taints with key '" + taint.getKey() + "' and effect '" + taint.getTaintEffect() + "'"));
+                }
+            }
+        }
+
+        return errors;
     }
 
     private Nodegroup getNodegroup(EksClient client) {
