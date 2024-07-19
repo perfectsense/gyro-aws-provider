@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.6.1 (July 19th, 2024)
+
+ISSUES FIXED:
+
+* [651](https://github.com/perfectsense/gyro-aws-provider/pull/651): Fix issue with EKS Taint updates
+
 ## 1.6.0 (June 18th, 2024)
 
 ENHANCEMENTS:
