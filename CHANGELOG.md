@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.6.2 (August 13th, 2024)
+
+ISSUES FIXED:
+
+* [653](https://github.com/perfectsense/gyro-aws-provider/pull/653): Fix issue with CloudWatch Dimension field.
+
 ## 1.6.1 (July 19th, 2024)
 
 ISSUES FIXED:
