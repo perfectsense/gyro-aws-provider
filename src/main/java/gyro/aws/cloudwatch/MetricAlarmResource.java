@@ -206,7 +206,6 @@ public class MetricAlarmResource extends AwsResource implements Copyable<MetricA
      * Key Value pair to specify what the metric is as specified in the metric name.
      */
     @Updatable
-    @CollectionMax(10)
     public Map<String, String> getDimensions() {
         if (dimensions == null) {
             dimensions = new HashMap<>();
