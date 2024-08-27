@@ -41,11 +41,14 @@ import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.CreateDbClusterRequest;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
+import software.amazon.awssdk.services.rds.model.LocalWriteForwardingStatus;
+import software.amazon.awssdk.services.rds.model.ModifyDbClusterRequest;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromS3Response;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromSnapshotResponse;
 
@@ -145,6 +148,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Integer allocatedStorage;
     private Boolean autoMinorVersionUpgrade;
     private Boolean copyTagsToSnapshot;
+    private Boolean enableLocalWriteForwarding;
 
     // Read-only
     private String endpointAddress;
@@ -186,6 +190,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      */
     @Updatable
     public Long getBackTrackWindow() {
+        if (backTrackWindow == null) {
+            backTrackWindow = 0L;
+        }
+
         return backTrackWindow;
     }
 
@@ -660,6 +668,23 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
+     * When set to ``true``, read replicas can forward write operations to the writer DB instance in the DB cluster.
+     * By default, write operations aren't allowed on reader DB instances.
+     */
+    @Updatable
+    public Boolean getEnableLocalWriteForwarding() {
+        if (enableGlobalWriteForwarding == null) {
+            enableGlobalWriteForwarding = false;
+        }
+
+        return enableLocalWriteForwarding;
+    }
+
+    public void setEnableLocalWriteForwarding(Boolean enableLocalWriteForwarding) {
+        this.enableLocalWriteForwarding = enableLocalWriteForwarding;
+    }
+
+    /**
      * DNS hostname to access the primary instance of the cluster.
      */
     @Output
@@ -753,6 +778,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             config.copyFrom(cluster.serverlessV2ScalingConfiguration());
             setServerlessV2ScalingConfiguration(config);
         }
+
+        setEnableLocalWriteForwarding(
+            LocalWriteForwardingStatus.REQUESTED.equals(cluster.localWriteForwardingStatus()) ||
+                LocalWriteForwardingStatus.ENABLING.equals(cluster.localWriteForwardingStatus()) ||
+                LocalWriteForwardingStatus.ENABLED.equals(cluster.localWriteForwardingStatus())
+        );
     }
 
     @Override
@@ -892,8 +923,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             }
 
         } else {
+            CreateDbClusterRequest.Builder builder = CreateDbClusterRequest.builder();
+            if (Boolean.TRUE.equals(getEnableGlobalWriteForwarding())) {
+                builder.enableGlobalWriteForwarding(getEnableGlobalWriteForwarding());
+            }
+
             CreateDbClusterResponse response = client.createDBCluster(
-                r -> r.availabilityZones(getAvailabilityZones())
+                builder.availabilityZones(getAvailabilityZones())
                     .backtrackWindow(getBackTrackWindow())
                     .backupRetentionPeriod(getBackupRetentionPeriod())
                     .characterSetName(getCharacterSetName())
@@ -925,7 +961,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
                     .dbClusterInstanceClass(getDbClusterInstanceClass())
-                    .enableGlobalWriteForwarding(getEnableGlobalWriteForwarding())
                     .iops(getIops())
                     .manageMasterUserPassword(getManageMasterUserPassword())
                     .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
@@ -935,6 +970,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .allocatedStorage(getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
+                    .enableLocalWriteForwarding(getEnableLocalWriteForwarding())
+                    .build()
             );
 
             setArn(response.dbCluster().dbClusterArn());
@@ -981,8 +1018,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             .collect(Collectors.toList()) : null;
 
         try {
+            ModifyDbClusterRequest.Builder builder = ModifyDbClusterRequest.builder();
+            if (!Objects.equals(getEnableGlobalWriteForwarding(), current.getEnableGlobalWriteForwarding())) {
+                builder.enableGlobalWriteForwarding(getEnableGlobalWriteForwarding());
+            }
+
             client.modifyDBCluster(
-                r -> r.applyImmediately(getApplyImmediately())
+                builder.applyImmediately(getApplyImmediately())
                     .backtrackWindow(Objects.equals(getBackTrackWindow(), current.getBackTrackWindow())
                         ? null : getBackTrackWindow())
                     .backupRetentionPeriod(Objects.equals(
@@ -1015,7 +1057,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
                         ? null : vpcSecurityGroupIds)
                     .dbClusterInstanceClass(getDbClusterInstanceClass())
-                    .enableGlobalWriteForwarding(getEnableGlobalWriteForwarding())
                     .iops(getIops())
                     .manageMasterUserPassword(getManageMasterUserPassword())
                     .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
@@ -1025,6 +1066,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .allocatedStorage(getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
+                    .enableLocalWriteForwarding(Objects.equals(getEnableLocalWriteForwarding(),
+                        current.getEnableLocalWriteForwarding()) ? null : getEnableLocalWriteForwarding())
+                    .build()
             );
         } catch (InvalidDbClusterStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
