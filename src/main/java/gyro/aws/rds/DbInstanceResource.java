@@ -16,19 +16,25 @@
 
 package gyro.aws.rds;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SecurityGroupResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.TimeoutSettings;
+import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
-import gyro.core.Type;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Min;
 import gyro.core.validation.Range;
@@ -43,12 +49,6 @@ import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 import software.amazon.awssdk.services.rds.model.DomainMembership;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Create a db instance.
@@ -125,6 +125,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     private String tdeCredentialPassword;
     private String timezone;
     private List<SecurityGroupResource> vpcSecurityGroups;
+    private String backupTarget;
+    private Boolean dedicatedLogVolume;
+    private String domainAuthSecretArn;
     private String endpointAddress;
 
     /**
@@ -395,7 +398,12 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The name of the database engine to use for this DB Instance.
      */
-    @ValidStrings({"aurora", "aurora-mysql", "aurora-postgresql", "mariadb", "mysql", "oracle-ee", "oracle-se2", "oracle-se1", "oracle-se", "postgres", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-we"})
+    @ValidStrings({
+        "aurora-mysql", "aurora-postgresql", "custom-oracle-ee", "custom-oracle-ee-cdb", "custom-sqlserver-ee",
+        "custom-sqlserver-se", "custom-sqlserver-web", "db2-ae", "db2-se", "mariadb", "mysql", "oracle-ee",
+        "oracle-ee-cdb", "oracle-se2", "oracle-se2-cdb", "postgres", "sqlserver-ee", "sqlserver-se", "sqlserver-ex",
+        "sqlserver-web"
+    })
     public String getEngine() {
         return engine;
     }
@@ -491,7 +499,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection).
      */
     @Updatable
-    @ValidNumbers({0,1,5,10,15,30,60})
+    @ValidNumbers({0, 1, 5, 10, 15, 30, 60})
     public Integer getMonitoringInterval() {
         return monitoringInterval;
     }
@@ -552,7 +560,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * How many days to retain Performance Insights data.
      */
     @Updatable
-    @ValidNumbers({7,731})
+    @ValidNumbers({7, 731})
     public Integer getPerformanceInsightsRetentionPeriod() {
         return performanceInsightsRetentionPeriod;
     }
@@ -705,6 +713,42 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     }
 
     /**
+     * The location for storing automated backups and manual snapshots.
+     */
+    @ValidStrings({"outposts", "region"})
+    public String getBackupTarget() {
+        return backupTarget;
+    }
+
+    public void setBackupTarget(String backupTarget) {
+        this.backupTarget = backupTarget;
+    }
+
+    /**
+     * When set to ``true`` the DB instance has a dedicated log volume (DLV) enabled.
+     */
+    @Updatable
+    public Boolean getDedicatedLogVolume() {
+        return dedicatedLogVolume;
+    }
+
+    public void setDedicatedLogVolume(Boolean dedicatedLogVolume) {
+        this.dedicatedLogVolume = dedicatedLogVolume;
+    }
+
+    /**
+     * The ARN for the Secrets Manager secret with the credentials for the user joining the domain.
+     */
+    @Updatable
+    public String getDomainAuthSecretArn() {
+        return domainAuthSecretArn;
+    }
+
+    public void setDomainAuthSecretArn(String domainAuthSecretArn) {
+        this.domainAuthSecretArn = domainAuthSecretArn;
+    }
+
+    /**
      * DNS hostname to access this database at.
      */
     @Output
@@ -724,7 +768,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setBackupRetentionPeriod(instance.backupRetentionPeriod());
         setCharacterSetName(instance.characterSetName());
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
-        setDbCluster(instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) : null);
+        setDbCluster(
+            instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) :
+                null);
         setDbInstanceClass(instance.dbInstanceClass());
         setIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
@@ -737,7 +783,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .map(DBSecurityGroupMembership::dbSecurityGroupName)
             .collect(Collectors.toList()));
 
-        setDbSubnetGroup(instance.dbSubnetGroup() != null ? findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName()) : null);
+        setDbSubnetGroup(instance.dbSubnetGroup() != null ?
+            findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName()) : null);
         setDeletionProtection(instance.deletionProtection());
 
         setDomain(instance.domainMemberships().stream()
@@ -772,7 +819,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
             .orElse(null));
 
-        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ? findById(KmsKeyResource.class, instance.performanceInsightsKMSKeyId()) : null);
+        setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ?
+            findById(KmsKeyResource.class, instance.performanceInsightsKMSKeyId()) : null);
         setPerformanceInsightsRetentionPeriod(instance.performanceInsightsRetentionPeriod());
         setPort(instance.dbInstancePort());
         setPreferredBackupWindow(instance.preferredBackupWindow());
@@ -787,6 +835,11 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .map(s -> findById(SecurityGroupResource.class, s.vpcSecurityGroupId()))
             .collect(Collectors.toList()));
         setArn(instance.dbInstanceArn());
+        setBackupTarget(instance.backupTarget());
+        setDedicatedLogVolume(instance.dedicatedLogVolume());
+        setDomainAuthSecretArn(instance.domainMemberships().stream()
+            .findFirst().map(DomainMembership::authSecretArn)
+            .orElse(null));
 
         if (instance.endpoint() != null) {
             setEndpointAddress(instance.endpoint().address());
@@ -820,51 +873,55 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         RdsClient client = createClient(RdsClient.class);
         CreateDbInstanceResponse response = client.createDBInstance(
             r -> r.allocatedStorage(getAllocatedStorage())
-                    .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
-                    .availabilityZone(getAvailabilityZone())
-                    .backupRetentionPeriod(getBackupRetentionPeriod())
-                    .characterSetName(getCharacterSetName())
-                    .copyTagsToSnapshot(getCopyTagsToSnapshot())
-                    .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getIdentifier() : null)
-                    .dbInstanceClass(getDbInstanceClass())
-                    .dbInstanceIdentifier(getIdentifier())
-                    .dbName(getDbName())
-                    .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
-                    .dbSecurityGroups(getDbSecurityGroups())
-                    .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
-                    .deletionProtection(getDeletionProtection())
-                    .domain(getDomain())
-                    .domainIAMRoleName(getDomainIamRoleName())
-                    .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
-                    .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
-                    .enablePerformanceInsights(getEnablePerformanceInsights())
-                    .engine(getEngine())
-                    .engineVersion(getEngineVersion())
-                    .iops(getIops())
-                    .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
-                    .licenseModel(getLicenseModel())
-                    .masterUsername(getMasterUsername())
-                    .masterUserPassword(getMasterUserPassword())
-                    .monitoringInterval(getMonitoringInterval())
-                    .monitoringRoleArn(getMonitoringRoleArn())
-                    .multiAZ(getMultiAz())
-                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
-                    .performanceInsightsKMSKeyId(getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null)
-                    .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
-                    .port(getPort())
-                    .preferredBackupWindow(getPreferredBackupWindow())
-                    .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
-                    .promotionTier(getPromotionTier())
-                    .publiclyAccessible(getPubliclyAccessible())
-                    .storageEncrypted(getStorageEncrypted())
-                    .storageType(getStorageType())
-                    .tdeCredentialArn(getTdeCredentialArn())
-                    .tdeCredentialPassword(getTdeCredentialPassword())
-                    .timezone(getTimezone())
-                    .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
-                        .stream()
-                        .map(SecurityGroupResource::getId)
-                        .collect(Collectors.toList()) : null)
+                .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
+                .availabilityZone(getAvailabilityZone())
+                .backupRetentionPeriod(getBackupRetentionPeriod())
+                .characterSetName(getCharacterSetName())
+                .copyTagsToSnapshot(getCopyTagsToSnapshot())
+                .dbClusterIdentifier(getDbCluster() != null ? getDbCluster().getIdentifier() : null)
+                .dbInstanceClass(getDbInstanceClass())
+                .dbInstanceIdentifier(getIdentifier())
+                .dbName(getDbName())
+                .dbParameterGroupName(getDbParameterGroup() != null ? getDbParameterGroup().getName() : null)
+                .dbSecurityGroups(getDbSecurityGroups())
+                .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
+                .deletionProtection(getDeletionProtection())
+                .domain(getDomain())
+                .domainIAMRoleName(getDomainIamRoleName())
+                .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
+                .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                .enablePerformanceInsights(getEnablePerformanceInsights())
+                .engine(getEngine())
+                .engineVersion(getEngineVersion())
+                .iops(getIops())
+                .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
+                .licenseModel(getLicenseModel())
+                .masterUsername(getMasterUsername())
+                .masterUserPassword(getMasterUserPassword())
+                .monitoringInterval(getMonitoringInterval())
+                .monitoringRoleArn(getMonitoringRoleArn())
+                .multiAZ(getMultiAz())
+                .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                .performanceInsightsKMSKeyId(
+                    getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null)
+                .performanceInsightsRetentionPeriod(getPerformanceInsightsRetentionPeriod())
+                .port(getPort())
+                .preferredBackupWindow(getPreferredBackupWindow())
+                .preferredMaintenanceWindow(getPreferredMaintenanceWindow())
+                .promotionTier(getPromotionTier())
+                .publiclyAccessible(getPubliclyAccessible())
+                .storageEncrypted(getStorageEncrypted())
+                .storageType(getStorageType())
+                .tdeCredentialArn(getTdeCredentialArn())
+                .tdeCredentialPassword(getTdeCredentialPassword())
+                .timezone(getTimezone())
+                .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                    .stream()
+                    .map(SecurityGroupResource::getId)
+                    .collect(Collectors.toList()) : null)
+                .backupTarget(getBackupTarget())
+                .dedicatedLogVolume(getDedicatedLogVolume())
+                .domainAuthSecretArn(getDomainAuthSecretArn())
         );
 
         setArn(response.dbInstance().dbInstanceArn());
@@ -904,7 +961,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         String parameterGroupName = getDbParameterGroup() != null ? getDbParameterGroup().getName() : null;
         String subnetGroupName = getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null;
         String optionGroupName = getOptionGroup() != null ? getOptionGroup().getName() : null;
-        String performanceInsightsKmsKeyId = getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null;
+        String performanceInsightsKmsKeyId =
+            getPerformanceInsightsKmsKey() != null ? getPerformanceInsightsKmsKey().getArn() : null;
         List<String> vpcSecurityGroupIds = getVpcSecurityGroups() != null ? getVpcSecurityGroups()
             .stream()
             .map(SecurityGroupResource::getId)
@@ -912,55 +970,87 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
 
         try {
             client.modifyDBInstance(
-                r -> r.allocatedStorage(Objects.equals(getAllocatedStorage(), current.getAllocatedStorage()) ? null : getAllocatedStorage())
-                    .applyImmediately(Objects.equals(getApplyImmediately(), current.getApplyImmediately()) ? null : getApplyImmediately())
-                    .allowMajorVersionUpgrade(Objects.equals(getAllowMajorVersionUpgrade(), current.getAllowMajorVersionUpgrade())
-                        ? null : getAllowMajorVersionUpgrade())
-                    .autoMinorVersionUpgrade(Objects.equals(getAutoMinorVersionUpgrade(), current.getAutoMinorVersionUpgrade())
-                        ? null : getAutoMinorVersionUpgrade())
-                    .backupRetentionPeriod(Objects.equals(getBackupRetentionPeriod(), current.getBackupRetentionPeriod())
-                        ? null : getBackupRetentionPeriod())
+                r -> r.allocatedStorage(
+                        Objects.equals(getAllocatedStorage(), current.getAllocatedStorage()) ? null : getAllocatedStorage())
+                    .applyImmediately(Objects.equals(getApplyImmediately(), current.getApplyImmediately()) ? null :
+                        getApplyImmediately())
+                    .allowMajorVersionUpgrade(
+                        Objects.equals(getAllowMajorVersionUpgrade(), current.getAllowMajorVersionUpgrade())
+                            ? null : getAllowMajorVersionUpgrade())
+                    .autoMinorVersionUpgrade(
+                        Objects.equals(getAutoMinorVersionUpgrade(), current.getAutoMinorVersionUpgrade())
+                            ? null : getAutoMinorVersionUpgrade())
+                    .backupRetentionPeriod(
+                        Objects.equals(getBackupRetentionPeriod(), current.getBackupRetentionPeriod())
+                            ? null : getBackupRetentionPeriod())
                     .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
-                    .copyTagsToSnapshot(Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null : getCopyTagsToSnapshot())
-                    .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null : getDbInstanceClass())
+                    .copyTagsToSnapshot(
+                        Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null :
+                            getCopyTagsToSnapshot())
+                    .dbInstanceClass(Objects.equals(getDbInstanceClass(), current.getDbInstanceClass()) ? null :
+                        getDbInstanceClass())
                     .dbInstanceIdentifier(getIdentifier())
                     .dbParameterGroupName(Objects.equals(getDbParameterGroup(), current.getDbParameterGroup())
                         ? null : parameterGroupName)
-                    .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null : getDbSecurityGroups())
-                    .dbSubnetGroupName(Objects.equals(getDbSubnetGroup(), current.getDbSubnetGroup()) ? null : subnetGroupName)
-                    .deletionProtection(Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null : getDeletionProtection())
+                    .dbSecurityGroups(Objects.equals(getDbSecurityGroups(), current.getDbSecurityGroups()) ? null :
+                        getDbSecurityGroups())
+                    .dbSubnetGroupName(
+                        Objects.equals(getDbSubnetGroup(), current.getDbSubnetGroup()) ? null : subnetGroupName)
+                    .deletionProtection(
+                        Objects.equals(getDeletionProtection(), current.getDeletionProtection()) ? null :
+                            getDeletionProtection())
                     .domain(Objects.equals(getDomain(), current.getDomain()) ? null : getDomain())
-                    .domainIAMRoleName(Objects.equals(getDomainIamRoleName(), current.getDomainIamRoleName()) ? null : getDomainIamRoleName())
+                    .domainIAMRoleName(Objects.equals(getDomainIamRoleName(), current.getDomainIamRoleName()) ? null :
+                        getDomainIamRoleName())
                     .enableIAMDatabaseAuthentication(Objects.equals(
                         getEnableIamDatabaseAuthentication(), current.getEnableIamDatabaseAuthentication())
                         ? null : getEnableIamDatabaseAuthentication())
-                    .enablePerformanceInsights(Objects.equals(getEnablePerformanceInsights(), current.getEnablePerformanceInsights())
-                        ? null : getEnablePerformanceInsights())
-                    .engineVersion(Objects.equals(getEngineVersion(), current.getEngineVersion()) ? null : getEngineVersion())
+                    .enablePerformanceInsights(
+                        Objects.equals(getEnablePerformanceInsights(), current.getEnablePerformanceInsights())
+                            ? null : getEnablePerformanceInsights())
+                    .engineVersion(
+                        Objects.equals(getEngineVersion(), current.getEngineVersion()) ? null : getEngineVersion())
                     .iops(Objects.equals(getIops(), current.getIops()) ? null : getIops())
-                    .licenseModel(Objects.equals(getLicenseModel(), current.getLicenseModel()) ? null : getLicenseModel())
-                    .masterUserPassword(Objects.equals(getMasterUserPassword(), current.getMasterUserPassword()) ? null : getMasterUserPassword())
-                    .monitoringInterval(Objects.equals(getMonitoringInterval(), current.getMonitoringInterval()) ? null : getMonitoringInterval())
-                    .monitoringRoleArn(Objects.equals(getMonitoringRoleArn(), current.getMonitoringRoleArn()) ? null : getMonitoringRoleArn())
+                    .licenseModel(
+                        Objects.equals(getLicenseModel(), current.getLicenseModel()) ? null : getLicenseModel())
+                    .masterUserPassword(
+                        Objects.equals(getMasterUserPassword(), current.getMasterUserPassword()) ? null :
+                            getMasterUserPassword())
+                    .monitoringInterval(
+                        Objects.equals(getMonitoringInterval(), current.getMonitoringInterval()) ? null :
+                            getMonitoringInterval())
+                    .monitoringRoleArn(Objects.equals(getMonitoringRoleArn(), current.getMonitoringRoleArn()) ? null :
+                        getMonitoringRoleArn())
                     .multiAZ(Objects.equals(getMultiAz(), current.getMultiAz()) ? null : getMultiAz())
-                    .optionGroupName(Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
-                    .performanceInsightsKMSKeyId(Objects.equals(getPerformanceInsightsKmsKey(), current.getPerformanceInsightsKmsKey())
-                        ? null : performanceInsightsKmsKeyId)
+                    .optionGroupName(
+                        Objects.equals(getOptionGroup(), current.getOptionGroup()) ? null : optionGroupName)
+                    .performanceInsightsKMSKeyId(
+                        Objects.equals(getPerformanceInsightsKmsKey(), current.getPerformanceInsightsKmsKey())
+                            ? null : performanceInsightsKmsKeyId)
                     .performanceInsightsRetentionPeriod(Objects.equals(
                         getPerformanceInsightsRetentionPeriod(), current.getPerformanceInsightsRetentionPeriod())
                         ? null : getPerformanceInsightsRetentionPeriod())
-                    .preferredBackupWindow(Objects.equals(getPreferredBackupWindow(), current.getPreferredBackupWindow())
-                        ? null : getPreferredBackupWindow())
-                    .preferredMaintenanceWindow(Objects.equals(getPreferredMaintenanceWindow(), current.getPreferredMaintenanceWindow())
-                        ? null : getPreferredMaintenanceWindow())
-                    .promotionTier(Objects.equals(getPromotionTier(), current.getPromotionTier()) ? null : getPromotionTier())
-                    .publiclyAccessible(Objects.equals(getPubliclyAccessible(), current.getPubliclyAccessible()) ? null : getPubliclyAccessible())
+                    .preferredBackupWindow(
+                        Objects.equals(getPreferredBackupWindow(), current.getPreferredBackupWindow())
+                            ? null : getPreferredBackupWindow())
+                    .preferredMaintenanceWindow(
+                        Objects.equals(getPreferredMaintenanceWindow(), current.getPreferredMaintenanceWindow())
+                            ? null : getPreferredMaintenanceWindow())
+                    .promotionTier(
+                        Objects.equals(getPromotionTier(), current.getPromotionTier()) ? null : getPromotionTier())
+                    .publiclyAccessible(
+                        Objects.equals(getPubliclyAccessible(), current.getPubliclyAccessible()) ? null :
+                            getPubliclyAccessible())
                     .storageType(Objects.equals(getStorageType(), current.getStorageType()) ? null : getStorageType())
-                    .tdeCredentialArn(Objects.equals(getTdeCredentialArn(), current.getTdeCredentialArn()) ? null : getTdeCredentialArn())
-                    .tdeCredentialPassword(Objects.equals(getTdeCredentialPassword(), current.getTdeCredentialPassword())
-                        ? null : getTdeCredentialPassword())
+                    .tdeCredentialArn(Objects.equals(getTdeCredentialArn(), current.getTdeCredentialArn()) ? null :
+                        getTdeCredentialArn())
+                    .tdeCredentialPassword(
+                        Objects.equals(getTdeCredentialPassword(), current.getTdeCredentialPassword())
+                            ? null : getTdeCredentialPassword())
                     .vpcSecurityGroupIds(Objects.equals(getVpcSecurityGroups(), current.getVpcSecurityGroups())
                         ? null : vpcSecurityGroupIds)
+                    .dedicatedLogVolume(getDedicatedLogVolume())
+                    .domainAuthSecretArn(getDomainAuthSecretArn())
             );
         } catch (InvalidDbInstanceStateException ex) {
             throw new GyroException(ex.getLocalizedMessage());
@@ -972,9 +1062,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         RdsClient client = createClient(RdsClient.class);
         client.deleteDBInstance(
             r -> r.dbInstanceIdentifier(getIdentifier())
-                    .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
-                    .skipFinalSnapshot(getSkipFinalSnapshot())
-                    .deleteAutomatedBackups(getDeleteAutomatedBackups())
+                .finalDBSnapshotIdentifier(getFinalDbSnapshotIdentifier())
+                .skipFinalSnapshot(getSkipFinalSnapshot())
+                .deleteAutomatedBackups(getDeleteAutomatedBackups())
         );
 
         Wait.atMost(5, TimeUnit.MINUTES)
