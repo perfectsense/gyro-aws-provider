@@ -171,7 +171,6 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
      */
     @Required
     @Updatable
-    @CollectionMax(10)
     public Set<RuleResource> getRule() {
         if (rule == null) {
             rule = new HashSet<>();
