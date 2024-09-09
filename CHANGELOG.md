@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.6.3 (September 9th, 2024)
+
+ENHANCEMENTS:
+
+* [657](https://github.com/perfectsense/gyro-aws-provider/pull/657): Add support for aurora serverless v2
+
+ISSUES FIXED:
+
+* [656](https://github.com/perfectsense/gyro-aws-provider/issues/656): Remove collection max for web acl rules
+
 ## 1.6.2 (August 13th, 2024)
 
 ISSUES FIXED:
