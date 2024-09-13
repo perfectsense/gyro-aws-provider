@@ -96,7 +96,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
      */
     @Required
     @Updatable
-    @ValidStrings({"READER", "ANY"})
+    @ValidStrings({"READER", "WRITER", "ANY"})
     public String getEndpointType() {
         return endpointType;
     }
