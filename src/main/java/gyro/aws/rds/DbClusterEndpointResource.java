@@ -93,7 +93,7 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The type of the endpoint.
+     * The type of the endpoint. Note: For Aurora, WRITER is not used.
      */
     @Required
     @Updatable
