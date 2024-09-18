@@ -177,11 +177,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
         }
-
         return availabilityZones;
     }
 
     public void setAvailabilityZones(List<String> availabilityZones) {
+        Collections.sort(availabilityZones);
         this.availabilityZones = availabilityZones;
     }
 
