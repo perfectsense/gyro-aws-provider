@@ -902,7 +902,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .map(SecurityGroupResource::getId)
                         .collect(Collectors.toList()) : null)
                     .manageMasterUserPassword(getManageMasterUserPassword())
-                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .masterUserSecretKmsKeyId(
+                        getMasterUserSecretKmsKey() == null ? null : getMasterUserSecretKmsKey().getId())
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
@@ -963,11 +964,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .dbClusterInstanceClass(getDbClusterInstanceClass())
                     .iops(getIops())
                     .manageMasterUserPassword(getManageMasterUserPassword())
-                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .masterUserSecretKmsKeyId(
+                        getMasterUserSecretKmsKey() == null ? null : getMasterUserSecretKmsKey().getId())
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
-                    .allocatedStorage(getAllocatedStorage())
+                    .allocatedStorage(getAllocatedStorage() == null ? null : getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
                     .enableLocalWriteForwarding(getEnableLocalWriteForwarding())
@@ -1059,11 +1061,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .dbClusterInstanceClass(getDbClusterInstanceClass())
                     .iops(getIops())
                     .manageMasterUserPassword(getManageMasterUserPassword())
-                    .masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId())
+                    .masterUserSecretKmsKeyId(
+                        getMasterUserSecretKmsKey() == null ? null : getMasterUserSecretKmsKey().getId())
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
-                    .allocatedStorage(getAllocatedStorage())
+                    .allocatedStorage(getAllocatedStorage() == null ? null : getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
                     .enableLocalWriteForwarding(Objects.equals(getEnableLocalWriteForwarding(),
