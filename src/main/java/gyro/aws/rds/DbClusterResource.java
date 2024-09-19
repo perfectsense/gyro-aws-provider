@@ -178,6 +178,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
         }
+
         return availabilityZones;
     }
 
