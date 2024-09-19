@@ -620,6 +620,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The public accessibility of the DB instance. If true, this DB instance will have a public DNS name and public IP.
      */
+    @Updatable
     public Boolean getPubliclyAccessible() {
         if (publiclyAccessible == null) {
             publiclyAccessible = false;
