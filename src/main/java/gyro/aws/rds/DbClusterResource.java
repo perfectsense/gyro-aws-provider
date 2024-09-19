@@ -397,6 +397,10 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     public void setMasterUsername(String masterUsername) {
+        if (masterUsername == null || masterUsername.isEmpty()) {
+            throw new GyroException("Master username cannot be null or empty");
+        }
+
         this.masterUsername = masterUsername;
     }
 
