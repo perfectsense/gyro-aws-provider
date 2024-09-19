@@ -182,8 +182,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     public void setAvailabilityZones(List<String> availabilityZones) {
-        Collections.sort(availabilityZones);
-        this.availabilityZones = availabilityZones;
+        List<String> modifiableList = new ArrayList<>(availabilityZones); // creates a new modifiable list
+        Collections.sort(modifiableList);
+        this.availabilityZones = modifiableList;
     }
 
     /**
