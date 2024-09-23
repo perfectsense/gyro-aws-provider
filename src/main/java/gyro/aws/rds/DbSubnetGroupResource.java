@@ -36,6 +36,9 @@ import software.amazon.awssdk.services.rds.model.DescribeDbSubnetGroupsResponse;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Create a db subnet group.
@@ -63,7 +66,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
 
     private String description;
     private String name;
-    private Set<SubnetResource> subnets;
+    private List<SubnetResource> subnets;
 
     /**
      * The description for the DB subnet group.
@@ -96,23 +99,25 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
      */
     @Required
     @Updatable
-    public Set<SubnetResource> getSubnets() {
+    public List<SubnetResource> getSubnets() {
         if (subnets == null) {
-            return new HashSet<>();
+            return new ArrayList<>();
         }
 
-        return subnets;
+        return subnets.stream()
+            .sorted(Comparator.comparing(SubnetResource::getId))
+            .collect(Collectors.toList());
     }
 
-    public void setSubnets(Set<SubnetResource> subnets) {
-        this.subnets = subnets;
+    public void setSubnets(List<SubnetResource> subnets) {
+        this.subnets = new ArrayList<>(subnets);
     }
 
     @Override
     public void copyFrom(DBSubnetGroup group) {
         setDescription(group.dbSubnetGroupDescription());
         setName(group.dbSubnetGroupName());
-        setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toSet()));
+        setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toList()));
         setArn(group.dbSubnetGroupArn());
     }
 
@@ -143,8 +148,8 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         RdsClient client = createClient(RdsClient.class);
         CreateDbSubnetGroupResponse response = client.createDBSubnetGroup(
             r -> r.dbSubnetGroupDescription(getDescription())
-                    .dbSubnetGroupName(getName())
-                    .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
+                .dbSubnetGroupName(getName())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
 
         setArn(response.dbSubnetGroup().dbSubnetGroupArn());
@@ -155,8 +160,8 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBSubnetGroup(
             r -> r.dbSubnetGroupName(getName())
-                    .dbSubnetGroupDescription(getDescription())
-                    .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toSet()))
+                .dbSubnetGroupDescription(getDescription())
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
         );
     }
 
