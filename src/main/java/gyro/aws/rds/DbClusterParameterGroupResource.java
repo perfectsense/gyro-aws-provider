@@ -140,36 +140,38 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
     @Override
     protected boolean doRefresh() {
         RdsClient client = createClient(RdsClient.class);
-
         if (ObjectUtils.isBlank(getName())) {
             throw new GyroException("name is missing, unable to load cluster parameter group.");
         }
-
         try {
             DescribeDbClusterParameterGroupsResponse response = client.describeDBClusterParameterGroups(
                 r -> r.dbClusterParameterGroupName(getName())
             );
-
             response.dbClusterParameterGroups().forEach(this::copyFrom);
-
-            DescribeDbClusterParametersResponse parametersResponse = client.describeDBClusterParameters(
-                r -> r.dbClusterParameterGroupName(getName())
-            );
 
             Set<String> names = getParameter().stream().map(DbParameter::getName).collect(Collectors.toSet());
             getParameter().clear();
-            getParameter().addAll(parametersResponse.parameters().stream()
-                .filter(p -> names.contains(p.parameterName()))
-                .map(p -> {
-                    DbParameter parameter = new DbParameter();
-                    parameter.setApplyMethod(p.applyMethodAsString());
-                    parameter.setName(p.parameterName());
-                    parameter.setValue(p.parameterValue());
-                    return parameter;
-                })
-                .collect(Collectors.toList())
-            );
 
+            String[] marker = {null};
+            do {
+                DescribeDbClusterParametersResponse parametersResponse = client.describeDBClusterParameters(
+                    r -> r.dbClusterParameterGroupName(getName()).marker(marker[0])
+                );
+
+                getParameter().addAll(parametersResponse.parameters().stream()
+                    .filter(p -> names.contains(p.parameterName()))
+                    .map(p -> {
+                        DbParameter parameter = new DbParameter();
+                        parameter.setApplyMethod(p.applyMethodAsString());
+                        parameter.setName(p.parameterName());
+                        parameter.setValue(p.parameterValue());
+                        return parameter;
+                    })
+                    .collect(Collectors.toList())
+                );
+
+                marker[0] = parametersResponse.marker();
+            } while (marker[0] != null);
         } catch (DbParameterGroupNotFoundException ex) {
             return false;
         }
