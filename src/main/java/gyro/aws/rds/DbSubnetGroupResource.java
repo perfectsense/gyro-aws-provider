@@ -105,7 +105,7 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
         }
 
         return subnets.stream()
-            .sorted(Comparator.comparing(SubnetResource::getId))
+            .sorted(Comparator.comparing(SubnetResource::getName))
             .collect(Collectors.toList());
     }
 
@@ -117,7 +117,8 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
     public void copyFrom(DBSubnetGroup group) {
         setDescription(group.dbSubnetGroupDescription());
         setName(group.dbSubnetGroupName());
-        setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier())).collect(Collectors.toList()));
+        setSubnets(group.subnets().stream().map(s -> findById(SubnetResource.class, s.subnetIdentifier()))
+            .collect(Collectors.toList()));
         setArn(group.dbSubnetGroupArn());
     }
 
