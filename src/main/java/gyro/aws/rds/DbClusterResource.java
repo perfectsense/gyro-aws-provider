@@ -969,7 +969,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
-                    .allocatedStorage(getAllocatedStorage() == null ? null : getAllocatedStorage())
+                    .allocatedStorage(getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
                     .enableLocalWriteForwarding(getEnableLocalWriteForwarding())
@@ -1066,7 +1066,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                         getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
                     .storageType(getStorageType())
-                    .allocatedStorage(getAllocatedStorage() == null ? null : getAllocatedStorage())
+                    .allocatedStorage(getAllocatedStorage())
                     .autoMinorVersionUpgrade(getAutoMinorVersionUpgrade())
                     .copyTagsToSnapshot(getCopyTagsToSnapshot())
                     .enableLocalWriteForwarding(Objects.equals(getEnableLocalWriteForwarding(),
