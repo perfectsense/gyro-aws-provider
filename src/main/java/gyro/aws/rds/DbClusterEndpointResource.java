@@ -231,17 +231,21 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
-
+    
         // Add validation for Aurora DB and endpointType 'WRITER'
-        String engine = getDbCluster().getEngine();
-        if ((engine.equalsIgnoreCase("aurora-mysql") || engine.equalsIgnoreCase("aurora-postgresql"))
-                && getEndpointType().equalsIgnoreCase("WRITER")) {
-            errors.add(new ValidationError(
-                    this,
-                    "dbCluster",
-                    "Database engine " + engine + " with endpointType 'WRITER' is not supported"));
+        if (getDbCluster() != null) {
+            String engine = getDbCluster().getEngine();
+            if (engine != null && getEndpointType() != null) {
+                if ((engine.equalsIgnoreCase("aurora-mysql") || engine.equalsIgnoreCase("aurora-postgresql"))
+                        && getEndpointType().equalsIgnoreCase("WRITER")) {
+                    errors.add(new ValidationError(
+                            this,
+                            "dbCluster",
+                            "Database engine " + engine + " with endpointType 'WRITER' is not supported"));
+                }
+            } 
         }
-
+    
         return errors;
     }
 }
