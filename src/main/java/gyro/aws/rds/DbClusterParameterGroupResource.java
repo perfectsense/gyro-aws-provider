@@ -33,6 +33,8 @@ import software.amazon.awssdk.services.rds.model.DbParameterGroupNotFoundExcepti
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterParameterGroupsResponse;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterParametersResponse;
 import software.amazon.awssdk.services.rds.model.Parameter;
+import software.amazon.awssdk.services.rds.model.DescribeDbClusterParameterGroupsRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbClusterParametersRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,17 +147,22 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
         }
         try {
             DescribeDbClusterParameterGroupsResponse response = client.describeDBClusterParameterGroups(
-                r -> r.dbClusterParameterGroupName(getName())
+                DescribeDbClusterParameterGroupsRequest.builder()
+                    .dbClusterParameterGroupName(getName())
+                    .build()
             );
             response.dbClusterParameterGroups().forEach(this::copyFrom);
 
             Set<String> names = getParameter().stream().map(DbParameter::getName).collect(Collectors.toSet());
             getParameter().clear();
 
-            String[] marker = {null};
+            String marker = null;
             do {
                 DescribeDbClusterParametersResponse parametersResponse = client.describeDBClusterParameters(
-                    r -> r.dbClusterParameterGroupName(getName()).marker(marker[0])
+                    DescribeDbClusterParametersRequest.builder()
+                        .dbClusterParameterGroupName(getName())
+                        .marker(marker)
+                        .build()
                 );
 
                 getParameter().addAll(parametersResponse.parameters().stream()
@@ -170,8 +177,8 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
                     .collect(Collectors.toList())
                 );
 
-                marker[0] = parametersResponse.marker();
-            } while (marker[0] != null);
+                marker = parametersResponse.marker();
+            } while (marker != null);
         } catch (DbParameterGroupNotFoundException ex) {
             return false;
         }
