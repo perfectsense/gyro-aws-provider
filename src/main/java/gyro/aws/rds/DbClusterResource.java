@@ -394,6 +394,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The name of the master user for the DB cluster.
      */
+    @Required
     public String getMasterUsername() {
         return masterUsername;
     }
