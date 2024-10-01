@@ -29,6 +29,7 @@ import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterEndpointResponse;
 import software.amazon.awssdk.services.rds.model.DBClusterEndpoint;
@@ -92,11 +93,11 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
     }
 
     /**
-     * The type of the endpoint.
+     * The type of the endpoint. Cannot be set to ``WRITER`` if 'db-cluster' is set to ``Aurora``.
      */
     @Required
     @Updatable
-    @ValidStrings({"READER", "ANY"})
+    @ValidStrings({"READER", "WRITER", "ANY"})
     public String getEndpointType() {
         return endpointType;
     }
@@ -225,5 +226,26 @@ public class DbClusterEndpointResource extends AwsResource implements Copyable<D
         client.deleteDBClusterEndpoint(
             r -> r.dbClusterEndpointIdentifier(getIdentifier())
         );
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+    
+        // Add validation for Aurora DB and endpointType 'WRITER'
+        if (getDbCluster() != null) {
+            String engine = getDbCluster().getEngine();
+            if (engine != null && getEndpointType() != null) {
+                if ((engine.equalsIgnoreCase("aurora-mysql") || engine.equalsIgnoreCase("aurora-postgresql"))
+                        && getEndpointType().equalsIgnoreCase("WRITER")) {
+                    errors.add(new ValidationError(
+                            this,
+                            "dbCluster",
+                            "Database engine " + engine + " with endpointType 'WRITER' is not supported"));
+                }
+            } 
+        }
+    
+        return errors;
     }
 }
