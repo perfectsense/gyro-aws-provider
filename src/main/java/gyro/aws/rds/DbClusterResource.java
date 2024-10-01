@@ -17,6 +17,7 @@
 package gyro.aws.rds;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -176,8 +177,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     public List<String> getAvailabilityZones() {
         if (availabilityZones == null) {
             availabilityZones = new ArrayList<>();
+        } else {
+            Collections.sort(availabilityZones);
         }
-
         return availabilityZones;
     }
 
@@ -710,7 +712,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
     @Override
     public void copyFrom(DBCluster cluster) {
-        setAvailabilityZones(cluster.availabilityZones());
+        setAvailabilityZones(new ArrayList<>(cluster.availabilityZones()));
+
         setBackTrackWindow(cluster.backtrackWindow());
         setBackupRetentionPeriod(cluster.backupRetentionPeriod());
         setCharacterSetName(cluster.characterSetName());
