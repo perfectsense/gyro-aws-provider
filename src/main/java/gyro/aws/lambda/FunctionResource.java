@@ -217,7 +217,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      */
     @Required
     @Updatable
-    @ValidStrings({"nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "java8", "python2.7", "python3.6", "python3.7", "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "nodejs4.3-edge", "go1.x", "ruby2.5", "provided"})
+    @ValidStrings({"nodejs20.x", "nodejs18.x", "python3.12", "python3.11", "python3.10", "python3.9", "python3.8", "java21", "java17", "java11", "java8.al2", "dotnet8", "dotnet6", "ruby3.3", "ruby3.2", "provided.al2023", "provided.al2"})
     public String getRuntime() {
         return runtime;
     }
@@ -615,7 +615,11 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         if (!ObjectUtils.isBlank(getContentZipPathRaw())) {
             builder = builder.code(c -> c.zipFile(getZipFile()));
         } else {
-            builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
+            if (!ObjectUtils.isBlank(getS3ObjectVersion())) {
+                builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
+            } else {
+                builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()));
+            }
         }
 
         if (!ObjectUtils.isBlank(getDeadLetterConfigArn())) {
@@ -695,9 +699,14 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                 .publish(getPublish())
                 .revisionId(getRevisionId());
             if (!ObjectUtils.isBlank(getS3Bucket())) {
-                builder = builder.s3Bucket(getS3Bucket())
-                    .s3Key(getS3Key())
-                    .s3ObjectVersion(getS3ObjectVersion());
+                if (!ObjectUtils.isBlank(getS3ObjectVersion())) {
+                    builder = builder.s3Bucket(getS3Bucket())
+                        .s3Key(getS3Key())
+                        .s3ObjectVersion(getS3ObjectVersion());
+                } else {
+                    builder = builder.s3Bucket(getS3Bucket())
+                        .s3Key(getS3Key());
+                }
             } else {
                 builder = builder.zipFile(getZipFile());
             }
@@ -793,14 +802,13 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         int s3FieldCount = 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3Bucket()) ? 1 : 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3Key()) ? 1 : 0;
-        s3FieldCount += !ObjectUtils.isBlank(getS3ObjectVersion()) ? 1 : 0;
 
-        if (s3FieldCount > 0 && s3FieldCount < 3 ) {
-            errors.add(new ValidationError(this, null, "Fields s3-bucket, s3-key and s3-object-version are needed to set together or none."));
+        if (s3FieldCount == 1 ) {
+            errors.add(new ValidationError(this, null, "Fields s3-bucket and s3-key are needed to set together or none."));
         }
 
         if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPathRaw())) {
-            errors.add(new ValidationError(this, null, "Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set."));
+            errors.add(new ValidationError(this, null, "Field content-zip-path cannot be set when Fields s3-bucket and s3-key are set."));
         }
 
         return errors;
