@@ -41,6 +41,7 @@ import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterRequest;
 import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
@@ -1094,7 +1095,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         client.deleteDBCluster(
             r -> r.dbClusterIdentifier(getIdentifier())
-                .finalDBSnapshotIdentifier(!getSkipFinalSnapshot() ? getFinalDbSnapshotIdentifier() : null)
+                .finalDBSnapshotIdentifier(
+                    Boolean.TRUE.equals(getSkipFinalSnapshot()) ? null : getFinalDbSnapshotIdentifier())
                 .skipFinalSnapshot(getSkipFinalSnapshot())
         );
 
@@ -1128,5 +1130,21 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         if (!waitResult) {
             throw new GyroException("Unable to reach 'available' state for rds db cluster - " + getIdentifier());
         }
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        ArrayList<ValidationError> errors = new ArrayList<>();
+
+        if ((getSkipFinalSnapshot() == null || Boolean.FALSE.equals(getSkipFinalSnapshot())) &&
+            getFinalDbSnapshotIdentifier() == null) {
+            errors.add(new ValidationError(
+                this,
+                "final-db-snapshot-identifier",
+                "'final-db-snapshot-identifier' is required when 'skip-final-snapshot' is unspecified or set to 'false'."
+            ));
+        }
+
+        return errors;
     }
 }
