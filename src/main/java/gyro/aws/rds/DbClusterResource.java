@@ -18,6 +18,7 @@ package gyro.aws.rds;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,6 +40,7 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -53,6 +55,7 @@ import software.amazon.awssdk.services.rds.model.LocalWriteForwardingStatus;
 import software.amazon.awssdk.services.rds.model.ModifyDbClusterRequest;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromS3Response;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromSnapshotResponse;
+import software.amazon.awssdk.services.rds.model.RestoreDbClusterToPointInTimeResponse;
 
 /**
  * Create a Aurora cluster.
@@ -151,10 +154,16 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Boolean autoMinorVersionUpgrade;
     private Boolean copyTagsToSnapshot;
     private Boolean enableLocalWriteForwarding;
+    private DbClusterResource sourceDbCluster;
+    private Date restoreToTime;
+    private String restoreType;
+    private Boolean useLatestRestorableTime;
 
     // Read-only
     private String endpointAddress;
     private String readerEndpointAddress;
+    private Date earliestRestorableTime;
+    private Date latestRestorableTime;
 
     /**
      * Apply modifications in this request and any pending modifications asynchronously as soon as possible, regardless of the `preferred-maintenance-window`. Default is false.
@@ -478,7 +487,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The identifier of the snapshot.
      */
-    @ConflictsWith("s3-import")
+    @ConflictsWith({"s3-import", "source-db-cluster"})
     public String getSnapshotIdentifier() {
         return snapshotIdentifier;
     }
@@ -490,7 +499,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The s3 import to restore the database from.
      */
-    @ConflictsWith({"snapshot-identifier"})
+    @ConflictsWith({"snapshot-identifier", "source-db-cluster"})
     public DbClusterS3Import getS3Import() {
         return s3Import;
     }
@@ -689,6 +698,57 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     }
 
     /**
+     * The source DB cluster to restore from.
+     */
+    @ConflictsWith({"snapshot-identifier", "s3-import"})
+    public DbClusterResource getSourceDbCluster() {
+        return sourceDbCluster;
+    }
+
+    public void setSourceDbCluster(DbClusterResource sourceDbCluster) {
+        this.sourceDbCluster = sourceDbCluster;
+    }
+
+    /**
+     * The date and time to restore the DB cluster to.
+     */
+    @ConflictsWith({"use-latest-restorable-time"})
+    @DependsOn("source-db-cluster")
+    public Date getRestoreToTime() {
+        return restoreToTime;
+    }
+
+    public void setRestoreToTime(Date restoreToTime) {
+        this.restoreToTime = restoreToTime;
+    }
+
+    /**
+     * The type of restore to perform.
+     */
+    @DependsOn("source-db-cluster")
+    @ValidStrings({"copy-on-write", "full-copy"})
+    public String getRestoreType() {
+        return restoreType;
+    }
+
+    public void setRestoreType(String restoreType) {
+        this.restoreType = restoreType;
+    }
+
+    /**
+     * When set to ``true``, restores the DB cluster to the latest restorable backup time. Defaults to ``false``.
+     */
+    @ConflictsWith({"restore-to-time"})
+    @DependsOn("source-db-cluster")
+    public Boolean getUseLatestRestorableTime() {
+        return useLatestRestorableTime;
+    }
+
+    public void setUseLatestRestorableTime(Boolean useLatestRestorableTime) {
+        this.useLatestRestorableTime = useLatestRestorableTime;
+    }
+
+    /**
      * DNS hostname to access the primary instance of the cluster.
      */
     @Output
@@ -710,6 +770,30 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
     public void setReaderEndpointAddress(String readerEndpointAddress) {
         this.readerEndpointAddress = readerEndpointAddress;
+    }
+
+    /**
+     * The earliest restorable time for the DB cluster.
+     */
+    @Output
+    public Date getEarliestRestorableTime() {
+        return earliestRestorableTime;
+    }
+
+    public void setEarliestRestorableTime(Date earliestRestorableTime) {
+        this.earliestRestorableTime = earliestRestorableTime;
+    }
+
+    /**
+     * The latest restorable time for the DB cluster.
+     */
+    @Output
+    public Date getLatestRestorableTime() {
+        return latestRestorableTime;
+    }
+
+    public void setLatestRestorableTime(Date latestRestorableTime) {
+        this.latestRestorableTime = latestRestorableTime;
     }
 
     @Override
@@ -789,6 +873,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 LocalWriteForwardingStatus.ENABLING.equals(cluster.localWriteForwardingStatus()) ||
                 LocalWriteForwardingStatus.ENABLED.equals(cluster.localWriteForwardingStatus())
         );
+
+        setEarliestRestorableTime(
+            cluster.earliestRestorableTime() == null ? null : Date.from(cluster.earliestRestorableTime()));
+        setLatestRestorableTime(
+            cluster.latestRestorableTime() == null ? null : Date.from(cluster.latestRestorableTime()));
     }
 
     @Override
@@ -826,7 +915,78 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 .build()
                 : null;
 
-        if (getSnapshotIdentifier() != null) {
+        if (getSourceDbCluster() != null) {
+            RestoreDbClusterToPointInTimeResponse response =
+                client.restoreDBClusterToPointInTime(
+                    r -> r.backtrackWindow(getBackTrackWindow())
+                        .copyTagsToSnapshot(getCopyTagsToSnapshot())
+                        .dbClusterIdentifier(getIdentifier())
+                        .dbClusterInstanceClass(getDbClusterInstanceClass())
+                        .dbClusterParameterGroupName(
+                            getDbClusterParameterGroup() != null ? getDbClusterParameterGroup().getName() : null)
+                        .dbSubnetGroupName(getDbSubnetGroup() != null ? getDbSubnetGroup().getName() : null)
+                        .deletionProtection(getDeletionProtection())
+                        .enableCloudwatchLogsExports(getEnableCloudwatchLogsExports())
+                        .enableIAMDatabaseAuthentication(getEnableIamDatabaseAuthentication())
+                        .engineMode(getEngineMode())
+                        .iops(getIops())
+                        .kmsKeyId(getKmsKey() != null ? getKmsKey().getArn() : null)
+                        .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                        .port(getPort())
+                        .restoreToTime(getRestoreToTime() == null ? null : getRestoreToTime().toInstant())
+                        .restoreType(getRestoreType())
+                        .scalingConfiguration(scalingConfiguration)
+                        .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
+                            getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
+                        .sourceDBClusterIdentifier(getSourceDbCluster().getIdentifier())
+                        .storageType(getStorageType())
+                        .useLatestRestorableTime(getUseLatestRestorableTime())
+                        .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
+                            .stream()
+                            .map(SecurityGroupResource::getId)
+                            .collect(Collectors.toList()) : null)
+                );
+
+            setArn(response.dbCluster().dbClusterArn());
+            state.save();
+            waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
+
+            ModifyDbClusterRequest.Builder request =
+                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
+
+            boolean modify = false;
+
+            if (getBackupRetentionPeriod() != null) {
+                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
+                modify = true;
+            }
+
+            if (getPreferredBackupWindow() != null) {
+                request = request.preferredBackupWindow(getPreferredBackupWindow());
+                modify = true;
+            }
+
+            if (getPreferredMaintenanceWindow() != null) {
+                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
+                modify = true;
+            }
+
+            if (getManageMasterUserPassword() != null) {
+                request = request.manageMasterUserPassword(getManageMasterUserPassword());
+                modify = true;
+            }
+
+            if (getMasterUserSecretKmsKey() != null) {
+                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
+                modify = true;
+            }
+
+            if (modify) {
+                client.modifyDBCluster(request.build());
+                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
+            }
+
+        } else if (getSnapshotIdentifier() != null) {
             RestoreDbClusterFromSnapshotResponse response = client.restoreDBClusterFromSnapshot(
                 r -> r.availabilityZones(getAvailabilityZones())
                     .snapshotIdentifier(getSnapshotIdentifier())
@@ -862,14 +1022,38 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
-            if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
-                || getPreferredMaintenanceWindow() != null) {
-                client.modifyDBCluster(r -> r.applyImmediately(true)
-                    .dbClusterIdentifier(getIdentifier())
-                    .backupRetentionPeriod(getBackupRetentionPeriod())
-                    .preferredBackupWindow(getPreferredBackupWindow())
-                    .preferredMaintenanceWindow(getPreferredMaintenanceWindow()));
+            ModifyDbClusterRequest.Builder request =
+                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
 
+            boolean modify = false;
+
+            if (getBackupRetentionPeriod() != null) {
+                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
+                modify = true;
+            }
+
+            if (getPreferredBackupWindow() != null) {
+                request = request.preferredBackupWindow(getPreferredBackupWindow());
+                modify = true;
+            }
+
+            if (getPreferredMaintenanceWindow() != null) {
+                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
+                modify = true;
+            }
+
+            if (getManageMasterUserPassword() != null) {
+                request = request.manageMasterUserPassword(getManageMasterUserPassword());
+                modify = true;
+            }
+
+            if (getMasterUserSecretKmsKey() != null) {
+                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
+                modify = true;
+            }
+
+            if (modify) {
+                client.modifyDBCluster(request.build());
                 waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
             }
 
@@ -919,12 +1103,43 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
-            if (getBackupRetentionPeriod() != null || getPreferredBackupWindow() != null
-                || getPreferredMaintenanceWindow() != null) {
-                client.modifyDBCluster(r -> r.applyImmediately(true)
-                    .dbClusterIdentifier(getIdentifier())
-                    .scalingConfiguration(scalingConfiguration));
+            ModifyDbClusterRequest.Builder request =
+                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
 
+            boolean modify = false;
+
+            if (getBackupRetentionPeriod() != null) {
+                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
+                modify = true;
+            }
+
+            if (getPreferredBackupWindow() != null) {
+                request = request.preferredBackupWindow(getPreferredBackupWindow());
+                modify = true;
+            }
+
+            if (getPreferredMaintenanceWindow() != null) {
+                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
+                modify = true;
+            }
+
+            if (getManageMasterUserPassword() != null) {
+                request = request.manageMasterUserPassword(getManageMasterUserPassword());
+                modify = true;
+            }
+
+            if (getMasterUserSecretKmsKey() != null) {
+                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
+                modify = true;
+            }
+
+            if (getScalingConfiguration() != null) {
+                request = request.scalingConfiguration(scalingConfiguration);
+                modify = true;
+            }
+
+            if (modify) {
+                client.modifyDBCluster(request.build());
                 waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
             }
 
@@ -1143,6 +1358,26 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 "final-db-snapshot-identifier",
                 "'final-db-snapshot-identifier' is required when 'skip-final-snapshot' is unspecified or set to 'false'."
             ));
+        }
+
+        if (getSourceDbCluster() != null) {
+            if (getRestoreToTime() == null &&
+                (getUseLatestRestorableTime() == null || Boolean.FALSE.equals(getUseLatestRestorableTime()))) {
+                errors.add(new ValidationError(
+                    this,
+                    "restore-to-time",
+                    "Either 'restore-to-time' or 'use-latest-restorable-time' is required when restoring from a 'source-db-cluster'."
+                ));
+            }
+
+            if (getRestoreType() != null && getRestoreType().equals("copy-on-write") &&
+                (getRestoreToTime() != null || !Boolean.TRUE.equals(getUseLatestRestorableTime()))) {
+                errors.add(new ValidationError(
+                    this,
+                    "restore-to-time",
+                    "'restore-to-time' cannot be set when 'restore-type' is set to 'copy-on-write'. Use 'use-latest-restorable-time' instead and set it to `true` instead."
+                ));
+            }
         }
 
         return errors;
