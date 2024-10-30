@@ -1,0 +1,180 @@
+aws::vpc vpc
+    cidr-block: "10.0.0.0/16"
+
+    tags: {
+        Name: "vpc-example"
+    }
+end
+
+aws::subnet subnet-us-east-2a
+    vpc: $(aws::vpc vpc)
+    availability-zone: "us-east-2a"
+    cidr-block: "10.0.0.0/24"
+    tags: {
+        Name: "subnet-us-east-2a-example"
+    }
+end
+
+aws::subnet subnet-us-east-2b
+    vpc: $(aws::vpc vpc)
+    availability-zone: "us-east-2b"
+    cidr-block: "10.0.1.0/24"
+    tags: {
+        Name: "subnet-us-east-2b-example"
+    }
+end
+
+aws::subnet subnet-us-east-2c
+    vpc: $(aws::vpc vpc)
+    availability-zone: "us-east-2c"
+    cidr-block: "10.0.2.0/24"
+    tags: {
+        Name: "subnet-us-east-2c-example"
+    }
+end
+
+aws::db-subnet-group db-subnet-group
+    name: "db-subnet-group-example"
+    description: "db subnet group description"
+    subnets: [
+        $(aws::subnet subnet-us-east-2a),
+        $(aws::subnet subnet-us-east-2b),
+        $(aws::subnet subnet-us-east-2c)
+    ]
+
+    tags: {
+        Name: "db-subnet-group-example"
+    }
+end
+
+aws::security-group security-group-example
+    name: "example-db-cluster-security-group"
+    vpc: $(aws::vpc vpc)
+    description: "Allow web traffic only"
+end
+
+aws::security-group-rules security-group-example-rules
+    security-group: $(aws::security-group security-group-example)
+    keep-default-egress-rules: true
+
+    @for port, type -in [80, 'http', 443, 'https', 999, 'foo']
+        ingress
+            description: "allow inbound $(type) traffic, ipv4 only"
+            cidr-block: "0.0.0.0/0"
+            protocol: "TCP"
+            from-port: $(port)
+            to-port: $(port)
+        end
+    @end
+
+    egress
+        description: "allow outbound http traffic, ipv6 only"
+        ipv6-cidr-block: "::/0"
+        protocol: "TCP"
+        from-port: 80
+        to-port: 80
+    end
+end
+
+aws::kms-key aurora-master-password-encryption
+    description: "KMS key used to encrypt aurora database master password"
+
+    aliases: ["alias/example/aurora-master-password-encryption"]
+    enabled: "true"
+end
+
+aws::db-cluster db-cluster-example
+    identifier: "aurora-mysql-cluster"
+    engine: "aurora-mysql"
+    engine-version: "8.0.mysql_aurora.3.06.0"
+    availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
+    db-name: "clusterexample"
+
+    master-username: "root"
+    manage-master-user-password: true
+    master-user-secret-kms-key: $(aws::kms-key aurora-master-password-encryption)
+
+    storage-type: "aurora"
+
+    engine-mode: "provisioned"
+    serverless-v2-scaling-configuration
+        min-capacity: 1
+        max-capacity: 3
+    end
+
+    db-subnet-group: $(aws::db-subnet-group db-subnet-group)
+    vpc-security-groups: [
+        $(aws::security-group security-group-example)
+    ]
+    backup-retention-period: 5
+    preferred-backup-window: "07:00-09:00"
+    preferred-maintenance-window: "tue:15:00-tue:17:00"
+    skip-final-snapshot: true
+    enable-local-write-forwarding: false
+
+    tags: {
+        Name: "aurora-mysql-cluster"
+    }
+    copy-tags-to-snapshot: true
+    storage-encrypted: true
+    kms-key: $(aws::kms-key aurora-master-password-encryption)
+    back-track-window: 0
+    auto-minor-version-upgrade: true
+    deletion-protection: false
+end
+
+aws::db-instance db-instance-example
+    identifier: "aurora-mysql-cluster-instance"
+    db-instance-class: "db.serverless"
+    db-cluster: $(aws::db-cluster db-cluster-example)
+    engine: "aurora-mysql"
+    apply-immediately: true
+    tags: {
+        Name: "aurora-mysql-cluster-instance"
+    }
+end
+
+aws::db-cluster db-cluster-example-copy
+    identifier: "aurora-mysql-cluster-copy"
+    engine: "aurora-mysql"
+    engine-version: "8.0.mysql_aurora.3.06.0"
+    availability-zones: ["us-east-2a", "us-east-2b", "us-east-2c"]
+    db-name: "clusterexample"
+    source-db-cluster: $(aws::db-cluster db-cluster-example)
+    #restore-to-time: "Tue Oct 29 10:16:07 EDT 2024"
+    restore-type: "copy-on-write"
+    use-latest-restorable-time: true
+
+    master-username: "root"
+    manage-master-user-password: true
+    master-user-secret-kms-key: $(aws::kms-key aurora-master-password-encryption)
+
+    storage-type: "aurora"
+
+    engine-mode: "provisioned"
+    serverless-v2-scaling-configuration
+        min-capacity: 1
+        max-capacity: 3
+    end
+
+    db-subnet-group: $(aws::db-subnet-group db-subnet-group)
+    vpc-security-groups: [
+        $(aws::security-group security-group-example)
+    ]
+    backup-retention-period: 5
+    preferred-backup-window: "07:00-09:00"
+    preferred-maintenance-window: "tue:15:00-tue:17:00"
+    skip-final-snapshot: true
+    enable-local-write-forwarding: false
+
+    tags: {
+        Name: "aurora-mysql-cluster-copy"
+    }
+
+    copy-tags-to-snapshot: true
+    storage-encrypted: true
+    kms-key: $(aws::kms-key aurora-master-password-encryption)
+    back-track-window: 0
+    auto-minor-version-upgrade: true
+    deletion-protection: false
+end
