@@ -981,6 +981,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 modify = true;
             }
 
+            if (getAutoMinorVersionUpgrade() != null) {
+                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
+                modify = true;
+            }
+
             if (modify) {
                 client.modifyDBCluster(request.build());
                 waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
@@ -1049,6 +1054,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
             if (getMasterUserSecretKmsKey() != null) {
                 request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
+                modify = true;
+            }
+
+            if (getAutoMinorVersionUpgrade() != null) {
+                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
                 modify = true;
             }
 
@@ -1135,6 +1145,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
             if (getScalingConfiguration() != null) {
                 request = request.scalingConfiguration(scalingConfiguration);
+                modify = true;
+            }
+
+            if (getAutoMinorVersionUpgrade() != null) {
+                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
                 modify = true;
             }
 
