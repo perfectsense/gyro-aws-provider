@@ -915,6 +915,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                 .build()
                 : null;
 
+        ModifyDbClusterRequest.Builder modifyRequest =
+            ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
+
+        boolean modify = false;
+
         if (getSourceDbCluster() != null) {
             RestoreDbClusterToPointInTimeResponse response =
                 client.restoreDBClusterToPointInTime(
@@ -951,46 +956,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
-            ModifyDbClusterRequest.Builder request =
-                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
-
-            boolean modify = false;
-
-            if (getBackupRetentionPeriod() != null) {
-                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
-                modify = true;
-            }
-
-            if (getPreferredBackupWindow() != null) {
-                request = request.preferredBackupWindow(getPreferredBackupWindow());
-                modify = true;
-            }
-
-            if (getPreferredMaintenanceWindow() != null) {
-                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
-                modify = true;
-            }
-
-            if (getManageMasterUserPassword() != null) {
-                request = request.manageMasterUserPassword(getManageMasterUserPassword());
-                modify = true;
-            }
-
-            if (getMasterUserSecretKmsKey() != null) {
-                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
-                modify = true;
-            }
-
-            if (getAutoMinorVersionUpgrade() != null) {
-                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
-                modify = true;
-            }
-
-            if (modify) {
-                client.modifyDBCluster(request.build());
-                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
-            }
-
         } else if (getSnapshotIdentifier() != null) {
             RestoreDbClusterFromSnapshotResponse response = client.restoreDBClusterFromSnapshot(
                 r -> r.availabilityZones(getAvailabilityZones())
@@ -1026,46 +991,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             setArn(response.dbCluster().dbClusterArn());
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
-
-            ModifyDbClusterRequest.Builder request =
-                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
-
-            boolean modify = false;
-
-            if (getBackupRetentionPeriod() != null) {
-                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
-                modify = true;
-            }
-
-            if (getPreferredBackupWindow() != null) {
-                request = request.preferredBackupWindow(getPreferredBackupWindow());
-                modify = true;
-            }
-
-            if (getPreferredMaintenanceWindow() != null) {
-                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
-                modify = true;
-            }
-
-            if (getManageMasterUserPassword() != null) {
-                request = request.manageMasterUserPassword(getManageMasterUserPassword());
-                modify = true;
-            }
-
-            if (getMasterUserSecretKmsKey() != null) {
-                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
-                modify = true;
-            }
-
-            if (getAutoMinorVersionUpgrade() != null) {
-                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
-                modify = true;
-            }
-
-            if (modify) {
-                client.modifyDBCluster(request.build());
-                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
-            }
 
         } else if (getS3Import() != null) {
             RestoreDbClusterFromS3Response response = client.restoreDBClusterFromS3(r ->
@@ -1113,49 +1038,9 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
 
-            ModifyDbClusterRequest.Builder request =
-                ModifyDbClusterRequest.builder().applyImmediately(true).dbClusterIdentifier(getIdentifier());
-
-            boolean modify = false;
-
-            if (getBackupRetentionPeriod() != null) {
-                request = request.backupRetentionPeriod(getBackupRetentionPeriod());
-                modify = true;
-            }
-
-            if (getPreferredBackupWindow() != null) {
-                request = request.preferredBackupWindow(getPreferredBackupWindow());
-                modify = true;
-            }
-
-            if (getPreferredMaintenanceWindow() != null) {
-                request = request.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
-                modify = true;
-            }
-
-            if (getManageMasterUserPassword() != null) {
-                request = request.manageMasterUserPassword(getManageMasterUserPassword());
-                modify = true;
-            }
-
-            if (getMasterUserSecretKmsKey() != null) {
-                request = request.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
-                modify = true;
-            }
-
             if (getScalingConfiguration() != null) {
-                request = request.scalingConfiguration(scalingConfiguration);
+                modifyRequest = modifyRequest.scalingConfiguration(scalingConfiguration);
                 modify = true;
-            }
-
-            if (getAutoMinorVersionUpgrade() != null) {
-                request = request.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
-                modify = true;
-            }
-
-            if (modify) {
-                client.modifyDBCluster(request.build());
-                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
             }
 
         } else {
@@ -1214,6 +1099,43 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             setArn(response.dbCluster().dbClusterArn());
             state.save();
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
+        }
+
+        if (getSourceDbCluster() != null || getSnapshotIdentifier() != null || getS3Import() == null) {
+            if (getBackupRetentionPeriod() != null) {
+                modifyRequest = modifyRequest.backupRetentionPeriod(getBackupRetentionPeriod());
+                modify = true;
+            }
+
+            if (getPreferredBackupWindow() != null) {
+                modifyRequest = modifyRequest.preferredBackupWindow(getPreferredBackupWindow());
+                modify = true;
+            }
+
+            if (getPreferredMaintenanceWindow() != null) {
+                modifyRequest = modifyRequest.preferredMaintenanceWindow(getPreferredMaintenanceWindow());
+                modify = true;
+            }
+
+            if (getManageMasterUserPassword() != null) {
+                modifyRequest = modifyRequest.manageMasterUserPassword(getManageMasterUserPassword());
+                modify = true;
+            }
+
+            if (getMasterUserSecretKmsKey() != null) {
+                modifyRequest = modifyRequest.masterUserSecretKmsKeyId(getMasterUserSecretKmsKey().getId());
+                modify = true;
+            }
+
+            if (getAutoMinorVersionUpgrade() != null) {
+                modifyRequest = modifyRequest.autoMinorVersionUpgrade(getAutoMinorVersionUpgrade());
+                modify = true;
+            }
+
+            if (modify) {
+                client.modifyDBCluster(modifyRequest.build());
+                waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
+            }
         }
 
         DescribeDbClustersResponse describeResponse = client.describeDBClusters(
