@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
  *     aws::lambda-function lambda-function-example
  *         name: "testFunction"
  *         handler: "index.handler"
- *         runtime: "nodejs8.10"
+ *         runtime: "nodejs20.x"
  *         role: "arn:aws:iam::242040583208:role/service-role/testFunctionRole"
  *         content-zip-path: "example-function.zip"
  *
@@ -213,11 +213,10 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The runtime language for this Lambda Function.
+     * The runtime language for this Lambda Function. See `Supported Runtimes for Lambda <https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html>`_.
      */
     @Required
     @Updatable
-    @ValidStrings({"nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "java8", "python2.7", "python3.6", "python3.7", "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "nodejs4.3-edge", "go1.x", "ruby2.5", "provided"})
     public String getRuntime() {
         return runtime;
     }
