@@ -15,7 +15,7 @@ end
 aws::lambda-function lambda-function-example
     name: "testFunction1"
     handler: "index.handler"
-    runtime: "nodejs8.10"
+    runtime: "nodejs20.x"
     role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function-1.zip"
 
