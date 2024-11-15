@@ -1,6 +1,23 @@
 CHANGELOG
 =========
 
+## 1.6.4 (November 12th, 2024)
+
+ENHANCEMENTS:
+
+* [667](https://github.com/perfectsense/gyro-aws-provider/issues/667): Add writer endpoint type For database clusters
+* [668](https://github.com/perfectsense/gyro-aws-provider/issues/668): Allow DB Instance to be edited
+* [670](https://github.com/perfectsense/gyro-aws-provider/issues/670): The master username should be a required field
+* [673](https://github.com/perfectsense/gyro-aws-provider/issues/673): Convert db-subnet-group subnets into a list
+* [677](https://github.com/perfectsense/gyro-aws-provider/issues/677): Enable Point in time recovery for db clusters
+
+ISSUES FIXED:
+
+* [669](https://github.com/perfectsense/gyro-aws-provider/issues/669): Sorts the availability zones of db-cluster so it doesn't update every time
+* [671](https://github.com/perfectsense/gyro-aws-provider/issues/671): Fixes null pointer exceptions with db-cluster
+* [672](https://github.com/perfectsense/gyro-aws-provider/issues/672): Paginate the refresh call for DbClusterParameterGroupResource to pull all parameters
+* [676](https://github.com/perfectsense/gyro-aws-provider/issues/676): Fix null pointer upon db-cluster deletion
+
 ## 1.6.3 (September 9th, 2024)
 
 ENHANCEMENTS:
