@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  *         description: "lambda-layer-example-desc"
  *         content-zip-path: "example-function.zip"
  *         compatible-runtimes: [
- *             "nodejs8.10"
+ *             "nodejs20.x"
  *         ]
  *     end
  */
@@ -112,10 +112,9 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
-     * The list of runtime language for the function using this Lambda Layer.
+     * The list of runtime language for the function using this Lambda Layer.  See `Supported Runtimes for Lambda <https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html>`_.
      */
     @Required
-    @ValidStrings({"nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "java8", "python2.7", "python3.6", "python3.7", "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "nodejs4.3-edge", "go1.x", "ruby2.5", "provided"})
     public Set<String> getCompatibleRuntimes() {
         if (compatibleRuntimes == null) {
             compatibleRuntimes = new HashSet<>();
