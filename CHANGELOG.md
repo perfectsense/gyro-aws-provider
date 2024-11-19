@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.6.6 (November 19th, 2024)
+
+ISSUES FIXED:
+
+* [683](https://github.com/perfectsense/gyro-aws-provider/pull/683): Updates Lambda Layer supported Runtimes and removes the validations
+
 ## 1.6.5 (November 15th, 2024)
 
 ISSUES FIXED:
