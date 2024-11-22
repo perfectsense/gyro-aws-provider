@@ -984,7 +984,9 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                     .backupRetentionPeriod(
                         Objects.equals(getBackupRetentionPeriod(), current.getBackupRetentionPeriod())
                             ? null : getBackupRetentionPeriod())
-                    .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(getEnableCloudwatchLogsExports()))
+                    .cloudwatchLogsExportConfiguration(c -> c.enableLogTypes(
+                        Objects.equals(getEnableCloudwatchLogsExports(), current.getEnableCloudwatchLogsExports()) ?
+                            null : getEnableCloudwatchLogsExports()))
                     .copyTagsToSnapshot(
                         Objects.equals(getCopyTagsToSnapshot(), current.getCopyTagsToSnapshot()) ? null :
                             getCopyTagsToSnapshot())
