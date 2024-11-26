@@ -2,6 +2,7 @@ package gyro.aws.rds;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import software.amazon.awssdk.services.rds.model.ServerlessV2ScalingConfiguration;
 import software.amazon.awssdk.services.rds.model.ServerlessV2ScalingConfigurationInfo;
 
@@ -13,6 +14,7 @@ public class ServerlessV2ScalingConfig extends Diffable implements Copyable<Serv
     /**
      * The maximum number of Aurora capacity units (ACUs) for a DB instance in an Aurora Serverless v2 cluster.
      */
+    @Updatable
     public Double getMaxCapacity() {
         return maxCapacity;
     }
@@ -24,6 +26,7 @@ public class ServerlessV2ScalingConfig extends Diffable implements Copyable<Serv
     /**
      * The minimum number of Aurora capacity units (ACUs) for a DB instance in an Aurora Serverless v2 cluster.
      */
+    @Updatable
     public Double getMinCapacity() {
         return minCapacity;
     }
