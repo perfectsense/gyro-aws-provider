@@ -1,0 +1,7 @@
+[ {
+  "Rules" : [ {
+    "Resource" : [ "collection/vector-search-collection-example" ],
+    "ResourceType" : "collection"
+  } ],
+  "AllowFromPublic" : true
+} ]
