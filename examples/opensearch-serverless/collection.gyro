@@ -1,0 +1,31 @@
+aws::opensearch-serverless-security-policy encryption-security-policy
+    name: "vs-coll-enc-policy"
+    description: "serverless-collection example encryption security policy"
+    type: "encryption"
+    policy: "encryption-policy.json"
+end
+
+aws::opensearch-serverless-security-policy network-security-policy
+    name: "vs-coll-net-policy"
+    description: "serverless-collection example network security policy"
+    type: "network"
+    policy: "network-policy.json"
+end
+
+aws::opensearch-serverless-access-policy data-access-policy
+    name: "vs-coll-dal-policy"
+    description: "serverless-collection example data access policy"
+    type: "data"
+    policy: "data-access-policy.json"
+end
+
+aws::opensearch-serverless-collection collection
+    name: "vector-search-collection-example"
+    description: "vector search collection example"
+    type: "VECTORSEARCH"
+    standby-replicas: DISABLED
+
+    tags: {
+        Name: "opensearch-vector-search-collection-example"
+    }
+end
