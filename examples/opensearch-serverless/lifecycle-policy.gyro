@@ -1,0 +1,6 @@
+aws::opensearch-serverless-lifecycle-policy lifecycle-policy
+    name: "example-lifecycle-policy"
+    description: "example lifecycle policy"
+    type: "retention"
+    policy: "retention-policy.json"
+end

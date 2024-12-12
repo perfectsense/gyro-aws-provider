@@ -1,0 +1,13 @@
+[ {
+  "Rules" : [ {
+    "Resource" : [ "collection/vector-search-collection-example" ],
+    "Permission" : [ "aoss:CreateCollectionItems", "aoss:DeleteCollectionItems", "aoss:UpdateCollectionItems", "aoss:DescribeCollectionItems" ],
+    "ResourceType" : "collection"
+  }, {
+    "Resource" : [ "index/vector-search-collection-example/*" ],
+    "Permission" : [ "aoss:CreateIndex", "aoss:DeleteIndex", "aoss:UpdateIndex", "aoss:DescribeIndex", "aoss:ReadDocument", "aoss:WriteDocument" ],
+    "ResourceType" : "index"
+  } ],
+  "Principal" : [ "arn:aws:iam::242040583208:role/ops-desk" ],
+  "Description" : "vector-search-collection-example data access policy"
+} ]

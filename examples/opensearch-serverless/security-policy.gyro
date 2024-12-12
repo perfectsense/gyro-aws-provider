@@ -1,0 +1,6 @@
+aws::opensearch-serverless-security-policy security-policy
+    name: "example-security-policy"
+    description: "example security policy"
+    type: "encryption"
+    policy: "encryption-policy.json"
+end
