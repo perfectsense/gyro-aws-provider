@@ -16,6 +16,8 @@
 
 package gyro.aws.lambda;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -38,10 +40,12 @@ import gyro.core.validation.ValidationError;
 import org.apache.commons.codec.digest.DigestUtils;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.AddPermissionRequest;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionRequest;
 import software.amazon.awssdk.services.lambda.model.CreateFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.FunctionConfiguration;
 import software.amazon.awssdk.services.lambda.model.GetFunctionResponse;
+import software.amazon.awssdk.services.lambda.model.GetPolicyResponse;
 import software.amazon.awssdk.services.lambda.model.ListTagsResponse;
 import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionResponse;
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
@@ -107,6 +111,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private Integer reservedConcurrentExecutions;
     private Map<String, String> versionMap;
     private Boolean publish;
+    private Set<FunctionPermission> permission;
 
     // -- Readonly
 
@@ -439,6 +444,24 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
+     * The set of permissions to be associated with the Lambda Function.
+     *
+     * @subresource gyro.aws.lambda.FunctionPermission
+     */
+    @Updatable
+    public Set<FunctionPermission> getPermission() {
+        if (permission == null) {
+            permission = new HashSet<>();
+        }
+
+        return permission;
+    }
+
+    public void setPermission(Set<FunctionPermission> permission) {
+        this.permission = permission;
+    }
+
+    /**
      * The arn for the lambda Lambda Function resource including the version.
      */
     @Output
@@ -571,6 +594,17 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         );
 
         setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
+
+        getPermission().clear();
+        try {
+            GetPolicyResponse policy = client.getPolicy(r -> r.functionName(getName()));
+
+            if (policy.policy() != null) {
+                setPolicy(policy.policy());
+            }
+        } catch (ResourceNotFoundException ex) {
+            // Ignore
+        }
     }
 
     @Override
@@ -647,18 +681,29 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setVersion(response.version());
         setCodeHash(response.codeSha256());
 
+        setVersions(client);
+        state.save();
+
         if (getReservedConcurrentExecutions() != null) {
             try {
                 client.putFunctionConcurrency(
                     r -> r.functionName(getName())
                         .reservedConcurrentExecutions(getReservedConcurrentExecutions())
                 );
+
+                state.save();
             } catch (Exception ex) {
                 ui.write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
             }
         }
 
-        setVersions(client);
+        if (!getPermission().isEmpty()) {
+            for (FunctionPermission permission : getPermission()) {
+                client.addPermission(permission.toAddPermissionRequest());
+            }
+
+            state.save();
+        }
     }
 
     @Override
@@ -670,6 +715,23 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         FunctionResource oldResource = (FunctionResource) resource;
 
         Set<String> changeSet = new HashSet<>(changedFieldNames);
+
+        if (changeSet.contains("permission")) {
+            if (!oldResource.getPermission().isEmpty()) {
+               for (FunctionPermission permission : oldResource.getPermission()) {
+                   client.removePermission(
+                       r -> r.functionName(getName())
+                           .statementId(permission.getStatementId())
+                   );
+               }
+            }
+
+            for (FunctionPermission permission : getPermission()) {
+                client.addPermission(permission.toAddPermissionRequest());
+            }
+
+            changeSet.remove("permission");
+        }
 
         if (changeSet.contains("reserved-concurrent-executions")) {
             if (getReservedConcurrentExecutions() != null) {
@@ -818,6 +880,28 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     getVersionMap().put("v" + functionConfiguration.version(), functionConfiguration.functionArn());
                 }
             }
+        }
+    }
+
+    private void setPolicy(String jsonPolicy) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode policyNode = objectMapper.readTree(jsonPolicy);
+            JsonNode statements = policyNode.get("Statement");
+
+            if (statements == null || !statements.isArray()) {
+                throw new IllegalArgumentException("Invalid policy format. Needs at least one statement.");
+            }
+
+            for (JsonNode statement : statements) {
+                AddPermissionRequest request = FunctionPermission.getAddPermissionRequest(statement);
+                FunctionPermission permission = newSubresource(FunctionPermission.class);
+                permission.copyFrom(request);
+                getPermission().add(permission);
+            }
+
+        } catch (Exception e) {
+            throw new GyroException("Error parsing function policy",e);
         }
     }
 }
