@@ -132,13 +132,25 @@ public class LayerPermission extends Diffable implements Copyable<AddLayerVersio
     protected static AddLayerVersionPermissionRequest getAddLayerPermissionRequest(JsonNode statement) {
         AddLayerVersionPermissionRequest.Builder builder = AddLayerVersionPermissionRequest.builder();
 
+        if (!statement.has("Sid")
+            || !statement.has("Action")
+            || !statement.has("Resource")) {
+            throw new IllegalArgumentException("Invalid statement. 'Sid', 'Action' and 'Resource' are required fields.");
+        }
+
         builder.statementId(statement.get("Sid").asText())
             .action(statement.get("Action").asText())
             .layerName(extractLayerName(statement.get("Resource").asText()))
             .versionNumber(extractVersionNumber(statement.get("Resource").asText()));
 
         if (statement.has("Principal")) {
-            builder.principal(statement.get("Principal").get("AWS").asText());
+            if (statement.get("Principal").has("AWS")) {
+                builder.principal(statement.get("Principal").get("AWS").asText());
+            } else if (statement.get("Principal").has("Service")) {
+                builder.principal(statement.get("Principal").get("Service").asText());
+            } else {
+                throw new IllegalArgumentException("Invalid statement. 'Principal' must be either 'AWS' or 'Service'.");
+            }
         }
 
         if (statement.has("PrincipalOrgID")) {

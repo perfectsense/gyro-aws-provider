@@ -195,10 +195,24 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
     protected static AddPermissionRequest getAddPermissionRequest(JsonNode statement) {
         AddPermissionRequest.Builder builder = AddPermissionRequest.builder();
 
+        if (!statement.has("Sid")
+            || !statement.has("Action")
+            || !statement.has("Resource")
+            || !statement.has("Principal")) {
+            throw new IllegalArgumentException("Invalid statement. 'Sid', 'Action', 'Resource' and 'Principal' are required fields.");
+        }
+
         builder.statementId(statement.get("Sid").asText())
             .action(statement.get("Action").asText())
-            .principal(statement.get("Principal").get("Service").asText())
             .functionName(statement.get("Resource").asText());
+
+        if (statement.get("Principal").has("Service")) {
+            builder.principal(statement.get("Principal").get("Service").asText());
+        } else if (statement.get("Principal").has("AWS")) {
+            builder.principal(statement.get("Principal").get("AWS").asText());
+        } else {
+            throw new IllegalArgumentException("Invalid statement. 'Principal' must have either 'Service' or 'AWS' field.");
+        }
 
         if (statement.has("Condition")) {
             JsonNode condition = statement.get("Condition");

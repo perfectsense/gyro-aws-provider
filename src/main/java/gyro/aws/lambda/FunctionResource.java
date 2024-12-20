@@ -887,6 +887,10 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             JsonNode policyNode = objectMapper.readTree(jsonPolicy);
             JsonNode statements = policyNode.get("Statement");
 
+            if (statements == null || !statements.isArray()) {
+                throw new IllegalArgumentException("Invalid policy format. Needs at least one statement.");
+            }
+
             for (JsonNode statement : statements) {
                 AddPermissionRequest request = FunctionPermission.getAddPermissionRequest(statement);
                 FunctionPermission permission = newSubresource(FunctionPermission.class);

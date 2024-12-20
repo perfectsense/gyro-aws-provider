@@ -362,6 +362,10 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
             JsonNode policyNode = objectMapper.readTree(jsonPolicy);
             JsonNode statements = policyNode.get("Statement");
 
+            if (statements == null || !statements.isArray()) {
+                throw new IllegalArgumentException("Invalid policy format. Needs at least one statement.");
+            }
+
             for (JsonNode statement : statements) {
                 AddLayerVersionPermissionRequest request = LayerPermission.getAddLayerPermissionRequest(statement);
                 LayerPermission permission = newSubresource(LayerPermission.class);
