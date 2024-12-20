@@ -445,6 +445,8 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
     /**
      * The set of permissions to be associated with the Lambda Function.
+     *
+     * @subresource gyro.aws.lambda.FunctionPermission
      */
     @Updatable
     public Set<FunctionPermission> getPermission() {

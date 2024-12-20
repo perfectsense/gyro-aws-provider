@@ -179,6 +179,8 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
 
     /**
      * The list of permissions for the Lambda Layer.
+     *
+     * @subresource gyro.aws.lambda.LayerPermission
      */
     @Updatable
     public Set<LayerPermission> getPermission() {
