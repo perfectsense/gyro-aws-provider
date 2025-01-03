@@ -230,7 +230,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
      * The maximum http version that users can request on this distribution.
      */
     @Updatable
-    @ValidStrings({"http1.1", "http2"})
+    @ValidStrings({"http1.1", "http2", "http3"})
     public String getHttpVersion() {
         if (httpVersion == null) {
             httpVersion = "http1.1";
