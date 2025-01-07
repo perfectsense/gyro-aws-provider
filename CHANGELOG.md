@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+## 1.6.7 (January 7th, 2025)
+
+ENHANCEMENTS:
+
+* [691](https://github.com/perfectsense/gyro-aws-provider/issues/691): Add support for Lambda Function Permissions
+* [688](https://github.com/perfectsense/gyro-aws-provider/pull/688): Makes Serverless V2 Scaling Configs updatable
+* [695](https://github.com/perfectsense/gyro-aws-provider/issues/695): Add HTTP/3 Support for Amazon CloudFront
+
+ISSUES FIXED:
+
+* [687](https://github.com/perfectsense/gyro-aws-provider/issues/687): Fix updating Cloudwatch log export config
+
 ## 1.6.6 (November 19th, 2024)
 
 ISSUES FIXED:
