@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Brightspot.
+ * Copyright 2025, Brightspot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
     private String eventSourceToken;
     private String qualifier;
     private String revisionId;
-    private String principalOrgID;
+    private String principalOrgId;
     private FunctionUrlAuthType functionUrlAuthType;
 
     /**
@@ -153,12 +153,12 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
      * The organization ID of the principal.
      */
     @Updatable
-    public String getPrincipalOrgID() {
-        return principalOrgID;
+    public String getPrincipalOrgId() {
+        return principalOrgId;
     }
 
-    public void setPrincipalOrgID(String principalOrgID) {
-        this.principalOrgID = principalOrgID;
+    public void setPrincipalOrgId(String principalOrgId) {
+        this.principalOrgId = principalOrgId;
     }
 
     /**
@@ -190,7 +190,7 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
         setEventSourceToken(model.eventSourceToken());
         setQualifier(model.qualifier());
         setRevisionId(model.revisionId());
-        setPrincipalOrgID(model.principalOrgID());
+        setPrincipalOrgId(model.principalOrgID());
         setFunctionUrlAuthType(model.functionUrlAuthType());
     }
 
@@ -205,7 +205,7 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
             .eventSourceToken(getEventSourceToken())
             .qualifier(getQualifier())
             .revisionId(getRevisionId())
-            .principalOrgID(getPrincipalOrgID())
+            .principalOrgID(getPrincipalOrgId())
             .functionUrlAuthType(getFunctionUrlAuthType())
             .build();
     }
