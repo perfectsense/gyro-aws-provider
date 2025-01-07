@@ -16,6 +16,8 @@
 
 package gyro.aws.lambda;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -25,11 +27,14 @@ import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.AddLayerVersionPermissionRequest;
+import software.amazon.awssdk.services.lambda.model.GetLayerVersionPolicyResponse;
 import software.amazon.awssdk.services.lambda.model.GetLayerVersionResponse;
 import software.amazon.awssdk.services.lambda.model.PublishLayerVersionRequest;
 import software.amazon.awssdk.services.lambda.model.PublishLayerVersionResponse;
@@ -69,6 +74,7 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     private String s3Key;
     private String s3ObjectVersion;
     private String contentZipPath;
+    private Set<LayerPermission> permission;
 
     // -- Readonly
 
@@ -172,6 +178,24 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
     }
 
     /**
+     * The list of permissions for the Lambda Layer.
+     *
+     * @subresource gyro.aws.lambda.LayerPermission
+     */
+    @Updatable
+    public Set<LayerPermission> getPermission() {
+        if (permission == null) {
+            permission = new HashSet<>();
+        }
+
+        return permission;
+    }
+
+    public void setPermission(Set<LayerPermission> permission) {
+        this.permission = permission;
+    }
+
+    /**
      * The ARN of the Lambda Layer.
      */
     @Output
@@ -229,6 +253,18 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
         setArn(response.layerArn());
         setVersionArn(response.layerVersionArn());
         setLicenseInfo(response.licenseInfo());
+
+        // Set permissions
+        getPermission().clear();
+        LambdaClient client = createClient(LambdaClient.class);
+        try {
+            GetLayerVersionPolicyResponse policy = client.getLayerVersionPolicy(r -> r.layerName(getName())
+                .versionNumber(getVersion()));
+
+            setPolicy(policy.policy());
+        } catch (ResourceNotFoundException ex) {
+            // Ignore
+        }
     }
 
     @Override
@@ -284,7 +320,23 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
 
     @Override
     public void update(GyroUI ui, State state, Resource resource, Set<String> changedFieldNames) {
+        LambdaClient client = createClient(LambdaClient.class);
+        LayerResource oldResource = (LayerResource) resource;
 
+        if (changedFieldNames.contains("permission")) {
+            if (!oldResource.getPermission().isEmpty()) {
+                for (LayerPermission permission : oldResource.getPermission()) {
+                    client.removeLayerVersionPermission(r -> r.layerName(getName())
+                        .versionNumber(getVersion())
+                        .statementId(permission.getStatementId())
+                    );
+                }
+            }
+
+            for (LayerPermission permission : getPermission()) {
+                client.addLayerVersionPermission(permission.toAddLayerVersionPermissionRequest());
+            }
+        }
     }
 
     @Override
@@ -305,4 +357,27 @@ public class LayerResource extends AwsResource implements Copyable<GetLayerVersi
             throw new GyroException(String.format("File not found - %s",getContentZipPath()));
         }
     }
+
+    private void setPolicy(String jsonPolicy) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode policyNode = objectMapper.readTree(jsonPolicy);
+            JsonNode statements = policyNode.get("Statement");
+
+            if (statements == null || !statements.isArray()) {
+                throw new IllegalArgumentException("Invalid policy format. Needs at least one statement.");
+            }
+
+            for (JsonNode statement : statements) {
+                AddLayerVersionPermissionRequest request = LayerPermission.getAddLayerPermissionRequest(statement);
+                LayerPermission permission = newSubresource(LayerPermission.class);
+                permission.copyFrom(request);
+                getPermission().add(permission);
+            }
+
+        } catch (Exception e) {
+            throw new GyroException("Error parsing layer policy.", e);
+        }
+    }
+
 }
