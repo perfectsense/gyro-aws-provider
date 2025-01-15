@@ -83,7 +83,7 @@ dependencies {
     implementation 'com.google.guava:guava:23.0'
     implementation 'com.psddev:dari-util:3.3.607-xe0f27a'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
-    implementation enforcedPlatform('software.amazon.awssdk:bom:2.25.5')
+    implementation enforcedPlatform('software.amazon.awssdk:bom:2.29.30')
     implementation 'software.amazon.awssdk:apache-client'
     implementation 'software.amazon.awssdk:apigatewayv2'
     implementation 'software.amazon.awssdk:autoscaling'
@@ -125,7 +125,8 @@ dependencies {
     implementation 'software.amazon.awssdk:kendra'
     implementation 'software.amazon.awssdk:wafv2'
     implementation 'software.amazon.awssdk:eventbridge'
-    implementation 'org.json:json:20180813'
+    implementation 'software.amazon.awssdk:opensearch'
+    implementation 'org.json:json:20231013'
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
