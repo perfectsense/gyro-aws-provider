@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.6.8 (January 23rd, 2025)
+
+ENHANCEMENTS:
+
+* [697](https://github.com/perfectsense/gyro-aws-provider/issues/697): Add support for http2and3 for the Cloudfront resource
+
 ## 1.6.7 (January 7th, 2025)
 
 ENHANCEMENTS:
