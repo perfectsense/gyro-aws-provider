@@ -100,7 +100,7 @@ import software.amazon.awssdk.services.route53.model.ResourceRecordSet;
  *         type: "A"
  *
  *         alias
- *             hosted-zone-id: $(aws::load-balancer elb).hosted-zone-id
+ *             hosted-zone: $(aws::load-balancer elb).hosted-zone
  *             evaluate-target-health: false
  *             dns-name: $(aws::load-balancer elb).*.dns-name
  *         end
@@ -375,6 +375,7 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             setAlias(newSubresource(AliasTarget.class));
             getAlias().setDnsName(recordSet.aliasTarget().dnsName());
             getAlias().setEvaluateTargetHealth(recordSet.aliasTarget().evaluateTargetHealth());
+            getAlias().setHostedZone(findById(HostedZoneResource.class, recordSet.aliasTarget().hostedZoneId()));
             getAlias().setHostedZoneId(recordSet.aliasTarget().hostedZoneId());
         }
 
@@ -506,7 +507,8 @@ public class RecordSetResource extends AwsResource implements Copyable<ResourceR
             recordSetBuilder.aliasTarget(
                 a -> a.dnsName(alias.getDnsName())
                     .evaluateTargetHealth(alias.getEvaluateTargetHealth())
-                    .hostedZoneId(alias.getHostedZoneId()));
+                    .hostedZoneId(
+                        alias.getHostedZone() == null ? alias.getHostedZoneId() : alias.getHostedZone().getId()));
         } else {
             recordSetBuilder.resourceRecords(recordSetResource.getRecords().stream()
                 .map(o -> ResourceRecord.builder().value(o).build())
