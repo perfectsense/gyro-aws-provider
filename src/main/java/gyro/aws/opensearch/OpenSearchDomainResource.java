@@ -146,6 +146,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     // Output
     private String id;
     private String arn;
+    private Map<String, String> endpoints;
 
     /**
      * The version of OpenSearch.
@@ -404,6 +405,22 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         this.arn = arn;
     }
 
+    /**
+     * The endpoints of the OpenSearch domain.
+     */
+    @Output
+    public Map<String, String> getEndpoints() {
+        if (endpoints == null) {
+            endpoints = new HashMap<>();
+        }
+
+        return endpoints;
+    }
+
+    public void setEndpoints(Map<String, String> endpoints) {
+        this.endpoints = endpoints;
+    }
+
     @Override
     public void copyFrom(DomainStatus model) {
         setId(model.domainId());
@@ -413,6 +430,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         setOpenSearchVersion(model.engineVersion());
         setIpAddressType(model.ipAddressType());
         setArn(model.arn());
+        setEndpoints(model.endpoints());
 
         if (model.ebsOptions() != null) {
             OpenSearchEbsOptions openSearchEbsOptions = newSubresource(OpenSearchEbsOptions.class);
@@ -564,6 +582,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
         setArn(response.domainStatus().arn());
         setId(response.domainStatus().domainId());
+        setEndpoints(response.domainStatus().endpoints());
 
         addTags(client);
 
