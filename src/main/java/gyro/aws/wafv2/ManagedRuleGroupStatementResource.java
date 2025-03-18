@@ -32,6 +32,7 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
     private Set<String> excludedRules;
     private String name;
     private String vendorName;
+    private Set<RuleActionOverride> ruleActionOverrides;
 
     /**
      * A set of rule names to be excluded that are part of the associated managed rule group.
@@ -73,6 +74,21 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
         this.vendorName = vendorName;
     }
 
+    /**
+     * A set of rule action overrides to apply to the associated managed rule group.
+     */
+    public Set<RuleActionOverride> getRuleActionOverrides() {
+        if (ruleActionOverrides == null) {
+            ruleActionOverrides = new HashSet<>();
+        }
+
+        return ruleActionOverrides;
+    }
+
+    public void setRuleActionOverrides(Set<RuleActionOverride> ruleActionOverrides) {
+        this.ruleActionOverrides = ruleActionOverrides;
+    }
+
     @Override
     public String primaryKey() {
         return String.format("with name - '%s' and vendor - '%s'", getName(), getVendorName());
@@ -88,6 +104,18 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
                 .collect(Collectors.toSet()));
         }
 
+        getRuleActionOverrides().clear();
+        if (managedRuleGroupStatement.ruleActionOverrides() != null) {
+            setRuleActionOverrides(managedRuleGroupStatement.ruleActionOverrides()
+                .stream()
+                .map(o -> {
+                    RuleActionOverride ruleActionOverride = newSubresource(RuleActionOverride.class);
+                    ruleActionOverride.copyFrom(o);
+                    return ruleActionOverride;
+                })
+                .collect(Collectors.toSet()));
+        }
+
         setName(managedRuleGroupStatement.name());
         setVendorName(managedRuleGroupStatement.vendorName());
     }
@@ -100,6 +128,12 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
         if (!getExcludedRules().isEmpty()) {
             builder = builder.excludedRules(getExcludedRules().stream()
                 .map(o -> ExcludedRule.builder().name(o).build())
+                .collect(Collectors.toList()));
+        }
+
+        if (!getRuleActionOverrides().isEmpty()) {
+            builder = builder.ruleActionOverrides(getRuleActionOverrides().stream()
+                .map(RuleActionOverride::toRuleActionOverride)
                 .collect(Collectors.toList()));
         }
 
