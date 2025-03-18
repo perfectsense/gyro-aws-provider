@@ -1070,8 +1070,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                 .deleteAutomatedBackups(getDeleteAutomatedBackups())
         );
 
-        Wait.atMost(5, TimeUnit.MINUTES)
-            .checkEvery(15, TimeUnit.SECONDS)
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
