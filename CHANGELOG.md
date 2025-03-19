@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.6.9 (March 19th, 2025)
+
+ENHANCEMENTS:
+
+* [700](https://github.com/perfectsense/gyro-aws-provider/issues/700): Add rule action overrides for wafv2 rules
+
+ISSUES FIXED:
+
+* [701](https://github.com/perfectsense/gyro-aws-provider/pull/701): Increase wait time for db instance deletion to match creation
+
 ## 1.6.8 (January 23rd, 2025)
 
 ENHANCEMENTS:
