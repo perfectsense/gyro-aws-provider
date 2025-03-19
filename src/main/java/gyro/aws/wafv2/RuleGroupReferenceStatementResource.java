@@ -63,6 +63,8 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
 
     /**
      * A set of rule action overrides to apply to the referenced rule group resource.
+     *
+     * @subresource gyro.aws.wafv2.RuleActionOverride
      */
     public Set<RuleActionOverride> getRuleActionOverrides() {
         if (ruleActionOverrides == null) {

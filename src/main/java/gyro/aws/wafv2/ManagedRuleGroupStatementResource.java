@@ -76,6 +76,8 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
 
     /**
      * A set of rule action overrides to apply to the associated managed rule group.
+     *
+     * @subresource gyro.aws.wafv2.RuleActionOverride
      */
     public Set<RuleActionOverride> getRuleActionOverrides() {
         if (ruleActionOverrides == null) {
