@@ -31,6 +31,7 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
 
     private RuleGroupResource ruleGroup;
     private Set<String> excludedRules;
+    private Set<RuleActionOverride> ruleActionOverrides;
 
     /**
      * A rule group resource to reference with.
@@ -60,6 +61,23 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
         this.excludedRules = excludedRules;
     }
 
+    /**
+     * A set of rule action overrides to apply to the referenced rule group resource.
+     *
+     * @subresource gyro.aws.wafv2.RuleActionOverride
+     */
+    public Set<RuleActionOverride> getRuleActionOverrides() {
+        if (ruleActionOverrides == null) {
+            ruleActionOverrides = new HashSet<>();
+        }
+
+        return ruleActionOverrides;
+    }
+
+    public void setRuleActionOverrides(Set<RuleActionOverride> ruleActionOverrides) {
+        this.ruleActionOverrides = ruleActionOverrides;
+    }
+
     @Override
     public String primaryKey() {
         return String.format("referencing rule - '%s'", getRuleGroup().getArn());
@@ -75,6 +93,18 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
                 .collect(Collectors.toSet()));
         }
 
+        getRuleActionOverrides().clear();
+        if (ruleGroupReferenceStatement.ruleActionOverrides() != null) {
+            setRuleActionOverrides(ruleGroupReferenceStatement.ruleActionOverrides()
+                .stream()
+                .map(o -> {
+                    RuleActionOverride ruleActionOverride = newSubresource(RuleActionOverride.class);
+                    ruleActionOverride.copyFrom(o);
+                    return ruleActionOverride;
+                })
+                .collect(Collectors.toSet()));
+        }
+
         setRuleGroup(findById(RuleGroupResource.class, ruleGroupReferenceStatement.arn()));
     }
 
@@ -85,6 +115,12 @@ public class RuleGroupReferenceStatementResource extends Diffable implements Cop
         if (!getExcludedRules().isEmpty()) {
             builder = builder.excludedRules(getExcludedRules().stream()
                 .map(o -> ExcludedRule.builder().name(o).build())
+                .collect(Collectors.toList()));
+        }
+
+        if (!getRuleActionOverrides().isEmpty()) {
+            builder = builder.ruleActionOverrides(getRuleActionOverrides().stream()
+                .map(RuleActionOverride::toRuleActionOverride)
                 .collect(Collectors.toList()));
         }
 
