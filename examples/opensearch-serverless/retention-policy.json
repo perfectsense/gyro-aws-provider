@@ -1,0 +1,7 @@
+{
+  "Rules" : [ {
+    "Resource" : [ "index/vector-search-collection-example/*" ],
+    "ResourceType" : "index",
+    "MinIndexRetention" : "30d"
+  } ]
+}
