@@ -147,6 +147,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private String id;
     private String arn;
     private Map<String, String> endpoints;
+    private String endpoint;
+    private String endpointV2;
 
     /**
      * The version of OpenSearch.
@@ -421,6 +423,33 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         this.endpoints = endpoints;
     }
 
+    /**
+     * The Domain-specific endpoint used to submit index, search, and data upload requests to the domain.
+     */
+    @Output
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    /**
+     * The V2 endpoint of the OpenSearch domain.
+     * This endpoint functions like a normal endpoint, except that it works with both IPv4 and IPv6 IP addresses.
+     * Normal endpoints work only with IPv4 IP addresses.
+     * This is provided if the domain is created with the ``ip-address-type`` set to ``dualstack``.
+     */
+    @Output
+    public String getEndpointV2() {
+        return endpointV2;
+    }
+
+    public void setEndpointV2(String endpointV2) {
+        this.endpointV2 = endpointV2;
+    }
+
     @Override
     public void copyFrom(DomainStatus model) {
         setId(model.domainId());
@@ -431,6 +460,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         setIpAddressType(model.ipAddressType());
         setArn(model.arn());
         setEndpoints(model.endpoints());
+        setEndpoint(model.endpoint());
+        setEndpointV2(model.endpointV2());
 
         if (model.ebsOptions() != null) {
             OpenSearchEbsOptions openSearchEbsOptions = newSubresource(OpenSearchEbsOptions.class);
@@ -579,10 +610,13 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
         OpenSearchClient client = createClient(OpenSearchClient.class);
         CreateDomainResponse response = client.createDomain(builder.build());
+        DomainStatus domainStatus = response.domainStatus();
 
-        setArn(response.domainStatus().arn());
-        setId(response.domainStatus().domainId());
-        setEndpoints(response.domainStatus().endpoints());
+        setArn(domainStatus.arn());
+        setId(domainStatus.domainId());
+        setEndpoints(domainStatus.endpoints());
+        setEndpoint(domainStatus.endpoint());
+        setEndpointV2(domainStatus.endpointV2());
 
         addTags(client);
 
