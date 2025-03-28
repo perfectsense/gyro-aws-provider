@@ -45,7 +45,9 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.OpenSearchClient;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainRequest;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainResponse;
+import software.amazon.awssdk.services.opensearch.model.DescribeDomainConfigResponse;
 import software.amazon.awssdk.services.opensearch.model.DescribeDomainResponse;
+import software.amazon.awssdk.services.opensearch.model.DomainConfig;
 import software.amazon.awssdk.services.opensearch.model.DomainStatus;
 import software.amazon.awssdk.services.opensearch.model.IPAddressType;
 import software.amazon.awssdk.services.opensearch.model.ResourceNotFoundException;
@@ -153,6 +155,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     /**
      * The version of OpenSearch.
      */
+    @Regex(value = "Elasticsearch_\\d+\\.\\d+", message = "Should be in the format of 'Elasticsearch_X.Y'")
+    @Regex(value = "OpenSearch_\\d+\\.\\d+", message = "Should be in the format of 'OpenSearch_X.Y'")
     public String getOpenSearchVersion() {
         return openSearchVersion;
     }
@@ -179,11 +183,11 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
      *
      * @subresource gyro.aws.opensearch.OpenSearchEbsOptions
      */
+    @Updatable
     public OpenSearchEbsOptions getEbsOptions() {
         return ebsOptions;
     }
 
-    @Updatable
     public void setEbsOptions(OpenSearchEbsOptions ebsOptions) {
         this.ebsOptions = ebsOptions;
     }
@@ -289,6 +293,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
      *
      * @subresource gyro.aws.opensearch.OpenSearchEncryptionAtRestOptions
      */
+    @Updatable
     public OpenSearchEncryptionAtRestOptions getEncryptionAtRestOptions() {
         return encryptionAtRestOptions;
     }
@@ -463,12 +468,14 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         setEndpoint(model.endpoint());
         setEndpointV2(model.endpointV2());
 
+        setEbsOptions(null);
         if (model.ebsOptions() != null) {
             OpenSearchEbsOptions openSearchEbsOptions = newSubresource(OpenSearchEbsOptions.class);
             openSearchEbsOptions.copyFrom(model.ebsOptions());
             setEbsOptions(openSearchEbsOptions);
         }
 
+        setClusterConfiguration(null);
         if (model.clusterConfig() != null) {
             OpenSearchClusterConfiguration openSearchClusterConfiguration = newSubresource(
                 OpenSearchClusterConfiguration.class);
@@ -476,12 +483,14 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setClusterConfiguration(openSearchClusterConfiguration);
         }
 
+        setSnapshotOptions(null);
         if (model.snapshotOptions() != null) {
             OpenSearchSnapshotOptions openSearchSnapshotOptions = newSubresource(OpenSearchSnapshotOptions.class);
             openSearchSnapshotOptions.copyFrom(model.snapshotOptions());
             setSnapshotOptions(openSearchSnapshotOptions);
         }
 
+        setNodeToNodeEncryptionOptions(null);
         if (model.nodeToNodeEncryptionOptions() != null) {
             OpenSearchNodeToNodeEncryptionOptions openSearchNodeToNodeEncryptionOptions = newSubresource(
                 OpenSearchNodeToNodeEncryptionOptions.class);
@@ -489,6 +498,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setNodeToNodeEncryptionOptions(openSearchNodeToNodeEncryptionOptions);
         }
 
+        setDomainEndpointOptions(null);
         if (model.domainEndpointOptions() != null) {
             OpenSearchDomainEndpointOptions openSearchDomainEndpointOptions = newSubresource(
                 OpenSearchDomainEndpointOptions.class);
@@ -496,6 +506,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setDomainEndpointOptions(openSearchDomainEndpointOptions);
         }
 
+        setEncryptionAtRestOptions(null);
         if (model.encryptionAtRestOptions() != null) {
             OpenSearchEncryptionAtRestOptions openSearchEncryptionAtRestOptions = newSubresource(
                 OpenSearchEncryptionAtRestOptions.class);
@@ -503,6 +514,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setEncryptionAtRestOptions(openSearchEncryptionAtRestOptions);
         }
 
+        setVpcOptions(null);
         if (model.vpcOptions() != null) {
             OpenSearchVpcOptions openSearchVpcOptions = newSubresource(OpenSearchVpcOptions.class);
             openSearchVpcOptions.copyFrom(model.vpcOptions());
@@ -510,6 +522,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         }
 
         OpenSearchAdvancedSecurityOptions oldOptions = getAdvancedSecurityOptions();
+        setAdvancedSecurityOptions(null);
         if (model.advancedSecurityOptions() != null) {
             OpenSearchAdvancedSecurityOptions openSearchAdvancedSecurityOptions = newSubresource(
                 OpenSearchAdvancedSecurityOptions.class);
@@ -520,6 +533,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setAdvancedSecurityOptions(openSearchAdvancedSecurityOptions);
         }
 
+        setOffPeakWindowOptions(null);
         if (model.offPeakWindowOptions() != null) {
             OpenSearchOffPeakWindowOptions openSearchOffPeakWindowOptions = newSubresource(
                 OpenSearchOffPeakWindowOptions.class);
@@ -527,9 +541,15 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             setOffPeakWindowOptions(openSearchOffPeakWindowOptions);
         }
 
-        if (model.autoTuneOptions() != null) {
+        OpenSearchClient client = createClient(OpenSearchClient.class);
+
+        setAutoTuneOptions(null);
+        DomainConfig openSearchDomainConfig = getOpenSearchDomainConfig(client);
+        if (model.autoTuneOptions() != null && openSearchDomainConfig != null &&
+            openSearchDomainConfig.autoTuneOptions() != null &&
+            openSearchDomainConfig.autoTuneOptions().options() != null) {
             OpenSearchAutoTuneOptions openSearchAutoTuneOptions = newSubresource(OpenSearchAutoTuneOptions.class);
-            //openSearchAutoTuneOptions.copyFrom(model.autoTuneOptions());
+            openSearchAutoTuneOptions.copyFrom(openSearchDomainConfig.autoTuneOptions().options());
             setAutoTuneOptions(openSearchAutoTuneOptions);
         }
 
@@ -538,7 +558,6 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         }
 
         getTags().clear();
-        OpenSearchClient client = createClient(OpenSearchClient.class);
         client.listTags(r -> r.arn(arn)).tagList()
             .forEach(t -> getTags().put(t.key(), t.value()));
     }
@@ -622,8 +641,6 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
         waitForAvailability(client, TimeoutSettings.Action.CREATE);
 
-        OpenSearchAutoTuneOptions tuneOptions = getAutoTuneOptions();
-
         OpenSearchMasterUserOptions masterUserOptions = Optional.ofNullable(getAdvancedSecurityOptions())
             .map(OpenSearchAdvancedSecurityOptions::getMasterUserOptions)
             .orElse(null);
@@ -633,8 +650,6 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         if (masterUserOptions != null) {
             getAdvancedSecurityOptions().setMasterUserOptions(masterUserOptions);
         }
-
-        setAutoTuneOptions(tuneOptions);
     }
 
     @Override
@@ -709,14 +724,15 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        OpenSearchClient client = createClient(OpenSearchClient.class);
-        client.deleteDomain(r -> r.domainName(getDomainName()));
+        try (OpenSearchClient client = createClient(OpenSearchClient.class)) {
+            client.deleteDomain(r -> r.domainName(getDomainName()));
 
-        Wait.atMost(20, TimeUnit.MINUTES)
-            .checkEvery(4, TimeUnit.MINUTES)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .prompt(false)
-            .until(() -> getOpenSearchDomain(client) == null);
+            Wait.atMost(20, TimeUnit.MINUTES)
+                .checkEvery(4, TimeUnit.MINUTES)
+                .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+                .prompt(false)
+                .until(() -> getOpenSearchDomain(client) == null);
+        }
     }
 
     private DomainStatus getOpenSearchDomain(OpenSearchClient client) {
@@ -725,14 +741,30 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         try {
             DescribeDomainResponse response = client.describeDomain(r -> r.domainName(getDomainName()));
 
-            if (response != null && response.domainStatus() != null && (response.domainStatus()
-                .deleted()
-                .equals(Boolean.FALSE) || (response.domainStatus()
-                .deleted()
-                .equals(Boolean.TRUE) && response.domainStatus().processing().equals(Boolean.TRUE)))
+            if (response != null && response.domainStatus() != null
+                && (Boolean.FALSE.equals(response.domainStatus().deleted())
+                || (Boolean.TRUE.equals(response.domainStatus().deleted())
+                && Boolean.TRUE.equals(response.domainStatus().processing())))
             ) {
                 domain = response.domainStatus();
             }
+        } catch (ResourceNotFoundException ex) {
+            // Ignore
+        }
+
+        return domain;
+    }
+
+    private DomainConfig getOpenSearchDomainConfig(OpenSearchClient client) {
+        DomainConfig domain = null;
+
+        try {
+            DescribeDomainConfigResponse response = client.describeDomainConfig(r -> r.domainName(getDomainName()));
+
+            if (response != null) {
+                domain = response.domainConfig();
+            }
+
         } catch (ResourceNotFoundException ex) {
             // Ignore
         }
@@ -756,8 +788,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             .prompt(false)
             .until(() -> {
                 DomainStatus openSearchDomain = getOpenSearchDomain(client);
-                return openSearchDomain != null && openSearchDomain.processing().equals(Boolean.FALSE)
-                    && openSearchDomain.created().equals(Boolean.TRUE);
+                return openSearchDomain != null && Boolean.FALSE.equals(openSearchDomain.processing())
+                    && Boolean.TRUE.equals(openSearchDomain.created());
             });
     }
 }

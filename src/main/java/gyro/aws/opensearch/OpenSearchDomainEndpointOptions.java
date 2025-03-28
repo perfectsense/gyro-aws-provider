@@ -30,7 +30,7 @@ public class OpenSearchDomainEndpointOptions extends Diffable implements Copyabl
     private TLSSecurityPolicy tlsSecurityPolicy;
 
     /**
-     * Enforce HTTPS endpoints for the OpenSearch cluster.
+     * When set to ``true``, all traffic to the domain will be required to arrive over HTTPS
      */
     @Required
     @Updatable
@@ -46,7 +46,7 @@ public class OpenSearchDomainEndpointOptions extends Diffable implements Copyabl
      * The TLS security policy that needs to be applied to the HTTPS endpoints of the OpenSearch domain.
      */
     @Updatable
-    @ValidStrings({ "Policy-Min-TLS-1-0-2019-07", "Policy-Min-TLS-1-2-2019-07" })
+    @ValidStrings({ "Policy-Min-TLS-1-0-2019-07", "Policy-Min-TLS-1-2-2019-07", "Policy-Min-TLS-1-2-PFS-2023-10" })
     public TLSSecurityPolicy getTlsSecurityPolicy() {
         return tlsSecurityPolicy;
     }

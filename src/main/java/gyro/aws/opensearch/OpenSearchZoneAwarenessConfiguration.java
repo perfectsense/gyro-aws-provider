@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
 import software.amazon.awssdk.services.opensearch.model.ZoneAwarenessConfig;
 
 public class OpenSearchZoneAwarenessConfiguration extends Diffable implements Copyable<ZoneAwarenessConfig> {
@@ -31,6 +32,7 @@ public class OpenSearchZoneAwarenessConfiguration extends Diffable implements Co
      */
     @Required
     @Updatable
+    @ValidNumbers({ 2, 3 })
     public Integer getAvailabilityZoneCount() {
         return availabilityZoneCount;
     }

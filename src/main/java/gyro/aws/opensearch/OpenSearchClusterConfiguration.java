@@ -46,7 +46,7 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     private OpenSearchWarmPartitionInstanceType warmType;
 
     /**
-     * Enable zone awareness for the domain.
+     * When set to ``true``, zone awareness is enabled for the OpenSearch domain cluster.
      */
     @Updatable
     public Boolean getEnableZoneAwareness() {
@@ -98,7 +98,7 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     }
 
     /**
-     * Dedicate master nodes to the domain cluster. Defaults to ``false``.
+     * When set to ``true``, master nodes are dedicated to the OpenSearch domain cluster. Defaults to ``false``.
      */
     @Updatable
     public Boolean getDedicatedMasterEnabled() {
@@ -137,7 +137,7 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     }
 
     /**
-     * Enable warm storage. Defaults to ``false``.
+     * When set to ``true``, warm nodes are enabled for the OpenSearch domain cluster. Defaults to ``false``.
      */
     @Updatable
     public Boolean getEnableWarm() {
@@ -167,7 +167,7 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
      */
     @Updatable
     @DependsOn("enable-warm")
-    @ValidStrings({ "ultrawarm1.medium.elasticsearch", "ultrawarm1.large.elasticsearch" })
+    @ValidStrings({ "ultrawarm1.medium.elasticsearch", "ultrawarm1.large.elasticsearch", "ultrawarm1.xlarge.search" })
     public OpenSearchWarmPartitionInstanceType getWarmType() {
         return warmType;
     }
@@ -185,14 +185,16 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
         setWarmCount(model.warmCount());
         setWarmType(model.warmType());
         setEnableZoneAwareness(model.zoneAwarenessEnabled());
+        setInstanceCount(model.instanceCount());
+        setInstanceType(model.instanceType());
+
+        setZoneAwarenessConfiguration(null);
         if (model.zoneAwarenessConfig() != null) {
             OpenSearchZoneAwarenessConfiguration configuration = newSubresource(
                 OpenSearchZoneAwarenessConfiguration.class);
             configuration.copyFrom(model.zoneAwarenessConfig());
             setZoneAwarenessConfiguration(configuration);
         }
-        setInstanceCount(model.instanceCount());
-        setInstanceType(model.instanceType());
     }
 
     @Override
@@ -223,15 +225,15 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (configuredFields.contains("enable-zone-awareness") && getEnableZoneAwareness().equals(Boolean.FALSE)
-            && configuredFields.contains("zone-awareness-configuration")) {
+        if (!Boolean.TRUE.equals(getEnableZoneAwareness()) &&
+            configuredFields.contains("zone-awareness-configuration")) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "The 'zone-awareness-configuration' can only be set if 'enable-zone-awareness' is set to 'true'."));
         }
 
-        if (configuredFields.contains("dedicated-master-enabled") && getDedicatedMasterEnabled().equals(Boolean.FALSE)
+        if (!Boolean.TRUE.equals(getDedicatedMasterEnabled())
             && (configuredFields.contains("dedicated-master-type")
             || configuredFields.contains("dedicated-master-count"))) {
             errors.add(new ValidationError(
@@ -240,7 +242,7 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
                 "The 'dedicated-master-count' and 'dedicated-master-type' can only be set if 'dedicated-master-enabled' is set to 'true'."));
         }
 
-        if (configuredFields.contains("enable-warm") && getEnableWarm().equals(Boolean.FALSE) && (
+        if (!Boolean.TRUE.equals(getEnableWarm()) && (
             configuredFields.contains("warm-type") || configuredFields.contains("warm-count"))) {
             errors.add(new ValidationError(
                 this,

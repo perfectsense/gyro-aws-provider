@@ -22,6 +22,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.model.AutoTuneMaintenanceSchedule;
 import software.amazon.awssdk.services.opensearch.model.Duration;
 import software.amazon.awssdk.services.opensearch.model.TimeUnit;
@@ -49,6 +50,7 @@ public class OpenSearchAutoTuneMaintenanceSchedule extends Diffable implements C
      * The unit of the duration.
      */
     @Required
+    @ValidStrings("HOURS")
     public TimeUnit getDurationUnit() {
         return durationUnit;
     }

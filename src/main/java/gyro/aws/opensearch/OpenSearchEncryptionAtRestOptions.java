@@ -23,6 +23,7 @@ import java.util.Set;
 import gyro.aws.Copyable;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.opensearch.model.EncryptionAtRestOptions;
@@ -33,9 +34,10 @@ public class OpenSearchEncryptionAtRestOptions extends Diffable implements Copya
     private KmsKeyResource kmsKeyResource;
 
     /**
-     * Enable encryption at rest to prevent unauthorized access to the data.
+     * When set to ``true``, enables encryption at rest to prevent unauthorized access to the data.
      */
     @Required
+    @Updatable
     public Boolean getEnableEncryptionAtRest() {
         return enableEncryptionAtRest;
     }
@@ -47,6 +49,7 @@ public class OpenSearchEncryptionAtRestOptions extends Diffable implements Copya
     /**
      * The KMS key resource for encryption options. Can only be set if ``enable-encryption-at-rest`` is set to ``true``.
      */
+    @Updatable
     public KmsKeyResource getKmsKeyResource() {
         return kmsKeyResource;
     }
@@ -81,7 +84,7 @@ public class OpenSearchEncryptionAtRestOptions extends Diffable implements Copya
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getEnableEncryptionAtRest().equals(Boolean.FALSE) && configuredFields.contains("kms-key-resource")) {
+        if (!Boolean.TRUE.equals(getEnableEncryptionAtRest()) && configuredFields.contains("kms-key-resource")) {
             errors.add(new ValidationError(
                 this,
                 null,

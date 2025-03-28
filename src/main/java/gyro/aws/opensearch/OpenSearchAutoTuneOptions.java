@@ -83,7 +83,7 @@ public class OpenSearchAutoTuneOptions extends Diffable implements Copyable<Auto
     }
 
     /**
-     * Enable off-peak window for the domain.
+     * When set to `true`, Auto-Tune will only run during the off-peak window.
      */
     @Required
     @Updatable

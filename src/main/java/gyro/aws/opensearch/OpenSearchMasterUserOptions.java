@@ -55,7 +55,7 @@ public class OpenSearchMasterUserOptions extends Diffable implements Copyable<Ma
     }
 
     /**
-     * The master user's Amazon Resource Number.
+     * The master user's Amazon Resource Number. The ARN can point to an IAM user or role.
      */
     @Updatable
     @ConflictsWith({ "master-username", "master-password" })

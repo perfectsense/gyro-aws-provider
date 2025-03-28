@@ -27,7 +27,7 @@ public class OpenSearchNodeToNodeEncryptionOptions extends Diffable
     private Boolean enableNodeToNodeEncryption;
 
     /**
-     * Enable node to node encryption to prevent potential interception of traffic between OpenSearch nodes.
+     * When set to ``true``, node to node encryption is enabled, which prevents potential interception of traffic between OpenSearch nodes.
      */
     @Required
     public Boolean getEnableNodeToNodeEncryption() {

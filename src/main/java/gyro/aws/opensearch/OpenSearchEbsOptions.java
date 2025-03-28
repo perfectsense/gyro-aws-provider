@@ -36,9 +36,10 @@ public class OpenSearchEbsOptions extends Diffable implements Copyable<EBSOption
     private VolumeType volumeType;
     private Integer volumeCount;
     private Integer iops;
+    private Integer throughput;
 
     /**
-     * Enable the EBS volume, a block level storage device.
+     * When set to ``true``, EBS volumes are attached to data nodes in an OpenSearch Service domain
      */
     @Updatable
     @Required
@@ -89,12 +90,26 @@ public class OpenSearchEbsOptions extends Diffable implements Copyable<EBSOption
         this.iops = iops;
     }
 
+    /**
+     * The throughput for the EBS volume. Can only be set if ``enable-ebs`` is set to ``true``.
+     */
+    @Updatable
+    @Range(min = 125, max = 1000)
+    public Integer getThroughput() {
+        return throughput;
+    }
+
+    public void setThroughput(Integer throughput) {
+        this.throughput = throughput;
+    }
+
     @Override
     public void copyFrom(EBSOptions model) {
         setEnableEbs(model.ebsEnabled());
         setIops(model.iops());
         setVolumeCount(model.volumeSize());
         setVolumeType(model.volumeType());
+        setThroughput(model.throughput());
     }
 
     @Override
@@ -106,23 +121,26 @@ public class OpenSearchEbsOptions extends Diffable implements Copyable<EBSOption
         return EBSOptions.builder().ebsEnabled(getEnableEbs())
             .volumeType(getVolumeType())
             .volumeSize(getVolumeCount())
-            .iops(getIops()).build();
+            .iops(getIops())
+            .throughput(getThroughput())
+            .build();
     }
 
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getEnableEbs().equals(Boolean.FALSE) && (configuredFields.contains("volume-type")
+        if (!Boolean.TRUE.equals(getEnableEbs()) && (configuredFields.contains("volume-type")
             || configuredFields.contains("volume-count")
-            || configuredFields.contains("iops"))) {
+            || configuredFields.contains("iops")
+            || configuredFields.contains("throughput"))) {
             errors.add(new ValidationError(
                 this,
                 null,
-                "The 'volume-count', 'volume-type' and 'iops' can only be set if 'enable-ebs' is set to 'true'."));
+                "The 'volume-count', 'volume-type', 'throughput' and 'iops' can only be set if 'enable-ebs' is set to 'true'."));
         }
 
-        if (getEnableEbs().equals(Boolean.TRUE) && !(configuredFields.contains("volume-type")
+        if (Boolean.TRUE.equals(getEnableEbs()) && !(configuredFields.contains("volume-type")
             && configuredFields.contains("volume-count"))) {
             errors.add(new ValidationError(
                 this,

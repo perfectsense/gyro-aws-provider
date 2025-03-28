@@ -35,7 +35,7 @@ public class OpenSearchAdvancedSecurityOptions extends Diffable implements Copya
     private OpenSearchMasterUserOptions masterUserOptions;
 
     /**
-     * Enable advanced security for the domain.
+     * When set to ``true``, enables advanced security options for the domain.
      */
     @Updatable
     @Required
@@ -48,7 +48,7 @@ public class OpenSearchAdvancedSecurityOptions extends Diffable implements Copya
     }
 
     /**
-     * Enable the Internal User Database.
+     * When set to ``true``, enables the internal user database for the domain.
      */
     @Updatable
     public Boolean getEnableInternalUserDatabase() {
@@ -105,17 +105,17 @@ public class OpenSearchAdvancedSecurityOptions extends Diffable implements Copya
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getEnableAdvancedSecurityOptions().equals(Boolean.FALSE) && (
-            configuredFields.contains("enable-internal-user-database") || configuredFields.contains(
-                "master-user-options"))) {
+        if (!Boolean.TRUE.equals(getEnableAdvancedSecurityOptions()) &&
+            (configuredFields.contains("enable-internal-user-database") ||
+                configuredFields.contains("master-user-options"))) {
             errors.add(new ValidationError(
                 this,
                 null,
                 "The 'enable-internal-user-database' or 'master-user-options' can only be set if 'enable-advanced-security-options' is set to 'true'."));
         }
 
-        if (getEnableAdvancedSecurityOptions().equals(Boolean.TRUE)
-            && !configuredFields.contains("master-user-options")) {
+        if (Boolean.TRUE.equals(getEnableAdvancedSecurityOptions()) &&
+            !configuredFields.contains("master-user-options")) {
             errors.add(new ValidationError(
                 this,
                 "master-user-options",

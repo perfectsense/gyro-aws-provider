@@ -32,7 +32,7 @@ public class OpenSearchOffPeakWindowOptions extends Diffable implements Copyable
     private Long offPeakWindowMinutes;
 
     /**
-     * Enable off-peak window for the domain.
+     * When set to `true`, the off-peak window is enabled.
      */
     @Required
     @Updatable
@@ -87,8 +87,8 @@ public class OpenSearchOffPeakWindowOptions extends Diffable implements Copyable
         OffPeakWindowOptions.Builder enabled = OffPeakWindowOptions.builder()
             .enabled(getOffPeakEnabled());
 
-        if (getOffPeakEnabled()) {
-            enabled.offPeakWindow(OffPeakWindow.builder()
+        if (Boolean.TRUE.equals(getOffPeakEnabled())) {
+            enabled = enabled.offPeakWindow(OffPeakWindow.builder()
                 .windowStartTime(WindowStartTime.builder()
                     .hours(getOffPeakWindowHour())
                     .minutes(getOffPeakWindowMinutes())
