@@ -65,6 +65,8 @@ public class OpenSearchVpcEndpointResource extends AwsResource implements Copyab
 
     private OpenSearchDomainResource domain;
     private OpenSearchVpcOptions vpcOptions;
+
+    // Read-only
     private String endpoint;
     private String vpcEndpointId;
 
@@ -126,77 +128,88 @@ public class OpenSearchVpcEndpointResource extends AwsResource implements Copyab
         setDomain(findById(OpenSearchDomainResource.class, model.domainArn()));
         setVpcEndpointId(model.vpcEndpointId());
 
-        OpenSearchVpcOptions options = newSubresource(OpenSearchVpcOptions.class);
-        options.copyFrom(model.vpcOptions());
-        setVpcOptions(options);
+        setVpcOptions(null);
+        if (model.vpcOptions() != null) {
+            OpenSearchVpcOptions options = newSubresource(OpenSearchVpcOptions.class);
+            options.copyFrom(model.vpcOptions());
+            setVpcOptions(options);
+        }
     }
 
     @Override
     public boolean refresh() {
         OpenSearchClient client = createClient(OpenSearchClient.class);
         VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
+
         if (vpcEndpoint == null) {
             return false;
         }
 
         copyFrom(vpcEndpoint);
+
         return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        OpenSearchClient client = createClient(OpenSearchClient.class);
-        CreateVpcEndpointResponse response = client.createVpcEndpoint(r -> r
-            .domainArn(getDomain().getArn())
-            .vpcOptions(getVpcOptions().toVPCOptions()));
+        try (OpenSearchClient client = createClient(OpenSearchClient.class)) {
+            CreateVpcEndpointResponse response = client.createVpcEndpoint(
+                r -> r.domainArn(getDomain().getArn()).vpcOptions(getVpcOptions().toVPCOptions()));
 
-        setVpcEndpointId(response.vpcEndpoint().vpcEndpointId());
+            setVpcEndpointId(response.vpcEndpoint().vpcEndpointId());
 
-        Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
-            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
-            .prompt(false)
-            .until(() -> {
-                VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
-                return vpcEndpoint != null && vpcEndpoint.status().equals(VpcEndpointStatus.ACTIVE);
-            });
+            Wait.atMost(10, TimeUnit.MINUTES)
+                .checkEvery(30, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+                .prompt(false)
+                .until(() -> {
+                    VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
+                    return vpcEndpoint != null && vpcEndpoint.status().equals(VpcEndpointStatus.ACTIVE);
+                });
+        }
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        OpenSearchClient client = createClient(OpenSearchClient.class);
-        client.updateVpcEndpoint(r -> r.vpcEndpointId(getVpcEndpointId())
-            .vpcOptions(getVpcOptions().toVPCOptions()));
+        try (OpenSearchClient client = createClient(OpenSearchClient.class)) {
+            client.updateVpcEndpoint(r -> r.vpcEndpointId(getVpcEndpointId())
+                .vpcOptions(getVpcOptions().toVPCOptions()));
 
-        Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
-            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
-            .prompt(false)
-            .until(() -> {
-                VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
-                return vpcEndpoint != null && vpcEndpoint.status().equals(VpcEndpointStatus.ACTIVE);
-            });
+            Wait.atMost(10, TimeUnit.MINUTES)
+                .checkEvery(30, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
+                .prompt(false)
+                .until(() -> {
+                    VpcEndpoint vpcEndpoint = getVpcEndpoint(client);
+                    return vpcEndpoint != null && vpcEndpoint.status().equals(VpcEndpointStatus.ACTIVE);
+                });
+        }
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        OpenSearchClient client = createClient(OpenSearchClient.class);
-        client.deleteVpcEndpoint(r -> r.vpcEndpointId(getVpcEndpointId()));
+        try (OpenSearchClient client = createClient(OpenSearchClient.class)) {
+            client.deleteVpcEndpoint(r -> r.vpcEndpointId(getVpcEndpointId()));
 
-        Wait.atMost(10, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
-            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-            .prompt(false)
-            .until(() -> getVpcEndpoint(client) == null);
+            Wait.atMost(10, TimeUnit.MINUTES)
+                .checkEvery(30, TimeUnit.SECONDS)
+                .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+                .prompt(false)
+                .until(() -> getVpcEndpoint(client) == null);
+        }
     }
 
     private VpcEndpoint getVpcEndpoint(OpenSearchClient client) {
         VpcEndpoint vpcEndpoint = null;
+
         try {
-            DescribeVpcEndpointsResponse response = client.describeVpcEndpoints(r -> r.vpcEndpointIds(getVpcEndpointId()));
+            DescribeVpcEndpointsResponse response =
+                client.describeVpcEndpoints(r -> r.vpcEndpointIds(getVpcEndpointId()));
+
             if (response.hasVpcEndpoints() && !response.vpcEndpoints().isEmpty()) {
                 vpcEndpoint = response.vpcEndpoints().get(0);
             }
+
         } catch (ResourceNotFoundException ex) {
             // ignore
         }
