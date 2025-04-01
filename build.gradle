@@ -126,6 +126,7 @@ dependencies {
     implementation 'software.amazon.awssdk:wafv2'
     implementation 'software.amazon.awssdk:eventbridge'
     implementation 'software.amazon.awssdk:opensearch'
+    implementation 'software.amazon.awssdk:opensearchserverless'
     implementation 'org.json:json:20231013'
 
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'

@@ -175,29 +175,32 @@ public class OpenSearchServerlessSecurityConfigResource extends AwsResource impl
         setType(model.type());
         setConfigVersion(model.configVersion());
         setId(model.id());
+
         setSamlConfig(null);
-        setIamIdentityCenterConfig(null);
         if (model.samlOptions() != null) {
-            OpenSearchServerlessSamlConfig samlConfig = newSubresource(OpenSearchServerlessSamlConfig.class);
-            samlConfig.copyFrom(model.samlOptions());
-            setSamlConfig(samlConfig);
+            OpenSearchServerlessSamlConfig newSamlConfig = newSubresource(OpenSearchServerlessSamlConfig.class);
+            newSamlConfig.copyFrom(model.samlOptions());
+            setSamlConfig(newSamlConfig);
         }
 
+        setIamIdentityCenterConfig(null);
         if (model.iamIdentityCenterOptions() != null) {
-            OpenSearchServerlessIamIdentityCenterConfig iamIdentityCenterConfig = newSubresource(
+            OpenSearchServerlessIamIdentityCenterConfig newIamIdentityCenterConfig = newSubresource(
                 OpenSearchServerlessIamIdentityCenterConfig.class);
-            iamIdentityCenterConfig.copyFrom(model.iamIdentityCenterOptions());
-            setIamIdentityCenterConfig(iamIdentityCenterConfig);
+            newIamIdentityCenterConfig.copyFrom(model.iamIdentityCenterOptions());
+            setIamIdentityCenterConfig(newIamIdentityCenterConfig);
         }
     }
 
     @Override
     public boolean refresh() {
-        try {
-            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
             GetSecurityConfigResponse response = client.getSecurityConfig(r -> r.id(getId()));
+
             copyFrom(response.securityConfigDetail());
+
             return true;
+
         } catch (ResourceNotFoundException ex) {
             // ignore
         }
@@ -207,55 +210,59 @@ public class OpenSearchServerlessSecurityConfigResource extends AwsResource impl
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
-        String token = UUID.randomUUID().toString();
-        CreateSecurityConfigRequest.Builder builder = CreateSecurityConfigRequest.builder()
-            .clientToken(token)
-            .description(getDescription())
-            .name(getName())
-            .type(getType());
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+            String token = UUID.randomUUID().toString();
+            CreateSecurityConfigRequest.Builder builder = CreateSecurityConfigRequest.builder()
+                .clientToken(token)
+                .description(getDescription())
+                .name(getName())
+                .type(getType());
 
-        if (getSamlConfig() != null) {
-            builder = builder.samlOptions(getSamlConfig().toSamlConfigOptions());
+            if (getSamlConfig() != null) {
+                builder = builder.samlOptions(getSamlConfig().toSamlConfigOptions());
+            }
+
+            if (getIamIdentityCenterConfig() != null) {
+                builder =
+                    builder.iamIdentityCenterOptions(
+                        getIamIdentityCenterConfig().toIamIdentityCenterConfigOptionsCreate());
+            }
+
+            CreateSecurityConfigResponse response = client.createSecurityConfig(builder.build());
+
+            copyFrom(response.securityConfigDetail());
         }
-
-        if (getIamIdentityCenterConfig() != null) {
-            builder = builder.iamIdentityCenterOptions(getIamIdentityCenterConfig().toIamIdentityCenterConfigOptionsCreate());
-        }
-
-        CreateSecurityConfigResponse response = client.createSecurityConfig(builder.build());
-
-        copyFrom(response.securityConfigDetail());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
-        String token = UUID.randomUUID().toString();
-        UpdateSecurityConfigRequest.Builder builder = UpdateSecurityConfigRequest.builder()
-            .clientToken(token)
-            .id(getId())
-            .description(getDescription())
-            .configVersion(getConfigVersion());
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+            String token = UUID.randomUUID().toString();
+            UpdateSecurityConfigRequest.Builder builder = UpdateSecurityConfigRequest.builder()
+                .clientToken(token)
+                .id(getId())
+                .description(getDescription())
+                .configVersion(getConfigVersion());
 
-        if (getSamlConfig() != null) {
-            builder = builder.samlOptions(getSamlConfig().toSamlConfigOptions());
+            if (changedFieldNames.contains("saml-config")) {
+                builder = builder.samlOptions(getSamlConfig().toSamlConfigOptions());
+            }
+
+            if (changedFieldNames.contains("iam-identity-center-config")) {
+                builder = builder.iamIdentityCenterOptionsUpdates(getIamIdentityCenterConfig()
+                    .toIamIdentityCenterConfigOptionsUpdate());
+            }
+
+            client.updateSecurityConfig(builder.build());
         }
-
-        if (getIamIdentityCenterConfig() != null) {
-            builder = builder.iamIdentityCenterOptionsUpdates(getIamIdentityCenterConfig()
-                .toIamIdentityCenterConfigOptionsUpdate());
-        }
-
-        client.updateSecurityConfig(builder.build());
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try {
-            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
             String token = UUID.randomUUID().toString();
             client.deleteSecurityConfig(r -> r.id(getId()).clientToken(token));
+
         } catch (ResourceNotFoundException ex) {
             // ignore
         }
@@ -264,12 +271,13 @@ public class OpenSearchServerlessSecurityConfigResource extends AwsResource impl
     @Override
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
+
         if (getType() != null) {
-            if (getType().equals(SecurityConfigType.SAML) && getSamlConfig() == null) {
+            if (SecurityConfigType.SAML.equals(getType()) && getSamlConfig() == null) {
                 errors.add(new ValidationError(this, null, "SAML configuration is required for 'saml' type."));
             }
 
-            if (getType().equals(SecurityConfigType.IAMIDENTITYCENTER) && getIamIdentityCenterConfig() == null) {
+            if (SecurityConfigType.IAMIDENTITYCENTER.equals(getType()) && getIamIdentityCenterConfig() == null) {
                 errors.add(new ValidationError(
                     this,
                     null,

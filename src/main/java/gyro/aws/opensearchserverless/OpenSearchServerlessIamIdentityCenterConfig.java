@@ -33,10 +33,12 @@ public class OpenSearchServerlessIamIdentityCenterConfig extends Diffable
 
     private IamIdentityCenterUserAttribute userAttribute;
     private IamIdentityCenterGroupAttribute groupAttribute;
+    private String instanceArn;
+
+    // Read-only
     private String applicationArn;
     private String applicationDescription;
     private String applicationName;
-    private String instanceArn;
 
     /**
      * The user attribute to use for the IAM identity center.

@@ -148,13 +148,15 @@ public class OpenSearchServerlessSecurityPolicyResource extends AwsResource impl
 
     @Override
     public boolean refresh() {
-        try {
-            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
             GetSecurityPolicyResponse response = client.getSecurityPolicy(r -> r.name(getName())
                 .type(getType())
                 .build());
+
             copyFrom(response.securityPolicyDetail());
+
             return true;
+
         } catch (ResourceNotFoundException ex) {
             // ignore
         }
@@ -164,35 +166,36 @@ public class OpenSearchServerlessSecurityPolicyResource extends AwsResource impl
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
-        String token = UUID.randomUUID().toString();
-        CreateSecurityPolicyResponse response = client.createSecurityPolicy(r -> r.clientToken(token)
-            .description(getDescription())
-            .name(getName())
-            .policy(getPolicy())
-            .type(getType())
-        );
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+            String token = UUID.randomUUID().toString();
+            CreateSecurityPolicyResponse response = client.createSecurityPolicy(r -> r.clientToken(token)
+                .description(getDescription())
+                .name(getName())
+                .policy(getPolicy())
+                .type(getType())
+            );
 
-        copyFrom(response.securityPolicyDetail());
+            copyFrom(response.securityPolicyDetail());
+        }
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
-        String token = UUID.randomUUID().toString();
-        client.updateSecurityPolicy(r -> r.clientToken(token)
-            .name(getName())
-            .policy(getPolicy())
-            .type(getType())
-            .description(getDescription())
-            .policyVersion(getPolicyVersion())
-        );
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+            String token = UUID.randomUUID().toString();
+            client.updateSecurityPolicy(r -> r.clientToken(token)
+                .name(getName())
+                .policy(getPolicy())
+                .type(getType())
+                .description(getDescription())
+                .policyVersion(getPolicyVersion())
+            );
+        }
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try {
-            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
             String token = UUID.randomUUID().toString();
             client.deleteSecurityPolicy(r -> r.clientToken(token).name(getName()).type(getType()));
         } catch (ResourceNotFoundException ex) {
