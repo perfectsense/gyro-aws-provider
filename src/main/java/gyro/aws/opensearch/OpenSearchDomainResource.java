@@ -724,15 +724,14 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try (OpenSearchClient client = createClient(OpenSearchClient.class)) {
-            client.deleteDomain(r -> r.domainName(getDomainName()));
+        OpenSearchClient client = createClient(OpenSearchClient.class)
+        client.deleteDomain(r -> r.domainName(getDomainName()));
 
-            Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(4, TimeUnit.MINUTES)
-                .resourceOverrides(this, TimeoutSettings.Action.DELETE)
-                .prompt(false)
-                .until(() -> getOpenSearchDomain(client) == null);
-        }
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(4, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .prompt(false)
+            .until(() -> getOpenSearchDomain(client) == null);
     }
 
     private DomainStatus getOpenSearchDomain(OpenSearchClient client) {
