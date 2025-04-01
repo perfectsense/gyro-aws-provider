@@ -1,0 +1,6 @@
+aws::opensearch-serverless-access-policy access-policy
+    name: "example-data-access-policy"
+    description: "example data access policy"
+    type: "data"
+    policy: "data-access-policy.json"
+end

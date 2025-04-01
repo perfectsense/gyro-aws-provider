@@ -1,0 +1,11 @@
+aws::opensearch-serverless-security-config security-config
+    name: "example-security-config"
+    description: "example security config"
+    type: "saml"
+    saml-config
+        group-attribute: "group"
+        user-attribute: "username"
+        session-timeout: 600
+        metadata: "saml-metadata.xml"
+    end
+end
