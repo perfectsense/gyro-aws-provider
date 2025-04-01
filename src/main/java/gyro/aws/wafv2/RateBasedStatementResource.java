@@ -62,7 +62,6 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
      * The rate limit for the rate based statement.
      */
     @Required
-    @Min(100)
     public Long getLimit() {
         return limit;
     }
