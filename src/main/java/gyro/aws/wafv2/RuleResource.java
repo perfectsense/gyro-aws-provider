@@ -472,23 +472,4 @@ public class RuleResource extends Diffable implements Copyable<Rule> {
 
         return errors;
     }
-
-    static boolean invalidPriority(Set<RuleResource> rules) {
-        List<Integer> priorityList = rules.stream()
-            .sorted(Comparator.comparing(RuleResource::getPriority))
-            .map(RuleResource::getPriority)
-            .collect(Collectors.toList());
-
-        boolean invalidPriority = false;
-        int start = 0;
-
-        for (int priority : priorityList) {
-            if (priority != start) {
-                invalidPriority = true;
-            }
-            start++;
-        }
-
-        return invalidPriority;
-    }
 }

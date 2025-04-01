@@ -548,13 +548,6 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (RuleResource.invalidPriority(getRule())) {
-            errors.add(new ValidationError(
-                this,
-                "rule",
-                "'priority' exception. 'priority' value starts from 0 without skipping any number"));
-        }
-
         if (getRule().stream()
             .filter(o -> o.getStatement() != null)
             .anyMatch(o -> o.getStatement().getRateBasedStatement() != null)) {
