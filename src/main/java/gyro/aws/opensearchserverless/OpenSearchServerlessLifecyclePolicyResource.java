@@ -150,7 +150,8 @@ public class OpenSearchServerlessLifecyclePolicyResource extends AwsResource
 
     @Override
     public boolean refresh() {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
             BatchGetLifecyclePolicyResponse response = client.batchGetLifecyclePolicy(r -> r.identifiers(
                 LifecyclePolicyIdentifier.builder().name(getName())
                     .type(getType())
@@ -170,36 +171,35 @@ public class OpenSearchServerlessLifecyclePolicyResource extends AwsResource
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
-            CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(r -> r.clientToken(token)
-                .description(getDescription())
-                .name(getName())
-                .policy(getPolicy())
-                .type(getType())
-            );
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
+        CreateLifecyclePolicyResponse response = client.createLifecyclePolicy(r -> r.clientToken(token)
+            .description(getDescription())
+            .name(getName())
+            .policy(getPolicy())
+            .type(getType())
+        );
 
-            copyFrom(response.lifecyclePolicyDetail());
-        }
+        copyFrom(response.lifecyclePolicyDetail());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
-            client.updateLifecyclePolicy(r -> r.clientToken(token)
-                .description(getDescription())
-                .type(getType())
-                .name(getName())
-                .policy(getPolicy())
-                .policyVersion(getPolicyVersion())
-            );
-        }
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
+        client.updateLifecyclePolicy(r -> r.clientToken(token)
+            .description(getDescription())
+            .type(getType())
+            .name(getName())
+            .policy(getPolicy())
+            .policyVersion(getPolicyVersion())
+        );
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
             String token = UUID.randomUUID().toString();
             client.deleteLifecyclePolicy(r -> r.clientToken(token)
                 .name(getName())

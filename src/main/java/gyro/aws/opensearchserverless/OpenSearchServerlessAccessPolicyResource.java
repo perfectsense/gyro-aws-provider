@@ -147,7 +147,9 @@ public class OpenSearchServerlessAccessPolicyResource extends AwsResource implem
 
     @Override
     public boolean refresh() {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+
             GetAccessPolicyResponse response = client.getAccessPolicy(r -> r.name(getName()).type(getType()).build());
 
             copyFrom(response.accessPolicyDetail());
@@ -161,38 +163,38 @@ public class OpenSearchServerlessAccessPolicyResource extends AwsResource implem
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
 
-            CreateAccessPolicyResponse response = client.createAccessPolicy(r -> r.clientToken(token)
-                .description(getDescription())
-                .name(getName())
-                .type(getType())
-                .policy(getPolicy())
-            );
+        CreateAccessPolicyResponse response = client.createAccessPolicy(r -> r.clientToken(token)
+            .description(getDescription())
+            .name(getName())
+            .type(getType())
+            .policy(getPolicy())
+        );
 
-            copyFrom(response.accessPolicyDetail());
-        }
+        copyFrom(response.accessPolicyDetail());
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
 
-            client.updateAccessPolicy(r -> r.clientToken(token)
-                .description(getDescription())
-                .name(getName())
-                .type(getType())
-                .policy(getPolicy())
-                .policyVersion(getPolicyVersion())
-            );
-        }
+        client.updateAccessPolicy(r -> r.clientToken(token)
+            .description(getDescription())
+            .name(getName())
+            .type(getType())
+            .policy(getPolicy())
+            .policyVersion(getPolicyVersion())
+        );
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+
             String token = UUID.randomUUID().toString();
 
             client.deleteAccessPolicy(r -> r.clientToken(token)

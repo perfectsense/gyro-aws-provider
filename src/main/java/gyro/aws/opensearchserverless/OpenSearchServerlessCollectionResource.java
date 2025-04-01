@@ -178,104 +178,101 @@ public class OpenSearchServerlessCollectionResource extends AwsResource implemen
         setStandbyReplicas(model.standbyReplicas());
 
         getTags().clear();
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            client.listTagsForResource(r -> r.resourceArn(model.arn()))
-                .tags().forEach(t -> getTags().put(t.key(), t.value()));
-        }
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        client.listTagsForResource(r -> r.resourceArn(model.arn()))
+            .tags().forEach(t -> getTags().put(t.key(), t.value()));
     }
 
     @Override
     public boolean refresh() {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
 
-            if (collectionDetail == null) {
-                return false;
-            }
-
-            copyFrom(collectionDetail);
-
-            return true;
+        if (collectionDetail == null) {
+            return false;
         }
+
+        copyFrom(collectionDetail);
+
+        return true;
     }
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
 
-            CreateCollectionResponse collection = client.createCollection(r -> r.name(getName())
-                .clientToken(token)
-                .description(getDescription())
-                .standbyReplicas(getStandbyReplicas())
-                .tags(getTags().entrySet().stream()
-                    .map(e -> Tag.builder()
-                        .key(e.getKey())
-                        .value(e.getValue())
-                        .build())
-                    .collect(Collectors.toList()))
-                .type(getType())
-            );
+        CreateCollectionResponse collection = client.createCollection(r -> r.name(getName())
+            .clientToken(token)
+            .description(getDescription())
+            .standbyReplicas(getStandbyReplicas())
+            .tags(getTags().entrySet().stream()
+                .map(e -> Tag.builder()
+                    .key(e.getKey())
+                    .value(e.getValue())
+                    .build())
+                .collect(Collectors.toList()))
+            .type(getType())
+        );
 
-            setId(collection.createCollectionDetail().id());
+        setId(collection.createCollectionDetail().id());
 
-            Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(4, TimeUnit.MINUTES)
-                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
-                .prompt(false)
-                .until(() -> {
-                    CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
-                    return collectionDetail != null && collectionDetail.status().equals(CollectionStatus.ACTIVE);
-                });
-        }
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(4, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .prompt(false)
+            .until(() -> {
+                CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
+                return collectionDetail != null && collectionDetail.status().equals(CollectionStatus.ACTIVE);
+            });
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            if (changedFieldNames.contains("description")) {
-                String token = UUID.randomUUID().toString();
-                client.updateCollection(r -> r.id(getId())
-                    .clientToken(token)
-                    .description(getDescription())
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        if (changedFieldNames.contains("description")) {
+            String token = UUID.randomUUID().toString();
+            client.updateCollection(r -> r.id(getId())
+                .clientToken(token)
+                .description(getDescription())
+            );
+        }
+
+        if (changedFieldNames.contains("tags")) {
+            OpenSearchServerlessCollectionResource old = (OpenSearchServerlessCollectionResource) current;
+
+            if (!old.getTags().isEmpty()) {
+                client.untagResource(r -> r.resourceArn(getArn())
+                    .tagKeys(old.getTags().keySet())
                 );
             }
 
-            if (changedFieldNames.contains("tags")) {
-                OpenSearchServerlessCollectionResource old = (OpenSearchServerlessCollectionResource) current;
-
-                if (!old.getTags().isEmpty()) {
-                    client.untagResource(r -> r.resourceArn(getArn())
-                        .tagKeys(old.getTags().keySet())
-                    );
-                }
-
-                if (!getTags().isEmpty()) {
-                    client.tagResource(r -> r.resourceArn(getArn())
-                        .tags(getTags().entrySet().stream()
-                            .map(e -> Tag.builder()
-                                .key(e.getKey())
-                                .value(e.getValue())
-                                .build())
-                            .collect(Collectors.toList()))
-                    );
-                }
+            if (!getTags().isEmpty()) {
+                client.tagResource(r -> r.resourceArn(getArn())
+                    .tags(getTags().entrySet().stream()
+                        .map(e -> Tag.builder()
+                            .key(e.getKey())
+                            .value(e.getValue())
+                            .build())
+                        .collect(Collectors.toList()))
+                );
             }
-
-            Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(4, TimeUnit.MINUTES)
-                .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
-                .prompt(false)
-                .until(() -> {
-                    CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
-                    return collectionDetail != null && collectionDetail.status().equals(CollectionStatus.ACTIVE);
-                });
         }
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(4, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.UPDATE)
+            .prompt(false)
+            .until(() -> {
+                CollectionDetail collectionDetail = getOpenSearchServerlessCollection(client);
+                return collectionDetail != null && collectionDetail.status().equals(CollectionStatus.ACTIVE);
+            });
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
             client.deleteCollection(r -> r.id(getId()));
 
             Wait.atMost(20, TimeUnit.MINUTES)

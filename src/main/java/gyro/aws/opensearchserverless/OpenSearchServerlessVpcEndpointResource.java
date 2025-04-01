@@ -170,113 +170,111 @@ public class OpenSearchServerlessVpcEndpointResource extends AwsResource impleme
 
     @Override
     public boolean refresh() {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            VpcEndpointDetail endpoint = getVpcEndpoint(client);
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        VpcEndpointDetail endpoint = getVpcEndpoint(client);
 
-            if (endpoint != null) {
-                copyFrom(endpoint);
+        if (endpoint != null) {
+            copyFrom(endpoint);
 
-                return true;
-            }
-
-            return false;
+            return true;
         }
+
+        return false;
     }
 
     @Override
     public void create(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
 
-            CreateVpcEndpointResponse response = client.createVpcEndpoint(r -> r.clientToken(token)
-                .name(getName())
-                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
-                .securityGroupIds(getSecurityGroups().stream()
-                    .map(SecurityGroupResource::getId)
-                    .collect(Collectors.toList()))
-                .vpcId(getVpc().getId())
-            );
+        CreateVpcEndpointResponse response = client.createVpcEndpoint(r -> r.clientToken(token)
+            .name(getName())
+            .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
+            .securityGroupIds(getSecurityGroups().stream()
+                .map(SecurityGroupResource::getId)
+                .collect(Collectors.toList()))
+            .vpcId(getVpc().getId())
+        );
 
-            setId(response.createVpcEndpointDetail().id());
+        setId(response.createVpcEndpointDetail().id());
 
-            Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
-                .prompt(false)
-                .until(() -> {
-                    VpcEndpointDetail endpoint = getVpcEndpoint(client);
-                    return endpoint != null && endpoint.status().equals(VpcEndpointStatus.ACTIVE);
-                });
-        }
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .prompt(false)
+            .until(() -> {
+                VpcEndpointDetail endpoint = getVpcEndpoint(client);
+                return endpoint != null && endpoint.status().equals(VpcEndpointStatus.ACTIVE);
+            });
     }
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
-            String token = UUID.randomUUID().toString();
-            UpdateVpcEndpointRequest.Builder builder = UpdateVpcEndpointRequest.builder()
-                .clientToken(token)
-                .id(getId());
+        OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
+        String token = UUID.randomUUID().toString();
+        UpdateVpcEndpointRequest.Builder builder = UpdateVpcEndpointRequest.builder()
+            .clientToken(token)
+            .id(getId());
 
-            OpenSearchServerlessVpcEndpointResource old = (OpenSearchServerlessVpcEndpointResource) current;
+        OpenSearchServerlessVpcEndpointResource old = (OpenSearchServerlessVpcEndpointResource) current;
 
-            if (changedFieldNames.contains("subnets")) {
-                Optional.of(old.getSubnets().stream()
+        if (changedFieldNames.contains("subnets")) {
+            Optional.of(old.getSubnets().stream()
+                    .map(SubnetResource::getId)
+                    .filter(id -> getSubnets().stream()
                         .map(SubnetResource::getId)
-                        .filter(id -> getSubnets().stream()
-                            .map(SubnetResource::getId)
-                            .noneMatch(id::equals))
-                        .collect(Collectors.toList()))
-                    .filter(list -> !list.isEmpty())
-                    .ifPresent(builder::removeSubnetIds);
+                        .noneMatch(id::equals))
+                    .collect(Collectors.toList()))
+                .filter(list -> !list.isEmpty())
+                .ifPresent(builder::removeSubnetIds);
 
-                Optional.of(getSubnets().stream()
+            Optional.of(getSubnets().stream()
+                    .map(SubnetResource::getId)
+                    .filter(id -> old.getSubnets().stream()
                         .map(SubnetResource::getId)
-                        .filter(id -> old.getSubnets().stream()
-                            .map(SubnetResource::getId)
-                            .noneMatch(id::equals))
-                        .collect(Collectors.toList()))
-                    .filter(list -> !list.isEmpty())
-                    .ifPresent(builder::addSubnetIds);
+                        .noneMatch(id::equals))
+                    .collect(Collectors.toList()))
+                .filter(list -> !list.isEmpty())
+                .ifPresent(builder::addSubnetIds);
 
-            }
-
-            if (changedFieldNames.contains("security-groups")) {
-                Optional.of(old.getSecurityGroups().stream()
-                        .map(SecurityGroupResource::getId)
-                        .filter(id -> getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getId)
-                            .noneMatch(id::equals))
-                        .collect(Collectors.toList()))
-                    .filter(list -> !list.isEmpty())
-                    .ifPresent(builder::removeSecurityGroupIds);
-
-                Optional.of(getSecurityGroups().stream()
-                        .map(SecurityGroupResource::getId)
-                        .filter(id -> old.getSecurityGroups().stream()
-                            .map(SecurityGroupResource::getId)
-                            .noneMatch(id::equals))
-                        .collect(Collectors.toList()))
-                    .filter(list -> !list.isEmpty())
-                    .ifPresent(builder::addSecurityGroupIds);
-            }
-
-            client.updateVpcEndpoint(builder.build());
-
-            Wait.atMost(20, TimeUnit.MINUTES)
-                .checkEvery(1, TimeUnit.MINUTES)
-                .resourceOverrides(this, TimeoutSettings.Action.CREATE)
-                .prompt(false)
-                .until(() -> {
-                    VpcEndpointDetail endpoint = getVpcEndpoint(client);
-                    return endpoint != null && endpoint.status().equals(VpcEndpointStatus.ACTIVE);
-                });
         }
+
+        if (changedFieldNames.contains("security-groups")) {
+            Optional.of(old.getSecurityGroups().stream()
+                    .map(SecurityGroupResource::getId)
+                    .filter(id -> getSecurityGroups().stream()
+                        .map(SecurityGroupResource::getId)
+                        .noneMatch(id::equals))
+                    .collect(Collectors.toList()))
+                .filter(list -> !list.isEmpty())
+                .ifPresent(builder::removeSecurityGroupIds);
+
+            Optional.of(getSecurityGroups().stream()
+                    .map(SecurityGroupResource::getId)
+                    .filter(id -> old.getSecurityGroups().stream()
+                        .map(SecurityGroupResource::getId)
+                        .noneMatch(id::equals))
+                    .collect(Collectors.toList()))
+                .filter(list -> !list.isEmpty())
+                .ifPresent(builder::addSecurityGroupIds);
+        }
+
+        client.updateVpcEndpoint(builder.build());
+
+        Wait.atMost(20, TimeUnit.MINUTES)
+            .checkEvery(1, TimeUnit.MINUTES)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .prompt(false)
+            .until(() -> {
+                VpcEndpointDetail endpoint = getVpcEndpoint(client);
+                return endpoint != null && endpoint.status().equals(VpcEndpointStatus.ACTIVE);
+            });
     }
 
     @Override
     public void delete(GyroUI ui, State state) throws Exception {
-        try (OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class)) {
+        try {
+            OpenSearchServerlessClient client = createClient(OpenSearchServerlessClient.class);
             String token = UUID.randomUUID().toString();
             client.deleteVpcEndpoint(r -> r.clientToken(token).id(getId())
             );
