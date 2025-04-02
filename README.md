@@ -39,7 +39,7 @@ Load the AWS provider in your project by consuming it as a `plugin` directive in
 
 ```shell
 @repository: 'https://artifactory.psdops.com/gyro-releases'
-@plugin: 'gyro:gyro-aws-provider:1.6.0'
+@plugin: 'gyro:gyro-aws-provider:1.7.0'
 ```
 
 #### Authentication ####
