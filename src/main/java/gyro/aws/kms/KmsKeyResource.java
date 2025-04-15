@@ -255,6 +255,20 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
+     * The capability of cross-region replication of the key. Defaults to ``false``
+     */
+    public Boolean getMultiRegion() {
+        if (multiRegion == null) {
+            multiRegion = false;
+        }
+        return multiRegion;
+    }
+
+    public void setMultiRegion(Boolean multiRegion) {
+        this.multiRegion = multiRegion;
+    }
+
+    /**
      * The source of the key material. Defaults to ``AWS_KMS``.
      */
     public String getOrigin() {
@@ -509,16 +523,5 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         } catch (IOException ex) {
             throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
         }
-    }
-
-    public Boolean getMultiRegion() {
-        if (multiRegion == null) {
-            multiRegion = false;
-        }
-        return multiRegion;
-    }
-
-    public void setMultiRegion(Boolean multiRegion) {
-        this.multiRegion = multiRegion;
     }
 }
