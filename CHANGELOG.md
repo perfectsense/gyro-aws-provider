@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+## 1.7.0 (April 2nd, 2025)
+
+ENHANCEMENTS:
+
+* [705](https://github.com/perfectsense/gyro-aws-provider/issues/705): Adjust rate-limit validation to a minimum of 10 on rate-based-statements
+* [655](https://github.com/perfectsense/gyro-aws-provider/issues/655): WafV2 Rules no longer need to be in an incremental priority
+* [692](https://github.com/perfectsense/gyro-aws-provider/issues/692): Add support for Open search Serverless
+* [693](https://github.com/perfectsense/gyro-aws-provider/issues/693): Add support for Open Search
+
 ## 1.6.9 (March 19th, 2025)
 
 ENHANCEMENTS:
