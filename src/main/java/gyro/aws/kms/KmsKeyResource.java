@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
  *         key-manager: "CUSTOMER"
  *         key-rotation: "false"
  *         key-usage: "ENCRYPT_DECRYPT"
+ *         multi-region: "false"
  *         origin: "AWS_KMS"
  *         pending-window: "7"
  *         policy: "gyro-providers/gyro-aws-provider/examples/kms/kms-policy.json"
@@ -94,6 +95,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private String keyState;
     private String keyUsage;
     private KeySpec keySpec;
+    private Boolean multiRegion;
     private String origin;
     private String pendingWindow;
     private String policy;
@@ -324,6 +326,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         setKeyManager(keyMetadata.keyManagerAsString());
         setKeyState(keyMetadata.keyStateAsString());
         setKeyUsage(keyMetadata.keyUsageAsString());
+        setMultiRegion(keyMetadata.multiRegion());
         setOrigin(keyMetadata.originAsString());
 
         KmsClient client = createClient(KmsClient.class);
@@ -380,6 +383,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                             .description(getDescription())
                             .keyUsage(getKeyUsage())
                             .origin(getOrigin())
+                            .multiRegion(getMultiRegion())
                             .policy(getPolicy())
                             .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
                             .tags(toTag())
@@ -505,5 +509,16 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         } catch (IOException ex) {
             throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
         }
+    }
+
+    public Boolean getMultiRegion() {
+        if (multiRegion == null) {
+            multiRegion = false;
+        }
+        return multiRegion;
+    }
+
+    public void setMultiRegion(Boolean multiRegion) {
+        this.multiRegion = multiRegion;
     }
 }
