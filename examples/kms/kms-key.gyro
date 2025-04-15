@@ -4,6 +4,7 @@ aws::kms-key kms-example
     bypass-policy-lockout-safety-check: "true"
     description: "sample kms key"
     enabled: "true"
+    multi-region: "false"
     key-rotation: "true"
     policy: "kms-policy.json"
     tags: {
