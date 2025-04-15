@@ -207,6 +207,30 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return getId();
     }
 
+
+    private DescribeVpcPeeringConnectionsResponse waitForStatus(Ec2Client client, VpcPeeringConnection connection, String status){
+        try {
+        DescribeVpcPeeringConnectionsResponse resp = null;
+        int retryCounter = 0;
+        int retryLimit = 10;
+            while (retryCounter < retryLimit) {
+                if (connection.status().code().toString().equals(status)) {
+                    break;
+                } else {
+                    Thread.sleep(2000);
+                    resp = client.describeVpcPeeringConnections(
+                        r -> r.vpcPeeringConnectionIds(getId())
+                    );
+                    connection = resp.vpcPeeringConnections().get(0);
+                    retryCounter++;
+                }
+            }
+            return resp;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
@@ -255,11 +279,21 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
-        client.acceptVpcPeeringConnection(
-            r -> r.vpcPeeringConnectionId(getId())
-        );
+        DescribeVpcPeeringConnectionsResponse resp = waitForStatus(client, vpcPeeringConnection, "pending-acceptance");
 
-        modifyPeeringConnectionSettings(client);
+        if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
+            Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "");
+            accepterClient.acceptVpcPeeringConnection(
+                r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
+            );
+        } else {
+            client.acceptVpcPeeringConnection(
+                r -> r.vpcPeeringConnectionId(getId())
+            );
+
+            resp = waitForStatus(client, vpcPeeringConnection, "active");
+            modifyPeeringConnectionSettings(client);
+        }
     }
 
     @Override
