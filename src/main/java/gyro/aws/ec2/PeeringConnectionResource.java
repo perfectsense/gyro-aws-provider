@@ -261,10 +261,11 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         waitForStatus(client, "pending-acceptance");
 
         if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
-            Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "");
-            accepterClient.acceptVpcPeeringConnection(
-                r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
-            );
+            try (Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "")) {
+                accepterClient.acceptVpcPeeringConnection(
+                    r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
+                );
+            }
         } else {
             client.acceptVpcPeeringConnection(
                 r -> r.vpcPeeringConnectionId(getId())
@@ -284,9 +285,9 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+        try (Ec2Client client = createClient(Ec2Client.class)) {
+            client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+        }
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
