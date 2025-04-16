@@ -23,7 +23,11 @@ import java.util.concurrent.TimeUnit;
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.*;
+import gyro.core.GyroException;
+import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
+import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -254,7 +258,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
-        waitForStatus(client, "pending-acceptance", TimeoutSettings.Action.CREATE);
+        waitForStatus(client, "pending-acceptance");
 
         if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
             Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "");
@@ -266,7 +270,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
                 r -> r.vpcPeeringConnectionId(getId())
             );
 
-            waitForStatus(client, "active", TimeoutSettings.Action.CREATE);
+            waitForStatus(client, "active");
             modifyPeeringConnectionSettings(client);
         }
     }
@@ -323,11 +327,11 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         );
     }
 
-    private void waitForStatus(Ec2Client client, String status, TimeoutSettings.Action action) {
+    private void waitForStatus(Ec2Client client, String status) {
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(30, TimeUnit.SECONDS)
             .prompt(false)
-            .resourceOverrides(this, action)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
                     r -> r.vpcPeeringConnectionIds(getId())
