@@ -18,13 +18,12 @@ package gyro.aws.ec2;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.GyroException;
-import gyro.core.GyroUI;
-import gyro.core.Type;
+import gyro.core.*;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -207,30 +206,6 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return getId();
     }
 
-
-    private DescribeVpcPeeringConnectionsResponse waitForStatus(Ec2Client client, VpcPeeringConnection connection, String status){
-        try {
-        DescribeVpcPeeringConnectionsResponse resp = null;
-        int retryCounter = 0;
-        int retryLimit = 10;
-            while (retryCounter < retryLimit) {
-                if (connection.status().code().toString().equals(status)) {
-                    break;
-                } else {
-                    Thread.sleep(2000);
-                    resp = client.describeVpcPeeringConnections(
-                        r -> r.vpcPeeringConnectionIds(getId())
-                    );
-                    connection = resp.vpcPeeringConnections().get(0);
-                    retryCounter++;
-                }
-            }
-            return resp;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Override
     public void copyFrom(VpcPeeringConnection vpcPeeringConnection) {
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
@@ -279,7 +254,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
-        DescribeVpcPeeringConnectionsResponse resp = waitForStatus(client, vpcPeeringConnection, "pending-acceptance");
+        waitForStatus(client, "pending-acceptance", TimeoutSettings.Action.CREATE);
 
         if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
             Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "");
@@ -291,7 +266,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
                 r -> r.vpcPeeringConnectionId(getId())
             );
 
-            resp = waitForStatus(client, vpcPeeringConnection, "active");
+            waitForStatus(client, "active", TimeoutSettings.Action.CREATE);
             modifyPeeringConnectionSettings(client);
         }
     }
@@ -346,5 +321,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
                 .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
                 .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink()))
         );
+    }
+
+    private void waitForStatus(Ec2Client client, String status, TimeoutSettings.Action action) {
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, action)
+            .until(() -> {
+                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
+                    r -> r.vpcPeeringConnectionIds(getId())
+                );
+                if (!vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
+                    return false;
+                } else {
+                    return vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code().toString().equals(status);
+                }
+            });
     }
 }
