@@ -18,13 +18,16 @@ package gyro.aws.ec2;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -255,11 +258,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
-        client.acceptVpcPeeringConnection(
-            r -> r.vpcPeeringConnectionId(getId())
-        );
+        waitForStatus(client, "pending-acceptance");
 
-        modifyPeeringConnectionSettings(client);
+        if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
+            try (Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "")) {
+                accepterClient.acceptVpcPeeringConnection(
+                    r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
+                );
+            }
+        } else {
+            client.acceptVpcPeeringConnection(
+                r -> r.vpcPeeringConnectionId(getId())
+            );
+
+            waitForStatus(client, "active");
+            modifyPeeringConnectionSettings(client);
+        }
     }
 
     @Override
@@ -271,9 +285,9 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     @Override
     public void delete(GyroUI ui, State state) {
-        Ec2Client client = createClient(Ec2Client.class);
-
-        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+        try (Ec2Client client = createClient(Ec2Client.class)) {
+            client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+        }
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
@@ -312,5 +326,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
                 .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
                 .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink()))
         );
+    }
+
+    private void waitForStatus(Ec2Client client, String status) {
+        Wait.atMost(2, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .prompt(false)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> {
+                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
+                    r -> r.vpcPeeringConnectionIds(getId())
+                );
+                if (!vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
+                    return false;
+                } else {
+                    return vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code().toString().equals(status);
+                }
+            });
     }
 }
