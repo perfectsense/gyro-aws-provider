@@ -330,7 +330,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     private void waitForStatus(Ec2Client client, String status) {
         Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
