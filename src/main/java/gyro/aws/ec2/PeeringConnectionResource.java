@@ -37,6 +37,7 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.PeeringConnectionOptionsRequest;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
 
 /**
@@ -259,27 +260,12 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
         waitForStatus(client, "pending-acceptance");
-
-        if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
-            try (Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "")) {
-                accepterClient.acceptVpcPeeringConnection(
-                    r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
-                );
-            }
-        } else {
-            client.acceptVpcPeeringConnection(
-                r -> r.vpcPeeringConnectionId(getId())
-            );
-
-            waitForStatus(client, "active");
-            modifyPeeringConnectionSettings(client);
-        }
+        modifyPeeringConnectionSettings(client);
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
-
         modifyPeeringConnectionSettings(client);
     }
 
@@ -315,29 +301,69 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return vpcPeeringConnection;
     }
 
-    private void modifyPeeringConnectionSettings(Ec2Client client) {
+    private void modifyRequesterPeeringConnectionSettings(Ec2Client client) {
+        PeeringConnectionOptionsRequest.Builder req = PeeringConnectionOptionsRequest.builder();
+
+        if(getAllowDnsResolutionFromRemoteVpc()) {
+            req.allowDnsResolutionFromRemoteVpc(getAllowDnsResolutionFromRemoteVpc());
+        }
+
+        if (getAllowEgressFromLocalClassicLinkToRemoteVpc()) {
+            req.allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc());
+        }
+        if (getAllowEgressFromLocalVpcToRemoteClassicLink()) {
+            req.allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink());
+        }
+
         client.modifyVpcPeeringConnectionOptions(r -> r.vpcPeeringConnectionId(getId())
-            .accepterPeeringConnectionOptions(acp -> acp.allowDnsResolutionFromRemoteVpc(
-                getPeerAllowDnsResolutionFromRemoteVpc())
-                .allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc())
-                .allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink()))
-            .requesterPeeringConnectionOptions(req -> req.allowDnsResolutionFromRemoteVpc(
-                getAllowDnsResolutionFromRemoteVpc())
-                .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
-                .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink()))
-        );
+            .requesterPeeringConnectionOptions(req.build()));
+    }
+
+    private void modifyAccepterPeeringConnectionSettings(Ec2Client client) {
+        PeeringConnectionOptionsRequest.Builder acp = PeeringConnectionOptionsRequest.builder();
+
+        if (getPeerAllowDnsResolutionFromRemoteVpc()) {
+            acp.allowDnsResolutionFromRemoteVpc(getPeerAllowDnsResolutionFromRemoteVpc());
+        }
+        if (getPeerAllowEgressFromLocalClassicLinkToRemoteVpc()) {
+            acp.allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc());
+        }
+        if (getPeerAllowEgressFromLocalVpcToRemoteClassicLink()) {
+            acp.allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink());
+        }
+
+        client.modifyVpcPeeringConnectionOptions(r -> r.vpcPeeringConnectionId(getId())
+            .accepterPeeringConnectionOptions(acp.build()));
+    }
+
+    private void modifyPeeringConnectionSettings(Ec2Client client) {
+        if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
+            try (Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "")) {
+                accepterClient.acceptVpcPeeringConnection(
+                    r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
+                );
+                waitForStatus(client, "active");
+                modifyRequesterPeeringConnectionSettings(client);
+                modifyAccepterPeeringConnectionSettings(accepterClient);
+            }
+        } else {
+            client.acceptVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
+            waitForStatus(client, "active");
+            modifyRequesterPeeringConnectionSettings(client);
+            modifyAccepterPeeringConnectionSettings(client);
+        }
     }
 
     private void waitForStatus(Ec2Client client, String status) {
         Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(30, TimeUnit.SECONDS)
+            .checkEvery(5, TimeUnit.SECONDS)
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
                     r -> r.vpcPeeringConnectionIds(getId())
                 );
-                if (!vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
+                if (!vpcPeeringConnectionsResponse.hasVpcPeeringConnections()) {
                     return false;
                 } else {
                     return vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code().toString().equals(status);
