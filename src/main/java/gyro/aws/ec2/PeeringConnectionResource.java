@@ -363,7 +363,7 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
                 DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
                     r -> r.vpcPeeringConnectionIds(getId())
                 );
-                if (!vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
+                if (!vpcPeeringConnectionsResponse.hasVpcPeeringConnections()) {
                     return false;
                 } else {
                     return vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code().toString().equals(status);
