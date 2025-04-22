@@ -23,6 +23,7 @@ import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.resource.Diffable;
 import gyro.core.resource.Resource;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -227,6 +228,17 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
     public void create(GyroUI ui, State state) {
         Ec2Client client = createClient(Ec2Client.class);
 
+        Diffable parent = parent();
+        String parentId;
+
+        if (parent instanceof RouteTableResource) {
+            parentId = ((RouteTableResource) parent).getId();
+        } else if (parent instanceof RouteTableRouteResource) {
+            parentId = ((RouteTableRouteResource) parent()).getRouteTable().getId();
+        } else {
+            parentId = null;
+        }
+
         client.createRoute(r -> r.destinationCidrBlock(getDestinationCidrBlock())
             .destinationIpv6CidrBlock(getDestinationIpv6CidrBlock())
             .gatewayId(getGateway() != null ? getGateway().getId() : null)
@@ -235,7 +247,7 @@ public class RouteResource extends AwsResource implements Copyable<Route> {
             .networkInterfaceId(getNetworkInterface() != null ? getNetworkInterface().getId() : null)
             .transitGatewayId(getTransitGateway() != null ? getTransitGateway().getId() : null)
             .vpcPeeringConnectionId(getVpcPeeringConnection() != null ? getVpcPeeringConnection().getId() : null)
-            .routeTableId(((RouteTableResource) parent()).getId())
+            .routeTableId(parentId)
             .egressOnlyInternetGatewayId(getEgressGateway() != null ? getEgressGateway().getId() : null)
         );
     }
