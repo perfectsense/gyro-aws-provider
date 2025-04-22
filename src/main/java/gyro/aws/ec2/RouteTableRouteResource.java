@@ -18,7 +18,8 @@ package gyro.aws.ec2;
 
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
-import gyro.core.*;
+import gyro.core.GyroUI;
+import gyro.core.Type;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Updatable;
@@ -31,15 +32,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Creates a VPC route table.
+ * Creates a Route table route.
  *
  * Example
  * -------
  *
  * .. code-block:: gyro
  *
- *     aws::route-table route-table-example
+ *     aws::route-table-route route-table-route-example
  *         vpc: $(aws::vpc vpc-example)
+ *         route-table: $(aws::route-table route-table-example)
  *
  *         route
  *             destination-cidr-block: 0.0.0.0/0
