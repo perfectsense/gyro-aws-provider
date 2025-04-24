@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * .. code-block:: gyro
  *
- *    keys: $(external-query aws::kms-replicate-key { key-id: ''})
+ *    keys: $(external-query aws::kms-replicate-key { id: ''})
  */
 @Type("kms-replicate-key")
 public class KmsReplicateKeyFinder extends AwsFinder<KmsClient, KeyMetadata, KmsKeyResource> {
@@ -40,10 +40,10 @@ public class KmsReplicateKeyFinder extends AwsFinder<KmsClient, KeyMetadata, Kms
 
     @Override
     protected List<KeyMetadata> findAws(KmsClient client, Map<String, String> filters){
-        if (!filters.containsKey("key-id")) {
-            throw new IllegalArgumentException("'key-id' is required.");
+        if (!filters.containsKey("id")) {
+            throw new IllegalArgumentException("'id' is required.");
         }
-        return Collections.singletonList(client.describeKey(r -> r.keyId(filters.get("key-id"))).keyMetadata());
+        return Collections.singletonList(client.describeKey(r -> r.keyId(filters.get("id"))).keyMetadata());
     }
 
     @Override
