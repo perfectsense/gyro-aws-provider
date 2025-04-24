@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 
 /**
  *
+ * Replicate a Multi-Region KMS Key to another region. `See KMS Replication <https://docs.aws.amazon.com/kms/latest/APIReference/API_ReplicateKey.html>`_.
  * Example
  * -------
  *
