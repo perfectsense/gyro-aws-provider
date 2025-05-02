@@ -200,14 +200,16 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     public boolean refresh() {
         OpenSearchClient client = createClient(OpenSearchClient.class);
 
-        DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(
-            x -> x.filters(s -> s.name("connection-id")
-                .values(getConnectionId())
-            )
-        );
+        DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
+            r -> r.name("connection-id").values(getConnectionId())
+        ));
 
-        if (response.hasConnections()) {
-            copyFrom(response.connections().get(0));
+        if (response.hasConnections() && !response.connections().isEmpty()) {
+            OutboundConnection connection = response.connections().get(0);
+            if (!connection.connectionStatus().statusCode().toString().equals("ACTIVE")) {
+                return false;
+            }
+            copyFrom(connection);
             return true;
         } else {
             return false;
