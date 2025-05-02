@@ -239,19 +239,20 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                         .ownerId(remoteOwnerId)))
         );
 
-        waitForStatus(client, "PENDING_ACCEPTANCE");
-
-        // Accepter
-        accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
-
-        waitForStatus(accepterClient, "ACTIVE");
-
         setConnectionAlias(response.connectionAlias());
         setConnectionId(response.connectionId());
         setConnectionMode(response.connectionModeAsString());
         setLocalOwnerId(response.localDomainInfo().awsDomainInformation().ownerId());
         setRemoteOwnerId(response.remoteDomainInfo().awsDomainInformation().ownerId());
         setSkipUnavailableClusters(String.valueOf(response.connectionProperties().crossClusterSearch().skipUnavailable()));
+
+        waitForStatus(client, "PENDING_ACCEPTANCE");
+
+        // Accepter
+        accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
+
+        waitForStatus(client, "ACTIVE");
+
     }
 
     @Override
