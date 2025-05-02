@@ -230,10 +230,12 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             r -> r.connectionAlias(getConnectionAlias())
                 .connectionMode(getConnectionMode())
                 .localDomainInfo(s -> s.awsDomainInformation(
-                    t -> t.domainName(getLocalDomain().getArn())
+                    t -> t.domainName(getLocalDomain().getDomainName())
+                        .region(localDomainInfo.domainStatus().arn().split(":")[3])
                         .ownerId(localOwnerId)))
                 .remoteDomainInfo(s -> s.awsDomainInformation(
-                    t -> t.domainName(getRemoteDomain().getArn())
+                    t -> t.domainName(getRemoteDomain().getDomainName())
+                        .region(remoteDomainInfo.domainStatus().arn().split(":")[3])
                         .ownerId(remoteOwnerId)))
         );
 
