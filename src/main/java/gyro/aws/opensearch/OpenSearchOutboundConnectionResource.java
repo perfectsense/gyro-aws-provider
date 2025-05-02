@@ -273,12 +273,24 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
-                    s -> s.name("remote-domain-info.domain-name").values(getRemoteDomain().getDomainName()))
-                );
-                if (!response.hasConnections()) {
+                    Filter.builder()
+                        .name("local-domain-info.domain-name")
+                        .values(getLocalDomain().getDomainName())
+                        .build()
+                ));
+
+                OutboundConnection connection = null;
+                for (OutboundConnection outboundConnection : response.connections()) {
+                    if (outboundConnection.connectionId().equals(getConnectionId())) {
+                        connection = outboundConnection;
+                        break;
+                    }
+                }
+
+                if (connection == null) {
                     return false;
                 } else {
-                    return response.connections().get(0).connectionStatus().statusCode().toString().equals(status);
+                    return connection.connectionStatus().statusCode().toString().equals(status);
                 }
             });
     }
