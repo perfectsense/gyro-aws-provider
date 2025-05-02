@@ -200,14 +200,16 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     public boolean refresh() {
         OpenSearchClient client = createClient(OpenSearchClient.class);
 
-        DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(
-            x -> x.filters(s -> s.name("connection-id")
-                .values(getConnectionId())
-            )
-        );
+        DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
+            r -> r.name("connection-id").values(getConnectionId())
+        ));
 
-        if (response.hasConnections()) {
-            copyFrom(response.connections().get(0));
+        if (response.hasConnections() && !response.connections().isEmpty()) {
+            OutboundConnection connection = response.connections().get(0);
+            if (!connection.connectionStatus().statusCode().toString().equals("ACTIVE")) {
+                return false;
+            }
+            copyFrom(connection);
             return true;
         } else {
             return false;
@@ -239,19 +241,20 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                         .ownerId(remoteOwnerId)))
         );
 
-        waitForStatus(client, "PENDING_ACCEPTANCE");
-
-        // Accepter
-        accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
-
-        waitForStatus(accepterClient, "ACTIVE");
-
         setConnectionAlias(response.connectionAlias());
         setConnectionId(response.connectionId());
         setConnectionMode(response.connectionModeAsString());
         setLocalOwnerId(response.localDomainInfo().awsDomainInformation().ownerId());
         setRemoteOwnerId(response.remoteDomainInfo().awsDomainInformation().ownerId());
         setSkipUnavailableClusters(String.valueOf(response.connectionProperties().crossClusterSearch().skipUnavailable()));
+
+        waitForStatus(client, "PENDING_ACCEPTANCE");
+
+        // Accepter
+        accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
+
+        waitForStatus(client, "ACTIVE");
+
     }
 
     @Override
@@ -273,12 +276,24 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
-                    s -> s.name("remote-domain-info.domain-name").values(getRemoteDomain().getDomainName()))
-                );
-                if (!response.hasConnections()) {
+                    Filter.builder()
+                        .name("local-domain-info.domain-name")
+                        .values(getLocalDomain().getDomainName())
+                        .build()
+                ));
+
+                OutboundConnection connection = null;
+                for (OutboundConnection outboundConnection : response.connections()) {
+                    if (outboundConnection.connectionId().equals(getConnectionId())) {
+                        connection = outboundConnection;
+                        break;
+                    }
+                }
+
+                if (connection == null) {
                     return false;
                 } else {
-                    return response.connections().get(0).connectionStatus().statusCode().toString().equals(status);
+                    return connection.connectionStatus().statusCode().toString().equals(status);
                 }
             });
     }
