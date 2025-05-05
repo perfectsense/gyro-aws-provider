@@ -27,18 +27,18 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Create an OpenSearch Outbound connection.
- * <p>
+ *
  * Example
  * -------
- * <p>
+ *
  * .. code-block:: gyro
- * <p>
- * aws::opensearch-outbound-connection open-search-outbound-example
- * connection-alias: "outbound-example"
- * local-domain-name: $(aws::opensearch-domain "open-search-domain-example-1")
- * remote-domain-name: $(aws::opensearch-domain "open-search-domain-example-2")
- * skip-unavailable-clusters: ENABLED
- * end
+ *
+ *     aws::opensearch-outbound-connection open-search-outbound-example
+ *         connection-alias: "outbound-example"
+ *         local-domain-name: $(aws::opensearch-domain "open-search-domain-example-1")
+ *         remote-domain-name: $(aws::opensearch-domain "open-search-domain-example-2")
+ *         skip-unavailable-clusters: ENABLED
+ *     end
  */
 @Type("opensearch-outbound-connection")
 public class OpenSearchOutboundConnectionResource extends AwsResource implements Copyable<OutboundConnection> {
