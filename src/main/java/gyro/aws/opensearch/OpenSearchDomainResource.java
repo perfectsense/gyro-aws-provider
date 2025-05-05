@@ -43,6 +43,7 @@ import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.OpenSearchClient;
+import software.amazon.awssdk.services.opensearch.model.AcceptInboundConnectionResponse;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainRequest;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainResponse;
 import software.amazon.awssdk.services.opensearch.model.DescribeDomainConfigResponse;
@@ -151,6 +152,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private Map<String, String> endpoints;
     private String endpoint;
     private String endpointV2;
+    private String region;
+    private String ownerId;
 
     /**
      * The version of OpenSearch.
@@ -453,6 +456,39 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     public void setEndpointV2(String endpointV2) {
         this.endpointV2 = endpointV2;
+    }
+
+    /**
+     * The AWS region associated with the OpenSearch domain.
+     * If the region is not set, it is derived
+     * from the Amazon Resource Name (ARN) of the domain by splitting the ARN and extracting the region component.
+     */
+    @Output
+    public String getRegion() {
+        if (region == null) {
+            setRegion(getArn().split(":")[3]);
+        }
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    /**
+     * Retrieves the AWS account ID associated with the OpenSearch domain.
+     * If the account ID is not set, it is derived from the Amazon Resource Name (ARN) by extracting the account portion.
+     */
+    @Output
+    public String getOwnerId() {
+        if (ownerId == null) {
+            setOwnerId(getArn().split(":")[4]);
+        }
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
     }
 
     @Override
@@ -790,5 +826,10 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                 return openSearchDomain != null && Boolean.FALSE.equals(openSearchDomain.processing())
                     && Boolean.TRUE.equals(openSearchDomain.created());
             });
+    }
+
+    public AcceptInboundConnectionResponse acceptInboundConnection(String connectionId) {
+        OpenSearchClient client = createClient(OpenSearchClient.class, getRegion(), null);
+        return client.acceptInboundConnection(r->r.connectionId(connectionId));
     }
 }
