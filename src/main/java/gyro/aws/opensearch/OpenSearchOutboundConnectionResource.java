@@ -14,7 +14,13 @@ import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.OpenSearchClient;
-import software.amazon.awssdk.services.opensearch.model.*;
+import software.amazon.awssdk.services.opensearch.model.CreateOutboundConnectionResponse;
+import software.amazon.awssdk.services.opensearch.model.DeleteOutboundConnectionResponse;
+import software.amazon.awssdk.services.opensearch.model.DescribeDomainResponse;
+import software.amazon.awssdk.services.opensearch.model.DescribeOutboundConnectionsResponse;
+import software.amazon.awssdk.services.opensearch.model.Filter;
+import software.amazon.awssdk.services.opensearch.model.OutboundConnection;
+import software.amazon.awssdk.services.opensearch.model.OutboundConnectionStatusCode;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
