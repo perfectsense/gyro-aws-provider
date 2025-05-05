@@ -213,7 +213,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
         if (response.hasConnections() && !response.connections().isEmpty()) {
             OutboundConnection connection = response.connections().get(0);
-            if (!connection.connectionStatus().statusCode().toString().equals("ACTIVE")) {
+            if (!OutboundConnectionStatusCode.ACTIVE.equals(connection.connectionStatus().statusCode())) {
                 return false;
             }
             copyFrom(connection);
@@ -255,12 +255,12 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         setRemoteOwnerId(response.remoteDomainInfo().awsDomainInformation().ownerId());
         setSkipUnavailableClusters(String.valueOf(response.connectionProperties().crossClusterSearch().skipUnavailable()));
 
-        waitForStatus(client, "PENDING_ACCEPTANCE");
+        waitForStatus(client, OutboundConnectionStatusCode.PENDING_ACCEPTANCE);
 
         // Accepter
         accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
 
-        waitForStatus(client, "ACTIVE");
+        waitForStatus(client, OutboundConnectionStatusCode.ACTIVE);
 
     }
 
@@ -273,10 +273,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     public void delete(GyroUI ui, State state) throws Exception {
         OpenSearchClient client = createClient(OpenSearchClient.class);
         DeleteOutboundConnectionResponse response = client.deleteOutboundConnection(r -> r.connectionId(getConnectionId()));
-        waitForStatus(client, "DELETED");
+        waitForStatus(client, OutboundConnectionStatusCode.DELETED);
     }
 
-    private void waitForStatus(OpenSearchClient client, String status) {
+    private void waitForStatus(OpenSearchClient client, OutboundConnectionStatusCode status) {
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
             .prompt(false)
@@ -300,7 +300,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                 if (connection == null) {
                     return false;
                 } else {
-                    return connection.connectionStatus().statusCode().toString().equals(status);
+                    return status.equals(connection.connectionStatus().statusCode());
                 }
             });
     }
