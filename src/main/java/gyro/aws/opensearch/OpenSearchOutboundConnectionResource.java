@@ -16,7 +16,6 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.OpenSearchClient;
 import software.amazon.awssdk.services.opensearch.model.CreateOutboundConnectionResponse;
 import software.amazon.awssdk.services.opensearch.model.DeleteOutboundConnectionResponse;
-import software.amazon.awssdk.services.opensearch.model.DescribeDomainResponse;
 import software.amazon.awssdk.services.opensearch.model.DescribeOutboundConnectionsResponse;
 import software.amazon.awssdk.services.opensearch.model.Filter;
 import software.amazon.awssdk.services.opensearch.model.OutboundConnection;
@@ -42,38 +41,21 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("opensearch-outbound-connection")
 public class OpenSearchOutboundConnectionResource extends AwsResource implements Copyable<OutboundConnection> {
-    private String id;
-    private String arn;
     private String connectionAlias;
-    private String connectionId;
     private String connectionMode;
-    private String connectionStatus;
     private String skipUnavailableClusters;
 
     private OpenSearchDomainResource localDomain;
     private OpenSearchDomainResource remoteDomain;
-    private String localOwnerId;
-    private String remoteOwnerId;
-
-    /**
-     * The id of the connection.
-     */
-    @Id
-    @Output
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    private String arn;
+    private String connectionId;
+    private String connectionStatus;
 
     /**
      * The name of the connection
      */
     @Required
     @Regex("[a-zA-Z][a-zA-Z0-9\\-\\_]+")
-    @Output
     public String getConnectionAlias() {
         return connectionAlias;
     }
@@ -85,6 +67,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     /**
      * The connection id for the resource
      */
+    @Id
     @Output
     public String getConnectionId() {
         return connectionId;
@@ -147,30 +130,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     }
 
     /**
-     * The AWS Account ID of the local domain owner.
-     */
-    @Regex("[0-9]+")
-    public String getLocalOwnerId() {
-        return localOwnerId;
-    }
-
-    public void setLocalOwnerId(String localOwnerId) {
-        this.localOwnerId = localOwnerId;
-    }
-
-    /**
-     * The AWS Account ID of the remote domain owner.
-     */
-    @Regex("[0-9]+")
-    public String getRemoteOwnerId() {
-        return remoteOwnerId;
-    }
-
-    public void setRemoteOwnerId(String remoteOwnerId) {
-        this.remoteOwnerId = remoteOwnerId;
-    }
-
-    /**
      * The direct connection property to skip unavailable clusters. ``Defaults to 'true'``
      */
     @ValidStrings({"ENABLED", "DISABLED"})
@@ -196,7 +155,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     @Override
     public void copyFrom(OutboundConnection model) {
-        setId(getId());
         setConnectionAlias(model.connectionAlias());
         setConnectionId(model.connectionId());
         setConnectionMode(String.valueOf(model.connectionMode()));
@@ -226,13 +184,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     @Override
     public void create(GyroUI ui, State state) throws Exception {
         OpenSearchClient client = createClient(OpenSearchClient.class);
-        OpenSearchClient accepterClient = createClient(OpenSearchClient.class, getRemoteDomain().getArn().split(":")[3], null);
-
-        DescribeDomainResponse localDomainInfo = client.describeDomain(r -> r.domainName(getLocalDomain().getDomainName()));
-        DescribeDomainResponse remoteDomainInfo = accepterClient.describeDomain(r -> r.domainName(getRemoteDomain().getDomainName()));
-
-        String localOwnerId = localDomainInfo.domainStatus().arn().split(":")[4];
-        String remoteOwnerId = remoteDomainInfo.domainStatus().arn().split(":")[4];
 
         // Requester
         CreateOutboundConnectionResponse response = client.createOutboundConnection(
@@ -240,25 +191,23 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                 .connectionMode(getConnectionMode())
                 .localDomainInfo(s -> s.awsDomainInformation(
                     t -> t.domainName(getLocalDomain().getDomainName())
-                        .region(localDomainInfo.domainStatus().arn().split(":")[3])
-                        .ownerId(localOwnerId)))
+                        .region(getLocalDomain().getRegion())
+                        .ownerId(getLocalDomain().getOwnerId())))
                 .remoteDomainInfo(s -> s.awsDomainInformation(
                     t -> t.domainName(getRemoteDomain().getDomainName())
-                        .region(remoteDomainInfo.domainStatus().arn().split(":")[3])
-                        .ownerId(remoteOwnerId)))
+                        .region(getRemoteDomain().getRegion())
+                        .ownerId(getRemoteDomain().getOwnerId())))
         );
 
         setConnectionAlias(response.connectionAlias());
         setConnectionId(response.connectionId());
         setConnectionMode(response.connectionModeAsString());
-        setLocalOwnerId(response.localDomainInfo().awsDomainInformation().ownerId());
-        setRemoteOwnerId(response.remoteDomainInfo().awsDomainInformation().ownerId());
         setSkipUnavailableClusters(String.valueOf(response.connectionProperties().crossClusterSearch().skipUnavailable()));
 
         waitForStatus(client, OutboundConnectionStatusCode.PENDING_ACCEPTANCE);
 
         // Accepter
-        accepterClient.acceptInboundConnection(r -> r.connectionId(response.connectionId()));
+        getRemoteDomain().acceptInboundConnection(response.connectionId());
 
         waitForStatus(client, OutboundConnectionStatusCode.ACTIVE);
 
