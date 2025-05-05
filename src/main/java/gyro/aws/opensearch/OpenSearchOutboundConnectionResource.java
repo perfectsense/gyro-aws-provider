@@ -42,17 +42,18 @@ import java.util.concurrent.TimeUnit;
  */
 @Type("opensearch-outbound-connection")
 public class OpenSearchOutboundConnectionResource extends AwsResource implements Copyable<OutboundConnection> {
-    private String Id;
+    private String id;
     private String arn;
-    private String ConnectionAlias;
-    private String ConnectionId;
-    private String ConnectionMode;
-    private String ConnectionStatus;
-    private String SkipUnavailableClusters;
-    private OpenSearchDomainResource LocalDomain;
-    private OpenSearchDomainResource RemoteDomain;
-    private String LocalOwnerId;
-    private String RemoteOwnerId;
+    private String connectionAlias;
+    private String connectionId;
+    private String connectionMode;
+    private String connectionStatus;
+    private String skipUnavailableClusters;
+
+    private OpenSearchDomainResource localDomain;
+    private OpenSearchDomainResource remoteDomain;
+    private String localOwnerId;
+    private String remoteOwnerId;
 
     /**
      * The id of the connection.
@@ -60,11 +61,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     @Id
     @Output
     public String getId() {
-        return Id;
+        return id;
     }
 
     public void setId(String id) {
-        Id = id;
+        this.id = id;
     }
 
     /**
@@ -74,11 +75,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     @Regex("[a-zA-Z][a-zA-Z0-9\\-\\_]+")
     @Output
     public String getConnectionAlias() {
-        return ConnectionAlias;
+        return connectionAlias;
     }
 
     public void setConnectionAlias(String connectionAlias) {
-        ConnectionAlias = connectionAlias;
+        this.connectionAlias = connectionAlias;
     }
 
     /**
@@ -86,11 +87,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Output
     public String getConnectionId() {
-        return ConnectionId;
+        return connectionId;
     }
 
     public void setConnectionId(String connectionId) {
-        ConnectionId = connectionId;
+        this.connectionId = connectionId;
     }
 
     /**
@@ -98,14 +99,14 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @ValidStrings({"DIRECT", "VPC_ENDPOINT"})
     public String getConnectionMode() {
-        if (ConnectionMode == null) {
-            ConnectionMode = "DIRECT";
+        if (connectionMode == null) {
+            connectionMode = "DIRECT";
         }
-        return ConnectionMode;
+        return connectionMode;
     }
 
     public void setConnectionMode(String connectionMode) {
-        ConnectionMode = connectionMode;
+        this.connectionMode = connectionMode;
     }
 
 
@@ -114,11 +115,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Output
     public String getConnectionStatus() {
-        return ConnectionStatus;
+        return connectionStatus;
     }
 
     public void setConnectionStatus(String connectionStatus) {
-        ConnectionStatus = connectionStatus;
+        this.connectionStatus = connectionStatus;
     }
 
     /**
@@ -126,11 +127,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Required
     public OpenSearchDomainResource getLocalDomain() {
-        return LocalDomain;
+        return localDomain;
     }
 
     public void setLocalDomain(OpenSearchDomainResource localDomain) {
-        LocalDomain = localDomain;
+        this.localDomain = localDomain;
     }
 
     /**
@@ -138,11 +139,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Required
     public OpenSearchDomainResource getRemoteDomain() {
-        return RemoteDomain;
+        return remoteDomain;
     }
 
     public void setRemoteDomain(OpenSearchDomainResource remoteDomain) {
-        RemoteDomain = remoteDomain;
+        this.remoteDomain = remoteDomain;
     }
 
     /**
@@ -150,11 +151,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Regex("[0-9]+")
     public String getLocalOwnerId() {
-        return LocalOwnerId;
+        return localOwnerId;
     }
 
     public void setLocalOwnerId(String localOwnerId) {
-        LocalOwnerId = localOwnerId;
+        this.localOwnerId = localOwnerId;
     }
 
     /**
@@ -162,11 +163,11 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @Regex("[0-9]+")
     public String getRemoteOwnerId() {
-        return RemoteOwnerId;
+        return remoteOwnerId;
     }
 
     public void setRemoteOwnerId(String remoteOwnerId) {
-        RemoteOwnerId = remoteOwnerId;
+        this.remoteOwnerId = remoteOwnerId;
     }
 
     /**
@@ -174,14 +175,14 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
      */
     @ValidStrings({"ENABLED", "DISABLED"})
     public String getSkipUnavailableClusters() {
-        if (SkipUnavailableClusters == null) {
-            SkipUnavailableClusters = "ENABLED";
+        if (skipUnavailableClusters == null) {
+            skipUnavailableClusters = "ENABLED";
         }
-        return SkipUnavailableClusters;
+        return skipUnavailableClusters;
     }
 
     public void setSkipUnavailableClusters(String skipUnavailableClusters) {
-        SkipUnavailableClusters = skipUnavailableClusters;
+        this.skipUnavailableClusters = skipUnavailableClusters;
     }
 
     public String getArn() {
