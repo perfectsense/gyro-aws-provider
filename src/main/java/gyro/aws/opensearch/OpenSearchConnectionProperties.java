@@ -41,8 +41,6 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
 
     /**
      * The endpoint for the OpenSearch domain.
-     *
-     * @return The endpoint URL as a string.
      */
     public String getEndpoint() {
         return endpoint;
