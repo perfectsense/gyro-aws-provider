@@ -51,8 +51,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     private OpenSearchDomainResource localDomain;
     private OpenSearchDomainResource remoteDomain;
-    private String connectionId;
     private String connectionStatus;
+
+    // Read-only
+    private String connectionId;
 
     /**
      * The name of the connection
