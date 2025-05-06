@@ -799,7 +799,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     }
 
     public AcceptInboundConnectionResponse acceptInboundConnection(String connectionId) {
-        OpenSearchClient client = createClient(OpenSearchClient.class, getRegion(), null);
+        OpenSearchClient client = createClient(OpenSearchClient.class);
         return client.acceptInboundConnection(r->r.connectionId(connectionId));
     }
 
