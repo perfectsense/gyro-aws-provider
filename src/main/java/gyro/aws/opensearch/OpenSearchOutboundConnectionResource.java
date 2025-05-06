@@ -227,6 +227,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                     t -> t.domainName(getRemoteDomain().getDomainName())
                         .region(getRemoteDomain().getRegion())
                         .ownerId(getRemoteDomain().getOwnerId())))
+                .connectionProperties(getConnectionProperties() != null ? getConnectionProperties().toConnectionProperties() : null)
         );
 
         copyFrom(response);

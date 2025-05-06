@@ -67,4 +67,15 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
     public String primaryKey() {
         return "";
     }
+
+    public ConnectionProperties toConnectionProperties() {
+        ConnectionProperties.Builder builder = ConnectionProperties.builder();
+        if (getCrossClusterSearch() != null) {
+            builder.crossClusterSearch(getCrossClusterSearch().toCrossClusterSearchConnectionProperties());
+        }
+        if (getEndpoint() != null) {
+            builder.endpoint(getEndpoint());
+        }
+        return builder.build();
+    }
 }

@@ -50,4 +50,10 @@ public class OpenSearchCrossClusterSearch extends Diffable implements Copyable<C
     public String primaryKey() {
         return "";
     }
+
+    public CrossClusterSearchConnectionProperties toCrossClusterSearchConnectionProperties() {
+        return CrossClusterSearchConnectionProperties.builder()
+            .skipUnavailable(getSkipUnavailable())
+            .build();
+    }
 }
