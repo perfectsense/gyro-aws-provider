@@ -174,6 +174,9 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         crossClusterSearch.setSkipUnavailable(model.connectionProperties().crossClusterSearch().skipUnavailableAsString());
         connectionProperties.setCrossClusterSearch(crossClusterSearch);
         setConnectionProperties(connectionProperties);
+
+        setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
+        setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
     }
 
     @Override
