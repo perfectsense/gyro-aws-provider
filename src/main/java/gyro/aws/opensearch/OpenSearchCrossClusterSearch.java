@@ -27,7 +27,7 @@ public class OpenSearchCrossClusterSearch extends Diffable implements Copyable<C
     private String skipUnavailable;
 
     /**
-     * The direct connection property to skip unavailable clusters. ``Defaults to 'true'``
+     * The direct connection property to skip unavailable clusters. ``Defaults to 'ENABLED'``
      */
     @ValidStrings({"ENABLED", "DISABLED"})
     public String getSkipUnavailable() {
