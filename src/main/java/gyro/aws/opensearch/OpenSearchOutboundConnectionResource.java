@@ -189,14 +189,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
         if (response.hasConnections() && !response.connections().isEmpty()) {
             OutboundConnection connection = response.connections().get(0);
-            if (!OutboundConnectionStatusCode.ACTIVE.equals(connection.connectionStatus().statusCode())) {
-                return false;
-            }
             copyFrom(connection);
             return true;
-        } else {
-            return false;
         }
+            return false;
     }
 
     @Override
