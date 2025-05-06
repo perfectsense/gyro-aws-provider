@@ -36,14 +36,18 @@ import java.util.concurrent.TimeUnit;
  *         connection-alias: "outbound-example"
  *         local-domain-name: $(aws::opensearch-domain "open-search-domain-example-1")
  *         remote-domain-name: $(aws::opensearch-domain "open-search-domain-example-2")
- *         skip-unavailable-clusters: ENABLED
+ *         connection-properties
+ *             cross-cluster-search
+ *                 skip-unavailable-clusters: ENABLED
+ *             end
+ *         end
  *     end
  */
 @Type("opensearch-outbound-connection")
 public class OpenSearchOutboundConnectionResource extends AwsResource implements Copyable<OutboundConnection> {
     private String connectionAlias;
     private String connectionMode;
-    private String skipUnavailableClusters;
+    private OpenSearchConnectionProperties connectionProperties;
 
     private OpenSearchDomainResource localDomain;
     private OpenSearchDomainResource remoteDomain;
@@ -129,21 +133,22 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         this.remoteDomain = remoteDomain;
     }
 
+
     /**
-     * The direct connection property to skip unavailable clusters. ``Defaults to 'true'``
+     * The connection properties for the OpenSearch connection.
      */
-    @ValidStrings({"ENABLED", "DISABLED"})
-    public String getSkipUnavailableClusters() {
-        if (skipUnavailableClusters == null) {
-            skipUnavailableClusters = "ENABLED";
-        }
-        return skipUnavailableClusters;
+    public OpenSearchConnectionProperties getConnectionProperties() {
+        return connectionProperties;
     }
 
-    public void setSkipUnavailableClusters(String skipUnavailableClusters) {
-        this.skipUnavailableClusters = skipUnavailableClusters;
+    public void setConnectionProperties(OpenSearchConnectionProperties connectionProperties) {
+
+        this.connectionProperties = connectionProperties;
     }
 
+    /**
+     * The Amazon Resource Name (ARN) associated with the outbound connection resource.
+     */
     public String getArn() {
         return arn;
     }
@@ -159,6 +164,13 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         setConnectionId(model.connectionId());
         setConnectionMode(String.valueOf(model.connectionMode()));
         setConnectionStatus(String.valueOf(model.connectionStatus()));
+
+        // connection properties
+        OpenSearchConnectionProperties connectionProperties = newSubresource(OpenSearchConnectionProperties.class);
+        OpenSearchCrossClusterSearch crossClusterSearch = newSubresource(OpenSearchCrossClusterSearch.class);
+        crossClusterSearch.setSkipUnavailable(model.connectionProperties().crossClusterSearch().skipUnavailableAsString());
+        connectionProperties.setCrossClusterSearch(crossClusterSearch);
+        setConnectionProperties(connectionProperties);
     }
 
     @Override
@@ -199,18 +211,27 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                         .ownerId(getRemoteDomain().getOwnerId())))
         );
 
-        setConnectionAlias(response.connectionAlias());
-        setConnectionId(response.connectionId());
-        setConnectionMode(response.connectionModeAsString());
-        setSkipUnavailableClusters(String.valueOf(response.connectionProperties().crossClusterSearch().skipUnavailable()));
+        OutboundConnection outbound = OutboundConnection.builder()
+            .connectionAlias(response.connectionAlias())
+            .connectionId(response.connectionId())
+            .connectionMode(response.connectionMode())
+            .connectionProperties(response.connectionProperties())
+            .connectionStatus(response.connectionStatus())
+            .localDomainInfo(response.localDomainInfo())
+            .remoteDomainInfo(response.remoteDomainInfo())
+            .build();
 
+        copyFrom(outbound);
+
+        String uiMessage = "\n@|bold,white   · Waiting for '%s' Status... |@";
+        ui.write(String.format(uiMessage, OutboundConnectionStatusCode.PENDING_ACCEPTANCE));
         waitForStatus(client, OutboundConnectionStatusCode.PENDING_ACCEPTANCE);
 
         // Accepter
         getRemoteDomain().acceptInboundConnection(response.connectionId());
 
+        ui.write(String.format(uiMessage, OutboundConnectionStatusCode.ACTIVE));
         waitForStatus(client, OutboundConnectionStatusCode.ACTIVE);
-
     }
 
     @Override
