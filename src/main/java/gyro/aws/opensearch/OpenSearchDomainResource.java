@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
@@ -54,6 +55,8 @@ import software.amazon.awssdk.services.opensearch.model.IPAddressType;
 import software.amazon.awssdk.services.opensearch.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.opensearch.model.Tag;
 import software.amazon.awssdk.services.opensearch.model.UpdateDomainConfigRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.utils.IoUtils;
 
 /**
@@ -458,39 +461,6 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         this.endpointV2 = endpointV2;
     }
 
-    /**
-     * The AWS region associated with the OpenSearch domain.
-     * If the region is not set, it is derived
-     * from the Amazon Resource Name (ARN) of the domain by splitting the ARN and extracting the region component.
-     */
-    @Output
-    public String getRegion() {
-        if (region == null) {
-            setRegion(getArn().split(":")[3]);
-        }
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    /**
-     * Retrieves the AWS account ID associated with the OpenSearch domain.
-     * If the account ID is not set, it is derived from the Amazon Resource Name (ARN) by extracting the account portion.
-     */
-    @Output
-    public String getOwnerId() {
-        if (ownerId == null) {
-            setOwnerId(getArn().split(":")[4]);
-        }
-        return ownerId;
-    }
-
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
-    }
-
     @Override
     public void copyFrom(DomainStatus model) {
         setId(model.domainId());
@@ -832,4 +802,15 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         OpenSearchClient client = createClient(OpenSearchClient.class, getRegion(), null);
         return client.acceptInboundConnection(r->r.connectionId(connectionId));
     }
+
+    public String getOwnerId() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
+    }
+
+    public String getRegion() {
+        return credentials(AwsCredentials.class).getRegion();
+    }
+
 }
