@@ -18,6 +18,7 @@ package gyro.aws.kms;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
@@ -32,6 +33,7 @@ import com.psddev.dari.util.CompactMap;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -44,6 +46,7 @@ import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.NotFoundException;
+import software.amazon.awssdk.services.kms.model.ReplicateKeyResponse;
 import software.amazon.awssdk.services.kms.model.Tag;
 import software.amazon.awssdk.utils.IoUtils;
 
@@ -99,7 +102,11 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private String origin;
     private String pendingWindow;
     private String policy;
+    private KmsKeyResource primaryKmsKey;
+    private String primaryKeyRegion;
     private Map<String, String> tags;
+
+    private KmsKeyMultiRegionConfiguration multiRegionConfiguration;
 
     /**
      * The set of aliases associated with the key.
@@ -312,6 +319,28 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
+     * The primary KMS key associated with this resource.
+     */
+    public KmsKeyResource getPrimaryKmsKey() {
+        return primaryKmsKey;
+    }
+
+    public void setPrimaryKmsKey(KmsKeyResource primaryKmsKey) {
+        this.primaryKmsKey = primaryKmsKey;
+    }
+
+    /**
+     * The primary region of the KMS key associated with this resource.
+     */
+    public String getPrimaryKeyRegion() {
+        return primaryKeyRegion;
+    }
+
+    public void setPrimaryKeyRegion(String primaryKeyRegion) {
+        this.primaryKeyRegion = primaryKeyRegion;
+    }
+
+    /**
      * The tags associated with the key.
      */
     @Updatable
@@ -331,6 +360,18 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         }
     }
 
+    /**
+     * The Multi-Region configuration associated with the KMS key.
+     */
+    @Output
+    public KmsKeyMultiRegionConfiguration getMultiRegionConfiguration() {
+        return multiRegionConfiguration;
+    }
+
+    public void setMultiRegionConfiguration(KmsKeyMultiRegionConfiguration multiRegionConfiguration) {
+        this.multiRegionConfiguration = multiRegionConfiguration;
+    }
+
     @Override
     public void copyFrom(KeyMetadata keyMetadata) {
         setDescription(keyMetadata.description());
@@ -342,6 +383,13 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         setKeyUsage(keyMetadata.keyUsageAsString());
         setMultiRegion(keyMetadata.multiRegion());
         setOrigin(keyMetadata.originAsString());
+
+        if (getMultiRegion()) {
+            KmsKeyMultiRegionConfiguration multiRegionConfiguration = newSubresource(KmsKeyMultiRegionConfiguration.class);
+            multiRegionConfiguration.copyFrom(keyMetadata.multiRegionConfiguration());
+
+            setMultiRegionConfiguration(multiRegionConfiguration);
+        }
 
         KmsClient client = createClient(KmsClient.class);
 
@@ -391,22 +439,33 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 .collect(Collectors.toList());
 
         if (newList.size() == getAliases().size()) {
+            KeyMetadata keyMetadata;
+            if (getPrimaryKmsKey() != null) {
+                KmsClient primaryKeyClient = createClient(KmsClient.class, getPrimaryKeyRegion(), null);
+                String replicaRegion = credentials(AwsCredentials.class).getRegion();
+                ReplicateKeyResponse replicaResponse = primaryKeyClient.replicateKey(r -> r.keyId(getPrimaryKmsKey().getArn())
+                    .replicaRegion(replicaRegion)
+                    .bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
+                    .description(getDescription())
+                    .policy(getPolicy())
+                    .tags(toTag())
+                );
+                keyMetadata = replicaResponse.replicaKeyMetadata();
+            } else {
+                CreateKeyResponse response = client.createKey(
+                    r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
+                        .description(getDescription())
+                        .keyUsage(getKeyUsage())
+                        .origin(getOrigin())
+                        .multiRegion(getMultiRegion())
+                        .policy(getPolicy())
+                        .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
+                        .tags(toTag())
+                );
+                keyMetadata = response.keyMetadata();
+            }
 
-            CreateKeyResponse response = client.createKey(
-                r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                            .description(getDescription())
-                            .keyUsage(getKeyUsage())
-                            .origin(getOrigin())
-                            .multiRegion(getMultiRegion())
-                            .policy(getPolicy())
-                            .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
-                            .tags(toTag())
-            );
-
-            setArn(response.keyMetadata().arn());
-            setId(response.keyMetadata().keyId());
-            setKeyManager(response.keyMetadata().keyManagerAsString());
-            setKeyState(response.keyMetadata().keyStateAsString());
+            copyFrom(keyMetadata);
 
             state.save();
 
@@ -523,5 +582,31 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         } catch (IOException ex) {
             throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
         }
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (configuredFields.contains("primary-kms-key")) {
+            if (!configuredFields.contains("primary-key-region")) {
+                errors.add(new ValidationError(this, null, "primary-key-region is required when primary-kms-key is set."));
+            }
+            if (configuredFields.contains("multi-region")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot be multi-region."));
+            }
+            if (configuredFields.contains("key-rotation")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot enable key rotation."));
+            }
+            if (configuredFields.contains("pending-window")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot have pending window."));
+            }
+        } else {
+            if (configuredFields.contains("primary-kms-key")) {
+                errors.add(new ValidationError(this, null, "primary-kms-key is required when primary-key-region is set."));
+            }
+        }
+
+        return errors;
     }
 }
