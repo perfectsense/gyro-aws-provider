@@ -70,19 +70,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     }
 
     /**
-     * The connection id for the resource
-     */
-    @Id
-    @Output
-    public String getConnectionId() {
-        return connectionId;
-    }
-
-    public void setConnectionId(String connectionId) {
-        this.connectionId = connectionId;
-    }
-
-    /**
      * The connection mode ``Defaults to (DIRECT)``
      */
     @ValidStrings({"DIRECT", "VPC_ENDPOINT"})
@@ -145,6 +132,19 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     public void setConnectionProperties(OpenSearchConnectionProperties connectionProperties) {
 
         this.connectionProperties = connectionProperties;
+    }
+
+    /**
+     * The connection id for the resource
+     */
+    @Id
+    @Output
+    public String getConnectionId() {
+        return connectionId;
+    }
+
+    public void setConnectionId(String connectionId) {
+        this.connectionId = connectionId;
     }
 
     public void copyFrom(CreateOutboundConnectionResponse model){
