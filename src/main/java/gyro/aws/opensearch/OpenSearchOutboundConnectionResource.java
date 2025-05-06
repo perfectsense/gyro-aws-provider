@@ -168,12 +168,12 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         setConnectionMode(String.valueOf(model.connectionMode()));
         setConnectionStatus(String.valueOf(model.connectionStatus()));
 
-        // connection properties
-        OpenSearchConnectionProperties connectionProperties = newSubresource(OpenSearchConnectionProperties.class);
-        OpenSearchCrossClusterSearch crossClusterSearch = newSubresource(OpenSearchCrossClusterSearch.class);
-        crossClusterSearch.setSkipUnavailable(model.connectionProperties().crossClusterSearch().skipUnavailableAsString());
-        connectionProperties.setCrossClusterSearch(crossClusterSearch);
-        setConnectionProperties(connectionProperties);
+        setConnectionProperties(null);
+        if(model.connectionProperties() != null) {
+            OpenSearchConnectionProperties newConnectionProperties = newSubresource(OpenSearchConnectionProperties.class);
+            newConnectionProperties.copyFrom(model.connectionProperties());
+            setConnectionProperties(newConnectionProperties);
+        }
 
         setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
         setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
