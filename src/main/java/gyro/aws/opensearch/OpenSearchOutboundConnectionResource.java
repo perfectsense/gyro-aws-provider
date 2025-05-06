@@ -157,6 +157,19 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         this.arn = arn;
     }
 
+    public void copyFrom(CreateOutboundConnectionResponse model){
+        OutboundConnection outbound = OutboundConnection.builder()
+            .connectionAlias(model.connectionAlias())
+            .connectionId(model.connectionId())
+            .connectionMode(model.connectionMode())
+            .connectionProperties(model.connectionProperties())
+            .connectionStatus(model.connectionStatus())
+            .localDomainInfo(model.localDomainInfo())
+            .remoteDomainInfo(model.remoteDomainInfo())
+            .build();
+
+        copyFrom(outbound);
+    }
 
     @Override
     public void copyFrom(OutboundConnection model) {
@@ -211,17 +224,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                         .ownerId(getRemoteDomain().getOwnerId())))
         );
 
-        OutboundConnection outbound = OutboundConnection.builder()
-            .connectionAlias(response.connectionAlias())
-            .connectionId(response.connectionId())
-            .connectionMode(response.connectionMode())
-            .connectionProperties(response.connectionProperties())
-            .connectionStatus(response.connectionStatus())
-            .localDomainInfo(response.localDomainInfo())
-            .remoteDomainInfo(response.remoteDomainInfo())
-            .build();
-
-        copyFrom(outbound);
+        copyFrom(response);
 
         String uiMessage = "\n@|bold,white   · Waiting for '%s' Status... |@";
         ui.write(String.format(uiMessage, OutboundConnectionStatusCode.PENDING_ACCEPTANCE));
