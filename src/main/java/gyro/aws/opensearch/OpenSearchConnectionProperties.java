@@ -54,9 +54,12 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
     public void copyFrom(ConnectionProperties model) {
         setEndpoint(model.endpoint());
 
-        OpenSearchCrossClusterSearch crossClusterSearch = new OpenSearchCrossClusterSearch();
-        crossClusterSearch.setSkipUnavailable(model.crossClusterSearch().skipUnavailableAsString());
-        setCrossClusterSearch(crossClusterSearch);
+        setCrossClusterSearch(null);
+        if (model.crossClusterSearch() != null) {
+            OpenSearchCrossClusterSearch crossClusterSearch = new OpenSearchCrossClusterSearch();
+            crossClusterSearch.copyFrom(model.crossClusterSearch());
+            setCrossClusterSearch(crossClusterSearch);
+        }
     }
 
 
