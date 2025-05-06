@@ -51,7 +51,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     private OpenSearchDomainResource localDomain;
     private OpenSearchDomainResource remoteDomain;
-    private String arn;
     private String connectionId;
     private String connectionStatus;
 
@@ -144,17 +143,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     public void setConnectionProperties(OpenSearchConnectionProperties connectionProperties) {
 
         this.connectionProperties = connectionProperties;
-    }
-
-    /**
-     * The Amazon Resource Name (ARN) associated with the outbound connection resource.
-     */
-    public String getArn() {
-        return arn;
-    }
-
-    public void setArn(String arn) {
-        this.arn = arn;
     }
 
     public void copyFrom(CreateOutboundConnectionResponse model){
