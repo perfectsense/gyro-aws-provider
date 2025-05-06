@@ -28,6 +28,8 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
 
     /**
      * The cross-cluster search configuration for an OpenSearch domain.
+     *
+     * @subresource gyro.aws.opensearch.OpenSearchCrossClusterSearch
      */
     public OpenSearchCrossClusterSearch getCrossClusterSearch() {
         return crossClusterSearch;
