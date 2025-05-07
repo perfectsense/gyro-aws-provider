@@ -57,10 +57,12 @@ public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable
 
     @Override
     public void copyFrom(MultiRegionConfiguration model) {
-        KmsKeyMultiRegionKey multiRegionKey = newSubresource(KmsKeyMultiRegionKey.class);
-        multiRegionKey.copyFrom(model.primaryKey());
-
-        setPrimaryKey(multiRegionKey);
+        setPrimaryKey(null);
+        if (model.primaryKey() != null) {
+            KmsKeyMultiRegionKey multiRegionKey = newSubresource(KmsKeyMultiRegionKey.class);
+            multiRegionKey.copyFrom(model.primaryKey());
+            setPrimaryKey(multiRegionKey);
+        }
 
         List<KmsKeyMultiRegionKey> replicaKeys = new ArrayList<>();
         for (MultiRegionKey replicaKey : model.replicaKeys()) {
