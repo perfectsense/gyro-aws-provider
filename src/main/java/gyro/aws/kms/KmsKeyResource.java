@@ -31,9 +31,7 @@ import gyro.core.resource.Resource;
 import com.psddev.dari.util.CompactMap;
 
 import gyro.core.scope.State;
-import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
-import gyro.core.validation.ValidationError;
+import gyro.core.validation.*;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -172,6 +170,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      * Determines whether the backing key is rotated each year. Defaults to ``false``.
      */
     @Updatable
+    @ConflictsWith("primary-kms-key")
     public Boolean getKeyRotation() {
         if (keyRotation == null) {
             keyRotation = false;
@@ -235,7 +234,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
     /**
      * The usage of the key. Defaults to ``ENCRYPT_DECRYPT``.
+     * Required when not using Primary KMS Key field.
      */
+    @ConflictsWith("primary-kms-key")
     public String getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = "ENCRYPT_DECRYPT";
@@ -252,6 +253,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      * The spec for the key.
      */
     @ValidStrings({"RSA_2048","RSA_3072","RSA_4096","ECC_NIST_P256","ECC_NIST_P384","ECC_NIST_P521","ECC_SECG_P256K1","SYMMETRIC_DEFAULT","HMAC_224","HMAC_256","HMAC_384","HMAC_512","SM2"})
+    @ConflictsWith("primary-kms-key")
     public KeySpec getKeySpec() {
         return keySpec;
     }
@@ -263,6 +265,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The capability of cross-region replication of the key. Defaults to ``false``
      */
+    @ConflictsWith("primary-kms-key")
     public Boolean getMultiRegion() {
         if (multiRegion == null) {
             multiRegion = false;
@@ -277,6 +280,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The source of the key material. Defaults to ``AWS_KMS``.
      */
+    @ConflictsWith("primary-kms-key")
     public String getOrigin() {
         if (origin == null) {
             origin = "AWS_KMS";
@@ -320,6 +324,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The primary KMS key associated with this resource.
      */
+    @DependsOn("primary-key-region")
     public KmsKeyResource getPrimaryKmsKey() {
         return primaryKmsKey;
     }
@@ -331,6 +336,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The primary region of the KMS key associated with this resource.
      */
+    @DependsOn("primary-kms-key")
     public String getPrimaryKeyRegion() {
         return primaryKeyRegion;
     }
@@ -588,29 +594,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (configuredFields.contains("primary-kms-key")) {
-            if (!configuredFields.contains("primary-key-region")) {
-                errors.add(new ValidationError(this, null, "primary-key-region is required when primary-kms-key is set."));
-            }
-            if (configuredFields.contains("multi-region")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot be multi-region."));
-            }
-            if (configuredFields.contains("key-rotation")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot enable key rotation."));
-            }
-            if (configuredFields.contains("key-usage")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot use key usage."));
-            }
-            if(configuredFields.contains("origin")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot use origin."));
-            }
-            if(configuredFields.contains("key-spec")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot use key spec."));
-            }
-        } else {
-            if (configuredFields.contains("primary-key-region")) {
-                errors.add(new ValidationError(this, null, "primary-kms-key is required when primary-key-region is set."));
-            }
+        if (!configuredFields.contains("primary-kms-key")) {
             if (!configuredFields.contains("key-usage")) {
                 errors.add(new ValidationError(this, null, "key-usage is required when primary-kms-key is not set."));
             }
