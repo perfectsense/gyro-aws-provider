@@ -236,7 +236,6 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The usage of the key. Defaults to ``ENCRYPT_DECRYPT``.
      */
-    @Required
     public String getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = "ENCRYPT_DECRYPT";
