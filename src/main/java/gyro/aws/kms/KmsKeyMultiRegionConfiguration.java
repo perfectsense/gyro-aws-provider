@@ -31,29 +31,6 @@ public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable
 
     private List<KmsKeyMultiRegionKey> replicaKeys;
 
-    @Override
-    public void copyFrom(MultiRegionConfiguration model) {
-        KmsKeyMultiRegionKey multiRegionKey = newSubresource(KmsKeyMultiRegionKey.class);
-        multiRegionKey.copyFrom(model.primaryKey());
-
-        setPrimaryKey(multiRegionKey);
-
-        List<KmsKeyMultiRegionKey> replicaKeys = new ArrayList<>();
-        for (MultiRegionKey replicaKey : model.replicaKeys()) {
-            KmsKeyMultiRegionKey regionSpecificKey = newSubresource(KmsKeyMultiRegionKey.class);
-            regionSpecificKey.copyFrom(replicaKey);
-            replicaKeys.add(regionSpecificKey);
-        }
-
-        setReplicaKeys(replicaKeys);
-        setMultiRegionKeyType(model.multiRegionKeyTypeAsString());
-    }
-
-    @Override
-    public String primaryKey() {
-        return "";
-    }
-
     public String getMultiRegionKeyType() {
         return multiRegionKeyType;
     }
@@ -76,5 +53,28 @@ public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable
 
     public void setReplicaKeys(List<KmsKeyMultiRegionKey> replicaKeys) {
         this.replicaKeys = replicaKeys;
+    }
+
+    @Override
+    public void copyFrom(MultiRegionConfiguration model) {
+        KmsKeyMultiRegionKey multiRegionKey = newSubresource(KmsKeyMultiRegionKey.class);
+        multiRegionKey.copyFrom(model.primaryKey());
+
+        setPrimaryKey(multiRegionKey);
+
+        List<KmsKeyMultiRegionKey> replicaKeys = new ArrayList<>();
+        for (MultiRegionKey replicaKey : model.replicaKeys()) {
+            KmsKeyMultiRegionKey regionSpecificKey = newSubresource(KmsKeyMultiRegionKey.class);
+            regionSpecificKey.copyFrom(replicaKey);
+            replicaKeys.add(regionSpecificKey);
+        }
+
+        setReplicaKeys(replicaKeys);
+        setMultiRegionKeyType(model.multiRegionKeyTypeAsString());
+    }
+
+    @Override
+    public String primaryKey() {
+        return "";
     }
 }
