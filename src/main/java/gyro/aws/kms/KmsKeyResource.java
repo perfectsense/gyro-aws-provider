@@ -16,20 +16,31 @@
 
 package gyro.aws.kms;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.CompactMap;
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
-
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
+import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.DependsOn;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kms.KmsClient;
@@ -44,17 +55,9 @@ import software.amazon.awssdk.services.kms.model.KmsException;
 import software.amazon.awssdk.services.kms.model.KmsInvalidStateException;
 import software.amazon.awssdk.services.kms.model.ListAliasesResponse;
 import software.amazon.awssdk.services.kms.model.NotFoundException;
+import software.amazon.awssdk.services.kms.model.ReplicateKeyResponse;
 import software.amazon.awssdk.services.kms.model.Tag;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -99,7 +102,11 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     private String origin;
     private String pendingWindow;
     private String policy;
+    private KmsKeyResource primaryKmsKey;
+    private String primaryKeyRegion;
     private Map<String, String> tags;
+
+    private KmsKeyMultiRegionConfiguration multiRegionConfiguration;
 
     /**
      * The set of aliases associated with the key.
@@ -165,6 +172,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      * Determines whether the backing key is rotated each year. Defaults to ``false``.
      */
     @Updatable
+    @ConflictsWith("primary-kms-key")
     public Boolean getKeyRotation() {
         if (keyRotation == null) {
             keyRotation = false;
@@ -228,8 +236,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
     /**
      * The usage of the key. Defaults to ``ENCRYPT_DECRYPT``.
+     * Required when not using Primary KMS Key field.
      */
-    @Required
+    @ConflictsWith("primary-kms-key")
     public String getKeyUsage() {
         if (keyUsage == null) {
             keyUsage = "ENCRYPT_DECRYPT";
@@ -245,7 +254,9 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The spec for the key.
      */
-    @ValidStrings({"RSA_2048","RSA_3072","RSA_4096","ECC_NIST_P256","ECC_NIST_P384","ECC_NIST_P521","ECC_SECG_P256K1","SYMMETRIC_DEFAULT","HMAC_224","HMAC_256","HMAC_384","HMAC_512","SM2"})
+    @ValidStrings({ "RSA_2048", "RSA_3072", "RSA_4096", "ECC_NIST_P256", "ECC_NIST_P384", "ECC_NIST_P521",
+        "ECC_SECG_P256K1", "SYMMETRIC_DEFAULT", "HMAC_224", "HMAC_256", "HMAC_384", "HMAC_512", "SM2" })
+    @ConflictsWith("primary-kms-key")
     public KeySpec getKeySpec() {
         return keySpec;
     }
@@ -257,6 +268,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The capability of cross-region replication of the key. Defaults to ``false``
      */
+    @ConflictsWith("primary-kms-key")
     public Boolean getMultiRegion() {
         if (multiRegion == null) {
             multiRegion = false;
@@ -271,6 +283,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The source of the key material. Defaults to ``AWS_KMS``.
      */
+    @ConflictsWith("primary-kms-key")
     public String getOrigin() {
         if (origin == null) {
             origin = "AWS_KMS";
@@ -312,6 +325,30 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     }
 
     /**
+     * The primary KMS key associated with this resource.
+     */
+    @DependsOn("primary-key-region")
+    public KmsKeyResource getPrimaryKmsKey() {
+        return primaryKmsKey;
+    }
+
+    public void setPrimaryKmsKey(KmsKeyResource primaryKmsKey) {
+        this.primaryKmsKey = primaryKmsKey;
+    }
+
+    /**
+     * The primary region of the KMS key associated with this resource.
+     */
+    @DependsOn("primary-kms-key")
+    public String getPrimaryKeyRegion() {
+        return primaryKeyRegion;
+    }
+
+    public void setPrimaryKeyRegion(String primaryKeyRegion) {
+        this.primaryKeyRegion = primaryKeyRegion;
+    }
+
+    /**
      * The tags associated with the key.
      */
     @Updatable
@@ -331,6 +368,18 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         }
     }
 
+    /**
+     * The Multi-Region configuration associated with the KMS key.
+     */
+    @Output
+    public KmsKeyMultiRegionConfiguration getMultiRegionConfiguration() {
+        return multiRegionConfiguration;
+    }
+
+    public void setMultiRegionConfiguration(KmsKeyMultiRegionConfiguration multiRegionConfiguration) {
+        this.multiRegionConfiguration = multiRegionConfiguration;
+    }
+
     @Override
     public void copyFrom(KeyMetadata keyMetadata) {
         setDescription(keyMetadata.description());
@@ -342,6 +391,15 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         setKeyUsage(keyMetadata.keyUsageAsString());
         setMultiRegion(keyMetadata.multiRegion());
         setOrigin(keyMetadata.originAsString());
+
+        setMultiRegionConfiguration(null);
+        if (keyMetadata.multiRegionConfiguration() != null) {
+            KmsKeyMultiRegionConfiguration multiRegionConfiguration =
+                newSubresource(KmsKeyMultiRegionConfiguration.class);
+            multiRegionConfiguration.copyFrom(keyMetadata.multiRegionConfiguration());
+
+            setMultiRegionConfiguration(multiRegionConfiguration);
+        }
 
         KmsClient client = createClient(KmsClient.class);
 
@@ -386,27 +444,40 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             throw new GyroException("At least one alias must be provided.");
         }
 
-        List<String> newList = getAliases().stream()
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> newList = getAliases().stream().distinct().collect(Collectors.toList());
 
         if (newList.size() == getAliases().size()) {
+            KeyMetadata keyMetadata;
+            if (getPrimaryKmsKey() != null) {
+                KmsClient primaryKeyClient = createClient(KmsClient.class, getPrimaryKeyRegion(), null);
+                String replicaRegion = credentials(AwsCredentials.class).getRegion();
+                ReplicateKeyResponse replicaResponse = primaryKeyClient.replicateKey(
+                    r -> r.keyId(getPrimaryKmsKey().getArn())
+                        .replicaRegion(replicaRegion)
+                        .bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
+                        .description(getDescription())
+                        .policy(getPolicy())
+                        .tags(toTag())
+                );
+                keyMetadata = replicaResponse.replicaKeyMetadata();
+            } else {
+                CreateKeyResponse response = client.createKey(
+                    r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
+                        .description(getDescription())
+                        .keyUsage(getKeyUsage())
+                        .origin(getOrigin())
+                        .multiRegion(getMultiRegion())
+                        .policy(getPolicy())
+                        .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
+                        .tags(toTag())
+                );
+                keyMetadata = response.keyMetadata();
+            }
 
-            CreateKeyResponse response = client.createKey(
-                r -> r.bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                            .description(getDescription())
-                            .keyUsage(getKeyUsage())
-                            .origin(getOrigin())
-                            .multiRegion(getMultiRegion())
-                            .policy(getPolicy())
-                            .keySpec(getKeySpec() != null ? getKeySpec() : KeySpec.SYMMETRIC_DEFAULT)
-                            .tags(toTag())
-            );
-
-            setArn(response.keyMetadata().arn());
-            setId(response.keyMetadata().keyId());
-            setKeyManager(response.keyMetadata().keyManagerAsString());
-            setKeyState(response.keyMetadata().keyStateAsString());
+            setArn(keyMetadata.arn());
+            setId(keyMetadata.keyId());
+            setKeyManager(keyMetadata.keyManagerAsString());
+            setKeyState(keyMetadata.keyStateAsString());
 
             state.save();
 
@@ -447,7 +518,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             }
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is either pending import or pending deletion. It must be "
-                    + "disabled or enabled to perform this operation");
+                + "disabled or enabled to perform this operation");
         }
 
         try {
@@ -476,20 +547,15 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 throw new GyroException(ex.getMessage());
             }
 
-            client.tagResource(r -> r.tags(toTag())
-                    .keyId(getArn())
-            );
+            client.tagResource(r -> r.tags(toTag()).keyId(getArn()));
 
-            client.updateKeyDescription(r -> r.description(getDescription())
-                    .keyId(getId()));
+            client.updateKeyDescription(r -> r.description(getDescription()).keyId(getId()));
 
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
 
-        client.putKeyPolicy(r -> r.policy(getPolicy())
-                .policyName("default")
-                .keyId(getId()));
+        client.putKeyPolicy(r -> r.policy(getPolicy()).policyName("default").keyId(getId()));
     }
 
     @Override
@@ -521,7 +587,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             JsonNode jsonNode = obj.readTree(policy);
             return jsonNode.toString();
         } catch (IOException ex) {
-            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+            throw new GyroException(String.format("Could not read the json `%s`", policy), ex);
         }
     }
 }
