@@ -16,22 +16,33 @@
 
 package gyro.aws.kms;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psddev.dari.util.CompactMap;
 import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.CompactMap;
-
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
-import gyro.core.validation.*;
+import gyro.core.validation.ConflictsWith;
+import gyro.core.validation.DependsOn;
+import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.kms.model.AliasListEntry;
 import software.amazon.awssdk.services.kms.model.AlreadyExistsException;
@@ -47,15 +58,6 @@ import software.amazon.awssdk.services.kms.model.NotFoundException;
 import software.amazon.awssdk.services.kms.model.ReplicateKeyResponse;
 import software.amazon.awssdk.services.kms.model.Tag;
 import software.amazon.awssdk.utils.IoUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -252,7 +254,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
     /**
      * The spec for the key.
      */
-    @ValidStrings({"RSA_2048","RSA_3072","RSA_4096","ECC_NIST_P256","ECC_NIST_P384","ECC_NIST_P521","ECC_SECG_P256K1","SYMMETRIC_DEFAULT","HMAC_224","HMAC_256","HMAC_384","HMAC_512","SM2"})
+    @ValidStrings({ "RSA_2048", "RSA_3072", "RSA_4096", "ECC_NIST_P256", "ECC_NIST_P384", "ECC_NIST_P521",
+        "ECC_SECG_P256K1", "SYMMETRIC_DEFAULT", "HMAC_224", "HMAC_256", "HMAC_384", "HMAC_512", "SM2" })
     @ConflictsWith("primary-kms-key")
     public KeySpec getKeySpec() {
         return keySpec;
@@ -391,7 +394,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
 
         setMultiRegionConfiguration(null);
         if (keyMetadata.multiRegionConfiguration() != null) {
-            KmsKeyMultiRegionConfiguration multiRegionConfiguration = newSubresource(KmsKeyMultiRegionConfiguration.class);
+            KmsKeyMultiRegionConfiguration multiRegionConfiguration =
+                newSubresource(KmsKeyMultiRegionConfiguration.class);
             multiRegionConfiguration.copyFrom(keyMetadata.multiRegionConfiguration());
 
             setMultiRegionConfiguration(multiRegionConfiguration);
@@ -440,21 +444,20 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             throw new GyroException("At least one alias must be provided.");
         }
 
-        List<String> newList = getAliases().stream()
-                .distinct()
-                .collect(Collectors.toList());
+        List<String> newList = getAliases().stream().distinct().collect(Collectors.toList());
 
         if (newList.size() == getAliases().size()) {
             KeyMetadata keyMetadata;
             if (getPrimaryKmsKey() != null) {
                 KmsClient primaryKeyClient = createClient(KmsClient.class, getPrimaryKeyRegion(), null);
                 String replicaRegion = credentials(AwsCredentials.class).getRegion();
-                ReplicateKeyResponse replicaResponse = primaryKeyClient.replicateKey(r -> r.keyId(getPrimaryKmsKey().getArn())
-                    .replicaRegion(replicaRegion)
-                    .bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
-                    .description(getDescription())
-                    .policy(getPolicy())
-                    .tags(toTag())
+                ReplicateKeyResponse replicaResponse = primaryKeyClient.replicateKey(
+                    r -> r.keyId(getPrimaryKmsKey().getArn())
+                        .replicaRegion(replicaRegion)
+                        .bypassPolicyLockoutSafetyCheck(getBypassPolicyLockoutSafetyCheck())
+                        .description(getDescription())
+                        .policy(getPolicy())
+                        .tags(toTag())
                 );
                 keyMetadata = replicaResponse.replicaKeyMetadata();
             } else {
@@ -471,7 +474,10 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 keyMetadata = response.keyMetadata();
             }
 
-            copyFrom(keyMetadata);
+            setArn(keyMetadata.arn());
+            setId(keyMetadata.keyId());
+            setKeyManager(keyMetadata.keyManagerAsString());
+            setKeyState(keyMetadata.keyStateAsString());
 
             state.save();
 
@@ -512,7 +518,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             }
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is either pending import or pending deletion. It must be "
-                    + "disabled or enabled to perform this operation");
+                + "disabled or enabled to perform this operation");
         }
 
         try {
@@ -541,20 +547,15 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
                 throw new GyroException(ex.getMessage());
             }
 
-            client.tagResource(r -> r.tags(toTag())
-                    .keyId(getArn())
-            );
+            client.tagResource(r -> r.tags(toTag()).keyId(getArn()));
 
-            client.updateKeyDescription(r -> r.description(getDescription())
-                    .keyId(getId()));
+            client.updateKeyDescription(r -> r.description(getDescription()).keyId(getId()));
 
         } catch (KmsInvalidStateException ex) {
             throw new GyroException("This key is pending deletion. This operation is not supported in this state");
         }
 
-        client.putKeyPolicy(r -> r.policy(getPolicy())
-                .policyName("default")
-                .keyId(getId()));
+        client.putKeyPolicy(r -> r.policy(getPolicy()).policyName("default").keyId(getId()));
     }
 
     @Override
@@ -586,20 +587,7 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             JsonNode jsonNode = obj.readTree(policy);
             return jsonNode.toString();
         } catch (IOException ex) {
-            throw new GyroException(String.format("Could not read the json `%s`",policy),ex);
+            throw new GyroException(String.format("Could not read the json `%s`", policy), ex);
         }
-    }
-
-    @Override
-    public List<ValidationError> validate(Set<String> configuredFields) {
-        List<ValidationError> errors = new ArrayList<>();
-
-        if (!configuredFields.contains("primary-kms-key")) {
-            if (!configuredFields.contains("key-usage")) {
-                errors.add(new ValidationError(this, null, "key-usage is required when primary-kms-key is not set."));
-            }
-        }
-
-        return errors;
     }
 }
