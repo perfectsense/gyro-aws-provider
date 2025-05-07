@@ -16,6 +16,10 @@
 
 package gyro.aws.ec2;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
@@ -37,10 +41,6 @@ import software.amazon.awssdk.services.ec2.model.ModifyVpcPeeringConnectionOptio
 import software.amazon.awssdk.services.ec2.model.PeeringConnectionOptionsRequest;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnectionStateReasonCode;
-
-import java.util.Collections;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Create a Peering Connection between two VPC.
@@ -175,7 +175,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return peerAllowEgressFromLocalClassicLinkToRemoteVpc;
     }
 
-    public void setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(Boolean peerAllowEgressFromLocalClassicLinkToRemoteVpc) {
+    public void setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(
+        Boolean peerAllowEgressFromLocalClassicLinkToRemoteVpc) {
         this.peerAllowEgressFromLocalClassicLinkToRemoteVpc = peerAllowEgressFromLocalClassicLinkToRemoteVpc;
     }
 
@@ -191,7 +192,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return peerAllowEgressFromLocalVpcToRemoteClassicLink;
     }
 
-    public void setPeerAllowEgressFromLocalVpcToRemoteClassicLink(Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink) {
+    public void setPeerAllowEgressFromLocalVpcToRemoteClassicLink(
+        Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink) {
         this.peerAllowEgressFromLocalVpcToRemoteClassicLink = peerAllowEgressFromLocalVpcToRemoteClassicLink;
     }
 
@@ -275,9 +277,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
 
     @Override
     public void delete(GyroUI ui, State state) {
-        try (Ec2Client client = createClient(Ec2Client.class)) {
-            client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
-        }
+        Ec2Client client = createClient(Ec2Client.class);
+        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
@@ -355,9 +356,10 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
-                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
-                    r -> r.vpcPeeringConnectionIds(getId())
-                );
+                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse =
+                    client.describeVpcPeeringConnections(
+                        r -> r.vpcPeeringConnectionIds(getId())
+                    );
                 if (!vpcPeeringConnectionsResponse.hasVpcPeeringConnections()
                     && !vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
                     return false;
