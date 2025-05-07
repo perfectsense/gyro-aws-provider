@@ -28,6 +28,8 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
 
     /**
      * The cross-cluster search configuration for an OpenSearch domain.
+     *
+     * @subresource gyro.aws.opensearch.OpenSearchCrossClusterSearch
      */
     public OpenSearchCrossClusterSearch getCrossClusterSearch() {
         return crossClusterSearch;
@@ -39,8 +41,6 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
 
     /**
      * The endpoint for the OpenSearch domain.
-     *
-     * @return The endpoint URL as a string.
      */
     public String getEndpoint() {
         return endpoint;
@@ -54,14 +54,28 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
     public void copyFrom(ConnectionProperties model) {
         setEndpoint(model.endpoint());
 
-        OpenSearchCrossClusterSearch crossClusterSearch = new OpenSearchCrossClusterSearch();
-        crossClusterSearch.setSkipUnavailable(model.crossClusterSearch().skipUnavailableAsString());
-        setCrossClusterSearch(crossClusterSearch);
+        setCrossClusterSearch(null);
+        if (model.crossClusterSearch() != null) {
+            OpenSearchCrossClusterSearch crossClusterSearch = new OpenSearchCrossClusterSearch();
+            crossClusterSearch.copyFrom(model.crossClusterSearch());
+            setCrossClusterSearch(crossClusterSearch);
+        }
     }
 
 
     @Override
     public String primaryKey() {
         return "";
+    }
+
+    public ConnectionProperties toConnectionProperties() {
+        ConnectionProperties.Builder builder = ConnectionProperties.builder();
+        if (getCrossClusterSearch() != null) {
+            builder.crossClusterSearch(getCrossClusterSearch().toCrossClusterSearchConnectionProperties());
+        }
+        if (getEndpoint() != null) {
+            builder.endpoint(getEndpoint());
+        }
+        return builder.build();
     }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025, Brightspot.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package gyro.aws.opensearch;
 
 import gyro.aws.AwsResource;
@@ -51,9 +67,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     private OpenSearchDomainResource localDomain;
     private OpenSearchDomainResource remoteDomain;
-    private String arn;
-    private String connectionId;
     private String connectionStatus;
+
+    // Read-only
+    private String connectionId;
 
     /**
      * The name of the connection
@@ -66,19 +83,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     public void setConnectionAlias(String connectionAlias) {
         this.connectionAlias = connectionAlias;
-    }
-
-    /**
-     * The connection id for the resource
-     */
-    @Id
-    @Output
-    public String getConnectionId() {
-        return connectionId;
-    }
-
-    public void setConnectionId(String connectionId) {
-        this.connectionId = connectionId;
     }
 
     /**
@@ -147,16 +151,31 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     }
 
     /**
-     * The Amazon Resource Name (ARN) associated with the outbound connection resource.
+     * The connection id for the resource
      */
-    public String getArn() {
-        return arn;
+    @Id
+    @Output
+    public String getConnectionId() {
+        return connectionId;
     }
 
-    public void setArn(String arn) {
-        this.arn = arn;
+    public void setConnectionId(String connectionId) {
+        this.connectionId = connectionId;
     }
 
+    public void copyFrom(CreateOutboundConnectionResponse model){
+        OutboundConnection outbound = OutboundConnection.builder()
+            .connectionAlias(model.connectionAlias())
+            .connectionId(model.connectionId())
+            .connectionMode(model.connectionMode())
+            .connectionProperties(model.connectionProperties())
+            .connectionStatus(model.connectionStatus())
+            .localDomainInfo(model.localDomainInfo())
+            .remoteDomainInfo(model.remoteDomainInfo())
+            .build();
+
+        copyFrom(outbound);
+    }
 
     @Override
     public void copyFrom(OutboundConnection model) {
@@ -165,12 +184,15 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         setConnectionMode(String.valueOf(model.connectionMode()));
         setConnectionStatus(String.valueOf(model.connectionStatus()));
 
-        // connection properties
-        OpenSearchConnectionProperties connectionProperties = newSubresource(OpenSearchConnectionProperties.class);
-        OpenSearchCrossClusterSearch crossClusterSearch = newSubresource(OpenSearchCrossClusterSearch.class);
-        crossClusterSearch.setSkipUnavailable(model.connectionProperties().crossClusterSearch().skipUnavailableAsString());
-        connectionProperties.setCrossClusterSearch(crossClusterSearch);
-        setConnectionProperties(connectionProperties);
+        setConnectionProperties(null);
+        if(model.connectionProperties() != null) {
+            OpenSearchConnectionProperties newConnectionProperties = newSubresource(OpenSearchConnectionProperties.class);
+            newConnectionProperties.copyFrom(model.connectionProperties());
+            setConnectionProperties(newConnectionProperties);
+        }
+
+        setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
+        setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
     }
 
     @Override
@@ -183,14 +205,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
         if (response.hasConnections() && !response.connections().isEmpty()) {
             OutboundConnection connection = response.connections().get(0);
-            if (!OutboundConnectionStatusCode.ACTIVE.equals(connection.connectionStatus().statusCode())) {
-                return false;
-            }
             copyFrom(connection);
             return true;
-        } else {
-            return false;
         }
+            return false;
     }
 
     @Override
@@ -209,19 +227,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
                     t -> t.domainName(getRemoteDomain().getDomainName())
                         .region(getRemoteDomain().getRegion())
                         .ownerId(getRemoteDomain().getOwnerId())))
+                .connectionProperties(getConnectionProperties() != null ? getConnectionProperties().toConnectionProperties() : null)
         );
 
-        OutboundConnection outbound = OutboundConnection.builder()
-            .connectionAlias(response.connectionAlias())
-            .connectionId(response.connectionId())
-            .connectionMode(response.connectionMode())
-            .connectionProperties(response.connectionProperties())
-            .connectionStatus(response.connectionStatus())
-            .localDomainInfo(response.localDomainInfo())
-            .remoteDomainInfo(response.remoteDomainInfo())
-            .build();
-
-        copyFrom(outbound);
+        copyFrom(response);
 
         String uiMessage = "\n@|bold,white   · Waiting for '%s' Status... |@";
         ui.write(String.format(uiMessage, OutboundConnectionStatusCode.PENDING_ACCEPTANCE));
