@@ -54,6 +54,6 @@ public class KmsKeyMultiRegionKey extends Diffable implements Copyable<MultiRegi
 
     @Override
     public String primaryKey() {
-        return "";
+        return "Key: " + getArn() + " Region: " + getRegion();
     }
 }
