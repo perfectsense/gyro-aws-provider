@@ -17,6 +17,7 @@ package gyro.aws.kms;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
 import software.amazon.awssdk.services.kms.model.MultiRegionKey;
 
 public class KmsKeyMultiRegionKey extends Diffable implements Copyable<MultiRegionKey> {
@@ -27,6 +28,7 @@ public class KmsKeyMultiRegionKey extends Diffable implements Copyable<MultiRegi
     /**
      * The Amazon Resource Name (ARN) associated with the key.
      */
+    @Output
     public String getArn() {
         return arn;
     }
@@ -38,6 +40,7 @@ public class KmsKeyMultiRegionKey extends Diffable implements Copyable<MultiRegi
     /**
      * The AWS region associated with the key.
      */
+    @Output
     public String getRegion() {
         return region;
     }

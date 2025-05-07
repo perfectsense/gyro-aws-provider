@@ -15,38 +15,52 @@
  */
 package gyro.aws.kms;
 
-import gyro.aws.Copyable;
-import gyro.core.resource.Diffable;
-import software.amazon.awssdk.services.kms.model.MultiRegionConfiguration;
-import software.amazon.awssdk.services.kms.model.MultiRegionKey;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import gyro.aws.Copyable;
+import gyro.core.resource.Diffable;
+import gyro.core.resource.Output;
+import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.kms.model.MultiRegionConfiguration;
+import software.amazon.awssdk.services.kms.model.MultiRegionKey;
+import software.amazon.awssdk.services.kms.model.MultiRegionKeyType;
+
 public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable<MultiRegionConfiguration> {
 
-    private String multiRegionKeyType;
-
-    private KmsKeyMultiRegionKey primaryKey;
-
+    private MultiRegionKeyType multiRegionKeyType;
+    private KmsKeyMultiRegionKey primaryKmsKey;
     private List<KmsKeyMultiRegionKey> replicaKeys;
 
-    public String getMultiRegionKeyType() {
+    /**
+     * The type of multi-region key.
+     */
+    @Output
+    @ValidStrings({ "PRIMARY", "REPLICA" })
+    public MultiRegionKeyType getMultiRegionKeyType() {
         return multiRegionKeyType;
     }
 
-    public void setMultiRegionKeyType(String multiRegionKeyType) {
+    public void setMultiRegionKeyType(MultiRegionKeyType multiRegionKeyType) {
         this.multiRegionKeyType = multiRegionKeyType;
     }
 
-    public KmsKeyMultiRegionKey getPrimaryKey() {
-        return primaryKey;
+    /**
+     * The primary key.
+     */
+    @Output
+    public KmsKeyMultiRegionKey getPrimaryKmsKey() {
+        return primaryKmsKey;
     }
 
-    public void setPrimaryKey(KmsKeyMultiRegionKey primaryKey) {
-        this.primaryKey = primaryKey;
+    public void setPrimaryKmsKey(KmsKeyMultiRegionKey primaryKmsKey) {
+        this.primaryKmsKey = primaryKmsKey;
     }
 
+    /**
+     * The list of replica keys.
+     */
+    @Output
     public List<KmsKeyMultiRegionKey> getReplicaKeys() {
         return replicaKeys;
     }
@@ -57,11 +71,11 @@ public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable
 
     @Override
     public void copyFrom(MultiRegionConfiguration model) {
-        setPrimaryKey(null);
+        setPrimaryKmsKey(null);
         if (model.primaryKey() != null) {
             KmsKeyMultiRegionKey multiRegionKey = newSubresource(KmsKeyMultiRegionKey.class);
             multiRegionKey.copyFrom(model.primaryKey());
-            setPrimaryKey(multiRegionKey);
+            setPrimaryKmsKey(multiRegionKey);
         }
 
         List<KmsKeyMultiRegionKey> replicaKeys = new ArrayList<>();
@@ -72,7 +86,7 @@ public class KmsKeyMultiRegionConfiguration extends Diffable implements Copyable
         }
 
         setReplicaKeys(replicaKeys);
-        setMultiRegionKeyType(model.multiRegionKeyTypeAsString());
+        setMultiRegionKeyType(model.multiRegionKeyType());
     }
 
     @Override
