@@ -599,12 +599,21 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
             if (configuredFields.contains("key-rotation")) {
                 errors.add(new ValidationError(this, null, "replica-key cannot enable key rotation."));
             }
-            if (configuredFields.contains("pending-window")) {
-                errors.add(new ValidationError(this, null, "replica-key cannot have pending window."));
+            if (configuredFields.contains("key-usage")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot use key usage."));
+            }
+            if(configuredFields.contains("origin")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot use origin."));
+            }
+            if(configuredFields.contains("key-spec")) {
+                errors.add(new ValidationError(this, null, "replica-key cannot use key spec."));
             }
         } else {
-            if (configuredFields.contains("primary-kms-key")) {
+            if (configuredFields.contains("primary-key-region")) {
                 errors.add(new ValidationError(this, null, "primary-kms-key is required when primary-key-region is set."));
+            }
+            if (!configuredFields.contains("key-usage")) {
+                errors.add(new ValidationError(this, null, "key-usage is required when primary-kms-key is not set."));
             }
         }
 
