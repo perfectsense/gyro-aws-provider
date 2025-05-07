@@ -384,7 +384,8 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
         setMultiRegion(keyMetadata.multiRegion());
         setOrigin(keyMetadata.originAsString());
 
-        if (getMultiRegion()) {
+        setMultiRegionConfiguration(null);
+        if (keyMetadata.multiRegionConfiguration() != null) {
             KmsKeyMultiRegionConfiguration multiRegionConfiguration = newSubresource(KmsKeyMultiRegionConfiguration.class);
             multiRegionConfiguration.copyFrom(keyMetadata.multiRegionConfiguration());
 
