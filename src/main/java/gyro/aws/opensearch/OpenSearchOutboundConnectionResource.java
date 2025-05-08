@@ -204,7 +204,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         OpenSearchClient client = createClient(OpenSearchClient.class);
 
         DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
-            r -> r.name("connection-id").values(getConnectionId())
+            Filter.builder()
+                .name("connection-id")
+                .values(getConnectionId())
+                .build()
         ));
 
         if (response.hasConnections() && !response.connections().isEmpty()) {
@@ -267,8 +270,8 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             .until(() -> {
                 DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
                     Filter.builder()
-                        .name("local-domain-info.domain-name")
-                        .values(getLocalDomain().getDomainName())
+                        .name("connection-id")
+                        .values(getConnectionId())
                         .build()
                 ));
 
