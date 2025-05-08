@@ -146,7 +146,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     }
 
     public void setConnectionProperties(OpenSearchConnectionProperties connectionProperties) {
-
         this.connectionProperties = connectionProperties;
     }
 
@@ -191,8 +190,13 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             setConnectionProperties(newConnectionProperties);
         }
 
-        setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
-        setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
+        setLocalDomain(null);
+        if (model.localDomainInfo() != null) {
+            setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
+        }
+        if (model.remoteDomainInfo() != null) {
+            setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
+        }
     }
 
     @Override
@@ -200,7 +204,10 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         OpenSearchClient client = createClient(OpenSearchClient.class);
 
         DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
-            r -> r.name("connection-id").values(getConnectionId())
+            Filter.builder()
+                .name("connection-id")
+                .values(getConnectionId())
+                .build()
         ));
 
         if (response.hasConnections() && !response.connections().isEmpty()) {
@@ -231,6 +238,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         );
 
         copyFrom(response);
+        state.save();
 
         String uiMessage = "\n@|bold,white   · Waiting for '%s' Status... |@";
         ui.write(String.format(uiMessage, OutboundConnectionStatusCode.PENDING_ACCEPTANCE));
@@ -257,14 +265,14 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     private void waitForStatus(OpenSearchClient client, OutboundConnectionStatusCode status) {
         Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(5, TimeUnit.SECONDS)
+            .checkEvery(15, TimeUnit.SECONDS)
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
                 DescribeOutboundConnectionsResponse response = client.describeOutboundConnections(x -> x.filters(
                     Filter.builder()
-                        .name("local-domain-info.domain-name")
-                        .values(getLocalDomain().getDomainName())
+                        .name("connection-id")
+                        .values(getConnectionId())
                         .build()
                 ));
 
