@@ -24,26 +24,26 @@ import software.amazon.awssdk.services.opensearch.model.SkipUnavailableStatus;
 
 public class OpenSearchCrossClusterSearch extends Diffable implements Copyable<CrossClusterSearchConnectionProperties> {
 
-    private String skipUnavailable;
+    private SkipUnavailableStatus skipUnavailable;
 
     /**
      * The direct connection property to skip unavailable clusters. ``Defaults to 'ENABLED'``
      */
     @ValidStrings({"ENABLED", "DISABLED"})
-    public String getSkipUnavailable() {
+    public SkipUnavailableStatus getSkipUnavailable() {
         if (skipUnavailable == null) {
-            skipUnavailable = String.valueOf(SkipUnavailableStatus.ENABLED);
+            skipUnavailable = SkipUnavailableStatus.ENABLED;
         }
         return skipUnavailable;
     }
 
-    public void setSkipUnavailable(String skipUnavailable) {
+    public void setSkipUnavailable(SkipUnavailableStatus skipUnavailable) {
         this.skipUnavailable = skipUnavailable;
     }
 
     @Override
     public void copyFrom(CrossClusterSearchConnectionProperties model) {
-        setSkipUnavailable(model.skipUnavailableAsString());
+        setSkipUnavailable(model.skipUnavailable());
     }
 
     @Override
