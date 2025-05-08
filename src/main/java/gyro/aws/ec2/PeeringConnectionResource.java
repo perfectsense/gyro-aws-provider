@@ -37,8 +37,10 @@ import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CreateVpcPeeringConnectionResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeVpcPeeringConnectionsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.ModifyVpcPeeringConnectionOptionsRequest;
 import software.amazon.awssdk.services.ec2.model.PeeringConnectionOptionsRequest;
 import software.amazon.awssdk.services.ec2.model.VpcPeeringConnection;
+import software.amazon.awssdk.services.ec2.model.VpcPeeringConnectionStateReasonCode;
 
 /**
  * Create a Peering Connection between two VPC.
@@ -173,7 +175,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return peerAllowEgressFromLocalClassicLinkToRemoteVpc;
     }
 
-    public void setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(Boolean peerAllowEgressFromLocalClassicLinkToRemoteVpc) {
+    public void setPeerAllowEgressFromLocalClassicLinkToRemoteVpc(
+        Boolean peerAllowEgressFromLocalClassicLinkToRemoteVpc) {
         this.peerAllowEgressFromLocalClassicLinkToRemoteVpc = peerAllowEgressFromLocalClassicLinkToRemoteVpc;
     }
 
@@ -189,7 +192,8 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return peerAllowEgressFromLocalVpcToRemoteClassicLink;
     }
 
-    public void setPeerAllowEgressFromLocalVpcToRemoteClassicLink(Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink) {
+    public void setPeerAllowEgressFromLocalVpcToRemoteClassicLink(
+        Boolean peerAllowEgressFromLocalVpcToRemoteClassicLink) {
         this.peerAllowEgressFromLocalVpcToRemoteClassicLink = peerAllowEgressFromLocalVpcToRemoteClassicLink;
     }
 
@@ -259,21 +263,22 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         VpcPeeringConnection vpcPeeringConnection = response.vpcPeeringConnection();
         setId(vpcPeeringConnection.vpcPeeringConnectionId());
 
-        waitForStatus(client, "pending-acceptance");
-        modifyPeeringConnectionSettings(client);
+        state.save();
+
+        waitForStatus(client, VpcPeeringConnectionStateReasonCode.PENDING_ACCEPTANCE);
+        modifyPeeringConnectionSettings(client, true);
     }
 
     @Override
     protected void doUpdate(GyroUI ui, State state, AwsResource config, Set<String> changedProperties) {
         Ec2Client client = createClient(Ec2Client.class);
-        modifyPeeringConnectionSettings(client);
+        modifyPeeringConnectionSettings(client, false);
     }
 
     @Override
     public void delete(GyroUI ui, State state) {
-        try (Ec2Client client = createClient(Ec2Client.class)) {
-            client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
-        }
+        Ec2Client client = createClient(Ec2Client.class);
+        client.deleteVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
     }
 
     private VpcPeeringConnection getVpcPeeringConnection(Ec2Client client) {
@@ -301,72 +306,65 @@ public class PeeringConnectionResource extends Ec2TaggableResource<VpcPeeringCon
         return vpcPeeringConnection;
     }
 
-    private void modifyRequesterPeeringConnectionSettings(Ec2Client client) {
-        PeeringConnectionOptionsRequest.Builder req = PeeringConnectionOptionsRequest.builder();
+    private void modifyRequesterPeeringConnectionSettings(Ec2Client client, boolean crossRegion) {
+        PeeringConnectionOptionsRequest.Builder builder = PeeringConnectionOptionsRequest.builder()
+            .allowDnsResolutionFromRemoteVpc(getAllowDnsResolutionFromRemoteVpc());
 
-        if(getAllowDnsResolutionFromRemoteVpc()) {
-            req.allowDnsResolutionFromRemoteVpc(getAllowDnsResolutionFromRemoteVpc());
+        if (!crossRegion) {
+            builder = builder
+                .allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc())
+                .allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink());
         }
 
-        if (getAllowEgressFromLocalClassicLinkToRemoteVpc()) {
-            req.allowEgressFromLocalClassicLinkToRemoteVpc(getAllowEgressFromLocalClassicLinkToRemoteVpc());
-        }
-        if (getAllowEgressFromLocalVpcToRemoteClassicLink()) {
-            req.allowEgressFromLocalVpcToRemoteClassicLink(getAllowEgressFromLocalVpcToRemoteClassicLink());
-        }
-
-        client.modifyVpcPeeringConnectionOptions(r -> r.vpcPeeringConnectionId(getId())
-            .requesterPeeringConnectionOptions(req.build()));
+        client.modifyVpcPeeringConnectionOptions(
+            ModifyVpcPeeringConnectionOptionsRequest.builder().vpcPeeringConnectionId(getId())
+                .requesterPeeringConnectionOptions(builder.build()).build());
     }
 
-    private void modifyAccepterPeeringConnectionSettings(Ec2Client client) {
-        PeeringConnectionOptionsRequest.Builder acp = PeeringConnectionOptionsRequest.builder();
+    private void modifyAccepterPeeringConnectionSettings(Ec2Client client, boolean crossRegion) {
+        PeeringConnectionOptionsRequest.Builder builder = PeeringConnectionOptionsRequest.builder()
+            .allowDnsResolutionFromRemoteVpc(getPeerAllowDnsResolutionFromRemoteVpc());
 
-        if (getPeerAllowDnsResolutionFromRemoteVpc()) {
-            acp.allowDnsResolutionFromRemoteVpc(getPeerAllowDnsResolutionFromRemoteVpc());
-        }
-        if (getPeerAllowEgressFromLocalClassicLinkToRemoteVpc()) {
-            acp.allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc());
-        }
-        if (getPeerAllowEgressFromLocalVpcToRemoteClassicLink()) {
-            acp.allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink());
+        if (!crossRegion) {
+            builder = builder
+                .allowEgressFromLocalClassicLinkToRemoteVpc(getPeerAllowEgressFromLocalClassicLinkToRemoteVpc())
+                .allowEgressFromLocalVpcToRemoteClassicLink(getPeerAllowEgressFromLocalVpcToRemoteClassicLink());
         }
 
-        client.modifyVpcPeeringConnectionOptions(r -> r.vpcPeeringConnectionId(getId())
-            .accepterPeeringConnectionOptions(acp.build()));
+        client.modifyVpcPeeringConnectionOptions(
+            ModifyVpcPeeringConnectionOptionsRequest.builder().vpcPeeringConnectionId(getId())
+                .accepterPeeringConnectionOptions(builder.build()).build());
     }
 
-    private void modifyPeeringConnectionSettings(Ec2Client client) {
-        if (!getVpc().getRegion().equals(getPeerVpc().getRegion())) {
-            try (Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "")) {
-                accepterClient.acceptVpcPeeringConnection(
-                    r -> r.vpcPeeringConnectionId(getId()).overrideConfiguration()
-                );
-                waitForStatus(client, "active");
-                modifyRequesterPeeringConnectionSettings(client);
-                modifyAccepterPeeringConnectionSettings(accepterClient);
-            }
-        } else {
-            client.acceptVpcPeeringConnection(r -> r.vpcPeeringConnectionId(getId()));
-            waitForStatus(client, "active");
-            modifyRequesterPeeringConnectionSettings(client);
-            modifyAccepterPeeringConnectionSettings(client);
+    private void modifyPeeringConnectionSettings(Ec2Client requesterClient, boolean create) {
+
+        boolean crossRegion = !getVpc().getRegion().equals(getPeerVpc().getRegion());
+
+        Ec2Client accepterClient = createClient(Ec2Client.class, getPeerVpc().getRegion(), "");
+
+        if (create) {
+            accepterClient.acceptVpcPeeringConnection(r -> r.vpcPeeringConnectionId((getId())));
+            waitForStatus(requesterClient, VpcPeeringConnectionStateReasonCode.ACTIVE);
         }
+        modifyRequesterPeeringConnectionSettings(requesterClient, crossRegion);
+        modifyAccepterPeeringConnectionSettings(accepterClient, crossRegion);
     }
 
-    private void waitForStatus(Ec2Client client, String status) {
+    private void waitForStatus(Ec2Client client, VpcPeeringConnectionStateReasonCode status) {
         Wait.atMost(2, TimeUnit.MINUTES)
             .checkEvery(5, TimeUnit.SECONDS)
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
-                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse = client.describeVpcPeeringConnections(
-                    r -> r.vpcPeeringConnectionIds(getId())
-                );
-                if (!vpcPeeringConnectionsResponse.hasVpcPeeringConnections()) {
+                DescribeVpcPeeringConnectionsResponse vpcPeeringConnectionsResponse =
+                    client.describeVpcPeeringConnections(
+                        r -> r.vpcPeeringConnectionIds(getId())
+                    );
+                if (!vpcPeeringConnectionsResponse.hasVpcPeeringConnections()
+                    && !vpcPeeringConnectionsResponse.vpcPeeringConnections().isEmpty()) {
                     return false;
                 } else {
-                    return vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code().toString().equals(status);
+                    return status.equals(vpcPeeringConnectionsResponse.vpcPeeringConnections().get(0).status().code());
                 }
             });
     }
