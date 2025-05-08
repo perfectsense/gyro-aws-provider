@@ -238,6 +238,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         );
 
         copyFrom(response);
+        state.save();
 
         String uiMessage = "\n@|bold,white   · Waiting for '%s' Status... |@";
         ui.write(String.format(uiMessage, OutboundConnectionStatusCode.PENDING_ACCEPTANCE));
