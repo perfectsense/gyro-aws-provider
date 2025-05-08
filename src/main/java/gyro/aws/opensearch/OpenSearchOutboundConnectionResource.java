@@ -265,7 +265,7 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     private void waitForStatus(OpenSearchClient client, OutboundConnectionStatusCode status) {
         Wait.atMost(2, TimeUnit.MINUTES)
-            .checkEvery(5, TimeUnit.SECONDS)
+            .checkEvery(15, TimeUnit.SECONDS)
             .prompt(false)
             .resourceOverrides(this, TimeoutSettings.Action.CREATE)
             .until(() -> {
