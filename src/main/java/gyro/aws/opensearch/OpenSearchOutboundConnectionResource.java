@@ -146,7 +146,6 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
     }
 
     public void setConnectionProperties(OpenSearchConnectionProperties connectionProperties) {
-
         this.connectionProperties = connectionProperties;
     }
 
@@ -191,8 +190,13 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
             setConnectionProperties(newConnectionProperties);
         }
 
-        setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
-        setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
+        setLocalDomain(null);
+        if (model.localDomainInfo() != null) {
+            setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
+        }
+        if (model.remoteDomainInfo() != null) {
+            setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
+        }
     }
 
     @Override
