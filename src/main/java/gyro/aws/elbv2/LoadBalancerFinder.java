@@ -16,15 +16,18 @@
 
 package gyro.aws.elbv2;
 
-import gyro.aws.AwsFinder;
-import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
-import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class LoadBalancerFinder<R extends LoadBalancerResource> extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
+import gyro.aws.AwsFinder;
+import software.amazon.awssdk.services.elasticloadbalancingv2.ElasticLoadBalancingV2Client;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancer;
+import software.amazon.awssdk.services.elasticloadbalancingv2.model.LoadBalancerNotFoundException;
+
+public abstract class LoadBalancerFinder<R extends LoadBalancerResource>
+    extends AwsFinder<ElasticLoadBalancingV2Client, LoadBalancer, R> {
 
     private String arn;
     private String name;
@@ -53,15 +56,24 @@ public abstract class LoadBalancerFinder<R extends LoadBalancerResource> extends
 
     @Override
     public List<LoadBalancer> findAws(ElasticLoadBalancingV2Client client, Map<String, String> filters) {
+        List<LoadBalancer> loadBalancers = new ArrayList<>();
+
         if (!filters.containsKey("arn") && !filters.containsKey("name")) {
             throw new IllegalArgumentException("'name' or 'arn' is required.");
         } else {
-            if (filters.containsKey("arn")) {
-                return client.describeLoadBalancers(r -> r.loadBalancerArns(filters.get("arn"))).loadBalancers();
-            } else {
-                return client.describeLoadBalancersPaginator(r -> r.names(filters.get("name"))).loadBalancers().stream().collect(Collectors.toList());
+            try {
+                if (filters.containsKey("arn")) {
+                    loadBalancers.addAll(
+                        client.describeLoadBalancers(r -> r.loadBalancerArns(filters.get("arn"))).loadBalancers());
+                } else {
+                    loadBalancers.addAll(client.describeLoadBalancersPaginator(r -> r.names(filters.get("name")))
+                        .loadBalancers().stream().collect(Collectors.toList()));
+                }
+            } catch (LoadBalancerNotFoundException ex) {
+                // Ignore
             }
         }
+        return loadBalancers;
     }
 
     @Override
