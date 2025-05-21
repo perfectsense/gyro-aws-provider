@@ -29,7 +29,7 @@ public class OpenSearchDomainInformationContainer extends Diffable implements Co
         setAwsDomainInformation(null);
         if (model.awsDomainInformation() != null) {
             OpenSearchAWSDomainInformation newAwsDomainInformation = newSubresource(OpenSearchAWSDomainInformation.class);
-            awsDomainInformation.copyFrom(model.awsDomainInformation());
+            newAwsDomainInformation.copyFrom(model.awsDomainInformation());
             setAwsDomainInformation(newAwsDomainInformation);
         }
     }
