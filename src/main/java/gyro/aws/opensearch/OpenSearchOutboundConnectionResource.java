@@ -71,6 +71,8 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
     // Read-only
     private String connectionId;
+    private OpenSearchDomainInformationContainer localDomainInfo;
+    private OpenSearchDomainInformationContainer remoteDomainInfo;
 
     /**
      * The name of the connection
@@ -162,6 +164,24 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
         this.connectionId = connectionId;
     }
 
+    @Output
+    public OpenSearchDomainInformationContainer getLocalDomainInfo() {
+        return localDomainInfo;
+    }
+
+    public void setLocalDomainInfo(OpenSearchDomainInformationContainer localDomainInfo) {
+        this.localDomainInfo = localDomainInfo;
+    }
+
+    @Output
+    public OpenSearchDomainInformationContainer getRemoteDomainInfo() {
+        return remoteDomainInfo;
+    }
+
+    public void setRemoteDomainInfo(OpenSearchDomainInformationContainer remoteDomainInfo) {
+        this.remoteDomainInfo = remoteDomainInfo;
+    }
+
     public void copyFrom(CreateOutboundConnectionResponse model){
         OutboundConnection outbound = OutboundConnection.builder()
             .connectionAlias(model.connectionAlias())
@@ -192,10 +212,18 @@ public class OpenSearchOutboundConnectionResource extends AwsResource implements
 
         setLocalDomain(null);
         if (model.localDomainInfo() != null) {
-            setLocalDomain(findById(OpenSearchDomainResource.class, model.localDomainInfo().awsDomainInformation().domainName()));
+            OpenSearchDomainInformationContainer localInformationContainer = newSubresource(OpenSearchDomainInformationContainer.class);
+            localInformationContainer.copyFrom(model.localDomainInfo());
+            setLocalDomainInfo(localInformationContainer);
+
+            setLocalDomain(findById(OpenSearchDomainResource.class, localInformationContainer.getAwsDomainInformation().getDomainName()));
         }
         if (model.remoteDomainInfo() != null) {
-            setRemoteDomain(findById(OpenSearchDomainResource.class, model.remoteDomainInfo().awsDomainInformation().domainName()));
+            OpenSearchDomainInformationContainer RemoteInformationContainer = newSubresource(OpenSearchDomainInformationContainer.class);
+            RemoteInformationContainer.copyFrom(model.remoteDomainInfo());
+            setRemoteDomainInfo(RemoteInformationContainer);
+
+            setRemoteDomain(findById(OpenSearchDomainResource.class, RemoteInformationContainer.getAwsDomainInformation().getDomainName()));
         }
     }
 
