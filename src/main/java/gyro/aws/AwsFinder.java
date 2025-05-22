@@ -16,18 +16,15 @@
 
 package gyro.aws;
 
-import com.psddev.dari.util.TypeDefinition;
-import gyro.core.GyroException;
-import gyro.core.finder.Finder;
-import software.amazon.awssdk.core.SdkClient;
-import software.amazon.awssdk.services.ec2.model.Filter;
-
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.psddev.dari.util.TypeDefinition;
+import gyro.core.finder.Finder;
+import software.amazon.awssdk.core.SdkClient;
+import software.amazon.awssdk.services.ec2.model.Filter;
 
 public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> extends Finder<R> {
 
@@ -84,13 +81,23 @@ public abstract class AwsFinder<C extends SdkClient, M, R extends AwsResource> e
 
     public List<software.amazon.awssdk.services.rds.model.Filter> createRdsFilters(Map<String, String> query) {
         return query.entrySet().stream()
-            .map(e -> software.amazon.awssdk.services.rds.model.Filter.builder().name(e.getKey()).values(e.getValue()).build())
+            .map(e -> software.amazon.awssdk.services.rds.model.Filter.builder().name(e.getKey()).values(e.getValue())
+                .build())
             .collect(Collectors.toList());
     }
 
     public List<software.amazon.awssdk.services.neptune.model.Filter> createNeptuneFilters(Map<String, String> query) {
         return query.entrySet().stream()
-            .map(e -> software.amazon.awssdk.services.neptune.model.Filter.builder().name(e.getKey()).values(e.getValue()).build())
+            .map(e -> software.amazon.awssdk.services.neptune.model.Filter.builder().name(e.getKey())
+                .values(e.getValue()).build())
+            .collect(Collectors.toList());
+    }
+
+    public List<software.amazon.awssdk.services.opensearch.model.Filter> createOpensearchFilters(
+        Map<String, String> query) {
+        return query.entrySet().stream()
+            .map(e -> software.amazon.awssdk.services.opensearch.model.Filter.builder().name(e.getKey())
+                .values(e.getValue()).build())
             .collect(Collectors.toList());
     }
 
