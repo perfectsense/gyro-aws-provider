@@ -18,11 +18,23 @@ package gyro.aws.opensearch;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.opensearch.model.DomainInformationContainer;
 
 public class OpenSearchDomainInformationContainer extends Diffable implements Copyable<DomainInformationContainer> {
 
     private OpenSearchAWSDomainInformation awsDomainInformation;
+
+    /**
+     * The AWS opensearch service domain information.
+     */
+    public OpenSearchAWSDomainInformation getAwsDomainInformation() {
+        return awsDomainInformation;
+    }
+
+    public void setAwsDomainInformation(OpenSearchAWSDomainInformation awsDomainInformation) {
+        this.awsDomainInformation = awsDomainInformation;
+    }
 
     @Override
     public void copyFrom(DomainInformationContainer model) {
@@ -39,11 +51,13 @@ public class OpenSearchDomainInformationContainer extends Diffable implements Co
         return "";
     }
 
-    public OpenSearchAWSDomainInformation getAwsDomainInformation() {
-        return awsDomainInformation;
-    }
+    DomainInformationContainer toDomainInformationContainer() {
+        DomainInformationContainer.Builder builder = DomainInformationContainer.builder();
 
-    public void setAwsDomainInformation(OpenSearchAWSDomainInformation awsDomainInformation) {
-        this.awsDomainInformation = awsDomainInformation;
+        if (getAwsDomainInformation() != null) {
+            builder.awsDomainInformation(getAwsDomainInformation().toAWSDomainInformation());
+        }
+
+        return builder.build();
     }
 }

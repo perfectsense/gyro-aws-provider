@@ -800,17 +800,29 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     public AcceptInboundConnectionResponse acceptInboundConnection(String connectionId) {
         OpenSearchClient client = createClient(OpenSearchClient.class);
-        return client.acceptInboundConnection(r->r.connectionId(connectionId));
+        return client.acceptInboundConnection(r -> r.connectionId(connectionId));
     }
 
     public String getOwnerId() {
-        StsClient client = createClient(StsClient.class);
-        GetCallerIdentityResponse response = client.getCallerIdentity();
-        return response.account();
+        try {
+            StsClient client = createClient(StsClient.class);
+            GetCallerIdentityResponse response = client.getCallerIdentity();
+
+            return response.account();
+
+        } catch (Exception ex) {
+            // If unable to get the account id, return null
+            return null;
+        }
     }
 
     public String getRegion() {
-        return credentials(AwsCredentials.class).getRegion();
-    }
+        try {
+            return credentials(AwsCredentials.class).getRegion();
 
+        } catch (Exception ex) {
+            // If unable to get the region, return null
+            return null;
+        }
+    }
 }
