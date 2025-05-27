@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
@@ -43,6 +44,7 @@ import gyro.core.validation.Regex;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.opensearch.OpenSearchClient;
+import software.amazon.awssdk.services.opensearch.model.AcceptInboundConnectionResponse;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainRequest;
 import software.amazon.awssdk.services.opensearch.model.CreateDomainResponse;
 import software.amazon.awssdk.services.opensearch.model.DescribeDomainConfigResponse;
@@ -53,6 +55,8 @@ import software.amazon.awssdk.services.opensearch.model.IPAddressType;
 import software.amazon.awssdk.services.opensearch.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.opensearch.model.Tag;
 import software.amazon.awssdk.services.opensearch.model.UpdateDomainConfigRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 import software.amazon.awssdk.utils.IoUtils;
 
 /**
@@ -151,6 +155,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private Map<String, String> endpoints;
     private String endpoint;
     private String endpointV2;
+    private String region;
+    private String ownerId;
 
     /**
      * The version of OpenSearch.
@@ -790,5 +796,33 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                 return openSearchDomain != null && Boolean.FALSE.equals(openSearchDomain.processing())
                     && Boolean.TRUE.equals(openSearchDomain.created());
             });
+    }
+
+    public AcceptInboundConnectionResponse acceptInboundConnection(String connectionId) {
+        OpenSearchClient client = createClient(OpenSearchClient.class);
+        return client.acceptInboundConnection(r -> r.connectionId(connectionId));
+    }
+
+    public String getOwnerId() {
+        try {
+            StsClient client = createClient(StsClient.class);
+            GetCallerIdentityResponse response = client.getCallerIdentity();
+
+            return response.account();
+
+        } catch (Exception ex) {
+            // If unable to get the account id, return null
+            return null;
+        }
+    }
+
+    public String getRegion() {
+        try {
+            return credentials(AwsCredentials.class).getRegion();
+
+        } catch (Exception ex) {
+            // If unable to get the region, return null
+            return null;
+        }
     }
 }

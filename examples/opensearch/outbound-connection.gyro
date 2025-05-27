@@ -1,0 +1,20 @@
+aws::opensearch-outbound-connection open-search-outbound-example
+    connection-alias: "outbound-example"
+    local-domain-info
+        aws-domain-information
+            domain: $(external-query aws::opensearch-domain {domain-name: "example-1"})
+        end
+    end
+    remote-domain-info
+        aws-domain-information
+            domain: $(external-query aws::opensearch-domain {domain-name: "example-2"})
+        end
+    end
+
+    connection-properties
+        cross-cluster-search
+            skip-unavailable: ENABLED
+        end
+    end
+end
+
