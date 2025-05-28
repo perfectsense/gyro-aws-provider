@@ -16,6 +16,7 @@
 
 package gyro.aws.eks;
 
+import gyro.aws.AwsCredentials;
 import gyro.core.Type;
 import gyro.core.resource.DiffableInternals;
 import gyro.core.resource.DiffableType;
@@ -26,6 +27,8 @@ import software.amazon.awssdk.services.eks.model.IdentityProviderConfig;
 import software.amazon.awssdk.services.eks.model.IdentityProviderConfigResponse;
 import software.amazon.awssdk.services.eks.model.ListIdentityProviderConfigsResponse;
 import software.amazon.awssdk.services.eks.model.NotFoundException;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 /**
  * Creates an eks authentication.
@@ -69,7 +72,8 @@ public class EksStandaloneAuthenticationResource extends EksAuthentication {
 
     @Override
     public void copyFrom(IdentityProviderConfigResponse model) {
-        setCluster(findById(EksClusterResource.class, model.oidc().clusterName()));
+        setCluster(findById(EksClusterResource.class,
+            EksClusterResource.getArnFromName(getRegion(), getOwnerId(), model.oidc().clusterName())));
         super.copyFrom(model);
     }
 
@@ -111,4 +115,14 @@ public class EksStandaloneAuthenticationResource extends EksAuthentication {
         return cluster.getName();
     }
 
+    public String getRegion() {
+        AwsCredentials credentials = credentials(AwsCredentials.class);
+        return credentials.getRegion();
+    }
+
+    public String getOwnerId() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
+    }
 }

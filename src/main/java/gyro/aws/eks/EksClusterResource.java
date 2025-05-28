@@ -24,9 +24,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.RoleResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.TimeoutSettings;
 import gyro.core.Type;
@@ -58,6 +60,8 @@ import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateClusterVersionRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 /**
  * Creates an eks cluster.
@@ -129,9 +133,12 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
     /**
      * The name of the EKS cluster.
      */
-    @Id
     @Required
     public String getName() {
+        if (name == null && arn != null) {
+            name = getClusterNameFromArn();
+        }
+
         return name;
     }
 
@@ -262,6 +269,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
      * The Amazon Resource Number (ARN) of the cluster.
      */
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -342,7 +350,7 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                 response.addons().forEach(a -> {
                     // Don't refresh this addon if this it's already defined by a standalone addon resource.
                     if (findByClass(EksStandaloneAddonResource.class).anyMatch(s ->
-                            s.getAddonName().equals(a) && s.getCluster().getName().equals(getName()))) {
+                        s.getAddonName().equals(a) && s.getCluster().getName().equals(getName()))) {
                         return;
                     }
 
@@ -369,9 +377,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                 .clusterName(getName()));
 
             if (findByClass(EksStandaloneAuthenticationResource.class)
-                    .noneMatch(s -> s.getCluster().getName().equals(getName()))
-                    && response.hasIdentityProviderConfigs()
-                    && !response.identityProviderConfigs().isEmpty()) {
+                .noneMatch(s -> s.getCluster().getName().equals(getName()))
+                && response.hasIdentityProviderConfigs()
+                && !response.identityProviderConfigs().isEmpty()) {
                 IdentityProviderConfig providerConfig = response.identityProviderConfigs().get(0);
 
                 IdentityProviderConfigResponse auth = EksAuthentication.getIdentityProviderConfigResponse(
@@ -411,10 +419,10 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         EksClient client = createClient(EksClient.class);
 
         CreateClusterRequest.Builder builder = CreateClusterRequest.builder()
-                .name(getName())
-                .roleArn(getRole().getArn())
-                .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
-                .version(getVersion());
+            .name(getName())
+            .roleArn(getRole().getArn())
+            .resourcesVpcConfig(getVpcConfig().toVpcConfigRequest())
+            .version(getVersion());
 
         if (getLogging() != null) {
             builder = builder.logging(getLogging().toLogging());
@@ -453,9 +461,9 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
 
             if (!currentResource.getTags().isEmpty()) {
                 client.untagResource(UntagResourceRequest.builder()
-                        .resourceArn(getArn())
-                        .tagKeys(currentResource.getTags().keySet())
-                        .build());
+                    .resourceArn(getArn())
+                    .tagKeys(currentResource.getTags().keySet())
+                    .build());
             }
 
             client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
@@ -474,15 +482,15 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
         if (changedFieldNames.contains("logging")) {
             if (getLogging() != null) {
                 client.updateClusterConfig(UpdateClusterConfigRequest.builder()
-                        .name(getName())
-                        .logging(getLogging().toLogging())
-                        .build());
+                    .name(getName())
+                    .logging(getLogging().toLogging())
+                    .build());
 
             } else {
                 client.updateClusterConfig(UpdateClusterConfigRequest.builder()
                     .name(getName())
                     .logging(Logging.builder().clusterLogging(
-                        LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
+                            LogSetup.builder().enabled(Boolean.FALSE).types(LogType.knownValues()).build())
                         .build())
                     .build());
             }
@@ -539,5 +547,18 @@ public class EksClusterResource extends AwsResource implements Copyable<Cluster>
                 Cluster cluster = getCluster(client);
                 return cluster != null && cluster.status().equals(ClusterStatus.ACTIVE);
             });
+    }
+
+    private String getClusterNameFromArn() {
+        try {
+            return arn.split(":")[5].split("/")[1];
+        } catch (ArrayIndexOutOfBoundsException ex) {
+            throw new GyroException(
+                String.format("Could not extract cluster name from EKS cluster ARN: %s.", arn));
+        }
+    }
+
+    public static String getArnFromName(String region, String ownerId, String name) {
+        return String.format("arn:aws:eks:%s:%s:cluster/%s", region, ownerId, name);
     }
 }

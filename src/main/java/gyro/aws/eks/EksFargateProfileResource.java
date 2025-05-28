@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
@@ -48,6 +49,8 @@ import software.amazon.awssdk.services.eks.model.FargateProfile;
 import software.amazon.awssdk.services.eks.model.FargateProfileStatus;
 import software.amazon.awssdk.services.eks.model.TagResourceRequest;
 import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 /**
  * Creates an eks fargate profile.
@@ -190,7 +193,8 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
     public void copyFrom(FargateProfile model) {
         setArn(model.fargateProfileArn());
         setName(model.fargateProfileName());
-        setCluster(findById(EksClusterResource.class, model.clusterName()));
+        setCluster(findById(EksClusterResource.class,
+            EksClusterResource.getArnFromName(getRegion(), getOwnerId(), model.clusterName())));
         setPodExecutionRole(findById(RoleResource.class, model.podExecutionRoleArn()));
         setTags(model.tags());
         setSubnets(model.subnets().stream().map(s -> findById(SubnetResource.class, s)).collect(Collectors.toSet()));
@@ -294,5 +298,16 @@ public class EksFargateProfileResource extends AwsResource implements Copyable<F
         }
 
         return profile;
+    }
+
+    public String getRegion() {
+        AwsCredentials credentials = credentials(AwsCredentials.class);
+        return credentials.getRegion();
+    }
+
+    public String getOwnerId() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 }
