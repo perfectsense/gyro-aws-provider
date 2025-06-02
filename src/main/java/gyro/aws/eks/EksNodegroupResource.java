@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.ec2.SubnetResource;
@@ -58,6 +59,8 @@ import software.amazon.awssdk.services.eks.model.UpdateLabelsPayload;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupConfigRequest;
 import software.amazon.awssdk.services.eks.model.UpdateNodegroupVersionRequest;
 import software.amazon.awssdk.services.eks.model.UpdateTaintsPayload;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 /**
  * Creates an eks nodegroup.
@@ -335,7 +338,8 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
     public void copyFrom(Nodegroup model) {
         setArn((model.nodegroupArn()));
         setName((model.nodegroupName()));
-        setCluster(findById(EksClusterResource.class, model.clusterName()));
+        setCluster(findById(EksClusterResource.class,
+            EksClusterResource.getArnFromName(getRegion(), getOwnerId(), model.clusterName())));
         setVersion((model.version()));
         setReleaseVersion((model.releaseVersion()));
         setInstanceTypes((model.instanceTypes()));
@@ -645,5 +649,16 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
                 Nodegroup nodegroup = getNodegroup(client);
                 return nodegroup != null && nodegroup.status().equals(NodegroupStatus.ACTIVE);
             });
+    }
+
+    public String getRegion() {
+        AwsCredentials credentials = credentials(AwsCredentials.class);
+        return credentials.getRegion();
+    }
+
+    public String getOwnerId() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 }
