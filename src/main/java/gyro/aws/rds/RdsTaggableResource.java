@@ -102,7 +102,7 @@ public abstract class RdsTaggableResource extends AwsResource {
     @Override
     public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         doUpdate(current, changedFieldNames);
-        ((RdsTaggableResource) current).removeTags();
+        removeTags(((RdsTaggableResource) current).getTags().keySet());
         addTags();
     }
 
@@ -135,12 +135,12 @@ public abstract class RdsTaggableResource extends AwsResource {
             ));
     }
 
-    private void removeTags() {
+    private void removeTags(Set<String> tagKeys) {
         RdsClient client = createClient(RdsClient.class);
         executeService(() ->
             client.removeTagsFromResource(
                 r -> r.resourceName(getArn())
-                    .tagKeys(getTags().keySet())
+                    .tagKeys(tagKeys)
             ));
     }
 
