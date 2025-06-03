@@ -16,13 +16,14 @@
 
 package gyro.aws.rds;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
-import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -31,8 +32,6 @@ import software.amazon.awssdk.services.rds.model.DBClusterSnapshot;
 import software.amazon.awssdk.services.rds.model.DbClusterSnapshotNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClusterSnapshotsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
-
-import java.util.Set;
 
 /**
  * Create a db cluster snapshot.
@@ -72,8 +71,11 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
      * The unique identifier of the DB cluster snapshot.
      */
     @Required
-    @Id
     public String getIdentifier() {
+        if (identifier == null && getArn() != null) {
+            identifier = getNameFromArn();
+        }
+
         return identifier;
     }
 
@@ -83,7 +85,8 @@ public class DbClusterSnapshotResource extends RdsTaggableResource implements Co
 
     @Override
     public void copyFrom(DBClusterSnapshot snapshot) {
-        setDbCluster(findById(DbClusterResource.class, snapshot.dbClusterIdentifier()));
+        setDbCluster(
+            findById(DbClusterResource.class, snapshot.dbClusterIdentifier(), DbClusterResource.AWS_ARN_RESOURCE_TYPE));
         setArn(snapshot.dbClusterSnapshotArn());
     }
 

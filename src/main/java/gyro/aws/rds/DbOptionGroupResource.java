@@ -73,6 +73,8 @@ import java.util.stream.Collectors;
 @Type("db-option-group")
 public class DbOptionGroupResource extends RdsTaggableResource implements Copyable<OptionGroup> {
 
+    public static final String AWS_ARN_RESOURCE_TYPE = "og";
+
     private String name;
     private String description;
     private String engine;
@@ -82,8 +84,11 @@ public class DbOptionGroupResource extends RdsTaggableResource implements Copyab
     /**
      * The name of the option group.
      */
-    @Id
     public String getName() {
+        if (name == null && getArn() != null) {
+            name = getNameFromArn();
+        }
+
         return name;
     }
 
