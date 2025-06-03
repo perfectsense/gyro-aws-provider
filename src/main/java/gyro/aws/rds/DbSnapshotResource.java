@@ -16,14 +16,15 @@
 
 package gyro.aws.rds;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
@@ -32,8 +33,6 @@ import software.amazon.awssdk.services.rds.model.DBSnapshot;
 import software.amazon.awssdk.services.rds.model.DbSnapshotNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbSnapshotsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
-
-import java.util.Set;
 
 /**
  * Create a db snapshot.
@@ -75,8 +74,11 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
      * The unique identifier of the DB instance snapshot.
      */
     @Required
-    @Id
     public String getIdentifier() {
+        if (identifier == null && getArn() != null) {
+            identifier = getNameFromArn();
+        }
+
         return identifier;
     }
 
@@ -110,9 +112,11 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
 
     @Override
     public void copyFrom(DBSnapshot snapshot) {
-        setDbInstance(findById(DbInstanceResource.class, snapshot.dbInstanceIdentifier()));
+        setDbInstance(findById(DbInstanceResource.class, snapshot.dbInstanceIdentifier(),
+            DbInstanceResource.AWS_ARN_RESOURCE_TYPE));
         setEngineVersion(snapshot.engineVersion());
-        setOptionGroup(findById(DbOptionGroupResource.class, snapshot.optionGroupName()));
+        setOptionGroup(findById(DbOptionGroupResource.class, snapshot.optionGroupName(),
+            DbOptionGroupResource.AWS_ARN_RESOURCE_TYPE));
         setArn(snapshot.dbSnapshotArn());
     }
 
@@ -158,8 +162,8 @@ public class DbSnapshotResource extends RdsTaggableResource implements Copyable<
         RdsClient client = createClient(RdsClient.class);
         client.modifyDBSnapshot(
             r -> r.dbSnapshotIdentifier(getIdentifier())
-                    .engineVersion(getEngineVersion())
-                    .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
+                .engineVersion(getEngineVersion())
+                .optionGroupName(getOptionGroup() != null ? getOptionGroup().getName() : null)
         );
     }
 

@@ -34,7 +34,6 @@ import gyro.core.GyroUI;
 import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
-import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -110,6 +109,8 @@ import software.amazon.awssdk.services.rds.model.RestoreDbClusterToPointInTimeRe
  */
 @Type("db-cluster")
 public class DbClusterResource extends RdsTaggableResource implements Copyable<DBCluster> {
+
+    public static final String AWS_ARN_RESOURCE_TYPE = "cluster";
 
     private Boolean applyImmediately;
     private List<String> availabilityZones;
@@ -240,8 +241,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The unique name of the DB Cluster.
      */
     @Required
-    @Id
     public String getIdentifier() {
+        if (identifier == null && getArn() != null) {
+            identifier = getNameFromArn();
+        }
+
         return identifier;
     }
 
@@ -323,7 +327,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The name of the database engine.
      */
     @Required
-    @ValidStrings({"mysql", "postgres", "aurora-mysql", "aurora-postgresql"})
+    @ValidStrings({ "mysql", "postgres", "aurora-mysql", "aurora-postgresql" })
     public String getEngine() {
         return engine;
     }
@@ -335,7 +339,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The DB engine mode of the DB cluster.
      */
-    @ValidStrings({"provisioned", "serverless", "parallelquery", "global"})
+    @ValidStrings({ "provisioned", "serverless", "parallelquery", "global" })
     public String getEngineMode() {
         return engineMode;
     }
@@ -486,7 +490,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The identifier of the snapshot.
      */
-    @ConflictsWith({"s3-import", "source-db-cluster"})
+    @ConflictsWith({ "s3-import", "source-db-cluster" })
     public String getSnapshotIdentifier() {
         return snapshotIdentifier;
     }
@@ -498,7 +502,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The s3 import to restore the database from.
      */
-    @ConflictsWith({"snapshot-identifier", "source-db-cluster"})
+    @ConflictsWith({ "snapshot-identifier", "source-db-cluster" })
     public DbClusterS3Import getS3Import() {
         return s3Import;
     }
@@ -633,7 +637,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The storage type to associate with the DB cluster.
      */
     @Updatable
-    @ValidStrings({"gp3", "io1", "io2", "aurora", "aurora-iopt1"})
+    @ValidStrings({ "gp3", "io1", "io2", "aurora", "aurora-iopt1" })
     public String getStorageType() {
         return storageType;
     }
@@ -699,7 +703,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The source DB cluster to restore from.
      */
-    @ConflictsWith({"snapshot-identifier", "s3-import"})
+    @ConflictsWith({ "snapshot-identifier", "s3-import" })
     public DbClusterResource getSourceDbCluster() {
         return sourceDbCluster;
     }
@@ -711,7 +715,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The date and time to restore the DB cluster to.
      */
-    @ConflictsWith({"use-latest-restorable-time"})
+    @ConflictsWith({ "use-latest-restorable-time" })
     @DependsOn("source-db-cluster")
     public Date getRestoreToTime() {
         return restoreToTime;
@@ -725,7 +729,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The type of restore to perform.
      */
     @DependsOn("source-db-cluster")
-    @ValidStrings({"copy-on-write", "full-copy"})
+    @ValidStrings({ "copy-on-write", "full-copy" })
     public String getRestoreType() {
         return restoreType;
     }
@@ -737,7 +741,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * When set to ``true``, restores the DB cluster to the latest restorable backup time. Defaults to ``false``.
      */
-    @ConflictsWith({"restore-to-time"})
+    @ConflictsWith({ "restore-to-time" })
     @DependsOn("source-db-cluster")
     public Boolean getUseLatestRestorableTime() {
         return useLatestRestorableTime;
@@ -802,9 +806,11 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setBackTrackWindow(cluster.backtrackWindow());
         setBackupRetentionPeriod(cluster.backupRetentionPeriod());
         setCharacterSetName(cluster.characterSetName());
-        setDbClusterParameterGroup(findById(DbClusterParameterGroupResource.class, cluster.dbClusterParameterGroup()));
+        setDbClusterParameterGroup(findById(DbClusterParameterGroupResource.class, cluster.dbClusterParameterGroup(),
+            DbClusterParameterGroupResource.AWS_ARN_RESOURCE_TYPE));
         setDbName(cluster.databaseName());
-        setDbSubnetGroup(findById(DbSubnetGroupResource.class, cluster.dbSubnetGroup()));
+        setDbSubnetGroup(findById(DbSubnetGroupResource.class, cluster.dbSubnetGroup(),
+            DbSubnetGroupResource.AWS_ARN_RESOURCE_TYPE));
         setDeletionProtection(cluster.deletionProtection());
 
         List<String> cwLogsExports = cluster.enabledCloudwatchLogsExports();
@@ -823,7 +829,8 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setMasterUsername(cluster.masterUsername());
 
         setOptionGroup(cluster.dbClusterOptionGroupMemberships().stream()
-            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.dbClusterOptionGroupName()))
+            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.dbClusterOptionGroupName(),
+                DbOptionGroupResource.AWS_ARN_RESOURCE_TYPE))
             .orElse(null));
 
         setPort(cluster.port());

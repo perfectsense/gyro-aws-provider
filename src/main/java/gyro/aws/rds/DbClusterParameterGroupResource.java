@@ -71,6 +71,8 @@ import java.util.stream.Collectors;
 @Type("db-cluster-parameter-group")
 public class DbClusterParameterGroupResource extends RdsTaggableResource implements Copyable<DBClusterParameterGroup> {
 
+    public static final String AWS_ARN_RESOURCE_TYPE = "cluster-pg";
+
     private String description;
     private String family;
     private String name;
@@ -104,8 +106,11 @@ public class DbClusterParameterGroupResource extends RdsTaggableResource impleme
      * The name of the cluster parameter group.
      */
     @Required
-    @Id
     public String getName() {
+        if (name == null && getArn() != null) {
+            name = getNameFromArn();
+        }
+
         return name;
     }
 

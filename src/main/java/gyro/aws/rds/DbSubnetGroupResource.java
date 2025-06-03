@@ -64,6 +64,8 @@ import java.util.List;
 @Type("db-subnet-group")
 public class DbSubnetGroupResource extends RdsTaggableResource implements Copyable<DBSubnetGroup> {
 
+    public static final String AWS_ARN_RESOURCE_TYPE = "subgrp";
+
     private String description;
     private String name;
     private List<SubnetResource> subnets;
@@ -85,8 +87,11 @@ public class DbSubnetGroupResource extends RdsTaggableResource implements Copyab
      * The name for the DB subnet group.
      */
     @Required
-    @Id
     public String getName() {
+        if (name == null && getArn() != null) {
+            name = getNameFromArn();
+        }
+
         return name;
     }
 
