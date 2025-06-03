@@ -41,7 +41,7 @@ import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 public abstract class RdsTaggableResource extends AwsResource {
 
     protected static final Pattern ARN_PATTERN = Pattern.compile(
-        "^arn:aws:rds:(?<region>[a-zA-Z0-9-]*):(?<ownerId>[0-9-]*):(?<type>[a-zA-Z0-9-]*):(?<name>[a-zA-Z0-9:-]*)$");
+        "^arn:aws:rds:(?<region>[a-zA-Z0-9-]*):(?<ownerId>[0-9-]*):(?<type>[a-zA-Z0-9-]*):(?<name>[a-zA-Z0-9.:-]*)$");
 
     private String arn;
     private Map<String, String> tags;
@@ -152,7 +152,7 @@ public abstract class RdsTaggableResource extends AwsResource {
 
         } else {
             throw new GyroException(
-                String.format("Could not extract resource name from EKS cluster ARN: %s. Expected format: %s", arn,
+                String.format("Could not extract resource name from the ARN: %s. Expected format: %s", arn,
                     ARN_PATTERN.pattern()));
         }
     }
