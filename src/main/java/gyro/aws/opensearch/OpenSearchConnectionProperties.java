@@ -56,7 +56,7 @@ public class OpenSearchConnectionProperties extends Diffable implements Copyable
 
         setCrossClusterSearch(null);
         if (model.crossClusterSearch() != null) {
-            OpenSearchCrossClusterSearch crossClusterSearch = new OpenSearchCrossClusterSearch();
+            OpenSearchCrossClusterSearch crossClusterSearch = newSubresource(OpenSearchCrossClusterSearch.class);
             crossClusterSearch.copyFrom(model.crossClusterSearch());
             setCrossClusterSearch(crossClusterSearch);
         }

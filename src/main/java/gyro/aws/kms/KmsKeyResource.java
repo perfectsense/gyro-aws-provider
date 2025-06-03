@@ -270,13 +270,6 @@ public class KmsKeyResource extends AwsResource implements Copyable<KeyMetadata>
      */
     @ConflictsWith("primary-kms-key")
     public Boolean getMultiRegion() {
-        if (multiRegion == null) {
-            if (getPrimaryKmsKey() != null && getPrimaryKmsKey().getMultiRegion()) {
-                multiRegion = true;
-            } else {
-                multiRegion = false;
-            }
-        }
         return multiRegion;
     }
 
