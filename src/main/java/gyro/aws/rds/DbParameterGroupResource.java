@@ -69,6 +69,8 @@ import java.util.stream.Collectors;
 @Type("db-parameter-group")
 public class DbParameterGroupResource extends RdsTaggableResource implements Copyable<DBParameterGroup> {
 
+    public static final String AWS_ARN_RESOURCE_TYPE = "pg";
+
     private String description;
     private String family;
     private String name;
@@ -102,8 +104,11 @@ public class DbParameterGroupResource extends RdsTaggableResource implements Cop
      * The name of the DB parameter group.
      */
     @Required
-    @Id
     public String getName() {
+        if (name == null && getArn() != null) {
+            name = getNameFromArn();
+        }
+
         return name;
     }
 

@@ -31,7 +31,6 @@ import gyro.core.GyroUI;
 import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
-import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -76,6 +75,8 @@ import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException
  */
 @Type("db-instance")
 public class DbInstanceResource extends RdsTaggableResource implements Copyable<DBInstance> {
+
+    public static final String AWS_ARN_RESOURCE_TYPE = "db";
 
     private Integer allocatedStorage;
     private Boolean allowMajorVersionUpgrade;
@@ -256,8 +257,11 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The unique name of the DB instance.
      */
     @Required
-    @Id
     public String getIdentifier() {
+        if (identifier == null && getArn() != null) {
+            identifier = getNameFromArn();
+        }
+
         return identifier;
     }
 
@@ -463,7 +467,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * License model for this DB instance.
      */
     @Updatable
-    @ValidStrings({"license-included", "bring-your-own-license", "general-public-license"})
+    @ValidStrings({ "license-included", "bring-your-own-license", "general-public-license" })
     public String getLicenseModel() {
         return licenseModel;
     }
@@ -499,7 +503,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * Enhanced Monitoring metrics collecting interval in seconds. The default is 0 (disable collection).
      */
     @Updatable
-    @ValidNumbers({0, 1, 5, 10, 15, 30, 60})
+    @ValidNumbers({ 0, 1, 5, 10, 15, 30, 60 })
     public Integer getMonitoringInterval() {
         return monitoringInterval;
     }
@@ -560,7 +564,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * How many days to retain Performance Insights data.
      */
     @Updatable
-    @ValidNumbers({7, 731})
+    @ValidNumbers({ 7, 731 })
     public Integer getPerformanceInsightsRetentionPeriod() {
         return performanceInsightsRetentionPeriod;
     }
@@ -659,7 +663,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
      * The storage type for the DB instance.
      */
     @Updatable
-    @ValidStrings({"standard", "gp2", "gp3", "io1"})
+    @ValidStrings({ "standard", "gp2", "gp3", "io1" })
     public String getStorageType() {
         return storageType;
     }
@@ -716,7 +720,7 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
     /**
      * The location for storing automated backups and manual snapshots.
      */
-    @ValidStrings({"outposts", "region"})
+    @ValidStrings({ "outposts", "region" })
     public String getBackupTarget() {
         return backupTarget;
     }
@@ -770,14 +774,16 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setCharacterSetName(instance.characterSetName());
         setCopyTagsToSnapshot(instance.copyTagsToSnapshot());
         setDbCluster(
-            instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier()) :
+            instance.dbClusterIdentifier() != null ? findById(DbClusterResource.class, instance.dbClusterIdentifier(),
+                DbClusterResource.AWS_ARN_RESOURCE_TYPE) :
                 null);
         setDbInstanceClass(instance.dbInstanceClass());
         setIdentifier(instance.dbInstanceIdentifier());
         setDbName(instance.dbName());
 
         setDbParameterGroup(instance.dbParameterGroups().stream()
-            .findFirst().map(s -> findById(DbParameterGroupResource.class, s.dbParameterGroupName()))
+            .findFirst().map(s -> findById(DbParameterGroupResource.class, s.dbParameterGroupName(),
+                DbParameterGroupResource.AWS_ARN_RESOURCE_TYPE))
             .orElse(null));
 
         setDbSecurityGroups(instance.dbSecurityGroups().stream()
@@ -785,7 +791,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .collect(Collectors.toList()));
 
         setDbSubnetGroup(instance.dbSubnetGroup() != null ?
-            findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName()) : null);
+            findById(DbSubnetGroupResource.class, instance.dbSubnetGroup().dbSubnetGroupName(),
+                DbSubnetGroupResource.AWS_ARN_RESOURCE_TYPE) : null);
         setDeletionProtection(instance.deletionProtection());
 
         setDomain(instance.domainMemberships().stream()
@@ -817,7 +824,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setMultiAz(instance.multiAZ());
 
         setOptionGroup(instance.optionGroupMemberships().stream()
-            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName()))
+            .findFirst().map(s -> findById(DbOptionGroupResource.class, s.optionGroupName(),
+                DbOptionGroupResource.AWS_ARN_RESOURCE_TYPE))
             .orElse(null));
 
         setPerformanceInsightsKmsKey(instance.performanceInsightsKMSKeyId() != null ?

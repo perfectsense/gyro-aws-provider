@@ -144,8 +144,11 @@ public class DbEventSubscriptionResource extends RdsTaggableResource implements 
      * The name of the subscription.
      */
     @Required
-    @Id
     public String getName() {
+        if (name == null && getArn() != null) {
+            name = getNameFromArn();
+        }
+
         return name;
     }
 

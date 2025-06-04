@@ -16,22 +16,32 @@
 
 package gyro.aws.rds;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import gyro.aws.AwsCredentials;
 import gyro.aws.AwsResource;
+import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Updatable;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.rds.model.Tag;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 public abstract class RdsTaggableResource extends AwsResource {
+
+    protected static final Pattern ARN_PATTERN = Pattern.compile(
+        "^arn:aws:rds:(?<region>[a-zA-Z0-9-]*):(?<ownerId>[0-9-]*):(?<type>[a-zA-Z0-9-]*):(?<name>[a-zA-Z0-9.:-]*)$");
 
     private String arn;
     private Map<String, String> tags;
@@ -40,6 +50,7 @@ public abstract class RdsTaggableResource extends AwsResource {
      * The ARN of the RDS resource.
      */
     @Output
+    @Id
     public String getArn() {
         return arn;
     }
@@ -91,8 +102,16 @@ public abstract class RdsTaggableResource extends AwsResource {
     @Override
     public final void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) {
         doUpdate(current, changedFieldNames);
-        ((RdsTaggableResource) current).removeTags();
+        removeTags(((RdsTaggableResource) current).getTags().keySet());
         addTags();
+    }
+
+    public <T extends Resource> T findById(Class<T> resourceClass, String id, String type) {
+        if (resourceClass != null && RdsTaggableResource.class.isAssignableFrom(resourceClass)) {
+            id = getArnFromName(getRegion(), getAwsAccountId(), id, type);
+        }
+
+        return findById(resourceClass, id);
     }
 
     private void loadTags() {
@@ -116,12 +135,40 @@ public abstract class RdsTaggableResource extends AwsResource {
             ));
     }
 
-    private void removeTags() {
+    private void removeTags(Set<String> tagKeys) {
         RdsClient client = createClient(RdsClient.class);
         executeService(() ->
             client.removeTagsFromResource(
                 r -> r.resourceName(getArn())
-                    .tagKeys(getTags().keySet())
+                    .tagKeys(tagKeys)
             ));
+    }
+
+    protected String getNameFromArn() {
+        Matcher matcher = ARN_PATTERN.matcher(arn);
+
+        if (matcher.matches()) {
+            return matcher.group("name");
+
+        } else {
+            throw new GyroException(
+                String.format("Could not extract resource name from the ARN: %s. Expected format: %s", arn,
+                    ARN_PATTERN.pattern()));
+        }
+    }
+
+    public static String getArnFromName(String region, String ownerId, String name, String type) {
+        return String.format("arn:aws:rds:%s:%s:%s:%s", region, ownerId, type, name);
+    }
+
+    public String getRegion() {
+        AwsCredentials credentials = credentials(AwsCredentials.class);
+        return credentials.getRegion();
+    }
+
+    public String getAwsAccountId() {
+        StsClient client = createClient(StsClient.class);
+        GetCallerIdentityResponse response = client.getCallerIdentity();
+        return response.account();
     }
 }
