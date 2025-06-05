@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+## 1.8.0 (June 5th, 2025)
+
+ENHANCEMENTS:
+
+* [603](https://github.com/perfectsense/gyro-aws-provider/issues/603): Add support for AWS KMS Multi-Region Keys
+* [709](https://github.com/perfectsense/gyro-aws-provider/issues/709): Add cross-regions Vpc Peering functionality
+* [712](https://github.com/perfectsense/gyro-aws-provider/issues/712): Add OpenSearch Outbound Connection for cross-cluster replication
+
+ISSUES FIXED:
+
+* [719](https://github.com/perfectsense/gyro-aws-provider/pull/719): Use the ARN as the ID for eks clusters instead of the name
+* [721](https://github.com/perfectsense/gyro-aws-provider/pull/721): Use arn as the `@Id` for rds resources
+* [717](https://github.com/perfectsense/gyro-aws-provider/pull/717): Return an empty list instead of erroring out if a load balancer is not found
+
 ## 1.7.0 (April 2nd, 2025)
 
 ENHANCEMENTS:
