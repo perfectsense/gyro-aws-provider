@@ -95,6 +95,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     /**
      * The engine version of the Aurora global database.
      */
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
