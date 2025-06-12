@@ -351,6 +351,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The version number of the database engine to use.
      */
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
