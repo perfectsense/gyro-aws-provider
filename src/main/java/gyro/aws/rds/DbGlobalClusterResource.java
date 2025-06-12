@@ -16,23 +16,23 @@
 
 package gyro.aws.rds;
 
+import java.util.Set;
+
+import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
-import com.psddev.dari.util.ObjectUtils;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.DescribeGlobalClustersResponse;
 import software.amazon.awssdk.services.rds.model.GlobalCluster;
 import software.amazon.awssdk.services.rds.model.GlobalClusterNotFoundException;
-
-import java.util.Set;
 
 /**
  * Create a global cluster.
@@ -180,12 +180,12 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
         RdsClient client = createClient(RdsClient.class);
         client.createGlobalCluster(
             r -> r.databaseName(getDatabaseName())
-                    .deletionProtection(getDeletionProtection())
-                    .engine(getEngine())
-                    .engineVersion(getEngineVersion())
-                    .globalClusterIdentifier(getIdentifier())
-                    .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
-                    .storageEncrypted(getStorageEncrypted())
+                .deletionProtection(getDeletionProtection())
+                .engine(getEngine())
+                .engineVersion(getEngineVersion())
+                .globalClusterIdentifier(getIdentifier())
+                .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
+                .storageEncrypted(getStorageEncrypted())
         );
     }
 
@@ -196,8 +196,9 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
         // The modify global cluster api currently return a 500
         client.modifyGlobalCluster(
             r -> r.deletionProtection(getDeletionProtection())
-                    .globalClusterIdentifier(current.getIdentifier())
-                    .newGlobalClusterIdentifier(getIdentifier())
+                .engineVersion(getEngineVersion())
+                .globalClusterIdentifier(current.getIdentifier())
+                .newGlobalClusterIdentifier(getIdentifier())
         );
     }
 
