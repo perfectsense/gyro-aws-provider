@@ -17,13 +17,16 @@
 package gyro.aws.rds;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.psddev.dari.util.ObjectUtils;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
 import gyro.core.resource.Id;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -95,6 +98,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     /**
      * The engine version of the Aurora global database.
      */
+    @Updatable
     public String getEngineVersion() {
         return engineVersion;
     }
@@ -187,6 +191,8 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
                 .sourceDBClusterIdentifier(getSourceDbCluster() != null ? getSourceDbCluster().getArn() : null)
                 .storageEncrypted(getStorageEncrypted())
         );
+
+        waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
     }
 
     @Override
@@ -200,6 +206,8 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
                 .globalClusterIdentifier(current.getIdentifier())
                 .newGlobalClusterIdentifier(getIdentifier())
         );
+
+        waitForActiveStatus(client, TimeoutSettings.Action.UPDATE);
     }
 
     @Override
@@ -208,5 +216,41 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
         client.deleteGlobalCluster(
             r -> r.globalClusterIdentifier(getIdentifier())
         );
+
+        Wait.atMost(5, TimeUnit.MINUTES)
+            .checkEvery(15, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.DELETE)
+            .prompt(true)
+            .until(() -> isDeleted(client));
+    }
+
+    private boolean isDeleted(RdsClient client) {
+        try {
+            client.describeGlobalClusters(r -> r.globalClusterIdentifier(getIdentifier()));
+
+        } catch (GlobalClusterNotFoundException ex) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void waitForActiveStatus(RdsClient client, TimeoutSettings.Action action) {
+        boolean waitResult = Wait.atMost(10, TimeUnit.MINUTES)
+            .checkEvery(30, TimeUnit.SECONDS)
+            .resourceOverrides(this, action)
+            .prompt(false)
+            .until(() -> isAvailable(client));
+
+        if (!waitResult) {
+            throw new GyroException("Unable to reach 'available' state for rds global db cluster - " + getIdentifier());
+        }
+    }
+
+    private boolean isAvailable(RdsClient client) {
+        DescribeGlobalClustersResponse response =
+            client.describeGlobalClusters(r -> r.globalClusterIdentifier(getIdentifier()));
+
+        return response.globalClusters().get(0).status().equals("available");
     }
 }
