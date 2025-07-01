@@ -51,16 +51,20 @@ import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
  *
  * .. code-block:: gyro
  *
- *     aws::lambda-function-version my-function-version
- *         function-name: $(aws::lambda-function my-function)
- *         description: "My function version"
- *         permission: [
- *             {
- *                 statement-id: "AllowExecutionFromApiGateway"
- *                 action: "lambda:InvokeFunction"
- *                 principal: "apigateway.amazonaws.com"
- *             }
- *         ]
+ *     aws::lambda-version lambda-version-example
+ *         function: $(aws::lambda-function lambda-function-example)
+ *         description: "Version 1 of lambda-function-example"
+ *
+ *         permission
+ *             statement-id: "AllowGetFunctionFromCloudFront"
+ *             action: "lambda:GetFunction"
+ *             principal: "edgelambda.amazonaws.com"
+ *         end
+ *
+ *         event-invoke-config
+ *             maximum-retry-attempts: 1
+ *             maximum-event-age-in-seconds: 600
+ *         end
  *     end
  */
 @Type("lambda-version")
@@ -187,7 +191,7 @@ public class FunctionVersionResource extends AwsResource implements Copyable<Fun
             }
 
         } catch (ResourceNotFoundException ex) {
-            // No config, ignore
+            // No config exists, ignore
         }
     }
 

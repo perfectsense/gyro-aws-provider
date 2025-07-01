@@ -27,7 +27,9 @@ public class FunctionDestinationConfig extends Diffable implements Copyable<Dest
     private FunctionOnFailureConfig onFailure;
 
     /**
-     * The ARN of the destination for successful invocations.
+     * The destination configuration for successful invocations.
+     *
+     * @subresource gyro.aws.lambda.FunctionOnSuccessConfig
      */
     @Updatable
     public FunctionOnSuccessConfig getOnSuccess() {
@@ -39,7 +41,9 @@ public class FunctionDestinationConfig extends Diffable implements Copyable<Dest
     }
 
     /**
-     * The ARN of the destination for failed invocations.
+     * The destination configuration for failed invocations.
+     *
+     * @subresource gyro.aws.lambda.FunctionOnFailureConfig
      */
     @Updatable
     public FunctionOnFailureConfig getOnFailure() {
