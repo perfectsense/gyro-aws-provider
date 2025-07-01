@@ -1,6 +1,6 @@
 aws::iam-role example-role-iam
     name: "example-role-iam"
-    assume-role-policy: '{"Version": "2012-10-17","Statement": [{"Effect": "Allow","Principal": {"Service": "lambda.amazonaws.com"},"Action": "sts:AssumeRole"}]}'
+    assume-role-policy: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["lambda.amazonaws.com", "edgelambda.amazonaws.com"]},"Action":"sts:AssumeRole"}]}'
     policies: [$(aws::iam-policy example-policy-iam)]
     tags: {
         Name: "role-example"
@@ -13,38 +13,119 @@ aws::iam-policy example-policy-iam
 end
 
 aws::lambda-function lambda-function-example
-    name: "testFunction1"
+    name: "example-test-1"
     handler: "index.handler"
     runtime: "nodejs20.x"
     role: $(aws::iam-role example-role-iam)
     content-zip-path: "example-function-1.zip"
 
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
     tags: {
         Name: "lambda-function-example"
     }
-
-    lambda-layers: [
-        $(aws::lambda-layer lambda-layer-for-function-example-1),
-        $(aws::lambda-layer lambda-layer-for-function-example-2)
-    ]
-
-    publish: true
 end
 
-aws::lambda-layer lambda-layer-for-function-example-1
-    name: "lambda-layer-for-function-example-1"
-    description: "lambda-layer-example-desc"
-    content-zip-path: "example-function.zip"
-    compatible-runtimes: [
-        "nodejs8.10"
-    ]
+aws::lambda-version lambda-version-example
+    function: $(aws::lambda-function lambda-function-example)
+    description: "Version 1 of example-test-1"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    event-invoke-config
+        maximum-retry-attempts: 1
+        maximum-event-age-in-seconds: 600
+    end
 end
 
-aws::lambda-layer lambda-layer-for-function-example-2
-    name: "lambda-layer-for-function-example-2"
-    description: "lambda-layer-example-desc"
-    content-zip-path: "example-function.zip"
-    compatible-runtimes: [
-        "nodejs8.10"
-    ]
+aws::lambda-function lambda-function-example-2
+    name: "example-test-2"
+    handler: "index.handler"
+    runtime: "nodejs20.x"
+    role: $(aws::iam-role example-role-iam)
+    content-zip-path: "example-function-1.zip"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    tags: {
+        Name: "lambda-function-example"
+    }
+end
+
+aws::lambda-version lambda-version-example-2
+    function: $(aws::lambda-function lambda-function-example-2)
+    description: "Version 1 of example-test-2"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    event-invoke-config
+        maximum-retry-attempts: 1
+        maximum-event-age-in-seconds: 600
+    end
+end
+
+aws::lambda-version lambda-version-example-2-1
+    function: $(aws::lambda-function lambda-function-example-2)
+    description: "Version 2 of example-test-2"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    event-invoke-config
+        maximum-retry-attempts: 1
+        maximum-event-age-in-seconds: 600
+    end
+end
+
+aws::lambda-function lambda-function-example-3
+    name: "example-test-3"
+    handler: "index.handler"
+    runtime: "nodejs20.x"
+    role: $(aws::iam-role example-role-iam)
+    content-zip-path: "example-function-1.zip"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    tags: {
+        Name: "lambda-function-example"
+    }
+end
+
+aws::lambda-version lambda-version-example-3
+    function: $(aws::lambda-function lambda-function-example-3)
+    description: "Version 1 of example-test-3"
+
+    permission
+        statement-id: "AllowGetFunctionFromCloudFront"
+        action: "lambda:GetFunction"
+        principal: "edgelambda.amazonaws.com"
+    end
+
+    event-invoke-config
+        maximum-retry-attempts: 1
+        maximum-event-age-in-seconds: 600
+    end
 end
