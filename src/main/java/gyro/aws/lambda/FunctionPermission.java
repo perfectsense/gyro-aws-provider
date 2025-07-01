@@ -33,8 +33,23 @@ import software.amazon.awssdk.services.lambda.model.AddPermissionRequest;
 import software.amazon.awssdk.services.lambda.model.FunctionUrlAuthType;
 
 public class FunctionPermission extends Diffable implements Copyable<AddPermissionRequest> {
+
     private static final Pattern ARN_FORMAT = Pattern.compile(
         "^arn:aws:lambda:(?<region>[a-zA-Z0-9-]*):(?<ownerId>[0-9-]*):function:(?<name>[a-zA-Z0-9.:-]*)$");
+
+    private static final String STATEMENT_ID = "Sid";
+    private static final String ACTION = "Action";
+    private static final String RESOURCE = "Resource";
+    private static final String PRINCIPAL = "Principal";
+    private static final String SERVICE = "Service";
+    private static final String AWS = "AWS";
+    private static final String REVISION_ID = "RevisionId";
+    private static final String CONDITION = "Condition";
+    private static final String AWS_SOURCE_ARN = "AWS:SourceArn";
+    private static final String AWS_SOURCE_ACCOUNT = "AWS:SourceAccount";
+    private static final String LAMBDA_EVENT_SOURCE_TOKEN = "lambda:EventSourceToken";
+    private static final String AWS_PRINCIPAL_ORG_ID = "aws:PrincipalOrgID";
+    private static final String LAMBDA_FUNCTION_URL_AUTH_TYPE = "lambda:FunctionUrlAuthType";
 
     private String statementId;
     private String action;
@@ -236,24 +251,24 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
     protected static AddPermissionRequest getAddPermissionRequest(JsonNode statement) {
         AddPermissionRequest.Builder builder = AddPermissionRequest.builder();
 
-        if (!statement.has("Sid")
-            || !statement.has("Action")
-            || !statement.has("Resource")
-            || !statement.has("Principal")) {
+        if (!statement.has(STATEMENT_ID)
+            || !statement.has(ACTION)
+            || !statement.has(RESOURCE)
+            || !statement.has(PRINCIPAL)) {
             throw new IllegalArgumentException(
                 "Invalid statement. 'Sid', 'Action', 'Resource' and 'Principal' are required fields.");
         }
 
-        if (!statement.get("Sid").asText().matches("[a-zA-Z0-9-_]+")) {
+        if (!statement.get(STATEMENT_ID).asText().matches("[a-zA-Z0-9-_]+")) {
             // Ignore statements that don't match the provided regex
             // These are AWS managed permissions that cannot be configured
             return null;
         }
 
-        builder.statementId(statement.get("Sid").asText())
-            .action(statement.get("Action").asText());
+        builder.statementId(statement.get(STATEMENT_ID).asText())
+            .action(statement.get(ACTION).asText());
 
-        Matcher matcher = ARN_FORMAT.matcher(statement.get("Resource").asText());
+        Matcher matcher = ARN_FORMAT.matcher(statement.get(RESOURCE).asText());
 
         if (matcher.matches()) {
             String name = matcher.group("name");
@@ -269,42 +284,42 @@ public class FunctionPermission extends Diffable implements Copyable<AddPermissi
             builder.functionName(name);
 
         } else {
-            builder.functionName(statement.get("Resource").asText());
+            builder.functionName(statement.get(RESOURCE).asText());
         }
 
-        if (statement.get("Principal").has("Service")) {
-            builder.principal(statement.get("Principal").get("Service").asText());
-        } else if (statement.get("Principal").has("AWS")) {
-            builder.principal(statement.get("Principal").get("AWS").asText());
+        if (statement.get(PRINCIPAL).has(SERVICE)) {
+            builder.principal(statement.get(PRINCIPAL).get(SERVICE).asText());
+        } else if (statement.get(PRINCIPAL).has(AWS)) {
+            builder.principal(statement.get(PRINCIPAL).get(AWS).asText());
         } else {
             throw new IllegalArgumentException(
                 "Invalid statement. 'Principal' must have either 'Service' or 'AWS' field.");
         }
 
-        if (statement.has("RevisionId")) {
-            builder.revisionId(statement.get("RevisionId").asText());
+        if (statement.has(REVISION_ID)) {
+            builder.revisionId(statement.get(REVISION_ID).asText());
         }
 
-        if (statement.has("Condition")) {
-            JsonNode condition = statement.get("Condition");
+        if (statement.has(CONDITION)) {
+            JsonNode condition = statement.get(CONDITION);
             Iterator<String> fieldNames = condition.fieldNames();
 
             while (fieldNames.hasNext()) {
                 String conditionKey = fieldNames.next();
                 JsonNode conditionValue = condition.get(conditionKey);
 
-                if (conditionKey.equals("ArnLike") && conditionValue.has("AWS:SourceArn")) {
-                    builder.sourceArn(conditionValue.get("AWS:SourceArn").asText());
+                if (conditionKey.equals("ArnLike") && conditionValue.has(AWS_SOURCE_ARN)) {
+                    builder.sourceArn(conditionValue.get(AWS_SOURCE_ARN).asText());
                 } else if (conditionKey.equals("StringEquals")) {
-                    if (conditionValue.has("AWS:SourceAccount")) {
-                        builder.sourceAccount(conditionValue.get("AWS:SourceAccount").asText());
-                    } else if (conditionValue.has("lambda:EventSourceToken")) {
-                        builder.eventSourceToken(conditionValue.get("lambda:EventSourceToken").asText());
-                    } else if (conditionValue.has("aws:PrincipalOrgID")) {
-                        builder.principalOrgID(conditionValue.get("aws:PrincipalOrgID").asText());
-                    } else if (conditionValue.has("lambda:FunctionUrlAuthType")) {
+                    if (conditionValue.has(AWS_SOURCE_ACCOUNT)) {
+                        builder.sourceAccount(conditionValue.get(AWS_SOURCE_ACCOUNT).asText());
+                    } else if (conditionValue.has(LAMBDA_EVENT_SOURCE_TOKEN)) {
+                        builder.eventSourceToken(conditionValue.get(LAMBDA_EVENT_SOURCE_TOKEN).asText());
+                    } else if (conditionValue.has(AWS_PRINCIPAL_ORG_ID)) {
+                        builder.principalOrgID(conditionValue.get(AWS_PRINCIPAL_ORG_ID).asText());
+                    } else if (conditionValue.has(LAMBDA_FUNCTION_URL_AUTH_TYPE)) {
                         builder.functionUrlAuthType(FunctionUrlAuthType.fromValue(
-                            conditionValue.get("lambda:FunctionUrlAuthType").asText()));
+                            conditionValue.get(LAMBDA_FUNCTION_URL_AUTH_TYPE).asText()));
                     }
                 }
             }
