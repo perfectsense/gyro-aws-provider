@@ -16,6 +16,18 @@
 
 package gyro.aws.lambda;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psddev.dari.util.ObjectUtils;
@@ -27,11 +39,13 @@ import gyro.aws.iam.RoleResource;
 import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
-import gyro.core.resource.Id;
-import gyro.core.resource.Updatable;
+import gyro.core.TimeoutSettings;
 import gyro.core.Type;
+import gyro.core.Wait;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
+import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Range;
 import gyro.core.validation.Required;
@@ -51,17 +65,6 @@ import software.amazon.awssdk.services.lambda.model.ListVersionsByFunctionRespon
 import software.amazon.awssdk.services.lambda.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeRequest;
 import software.amazon.awssdk.services.lambda.model.UpdateFunctionCodeResponse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Creates a lambda function.
@@ -109,18 +112,15 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     private Set<SubnetResource> subnets;
     private Set<LayerResource> lambdaLayers;
     private Integer reservedConcurrentExecutions;
-    private Map<String, String> versionMap;
-    private Boolean publish;
     private Set<FunctionPermission> permission;
 
-    // -- Readonly
-
+    // Read-only
     private String arn;
     private String arnNoVersion;
     private String revisionId;
     private String masterArn;
     private String lastModified;
-    private String version;
+    private String latestVersion;
     private String codeHash;
 
     /**
@@ -280,7 +280,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      * The tracking mode of the Lambda Function. Defaults to ``PassThrough``. Valid values are ``PassThrough`` or ``Active``
      */
     @Updatable
-    @ValidStrings({"PassThrough", "Active"})
+    @ValidStrings({ "PassThrough", "Active" })
     public String getTrackingConfig() {
         if (trackingConfig == null) {
             trackingConfig = "PassThrough";
@@ -414,36 +414,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * A Map of versions and corresponding arns.
-     */
-    public Map<String, String> getVersionMap() {
-        if (versionMap == null) {
-            versionMap = new HashMap<>();
-        }
-        return versionMap;
-    }
-
-    public void setVersionMap(Map<String, String> versionMap) {
-        this.versionMap = versionMap;
-    }
-
-    /**
-     * A flag that states to publish the code or not.
-     */
-    @Updatable
-    public Boolean getPublish() {
-        if (publish == null) {
-            publish = false;
-        }
-
-        return publish;
-    }
-
-    public void setPublish(Boolean publish) {
-        this.publish = publish;
-    }
-
-    /**
      * The set of permissions to be associated with the Lambda Function.
      *
      * @subresource gyro.aws.lambda.FunctionPermission
@@ -462,7 +432,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn for the lambda Lambda Function resource including the version.
+     * The arn for the lambda Function resource including the version.
      */
     @Output
     public String getArn() {
@@ -474,7 +444,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     }
 
     /**
-     * The arn for the lambda Lambda Function resource without the version.
+     * The arn for the lambda Function resource without the version.
      */
     @Output
     public String getArnNoVersion() {
@@ -525,12 +495,12 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
      * The version of the Lambda Function.
      */
     @Output
-    public String getVersion() {
-        return version;
+    public String getLatestVersion() {
+        return latestVersion;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setLatestVersion(String latestVersion) {
+        this.latestVersion = latestVersion;
     }
 
     public String getCodeHash() {
@@ -544,16 +514,19 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
     @Override
     public void copyFrom(FunctionConfiguration configuration) {
         setName(configuration.functionName());
-        setDeadLetterConfigArn(configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
+        setDeadLetterConfigArn(
+            configuration.deadLetterConfig() != null ? configuration.deadLetterConfig().targetArn() : null);
         setDescription(configuration.description());
         setRuntime(configuration.runtimeAsString());
-        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(RoleResource.class, configuration.role()) : null );
+        setRole(!ObjectUtils.isBlank(configuration.role()) ? findById(RoleResource.class, configuration.role()) : null);
         setHandler(configuration.handler());
         setTimeout(configuration.timeout());
         setMemorySize(configuration.memorySize());
         setTrackingConfig(configuration.tracingConfig() != null ? configuration.tracingConfig().modeAsString() : null);
-        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ? findById(KmsKeyResource.class, configuration.kmsKeyArn()) : null);
-        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn())).collect(Collectors.toSet()));
+        setKmsKey(!ObjectUtils.isBlank(configuration.kmsKeyArn()) ?
+            findById(KmsKeyResource.class, configuration.kmsKeyArn()) : null);
+        setLambdaLayers(configuration.layers().stream().map(o -> findById(LayerResource.class, o.arn()))
+            .collect(Collectors.toSet()));
         setEnvironment(configuration.environment() != null ? configuration.environment().variables() : null);
 
         setArn(configuration.functionArn());
@@ -561,7 +534,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setLastModified(configuration.lastModified());
         setMasterArn(configuration.masterArn());
         setRevisionId(configuration.revisionId());
-        setVersion(configuration.version());
+        setLatestVersion(configuration.version());
         setCodeHash(configuration.codeSha256());
 
         setSecurityGroups(
@@ -587,13 +560,10 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
         setTags(tagResponse.tags());
 
-        setVersions(client);
+        GetFunctionResponse response = client.getFunction(r -> r.functionName(getName()));
 
-        GetFunctionResponse response = client.getFunction(
-            r -> r.functionName(getName())
-        );
-
-        setReservedConcurrentExecutions(response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
+        setReservedConcurrentExecutions(
+            response.concurrency() != null ? response.concurrency().reservedConcurrentExecutions() : null);
 
         getPermission().clear();
         try {
@@ -642,13 +612,13 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             .tracingConfig(t -> t.mode(getTrackingConfig()))
             .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
             .tags(getTags())
-            .publish(getPublish())
             .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()));
 
         if (!ObjectUtils.isBlank(getContentZipPathRaw())) {
             builder = builder.code(c -> c.zipFile(getZipFile()));
         } else {
-            builder = builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
+            builder =
+                builder.code(c -> c.s3Bucket(getS3Bucket()).s3Key(getS3Key()).s3ObjectVersion(getS3ObjectVersion()));
         }
 
         if (!ObjectUtils.isBlank(getDeadLetterConfigArn())) {
@@ -660,15 +630,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         }
 
         if (!getSecurityGroups().isEmpty() && !getSubnets().isEmpty()) {
-            builder = builder.vpcConfig(
-                v -> v.securityGroupIds(
-                    getSecurityGroups().stream()
-                        .map(SecurityGroupResource::getId)
-                        .collect(Collectors.toList()))
-                    .subnetIds(
-                        getSubnets().stream()
-                            .map(SubnetResource::getId)
-                            .collect(Collectors.toList()))
+            builder = builder.vpcConfig(v -> v.securityGroupIds(
+                    getSecurityGroups().stream().map(SecurityGroupResource::getId).collect(Collectors.toList()))
+                .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
             );
         }
 
@@ -678,10 +642,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         setLastModified(response.lastModified());
         setMasterArn(response.masterArn());
         setRevisionId(response.revisionId());
-        setVersion(response.version());
+        setLatestVersion(response.version());
         setCodeHash(response.codeSha256());
 
-        setVersions(client);
         state.save();
 
         if (getReservedConcurrentExecutions() != null) {
@@ -693,7 +656,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
                 state.save();
             } catch (Exception ex) {
-                ui.write("\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@", getArn(), ex.getMessage());
+                ui.write(
+                    "\n@|bold,red Error assigning reserved concurrency executions to lambda function %s. Error - %s|@",
+                    getArn(), ex.getMessage());
             }
         }
 
@@ -704,6 +669,8 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
             state.save();
         }
+
+        waitForActiveStatus(client);
     }
 
     @Override
@@ -718,12 +685,9 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
         if (changeSet.contains("permission")) {
             if (!oldResource.getPermission().isEmpty()) {
-               for (FunctionPermission permission : oldResource.getPermission()) {
-                   client.removePermission(
-                       r -> r.functionName(getName())
-                           .statementId(permission.getStatementId())
-                   );
-               }
+                for (FunctionPermission permission : oldResource.getPermission()) {
+                    client.removePermission(r -> r.functionName(getName()).statementId(permission.getStatementId()));
+                }
             }
 
             for (FunctionPermission permission : getPermission()) {
@@ -753,7 +717,6 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
             UpdateFunctionCodeRequest.Builder builder = UpdateFunctionCodeRequest.builder()
                 .functionName(getName())
-                .publish(getPublish())
                 .revisionId(getRevisionId());
             if (!ObjectUtils.isBlank(getS3Bucket())) {
                 builder = builder.s3Bucket(getS3Bucket())
@@ -767,9 +730,8 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
             setCodeHash(response.codeSha256());
 
-            setVersions(client);
-
-            changeSet.removeAll(Arrays.asList("s3-bucket","s3-key","s3-object-version","content-zip-path", "file-hash"));
+            changeSet.removeAll(
+                Arrays.asList("s3-bucket", "s3-key", "s3-object-version", "content-zip-path", "file-hash"));
         }
 
         if (changeSet.contains("tags")) {
@@ -803,19 +765,17 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
                     .kmsKeyArn(getKmsKey() != null ? getKmsKey().getArn() : null)
                     .layers(getLambdaLayers().stream().map(LayerResource::getVersionArn).collect(Collectors.toSet()))
                     .environment(e -> e.variables(getEnvironment()))
-                    .vpcConfig(
-                        v -> v.securityGroupIds(
-                            getSecurityGroups().stream()
-                                .map(SecurityGroupResource::getId)
-                                .collect(Collectors.toList()))
-                            .subnetIds(
-                                getSubnets().stream()
-                                    .map(SubnetResource::getId)
-                                    .collect(Collectors.toList()))
+                    .vpcConfig(v -> v
+                        .securityGroupIds(getSecurityGroups().stream()
+                            .map(SecurityGroupResource::getId)
+                            .collect(Collectors.toList()))
+                        .subnetIds(getSubnets().stream().map(SubnetResource::getId).collect(Collectors.toList()))
                     )
                     .deadLetterConfig(d -> d.targetArn(getDeadLetterConfigArn()))
             );
         }
+
+        waitForActiveStatus(client);
     }
 
     @Override
@@ -832,7 +792,7 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
             return SdkBytes.fromInputStream(input);
 
         } catch (IOException ex) {
-            throw new GyroException(String.format("File not found - %s",getContentZipPathRaw()));
+            throw new GyroException(String.format("File not found - %s", getContentZipPathRaw()));
         }
     }
 
@@ -856,31 +816,17 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
         s3FieldCount += !ObjectUtils.isBlank(getS3Key()) ? 1 : 0;
         s3FieldCount += !ObjectUtils.isBlank(getS3ObjectVersion()) ? 1 : 0;
 
-        if (s3FieldCount > 0 && s3FieldCount < 3 ) {
-            errors.add(new ValidationError(this, null, "Fields s3-bucket, s3-key and s3-object-version are needed to set together or none."));
+        if (s3FieldCount > 0 && s3FieldCount < 3) {
+            errors.add(new ValidationError(this, null,
+                "Fields s3-bucket, s3-key and s3-object-version are needed to set together or none."));
         }
 
         if (s3FieldCount != 0 && !ObjectUtils.isBlank(getContentZipPathRaw())) {
-            errors.add(new ValidationError(this, null, "Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set."));
+            errors.add(new ValidationError(this, null,
+                "Field content-zip-path cannot be set when Fields s3-bucket, s3-key and s3-object-version are set."));
         }
 
         return errors;
-    }
-
-    private void setVersions(LambdaClient client) {
-        ListVersionsByFunctionResponse versionsResponse = client.listVersionsByFunction(
-            r -> r.functionName(getName())
-        );
-
-        getVersionMap().clear();
-
-        if (versionsResponse != null && !versionsResponse.versions().isEmpty()) {
-            for (FunctionConfiguration functionConfiguration : versionsResponse.versions()) {
-                if (!functionConfiguration.version().equals("$LATEST")) {
-                    getVersionMap().put("v" + functionConfiguration.version(), functionConfiguration.functionArn());
-                }
-            }
-        }
     }
 
     private void setPolicy(String jsonPolicy) {
@@ -895,13 +841,49 @@ public class FunctionResource extends AwsResource implements Copyable<FunctionCo
 
             for (JsonNode statement : statements) {
                 AddPermissionRequest request = FunctionPermission.getAddPermissionRequest(statement);
-                FunctionPermission permission = newSubresource(FunctionPermission.class);
-                permission.copyFrom(request);
-                getPermission().add(permission);
+                if (request != null) {
+                    FunctionPermission permission = newSubresource(FunctionPermission.class);
+                    permission.copyFrom(request);
+                    getPermission().add(permission);
+                }
             }
 
         } catch (Exception e) {
-            throw new GyroException("Error parsing function policy",e);
+            throw new GyroException("Error parsing function policy", e);
         }
+    }
+
+    public void waitForActiveStatus(LambdaClient client) {
+        Wait.atMost(1, TimeUnit.MINUTES)
+            .checkEvery(5, TimeUnit.SECONDS)
+            .resourceOverrides(this, TimeoutSettings.Action.CREATE)
+            .until(() -> {
+                try {
+                    GetFunctionResponse response = client.getFunction(r -> r.functionName(getName()));
+                    return software.amazon.awssdk.services.lambda.model.State.ACTIVE.equals(
+                        response.configuration().state());
+
+                } catch (ResourceNotFoundException ex) {
+                    return false;
+                }
+            });
+    }
+
+    public int getMaxVersion(LambdaClient client) {
+        int maxVersion = 0;
+
+        try {
+            for (ListVersionsByFunctionResponse response : client.listVersionsByFunctionPaginator(
+                r -> r.functionName(name))) {
+                maxVersion = Integer.max(
+                    response.versions().stream().map(FunctionConfiguration::version).filter(v -> !v.equals("$LATEST"))
+                        .mapToInt(Integer::parseInt).max().orElse(0),
+                    maxVersion);
+            }
+        } catch (ResourceNotFoundException ex) {
+            // ignore
+        }
+
+        return maxVersion;
     }
 }
