@@ -1,0 +1,8 @@
+{
+  "Type": "ExpirationNotification",
+  "Version": "1.0",
+  "Attributes": {
+    "Before": "1",
+    "Unit": "Hours"
+  }
+}
