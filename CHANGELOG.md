@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 1.9.0 (July 9th, 2025)
+
+ENHANCEMENTS:
+
+* [726](https://github.com/perfectsense/gyro-aws-provider/issues/726): Add support for Ssm Parameter store
+* [715](https://github.com/perfectsense/gyro-aws-provider/issues/715): Add Lambda version support
+
 ## 1.8.0 (June 5th, 2025)
 
 ENHANCEMENTS:
