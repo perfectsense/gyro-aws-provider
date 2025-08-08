@@ -409,7 +409,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The name of the master user for the DB cluster.
      */
-    @Required
     public String getMasterUsername() {
         return masterUsername;
     }
@@ -820,12 +819,14 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
         setEnableIamDatabaseAuthentication(cluster.iamDatabaseAuthenticationEnabled());
         setEngine(cluster.engine());
 
-        String version = cluster.engineVersion();
-        if (getEngineVersion() != null) {
-            version = version.substring(0, getEngineVersion().length());
+        if (!Boolean.TRUE.equals(cluster.autoMinorVersionUpgrade())) {
+            String version = cluster.engineVersion();
+            if (getEngineVersion() != null) {
+                version = version.substring(0, getEngineVersion().length());
+            }
+            setEngineVersion(version);
         }
 
-        setEngineVersion(version);
         setEngineMode(cluster.engineMode());
         setKmsKey(cluster.kmsKeyId() != null ? findById(KmsKeyResource.class, cluster.kmsKeyId()) : null);
         setMasterUsername(cluster.masterUsername());

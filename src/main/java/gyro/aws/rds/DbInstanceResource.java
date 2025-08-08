@@ -809,12 +809,15 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setEnablePerformanceInsights(instance.performanceInsightsEnabled());
         setEngine(instance.engine());
 
-        String version = instance.engineVersion();
-        if (getEngineVersion() != null) {
-            version = version.substring(0, getEngineVersion().length());
+
+        if (!Boolean.TRUE.equals(instance.autoMinorVersionUpgrade())) {
+            String version = instance.engineVersion();
+            if (getEngineVersion() != null) {
+                version = version.substring(0, getEngineVersion().length());
+            }
+            setEngineVersion(version);
         }
 
-        setEngineVersion(version);
         setIops(instance.iops());
         setKmsKey(instance.kmsKeyId() != null ? findById(KmsKeyResource.class, instance.kmsKeyId()) : null);
         setLicenseModel(instance.licenseModel());
