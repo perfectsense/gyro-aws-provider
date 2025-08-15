@@ -16,6 +16,7 @@
 
 package gyro.aws.rds;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -40,14 +41,18 @@ import gyro.core.validation.Range;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidNumbers;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.CreateDbInstanceResponse;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.rds.model.DBSecurityGroupMembership;
 import software.amazon.awssdk.services.rds.model.DbInstanceNotFoundException;
+import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsRequest;
+import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsResponse;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 import software.amazon.awssdk.services.rds.model.DomainMembership;
 import software.amazon.awssdk.services.rds.model.InvalidDbInstanceStateException;
+import software.amazon.awssdk.services.rds.model.UpgradeTarget;
 
 /**
  * Create a db instance.
@@ -809,12 +814,15 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
         setEnablePerformanceInsights(instance.performanceInsightsEnabled());
         setEngine(instance.engine());
 
-        String version = instance.engineVersion();
-        if (getEngineVersion() != null) {
-            version = version.substring(0, getEngineVersion().length());
+
+        if (!Boolean.TRUE.equals(instance.autoMinorVersionUpgrade())) {
+            String version = instance.engineVersion();
+            if (getEngineVersion() != null) {
+                version = version.substring(0, getEngineVersion().length());
+            }
+            setEngineVersion(version);
         }
 
-        setEngineVersion(version);
         setIops(instance.iops());
         setKmsKey(instance.kmsKeyId() != null ? findById(KmsKeyResource.class, instance.kmsKeyId()) : null);
         setLicenseModel(instance.licenseModel());
@@ -1083,6 +1091,53 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
             .resourceOverrides(this, TimeoutSettings.Action.DELETE)
             .prompt(true)
             .until(() -> isDeleted(client));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        ArrayList<ValidationError> errors = new ArrayList<>();
+
+        // to make sure that the engine-version is not being downgraded
+        if (configuredFields.contains("engine-version") && getIdentifier() != null) {
+            RdsClient client = createClient(RdsClient.class);
+
+            try {
+                DescribeDbInstancesResponse response = client.describeDBInstances(
+                    r -> r.dbInstanceIdentifier(getIdentifier())
+                );
+
+                if (response.hasDbInstances() && !response.dbInstances().isEmpty()) {
+                    DBInstance dbInstance = response.dbInstances().get(0);
+                    String currentVersion = dbInstance.engineVersion();
+
+
+                    DescribeDbEngineVersionsResponse versionType = client.describeDBEngineVersions(
+                        DescribeDbEngineVersionsRequest.builder().engineVersion(currentVersion).build());
+
+                    if (versionType.hasDbEngineVersions() && !versionType.dbEngineVersions().isEmpty()) {
+                        if (versionType.dbEngineVersions().get(0).validUpgradeTarget()
+                            .stream()
+                            .map(UpgradeTarget::engineVersion)
+                            .noneMatch(version -> version.equals(getEngineVersion()))) {
+                            errors.add(new ValidationError(
+                                this,
+                                "engine-version",
+                                String.format(
+                                    "'%s' is not a valid upgrade target for the current engine version '%s'.",
+                                    getEngineVersion(),
+                                    currentVersion
+                                )
+                            ));
+                        }
+                    }
+                }
+
+            } catch (DbInstanceNotFoundException ex) {
+                // ignore if db instance doesn't exist
+            }
+        }
+
+        return errors;
     }
 
     private boolean isDeleted(RdsClient client) {
