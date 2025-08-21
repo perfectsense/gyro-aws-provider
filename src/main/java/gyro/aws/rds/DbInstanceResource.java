@@ -1115,7 +1115,8 @@ public class DbInstanceResource extends RdsTaggableResource implements Copyable<
                         DescribeDbEngineVersionsRequest.builder().engineVersion(currentVersion).build());
 
                     if (versionType.hasDbEngineVersions() && !versionType.dbEngineVersions().isEmpty()) {
-                        if (versionType.dbEngineVersions().get(0).validUpgradeTarget()
+                        if (!currentVersion.equals(getEngineVersion()) &&
+                            versionType.dbEngineVersions().get(0).validUpgradeTarget()
                             .stream()
                             .map(UpgradeTarget::engineVersion)
                             .noneMatch(version -> version.equals(getEngineVersion()))) {
