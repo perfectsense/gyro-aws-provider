@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+## 1.9.1 (August 21th, 2025)
+
+ENHANCEMENTS:
+
+* [723](https://github.com/perfectsense/gyro-aws-provider/pull/723): Make engine version updatable for rds clusters
+
+ISSUES FIXED:
+
+* [729](https://github.com/perfectsense/gyro-aws-provider/issues/729): masterUsername should not be required for db-clusters
+
 ## 1.9.0 (July 9th, 2025)
 
 ENHANCEMENTS:
