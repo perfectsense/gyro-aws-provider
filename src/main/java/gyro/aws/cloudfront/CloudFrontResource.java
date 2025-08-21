@@ -57,6 +57,8 @@ import software.amazon.awssdk.services.cloudfront.model.GetMonitoringSubscriptio
 import software.amazon.awssdk.services.cloudfront.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchDistributionException;
 import software.amazon.awssdk.services.cloudfront.model.Origin;
+import software.amazon.awssdk.services.cloudfront.model.OriginGroup;
+import software.amazon.awssdk.services.cloudfront.model.OriginGroups;
 import software.amazon.awssdk.services.cloudfront.model.Origins;
 import software.amazon.awssdk.services.cloudfront.model.Tag;
 import software.amazon.awssdk.services.cloudfront.model.Tags;
@@ -138,6 +140,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private WebAclResource webAcl;
     private Map<String, String> tags;
     private Set<CloudFrontOrigin> origin;
+    private Set<CloudFrontOriginGroup> originGroup;
     private Set<CloudFrontCacheBehavior> behavior;
     private CloudFrontCacheBehavior defaultCacheBehavior;
     private CloudFrontViewerCertificate viewerCertificate;
@@ -369,6 +372,24 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     }
 
     /**
+     * List of origin groups for this distribution.
+     *
+     * @subresource gyro.aws.cloudfront.CloudFrontOriginGroup
+     */
+    @Updatable
+    public Set<CloudFrontOriginGroup> getOriginGroup() {
+        if (originGroup == null) {
+            originGroup = new HashSet<>();
+        }
+
+        return originGroup;
+    }
+
+    public void setOriginGroup(Set<CloudFrontOriginGroup> originGroup) {
+        this.originGroup = originGroup;
+    }
+
+    /**
      * List of cache behaviors for this distribution.
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCacheBehavior
@@ -504,6 +525,15 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
                 CloudFrontOrigin originResource = newSubresource(CloudFrontOrigin.class);
                 originResource.copyFrom(origin);
                 getOrigin().add(originResource);
+            }
+        }
+
+        getOriginGroup().clear();
+        if (config.originGroups() != null) {
+            for (OriginGroup originGroup : config.originGroups().items()) {
+                CloudFrontOriginGroup originGroupResource = newSubresource(CloudFrontOriginGroup.class);
+                originGroupResource.copyFrom(originGroup);
+                getOriginGroup().add(originGroupResource);
             }
         }
 
@@ -721,6 +751,16 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .quantity(origin.size())
             .build();
 
+        List<OriginGroup> originGroups = getOriginGroup()
+            .stream()
+            .map(CloudFrontOriginGroup::toOriginGroup)
+            .collect(Collectors.toList());
+
+        OriginGroups originGroupsConfig = OriginGroups.builder()
+            .items(originGroups)
+            .quantity(originGroups.size())
+            .build();
+
         CloudFrontViewerCertificate viewerCertificate = getViewerCertificate();
         if (viewerCertificate == null) {
             viewerCertificate = newSubresource(CloudFrontViewerCertificate.class);
@@ -744,6 +784,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
             .defaultCacheBehavior(defaultCacheBehavior.toDefaultCacheBehavior())
             .cacheBehaviors(cacheBehaviors)
             .origins(origins)
+            .originGroups(originGroupsConfig)
             .logging(getLogging() != null ? getLogging().toLoggingConfig() : CloudFrontLogging.defaultLoggingConfig())
             .viewerCertificate(viewerCertificate.toViewerCertificate())
             .callerReference(getCallerReference() != null ? getCallerReference() : Long.toString(new Date().getTime()));
