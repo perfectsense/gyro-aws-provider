@@ -1347,10 +1347,12 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         DescribeDbEngineVersionsRequest.builder().engineVersion(currentVersion).build());
 
                     if (versionType.hasDbEngineVersions() && !versionType.dbEngineVersions().isEmpty()) {
-                        if (versionType.dbEngineVersions().get(0).validUpgradeTarget()
-                            .stream()
-                            .map(UpgradeTarget::engineVersion)
-                            .noneMatch(version -> version.equals(getEngineVersion()))) {
+                        // Allow same version (no change needed)
+                        if (!currentVersion.equals(getEngineVersion()) &&
+                            versionType.dbEngineVersions().get(0).validUpgradeTarget()
+                                .stream()
+                                .map(UpgradeTarget::engineVersion)
+                                .noneMatch(version -> version.equals(getEngineVersion()))) {
                             errors.add(new ValidationError(
                                 this,
                                 "engine-version",
