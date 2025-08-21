@@ -97,4 +97,20 @@ public class S3PublicAccessBlockConfiguration extends Diffable implements Copyab
             .restrictPublicBuckets(getRestrictPublicBuckets())
             .build();
     }
+
+    public software.amazon.awssdk.services.s3control.model.PublicAccessBlockConfiguration toS3ControlPublicAccessBlockConfiguration() {
+        return software.amazon.awssdk.services.s3control.model.PublicAccessBlockConfiguration.builder()
+            .blockPublicAcls(getBlockPublicAcls())
+            .ignorePublicAcls(getIgnorePublicAcls())
+            .blockPublicPolicy(getBlockPublicPolicy())
+            .restrictPublicBuckets(getRestrictPublicBuckets())
+            .build();
+    }
+
+    public void copyFromS3Control(software.amazon.awssdk.services.s3control.model.PublicAccessBlockConfiguration config) {
+        setBlockPublicAcls(config.blockPublicAcls());
+        setIgnorePublicAcls(config.ignorePublicAcls());
+        setBlockPublicPolicy(config.blockPublicPolicy());
+        setRestrictPublicBuckets(config.restrictPublicBuckets());
+    }
 }

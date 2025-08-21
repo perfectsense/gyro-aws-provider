@@ -1,0 +1,48 @@
+# Create buckets in multiple regions
+aws::s3-bucket bucket_us_east_1
+    name: "example-mrap-us-east-1"
+    enable-versioning: true
+    tags: {
+        Name: "MRAP Bucket US East 1"
+    }
+end
+
+aws::s3-bucket bucket_us_west_2
+    name: "example-mrap-us-west-2"
+    enable-versioning: true
+    tags: {
+        Name: "MRAP Bucket US West 2"
+    }
+end
+
+aws::s3-bucket bucket_eu_west_1
+    name: "example-mrap-eu-west-1"
+    enable-versioning: true
+    tags: {
+        Name: "MRAP Bucket EU West 1"
+    }
+end
+
+# Create the Multi-Region Access Point
+aws::s3-multi-region-access-point mrap_example
+    name: "example-mrap"
+    
+    region
+        bucket: $(aws::s3-bucket bucket_us_east_1)
+    end
+    
+    region
+        bucket: $(aws::s3-bucket bucket_us_west_2)
+    end
+    
+    region
+        bucket: $(aws::s3-bucket bucket_eu_west_1)
+    end
+    
+    public-access-block-configuration
+        block-public-acls: true
+        ignore-public-acls: true
+        block-public-policy: true
+        restrict-public-buckets: true
+    end
+end
