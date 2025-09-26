@@ -49,15 +49,12 @@ import software.amazon.awssdk.services.rds.model.CreateDbClusterResponse;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DbClusterNotFoundException;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
-import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsRequest;
-import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsResponse;
 import software.amazon.awssdk.services.rds.model.InvalidDbClusterStateException;
 import software.amazon.awssdk.services.rds.model.LocalWriteForwardingStatus;
 import software.amazon.awssdk.services.rds.model.ModifyDbClusterRequest;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromS3Response;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterFromSnapshotResponse;
 import software.amazon.awssdk.services.rds.model.RestoreDbClusterToPointInTimeResponse;
-import software.amazon.awssdk.services.rds.model.UpgradeTarget;
 
 /**
  * Create a Aurora cluster.
@@ -1326,48 +1323,6 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                     "restore-to-time",
                     "'restore-to-time' cannot be set when 'restore-type' is set to 'copy-on-write'. Use 'use-latest-restorable-time' instead and set it to `true` instead."
                 ));
-            }
-        }
-
-        // to make sure that the engine-version is not being downgraded
-        if (configuredFields.contains("engine-version") && getIdentifier() != null) {
-            RdsClient client = createClient(RdsClient.class);
-
-            try {
-                DescribeDbClustersResponse response = client.describeDBClusters(
-                    r -> r.dbClusterIdentifier(getIdentifier())
-                );
-
-                if (response.hasDbClusters() && !response.dbClusters().isEmpty()) {
-                    DBCluster dbCluster = response.dbClusters().get(0);
-                    String currentVersion = dbCluster.engineVersion();
-
-
-                    DescribeDbEngineVersionsResponse versionType = client.describeDBEngineVersions(
-                        DescribeDbEngineVersionsRequest.builder().engineVersion(currentVersion).build());
-
-                    if (versionType.hasDbEngineVersions() && !versionType.dbEngineVersions().isEmpty()) {
-                        // Allow same version (no change needed)
-                        if (!currentVersion.equals(getEngineVersion()) &&
-                            versionType.dbEngineVersions().get(0).validUpgradeTarget()
-                                .stream()
-                                .map(UpgradeTarget::engineVersion)
-                                .noneMatch(version -> version.equals(getEngineVersion()))) {
-                            errors.add(new ValidationError(
-                                this,
-                                "engine-version",
-                                String.format(
-                                    "'%s' is not a valid upgrade target for the current engine version '%s'.",
-                                    getEngineVersion(),
-                                    currentVersion
-                                )
-                            ));
-                        }
-                    }
-                }
-
-            } catch (DbClusterNotFoundException ex) {
-                // ignore if db cluster doesn't exist
             }
         }
 
