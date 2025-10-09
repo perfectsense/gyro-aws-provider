@@ -28,6 +28,7 @@ import gyro.core.TimeoutSettings;
 import gyro.core.Type;
 import gyro.core.Wait;
 import gyro.core.resource.Id;
+import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
@@ -60,6 +61,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
     private String identifier;
     private DbClusterResource sourceDbCluster;
     private Boolean storageEncrypted;
+    private String endpointAddress;
 
     /**
      * The name for your database of up to 64 alpha-numeric characters. If omitted, no database will be created in the global database cluster.
@@ -142,6 +144,18 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
         this.storageEncrypted = storageEncrypted;
     }
 
+    /**
+     * The writer endpoint for the global database cluster. This endpoint is used for write operations.
+     */
+    @Output
+    public String getEndpointAddress() {
+        return endpointAddress;
+    }
+
+    public void setEndpointAddress(String endpointAddress) {
+        this.endpointAddress = endpointAddress;
+    }
+
     @Override
     public void copyFrom(GlobalCluster cluster) {
         setDatabaseName(cluster.databaseName());
@@ -155,6 +169,7 @@ public class DbGlobalClusterResource extends AwsResource implements Copyable<Glo
 
         setEngineVersion(version);
         setStorageEncrypted(cluster.storageEncrypted());
+        setEndpointAddress(cluster.endpoint());
     }
 
     @Override
