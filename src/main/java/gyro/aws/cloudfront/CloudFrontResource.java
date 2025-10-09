@@ -529,7 +529,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         }
 
         getOriginGroup().clear();
-        if (config.originGroups() != null) {
+        if (config.originGroups() != null && config.originGroups().items() != null) {
             for (OriginGroup originGroup : config.originGroups().items()) {
                 CloudFrontOriginGroup originGroupResource = newSubresource(CloudFrontOriginGroup.class);
                 originGroupResource.copyFrom(originGroup);

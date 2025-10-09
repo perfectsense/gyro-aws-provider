@@ -6,7 +6,7 @@ aws::cloudfront cloudfront-with-origin-groups
     origin
         id: "primary-origin"
         domain-name: "primary.example.com"
-        
+
         custom-origin
             http-port: 80
             https-port: 443
@@ -17,7 +17,7 @@ aws::cloudfront cloudfront-with-origin-groups
     origin
         id: "secondary-origin"
         domain-name: "secondary.example.com"
-        
+
         custom-origin
             http-port: 80
             https-port: 443
@@ -27,15 +27,15 @@ aws::cloudfront cloudfront-with-origin-groups
 
     origin-group
         id: "failover-group"
-        
+
         members
             origin-id: "primary-origin"
         end
-        
+
         members
             origin-id: "secondary-origin"
         end
-        
+
         failover-criteria
             status-codes: [403, 404, 500, 502, 503, 504]
         end
@@ -46,10 +46,10 @@ aws::cloudfront cloudfront-with-origin-groups
         viewer-protocol-policy: "redirect-to-https"
         allowed-methods: ["GET", "HEAD"]
         cached-methods: ["GET", "HEAD"]
-        
+
         forwarded-values
             query-string: false
-            
+
             cookies
                 forward: "none"
             end

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Perfect Sense, Inc.
+ * Copyright 2025, Perfect Sense, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudfront.model.OriginGroup;
-import software.amazon.awssdk.services.cloudfront.model.OriginGroupFailoverCriteria;
-import software.amazon.awssdk.services.cloudfront.model.OriginGroupMembers;
+import software.amazon.awssdk.services.cloudfront.model.OriginGroupMember;
 
 public class CloudFrontOriginGroup extends Diffable implements Copyable<OriginGroup> {
 
@@ -36,6 +36,7 @@ public class CloudFrontOriginGroup extends Diffable implements Copyable<OriginGr
     /**
      * A unique ID for this origin group.
      */
+    @Required
     public String getId() {
         return id;
     }
@@ -76,27 +77,23 @@ public class CloudFrontOriginGroup extends Diffable implements Copyable<OriginGr
         this.members = members;
     }
 
-    // Internal method for consistency - not exposed to gyro
-    List<CloudFrontOriginGroupMember> getMembers() {
-        return getMember();
-    }
-
     @Override
     public void copyFrom(OriginGroup originGroup) {
         setId(originGroup.id());
 
+        setFailoverCriteria(null);
         if (originGroup.failoverCriteria() != null) {
             CloudFrontOriginGroupFailoverCriteria failoverCriteria = newSubresource(CloudFrontOriginGroupFailoverCriteria.class);
             failoverCriteria.copyFrom(originGroup.failoverCriteria());
             setFailoverCriteria(failoverCriteria);
         }
 
-        getMembers().clear();
+        getMember().clear();
         if (originGroup.members() != null && originGroup.members().items() != null) {
-            for (software.amazon.awssdk.services.cloudfront.model.OriginGroupMember member : originGroup.members().items()) {
+            for (OriginGroupMember member : originGroup.members().items()) {
                 CloudFrontOriginGroupMember originGroupMember = newSubresource(CloudFrontOriginGroupMember.class);
                 originGroupMember.copyFrom(member);
-                getMembers().add(originGroupMember);
+                getMember().add(originGroupMember);
             }
         }
     }
@@ -107,20 +104,14 @@ public class CloudFrontOriginGroup extends Diffable implements Copyable<OriginGr
     }
 
     OriginGroup toOriginGroup() {
-        List<software.amazon.awssdk.services.cloudfront.model.OriginGroupMember> members = getMembers()
-            .stream()
-            .map(CloudFrontOriginGroupMember::toOriginGroupMember)
-            .collect(Collectors.toList());
-
-        OriginGroupMembers originGroupMembers = OriginGroupMembers.builder()
-            .items(members)
-            .quantity(members.size())
-            .build();
-
         return OriginGroup.builder()
             .id(getId())
-            .failoverCriteria(getFailoverCriteria() != null ? getFailoverCriteria().toOriginGroupFailoverCriteria() : null)
-            .members(originGroupMembers)
+            .failoverCriteria(
+                getFailoverCriteria() != null ? getFailoverCriteria().toOriginGroupFailoverCriteria() : null)
+            .members(r -> r.items(getMember()
+                .stream()
+                .map(CloudFrontOriginGroupMember::toOriginGroupMember)
+                .collect(Collectors.toList())))
             .build();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, Perfect Sense, Inc.
+ * Copyright 2025, Perfect Sense, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package gyro.aws.cloudfront;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
-import gyro.core.resource.Updatable;
+import gyro.core.validation.Required;
 import software.amazon.awssdk.services.cloudfront.model.OriginGroupMember;
 
 public class CloudFrontOriginGroupMember extends Diffable implements Copyable<OriginGroupMember> {
@@ -28,7 +28,7 @@ public class CloudFrontOriginGroupMember extends Diffable implements Copyable<Or
     /**
      * The ID of the origin that is a member of this origin group.
      */
-    @Updatable
+    @Required
     public String getOriginId() {
         return originId;
     }
