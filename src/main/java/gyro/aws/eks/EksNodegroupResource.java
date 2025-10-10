@@ -448,20 +448,16 @@ public class EksNodegroupResource extends AwsResource implements Copyable<Nodegr
         EksClient client = createClient(EksClient.class);
         EksNodegroupResource currentResource = (EksNodegroupResource) current;
 
-        if (changedFieldNames.contains("release-version")) {
+        if (changedFieldNames.contains("release-version") || changedFieldNames.contains("version")) {
             client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
                     .clusterName(getCluster().getName())
                     .nodegroupName(getName())
                     .releaseVersion(getReleaseVersion())
-                    .build());
-        }
-
-        if (changedFieldNames.contains("version")) {
-            client.updateNodegroupVersion(UpdateNodegroupVersionRequest.builder()
-                    .clusterName(getCluster().getName())
-                    .nodegroupName(getName())
                     .version(getVersion())
                     .build());
+
+            state.save();
+            waitForActiveState(client, TimeoutSettings.Action.UPDATE);
         }
 
         if (changedFieldNames.contains("launch-template-specification")) {
