@@ -28,11 +28,11 @@ aws::cloudfront cloudfront-with-origin-groups
     origin-group
         id: "failover-group"
 
-        members
+        member
             origin-id: "primary-origin"
         end
 
-        members
+        member
             origin-id: "secondary-origin"
         end
 
@@ -46,14 +46,6 @@ aws::cloudfront cloudfront-with-origin-groups
         viewer-protocol-policy: "redirect-to-https"
         allowed-methods: ["GET", "HEAD"]
         cached-methods: ["GET", "HEAD"]
-
-        forwarded-values
-            query-string: false
-
-            cookies
-                forward: "none"
-            end
-        end
     end
 
     tags: {
