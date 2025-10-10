@@ -1,0 +1,55 @@
+aws::cloudfront cloudfront-with-origin-groups
+    enabled: true
+    ipv6-enabled: false
+    comment: "CloudFront distribution with origin groups for failover"
+
+    origin
+        id: "primary-origin"
+        domain-name: "primary.example.com"
+
+        custom-origin
+            http-port: 80
+            https-port: 443
+            origin-protocol-policy: "https-only"
+        end
+    end
+
+    origin
+        id: "secondary-origin"
+        domain-name: "secondary.example.com"
+
+        custom-origin
+            http-port: 80
+            https-port: 443
+            origin-protocol-policy: "https-only"
+        end
+    end
+
+    origin-group
+        id: "failover-group"
+
+        member
+            origin-id: "primary-origin"
+        end
+
+        member
+            origin-id: "secondary-origin"
+        end
+
+        failover-criteria
+            status-codes: [403, 404, 500, 502, 503, 504]
+        end
+    end
+
+    default-cache-behavior
+        target-origin-id: "failover-group"
+        viewer-protocol-policy: "redirect-to-https"
+        allowed-methods: ["GET", "HEAD"]
+        cached-methods: ["GET", "HEAD"]
+    end
+
+    tags: {
+        Name: "CloudFront with Origin Groups",
+        Purpose: "Failover demonstration"
+    }
+end
