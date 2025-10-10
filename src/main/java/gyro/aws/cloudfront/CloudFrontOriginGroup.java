@@ -104,14 +104,16 @@ public class CloudFrontOriginGroup extends Diffable implements Copyable<OriginGr
     }
 
     OriginGroup toOriginGroup() {
+        List<OriginGroupMember> memberList = getMember()
+            .stream()
+            .map(CloudFrontOriginGroupMember::toOriginGroupMember)
+            .collect(Collectors.toList());
+
         return OriginGroup.builder()
             .id(getId())
             .failoverCriteria(
                 getFailoverCriteria() != null ? getFailoverCriteria().toOriginGroupFailoverCriteria() : null)
-            .members(r -> r.items(getMember()
-                .stream()
-                .map(CloudFrontOriginGroupMember::toOriginGroupMember)
-                .collect(Collectors.toList())))
+            .members(r -> r.items(memberList).quantity(memberList.size()))
             .build();
     }
 }

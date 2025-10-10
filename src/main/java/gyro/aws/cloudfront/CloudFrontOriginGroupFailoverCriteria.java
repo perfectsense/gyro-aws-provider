@@ -59,7 +59,7 @@ public class CloudFrontOriginGroupFailoverCriteria extends Diffable implements C
 
     OriginGroupFailoverCriteria toOriginGroupFailoverCriteria() {
         return OriginGroupFailoverCriteria.builder()
-            .statusCodes(r -> r.items(getStatusCodes()))
+            .statusCodes(r -> r.items(getStatusCodes()).quantity(getStatusCodes().size()))
             .build();
     }
 }
