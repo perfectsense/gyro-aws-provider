@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+## 1.9.2 (October 10th, 2025)
+
+ENHANCEMENTS:
+
+* [734](https://github.com/perfectsense/gyro-aws-provider/pull/734): Add support for CloudFront origin groups
+* [735](https://github.com/perfectsense/gyro-aws-provider/pull/735): Update DbGlobalClusterResource.java to support endpoint-address
+* [736](https://github.com/perfectsense/gyro-aws-provider/pull/736): Add a wait after updating nodegroups
+
+ISSUES FIXED:
+
+* [733](https://github.com/perfectsense/gyro-aws-provider/pull/733): Remove incorrect aurora validation
+
 ## 1.9.1 (August 21th, 2025)
 
 ENHANCEMENTS:
