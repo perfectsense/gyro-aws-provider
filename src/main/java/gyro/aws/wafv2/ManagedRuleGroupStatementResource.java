@@ -33,6 +33,7 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
     private String name;
     private String vendorName;
     private Set<RuleActionOverride> ruleActionOverrides;
+    private StatementResource scopeDownStatement;
 
     /**
      * A set of rule names to be excluded that are part of the associated managed rule group.
@@ -91,9 +92,25 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
         this.ruleActionOverrides = ruleActionOverrides;
     }
 
+    /**
+     * The scope down statement for the managed rule group.
+     *
+     * @subresource gyro.aws.wafv2.StatementResource
+     */
+    public StatementResource getScopeDownStatement() {
+        return scopeDownStatement;
+    }
+
+    public void setScopeDownStatement(StatementResource scopeDownStatement) {
+        this.scopeDownStatement = scopeDownStatement;
+    }
+
     @Override
     public String primaryKey() {
-        return String.format("with name - '%s' and vendor - '%s'", getName(), getVendorName());
+        return String.format("with name - '%s' and vendor - '%s'%s", getName(), getVendorName(),
+            (getScopeDownStatement() != null ? String.format(
+                " and scope down statement - '%s'",
+                getScopeDownStatement().primaryKey()) : ""));
     }
 
     @Override
@@ -118,6 +135,13 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
                 .collect(Collectors.toSet()));
         }
 
+        setScopeDownStatement(null);
+        if (managedRuleGroupStatement.scopeDownStatement() != null) {
+            StatementResource statement = newSubresource(StatementResource.class);
+            statement.copyFrom(managedRuleGroupStatement.scopeDownStatement());
+            setScopeDownStatement(statement);
+        }
+
         setName(managedRuleGroupStatement.name());
         setVendorName(managedRuleGroupStatement.vendorName());
     }
@@ -137,6 +161,10 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
             builder = builder.ruleActionOverrides(getRuleActionOverrides().stream()
                 .map(RuleActionOverride::toRuleActionOverride)
                 .collect(Collectors.toList()));
+        }
+
+        if (getScopeDownStatement() != null) {
+            builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
         }
 
         return builder.build();
