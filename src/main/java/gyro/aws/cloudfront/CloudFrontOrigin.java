@@ -42,7 +42,6 @@ public class CloudFrontOrigin extends Diffable implements Copyable<Origin> {
     /**
      * A unique ID for this origin.
      */
-    @Updatable
     public String getId() {
         return id;
     }
