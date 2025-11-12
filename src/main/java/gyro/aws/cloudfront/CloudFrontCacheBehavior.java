@@ -62,6 +62,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     /**
      * The ID for the origin to route requests to when the path pattern matches this cache behavior.
      */
+    @Updatable
     public String getTargetOriginId() {
         return targetOriginId;
     }
