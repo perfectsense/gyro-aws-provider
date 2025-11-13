@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.9.3 (October 27th, 2025)
+
+ENHANCEMENTS:
+
+* [738](https://github.com/perfectsense/gyro-aws-provider/issues/738): Add support for scope-down-statement in managed-rule-group-statement
+
 ## 1.9.2 (October 10th, 2025)
 
 ENHANCEMENTS:
