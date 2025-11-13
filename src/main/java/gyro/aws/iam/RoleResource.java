@@ -344,13 +344,13 @@ public class RoleResource extends AwsResource implements Copyable<Role> {
         List<PolicyResource> subtractions = new ArrayList<>(currentResource.getPolicies());
         subtractions.removeAll(getPolicies());
 
-        for (PolicyResource addPolicyArn : additions) {
-            client.attachRolePolicy(r -> r.policyArn(addPolicyArn.getArn())
-                    .roleName(getName()));
-        }
-
         for (PolicyResource deletePolicyArn : subtractions) {
             client.detachRolePolicy(r -> r.policyArn(deletePolicyArn.getArn())
+                .roleName(getName()));
+        }
+
+        for (PolicyResource addPolicyArn : additions) {
+            client.attachRolePolicy(r -> r.policyArn(addPolicyArn.getArn())
                     .roleName(getName()));
         }
 
