@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 1.9.4 (November 20th, 2025)
+
+ENHANCEMENTS:
+
+* [741](https://github.com/perfectsense/gyro-aws-provider/pull/741): Mark the targetOriginId as Updatable in the CloudFrontCacheBehaviour
+* [742](https://github.com/perfectsense/gyro-aws-provider/pull/742): Detach Role policies before attaching new ones in order to account for the 10 policy limit
+
 ## 1.9.3 (October 27th, 2025)
 
 ENHANCEMENTS:
