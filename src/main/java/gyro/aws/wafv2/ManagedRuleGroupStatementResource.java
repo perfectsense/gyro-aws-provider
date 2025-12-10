@@ -34,6 +34,7 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
     private String vendorName;
     private Set<RuleActionOverride> ruleActionOverrides;
     private StatementResource scopeDownStatement;
+    private Set<ManagedRuleGroupConfigResource> managedRuleGroupConfigs;
 
     /**
      * A set of rule names to be excluded that are part of the associated managed rule group.
@@ -105,6 +106,24 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
         this.scopeDownStatement = scopeDownStatement;
     }
 
+    /**
+     * Configs for this managed rule group.
+     *
+     * @subresource gyro.aws.wafv2.ManagedRuleGroupConfigResource
+     */
+    @Updatable
+    public Set<ManagedRuleGroupConfigResource> getManagedRuleGroupConfigs() {
+        if (managedRuleGroupConfigs == null) {
+            managedRuleGroupConfigs = new HashSet<>();
+        }
+
+        return managedRuleGroupConfigs;
+    }
+
+    public void setManagedRuleGroupConfigs(Set<ManagedRuleGroupConfigResource> managedRuleGroupConfigs) {
+        this.managedRuleGroupConfigs = managedRuleGroupConfigs;
+    }
+
     @Override
     public String primaryKey() {
         return String.format("with name - '%s' and vendor - '%s'%s", getName(), getVendorName(),
@@ -142,6 +161,18 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
             setScopeDownStatement(statement);
         }
 
+        getManagedRuleGroupConfigs().clear();
+        if (managedRuleGroupStatement.managedRuleGroupConfigs() != null) {
+            setManagedRuleGroupConfigs(managedRuleGroupStatement.managedRuleGroupConfigs()
+                .stream()
+                .map(c -> {
+                    ManagedRuleGroupConfigResource managedRuleGroupConfigResource = newSubresource(ManagedRuleGroupConfigResource.class);
+                    managedRuleGroupConfigResource.copyFrom(c);
+                    return managedRuleGroupConfigResource;
+                })
+                .collect(Collectors.toSet()));
+        }
+
         setName(managedRuleGroupStatement.name());
         setVendorName(managedRuleGroupStatement.vendorName());
     }
@@ -165,6 +196,14 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
 
         if (getScopeDownStatement() != null) {
             builder = builder.scopeDownStatement(getScopeDownStatement().toStatement());
+        }
+
+        if (!getManagedRuleGroupConfigs().isEmpty()) {
+            builder = builder.managedRuleGroupConfigs(
+                getManagedRuleGroupConfigs()
+                    .stream()
+                    .map(ManagedRuleGroupConfigResource::toManagedRuleGroupConfig)
+                    .collect(Collectors.toList()));
         }
 
         return builder.build();
