@@ -24,7 +24,7 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.FallbackBehavior;
 import software.amazon.awssdk.services.wafv2.model.ForwardedIPConfig;
 
-public class RateLimitForwardedIpConfigResource extends Diffable implements Copyable<ForwardedIPConfig> {
+public class ForwardedIpConfigResource extends Diffable implements Copyable<ForwardedIPConfig> {
 
     private FallbackBehavior fallbackBehavior;
     private String headerName;

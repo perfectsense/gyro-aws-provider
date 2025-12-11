@@ -1,0 +1,35 @@
+aws::wafv2-web-acl web-acl-example
+    name: "web-acl-example"
+    description: "web-acl-example-desc"
+    scope: "REGIONAL"
+    default-action: "BLOCK"
+
+    visibility-config
+        metric-name: "web-acl-example"
+        cloud-watch-metrics-enabled: false
+        sampled-requests-enabled: false
+    end
+
+    rule
+        name: "web-acl-example-rule-asn"
+        priority: 0
+        action: "BLOCK"
+
+        visibility-config
+            metric-name: "web-acl-example-rule-asn"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            asn-match-statement
+                asn-list: [64496, 64500, 0]
+
+                forwarded-ip-config
+                    header-name: "X-Forwarded-For"
+                    fallback-behavior: "NO_MATCH"
+                end
+            end
+        end
+    end
+end
