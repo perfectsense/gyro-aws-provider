@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesAntiDDoSRuleSet;
@@ -33,6 +34,7 @@ public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements 
      * @subresource gyro.aws.wafv2.ClientSideActionConfigResource
      */
     @Required
+    @Updatable
     public ClientSideActionConfigResource getClientSideActionConfig() {
         return clientSideActionConfig;
     }
@@ -46,6 +48,7 @@ public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements 
      * Valid values are LOW, MEDIUM, and HIGH.
      */
     @ValidStrings({ "LOW", "MEDIUM", "HIGH" })
+    @Updatable
     public String getSensitivityToBlock() {
         return sensitivityToBlock;
     }

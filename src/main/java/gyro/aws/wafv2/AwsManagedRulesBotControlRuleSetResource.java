@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesBotControlRuleSet;
@@ -32,6 +33,7 @@ public class AwsManagedRulesBotControlRuleSetResource extends Diffable implement
      * The inspection level to use for the Bot Control rule group.
      */
     @Required
+    @Updatable
     @ValidStrings({ "COMMON", "TARGETED" })
     public String getInspectionLevel() {
         return inspectionLevel;
@@ -44,6 +46,7 @@ public class AwsManagedRulesBotControlRuleSetResource extends Diffable implement
     /**
      * Whether to use machine learning (ML) to analyze your web traffic for bot-related activity.
      */
+    @Updatable
     public Boolean getEnableMachineLearning() {
         return enableMachineLearning;
     }

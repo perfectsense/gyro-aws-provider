@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.CollectionMax;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.ResponseInspection;
@@ -47,6 +48,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * HTTP status codes that indicate a successful login or account creation.
      */
     @CollectionMax(10)
+    @Updatable
     public List<Integer> getStatusCodeSuccessCodes() {
         if (statusCodeSuccessCodes == null) {
             statusCodeSuccessCodes = new ArrayList<>();
@@ -62,6 +64,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * HTTP status codes that indicate a failed login or account creation.
      */
     @CollectionMax(10)
+    @Updatable
     public List<Integer> getStatusCodeFailureCodes() {
         if (statusCodeFailureCodes == null) {
             statusCodeFailureCodes = new ArrayList<>();
@@ -76,6 +79,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
     /**
      * Name of the HTTP header.
      */
+    @Updatable
     public String getHeaderName() {
         return headerName;
     }
@@ -88,6 +92,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Header values that indicate success.
      */
     @CollectionMax(3)
+    @Updatable
     public List<String> getHeaderSuccessValues() {
         if (headerSuccessValues == null) {
             headerSuccessValues = new ArrayList<>();
@@ -103,6 +108,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Header values that indicate failure.
      */
     @CollectionMax(3)
+    @Updatable
     public List<String> getHeaderFailureValues() {
         if (headerFailureValues == null) {
             headerFailureValues = new ArrayList<>();
@@ -118,6 +124,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Strings in the response body that indicate success.
      */
     @CollectionMax(5)
+    @Updatable
     public List<String> getBodyContainsSuccessStrings() {
         if (bodyContainsSuccessStrings == null) {
             bodyContainsSuccessStrings = new ArrayList<>();
@@ -133,6 +140,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Strings in the response body that indicate failure.
      */
     @CollectionMax(5)
+    @Updatable
     public List<String> getBodyContainsFailureStrings() {
         if (bodyContainsFailureStrings == null) {
             bodyContainsFailureStrings = new ArrayList<>();
@@ -147,6 +155,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
     /**
      * The JSON identifier.
      */
+    @Updatable
     public String getJsonIdentifier() {
         return jsonIdentifier;
     }
@@ -159,6 +168,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Values at the JSON identifier that indicate success.
      */
     @CollectionMax(5)
+    @Updatable
     public List<String> getJsonSuccessValues() {
         if (jsonSuccessValues == null) {
             jsonSuccessValues = new ArrayList<>();
@@ -174,6 +184,7 @@ public class ResponseInspectionResource extends Diffable implements Copyable<Res
      * Values at the JSON identifier that indicate failure.
      */
     @CollectionMax(5)
+    @Updatable
     public List<String> getJsonFailureValues() {
         if (jsonFailureValues == null) {
             jsonFailureValues = new ArrayList<>();

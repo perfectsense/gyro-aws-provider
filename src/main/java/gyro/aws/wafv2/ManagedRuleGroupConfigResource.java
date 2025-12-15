@@ -23,7 +23,7 @@ import software.amazon.awssdk.services.wafv2.model.ManagedRuleGroupConfig;
 public class ManagedRuleGroupConfigResource extends Diffable implements Copyable<ManagedRuleGroupConfig> {
 
     private AwsManagedRulesACFPRuleSetResource awsManagedRulesAcfpRuleSet;
-    private AwsManagedRulesAntiDDoSRuleSetResource awsManagedRulesAntiDDoSRuleSet;
+    private AwsManagedRulesAntiDDoSRuleSetResource awsManagedRulesAntiDdosRuleSet;
     private AwsManagedRulesATPRuleSetResource awsManagedRulesAtpRuleSet;
     private AwsManagedRulesBotControlRuleSetResource awsManagedRulesBotControlRuleSet;
 
@@ -47,14 +47,14 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesAntiDDoSRuleSetResource
      */
-    public AwsManagedRulesAntiDDoSRuleSetResource getAwsManagedRulesAntiDDoSRuleSet() {
-        return awsManagedRulesAntiDDoSRuleSet;
+    public AwsManagedRulesAntiDDoSRuleSetResource getAwsManagedRulesAntiDdosRuleSet() {
+        return awsManagedRulesAntiDdosRuleSet;
     }
 
-    public void setAwsManagedRulesAntiDDoSRuleSet(
+    public void setAwsManagedRulesAntiDdosRuleSet(
         AwsManagedRulesAntiDDoSRuleSetResource awsManagedRulesAntiDDoSRuleSet
     ) {
-        this.awsManagedRulesAntiDDoSRuleSet = awsManagedRulesAntiDDoSRuleSet;
+        this.awsManagedRulesAntiDdosRuleSet = awsManagedRulesAntiDDoSRuleSet;
     }
 
     /**
@@ -101,11 +101,11 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
             setAwsManagedRulesAcfpRuleSet(rule);
         }
 
-        setAwsManagedRulesAntiDDoSRuleSet(null);
+        setAwsManagedRulesAntiDdosRuleSet(null);
         if (managedRuleGroupConfig.awsManagedRulesAntiDDoSRuleSet() != null) {
             AwsManagedRulesAntiDDoSRuleSetResource rule = newSubresource(AwsManagedRulesAntiDDoSRuleSetResource.class);
             rule.copyFrom(managedRuleGroupConfig.awsManagedRulesAntiDDoSRuleSet());
-            setAwsManagedRulesAntiDDoSRuleSet(rule);
+            setAwsManagedRulesAntiDdosRuleSet(rule);
         }
 
         setAwsManagedRulesAtpRuleSet(null);
@@ -131,9 +131,9 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
                 getAwsManagedRulesAcfpRuleSet().toAwsManagedRulesACFPRuleSet());
         }
 
-        if (getAwsManagedRulesAntiDDoSRuleSet() != null) {
+        if (getAwsManagedRulesAntiDdosRuleSet() != null) {
             builder.awsManagedRulesAntiDDoSRuleSet(
-                getAwsManagedRulesAntiDDoSRuleSet().toAwsManagedRulesAntiDDoSRuleSet());
+                getAwsManagedRulesAntiDdosRuleSet().toAwsManagedRulesAntiDDoSRuleSet());
         }
 
         if (getAwsManagedRulesAtpRuleSet() != null) {

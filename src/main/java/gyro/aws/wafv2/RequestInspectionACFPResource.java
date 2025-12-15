@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
@@ -47,6 +48,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
      * For example, JSON or FORM_ENCODED.
      */
     @Required
+    @Updatable
     @ValidStrings({ "JSON", "FORM_ENCODED" })
     public String getPayloadType() {
         return payloadType;
@@ -59,6 +61,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     /**
      * The name of the field in the request payload that contains the username.
      */
+    @Updatable
     public String getUsernameField() {
         return usernameField;
     }
@@ -70,6 +73,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     /**
      * The name of the field in the request payload that contains the password.
      */
+    @Updatable
     public String getPasswordField() {
         return passwordField;
     }
@@ -81,6 +85,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     /**
      * The name of the field in the request payload that contains the email address.
      */
+    @Updatable
     public String getEmailField() {
         return emailField;
     }
@@ -92,6 +97,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     /**
      * A list of fields in the request payload that contain phone numbers.
      */
+    @Updatable
     public List<String> getPhoneNumberFields() {
         if (phoneNumberFields == null) {
             phoneNumberFields = new ArrayList<>();
@@ -106,6 +112,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     /**
      * A list of fields in the request payload that contain physical addresses.
      */
+    @Updatable
     public List<String> getAddressFields() {
         if (addressFields == null) {
             addressFields = new ArrayList<>();

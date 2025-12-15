@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesATPRuleSet;
 
@@ -32,6 +33,7 @@ public class AwsManagedRulesATPRuleSetResource extends Diffable implements Copya
      * Path of the login endpoint.
      */
     @Required
+    @Updatable
     public String getLoginPath() {
         return loginPath;
     }
@@ -43,6 +45,7 @@ public class AwsManagedRulesATPRuleSetResource extends Diffable implements Copya
     /**
      * Whether regular expressions are allowed in the login path.
      */
+    @Updatable
     public Boolean getEnableRegexInPath() {
         return enableRegexInPath;
     }
@@ -56,6 +59,7 @@ public class AwsManagedRulesATPRuleSetResource extends Diffable implements Copya
      *
      * @subresource gyro.aws.wafv2.RequestInspectionResource
      */
+    @Updatable
     public RequestInspectionResource getRequestInspection() {
         return requestInspection;
     }
@@ -69,6 +73,7 @@ public class AwsManagedRulesATPRuleSetResource extends Diffable implements Copya
      *
      * @subresource gyro.aws.wafv2.ResponseInspectionResource
      */
+    @Updatable
     public ResponseInspectionResource getResponseInspection() {
         return responseInspection;
     }

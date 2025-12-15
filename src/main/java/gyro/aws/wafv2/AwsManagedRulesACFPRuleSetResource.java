@@ -22,6 +22,7 @@ import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesACFPRuleSet;
@@ -38,6 +39,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
      * Path of the account registration endpoint for your application.
      */
     @Required
+    @Updatable
     public String getRegistrationPagePath() {
         return registrationPagePath;
     }
@@ -50,6 +52,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
      * Path of the account creation endpoint that processes the registration submissions.
      */
     @Required
+    @Updatable
     public String getCreationPath() {
         return creationPath;
     }
@@ -61,6 +64,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
     /**
      * Whether regex is allowed in the registration and creation paths.
      */
+    @Updatable
     public Boolean getEnableRegexInPath() {
         return enableRegexInPath;
     }
@@ -75,6 +79,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
      * @subresource gyro.aws.wafv2.RequestInspectionACFPResource
      */
     @Required
+    @Updatable
     public RequestInspectionACFPResource getRequestInspection() {
         return requestInspection;
     }
@@ -88,6 +93,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
      *
      * @subresource gyro.aws.wafv2.ResponseInspectionResource
      */
+    @Updatable
     public ResponseInspectionResource getResponseInspection() {
         return responseInspection;
     }
