@@ -238,7 +238,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
     }
 
     /**
-     * ASN match statement configuration.
+     * The ASN match statement configuration.
      *
      * @subresource gyro.aws.wafv2.AsnMatchStatementResource
      */

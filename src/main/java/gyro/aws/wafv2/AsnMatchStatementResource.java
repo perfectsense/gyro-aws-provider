@@ -1,5 +1,5 @@
 /*
- * Copyright 2020, Brightspot.
+ * Copyright 2025, Brightspot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,15 @@ public class AsnMatchStatementResource extends Diffable implements Copyable<AsnM
     private ForwardedIpConfigResource forwardedIpConfig;
 
     /**
-     * The asn list for the matching.
+     * The ASN list for the matching.
      */
     @Required
     @CollectionMax(100)
-    @Max(4294967295L)
     public List<Long> getAsnList() {
         if(asnList == null) {
             asnList = new ArrayList<>();
         }
+
         return asnList;
     }
 
@@ -50,7 +50,7 @@ public class AsnMatchStatementResource extends Diffable implements Copyable<AsnM
     }
 
     /**
-     * The forwarded IP configuration for the asn match statement.
+     * The forwarded IP configuration for the ASN match statement.
      *
      * @subresource gyro.aws.wafv2.ForwardedIpConfigResource
      */
