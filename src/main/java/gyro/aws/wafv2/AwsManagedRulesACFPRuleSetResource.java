@@ -16,9 +16,14 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesACFPRuleSet;
 
 public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copyable<AWSManagedRulesACFPRuleSet> {
@@ -135,5 +140,19 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getCreationPath() != null && getCreationPath().length() > 256) {
+            errors.add(new ValidationError(this, null, "The param 'creation-path' must not exceed 256 characters in length."));
+        }
+        if (getRegistrationPagePath() != null && getRegistrationPagePath().length() > 256) {
+            errors.add(new ValidationError(this, null, "The param 'registration-path' must not exceed 256 characters in length."));
+        }
+
+        return errors;
     }
 }

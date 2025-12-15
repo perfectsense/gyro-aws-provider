@@ -18,11 +18,13 @@ package gyro.aws.wafv2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AddressField;
 import software.amazon.awssdk.services.wafv2.model.EmailField;
 import software.amazon.awssdk.services.wafv2.model.PasswordField;
@@ -197,5 +199,50 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getUsernameField() != null && getUsernameField().length() > 512) {
+            errors.add(new ValidationError(
+                this,
+                "username-field",
+                "The param 'username-field' must not exceed 512 characters in length."));
+        }
+        if (getPasswordField() != null && getPasswordField().length() > 512) {
+            errors.add(new ValidationError(
+                this,
+                "password-field",
+                "The param 'password-field' must not exceed 512 characters in length."));
+        }
+        if (getEmailField() != null && getEmailField().length() > 512) {
+            errors.add(new ValidationError(
+                this,
+                "email-field",
+                "The param 'email-field' must not exceed 512 characters in length."));
+        }
+
+        for (String phone : getPhoneNumberFields()) {
+            if (phone != null && phone.length() > 512) {
+                errors.add(new ValidationError(
+                    this,
+                    "phone-number-fields",
+                    "Each entry in 'phone-number-fields' must not exceed 512 characters in length."));
+                break;
+            }
+        }
+        for (String address : getAddressFields()) {
+            if (address != null && address.length() > 512) {
+                errors.add(new ValidationError(
+                    this,
+                    "address-fields",
+                    "Each entry in 'address-fields' must not exceed 512 characters in length."));
+                break;
+            }
+        }
+
+        return errors;
     }
 }
