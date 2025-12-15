@@ -30,7 +30,7 @@ public class ForwardedIpConfigResource extends Diffable implements Copyable<Forw
     private String headerName;
 
     /**
-     * The fallback behavior for the rate limit.
+     * The match status to assign to the web request if the request doesn't have a valid IP address in the specified position.
      */
     @ValidStrings({"MATCH", "NO_MATCH"})
     @Required

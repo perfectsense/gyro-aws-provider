@@ -82,7 +82,7 @@ public class AsnMatchStatementResource extends Diffable implements Copyable<AsnM
         }
     }
 
-    public AsnMatchStatement toAsnMatchStatement() {
+    AsnMatchStatement toAsnMatchStatement() {
         AsnMatchStatement.Builder builder = AsnMatchStatement.builder().asnList(getAsnList());
 
         if (getForwardedIpConfig() != null) {
