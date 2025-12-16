@@ -64,7 +64,7 @@ public class ClientSideActionResource extends Diffable implements Copyable<Clien
     }
 
     /**
-     * Usage configuration for the client-side action, for example ENABLED or DISABLED.
+     * Usage configuration for the client-side action.
      */
     @Required
     @Updatable

@@ -45,7 +45,6 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
 
     /**
      * The payload type for the account creation requests inspected by the ACFP managed rule group.
-     * For example, JSON or FORM_ENCODED.
      */
     @Required
     @Updatable

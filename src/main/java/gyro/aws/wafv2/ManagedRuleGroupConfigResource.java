@@ -43,7 +43,7 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
     }
 
     /**
-     * Anti-DDoS managed rule group configuration (AWSManagedRulesAntiDDoSRuleSet).
+     * Anti-DDoS managed rule group configuration.
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesAntiDDoSRuleSetResource
      */

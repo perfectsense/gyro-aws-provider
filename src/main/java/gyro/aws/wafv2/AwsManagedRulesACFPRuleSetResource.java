@@ -49,7 +49,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
     }
 
     /**
-     * Path of the account creation endpoint that processes the registration submissions.
+     * Path of the account creation endpoint for your application.
      */
     @Required
     @Updatable
@@ -74,7 +74,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
     }
 
     /**
-     * Criteria for inspecting account creation requests (RequestInspectionACFP).
+     * Criteria for inspecting account creation requests.
      *
      * @subresource gyro.aws.wafv2.RequestInspectionACFPResource
      */
@@ -89,7 +89,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
     }
 
     /**
-     * Criteria for inspecting responses to account creation requests (ResponseInspection).
+     * Criteria for inspecting responses to account creation requests.
      *
      * @subresource gyro.aws.wafv2.ResponseInspectionResource
      */
