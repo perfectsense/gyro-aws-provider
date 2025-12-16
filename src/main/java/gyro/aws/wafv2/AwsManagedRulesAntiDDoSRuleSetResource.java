@@ -45,7 +45,6 @@ public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements 
 
     /**
      * Sensitivity level that the rule group uses when matching against DDoS suspicion labels.
-     * Valid values are LOW, MEDIUM, and HIGH.
      */
     @ValidStrings({ "LOW", "MEDIUM", "HIGH" })
     @Updatable
