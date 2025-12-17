@@ -44,6 +44,7 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
     private RateBasedStatementResource rateBasedStatement;
     private ManagedRuleGroupStatementResource managedRuleGroupStatement;
     private RuleGroupReferenceStatementResource ruleGroupReferenceStatement;
+    private AsnMatchStatementResource asnMatchStatement;
 
     /**
      * And statement configuration.
@@ -236,6 +237,17 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
         return ruleGroupReferenceStatement;
     }
 
+    /**
+     * The ASN match statement configuration.
+     *
+     * @subresource gyro.aws.wafv2.AsnMatchStatementResource
+     */
+    public AsnMatchStatementResource getAsnMatchStatement() { return asnMatchStatement; }
+
+    public void setAsnMatchStatement(AsnMatchStatementResource asnMatchStatement) {
+        this.asnMatchStatement = asnMatchStatement;
+    }
+
     @Override
     public String primaryKey() {
         return String.format("'%s' containing [%s]", findStatementType(), findStatementDetailPrimaryKey());
@@ -350,6 +362,13 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             ruleGroupReferenceStatement.copyFrom(statement.ruleGroupReferenceStatement());
             setRuleGroupReferenceStatement(ruleGroupReferenceStatement);
         }
+
+        setAsnMatchStatement(null);
+        if (statement.asnMatchStatement() != null) {
+            AsnMatchStatementResource asnMatchStatement = newSubresource(AsnMatchStatementResource.class);
+            asnMatchStatement.copyFrom(statement.asnMatchStatement());
+            setAsnMatchStatement(asnMatchStatement);
+        }
     }
 
     Statement toStatement() {
@@ -385,6 +404,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             builder = builder.managedRuleGroupStatement(getManagedRuleGroupStatement().toManagedRuleGroupStatement());
         } else if (getRuleGroupReferenceStatement() != null) {
             builder = builder.ruleGroupReferenceStatement(getRuleGroupReferenceStatement().toRuleGroupReferenceStatement());
+        } else if (getAsnMatchStatement() != null) {
+            builder = builder.asnMatchStatement(getAsnMatchStatement().toAsnMatchStatement());
         }
 
         return builder.build();
@@ -409,7 +430,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             getLabelMatchStatement(),
             getRateBasedStatement(),
             getManagedRuleGroupStatement(),
-            getRuleGroupReferenceStatement())
+            getRuleGroupReferenceStatement(),
+            getAsnMatchStatement())
             .filter(Objects::nonNull)
             .count();
 
@@ -461,6 +483,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             type = "managed rule group";
         } else if (getRuleGroupReferenceStatement() != null) {
             type = "rule group reference";
+        } else if (getAsnMatchStatement() != null) {
+            type = "asn match";
         }
 
         return type;
@@ -499,6 +523,8 @@ public class StatementResource extends Diffable implements Copyable<Statement> {
             key = getManagedRuleGroupStatement().primaryKey();
         } else if (getRuleGroupReferenceStatement() != null) {
             key = getRuleGroupReferenceStatement().primaryKey();
+        } else if (getAsnMatchStatement() != null) {
+            key = getAsnMatchStatement().primaryKey();
         }
 
         return key;

@@ -24,13 +24,13 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.FallbackBehavior;
 import software.amazon.awssdk.services.wafv2.model.ForwardedIPConfig;
 
-public class RateLimitForwardedIpConfigResource extends Diffable implements Copyable<ForwardedIPConfig> {
+public class ForwardedIpConfigResource extends Diffable implements Copyable<ForwardedIPConfig> {
 
     private FallbackBehavior fallbackBehavior;
     private String headerName;
 
     /**
-     * The fallback behavior for the rate limit.
+     * The match status to assign to the web request if the request doesn't have a valid IP address in the specified position.
      */
     @ValidStrings({"MATCH", "NO_MATCH"})
     @Required

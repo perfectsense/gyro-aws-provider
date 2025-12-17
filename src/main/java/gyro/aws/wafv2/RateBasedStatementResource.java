@@ -39,7 +39,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     private Long limit;
     private StatementResource scopeDownStatement;
     private Set<RateBasedStatementCustomKeyResource> customKeys;
-    private RateLimitForwardedIpConfigResource forwardedIpConfig;
+    private ForwardedIpConfigResource forwardedIpConfig;
     private Long evaluationWindow;
 
     /**
@@ -104,14 +104,14 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
     /**
      * The forwarded IP configuration for the rate based statement.
      *
-     * @subresource gyro.aws.wafv2.RateLimitForwardedIpConfigResource
+     * @subresource gyro.aws.wafv2.ForwardedIpConfigResource
      */
     @Updatable
-    public RateLimitForwardedIpConfigResource getForwardedIpConfig() {
+    public ForwardedIpConfigResource getForwardedIpConfig() {
         return forwardedIpConfig;
     }
 
-    public void setForwardedIpConfig(RateLimitForwardedIpConfigResource forwardedIpConfig) {
+    public void setForwardedIpConfig(ForwardedIpConfigResource forwardedIpConfig) {
         this.forwardedIpConfig = forwardedIpConfig;
     }
 
@@ -167,7 +167,7 @@ public class RateBasedStatementResource extends Diffable implements Copyable<Rat
 
         setForwardedIpConfig(null);
         if (rateBasedStatement.forwardedIPConfig() != null) {
-            RateLimitForwardedIpConfigResource forwardedIpConfig = newSubresource(RateLimitForwardedIpConfigResource.class);
+            ForwardedIpConfigResource forwardedIpConfig = newSubresource(ForwardedIpConfigResource.class);
             forwardedIpConfig.copyFrom(rateBasedStatement.forwardedIPConfig());
             setForwardedIpConfig(forwardedIpConfig);
         }
