@@ -20,7 +20,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
-def releaseVersion = '1.10.0'
+def releaseVersion = '1.9.5'
 def releaseBuild = false;
 
 if (System.getenv('CI')) {
