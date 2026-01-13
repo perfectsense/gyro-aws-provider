@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Brightspot.
+ * Copyright 2026, Brightspot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,12 @@ import software.amazon.awssdk.services.eks.model.UntagResourceRequest;
  *         .
  *         .
  *         addon
- *              addon-name: vpc-cni
- *
- *              tags : {
- *                  Name: "example-key-value"
+ *              addon-name: coredns
+ *              addon-version: "v1.11.4-eksbuild.24"
+ *              configuration-values: '{"replicaCount": 1}'
+ *              resolve-conflicts: OVERWRITE
+ *              tags: {
+ *                  Name: "example-eks-gyro-coredns"
  *              }
  *         end
  *     end
@@ -68,12 +70,21 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     private String addonName;
     private String addonVersion;
+    private String configurationValues;
     private ResolveConflicts resolveConflicts;
     private RoleResource serviceAccountRole;
     private Map<String, String> tags;
 
     // Read-only
     private String arn;
+    private String createdAt;
+    private String modifiedAt;
+    private EksAddonHealth health;
+    private EksAddonMarketplaceInformation marketplaceInformation;
+    private String owner;
+    private Set<String> podIdentityAssociations;
+    private String publisher;
+    private String status;
 
     /**
      * The name of the add-on.
@@ -101,10 +112,22 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     }
 
     /**
+     * The configuration values for the add-on as a JSON string.
+     */
+    @Updatable
+    public String getConfigurationValues() {
+        return configurationValues;
+    }
+
+    public void setConfigurationValues(String configurationValues) {
+        this.configurationValues = configurationValues;
+    }
+
+    /**
      * Overwrites configuration when set to ``OVERWRITE``.
      */
     @Updatable
-    @ValidStrings({ "OVERWRITE", "NONE" })
+    @ValidStrings({ "OVERWRITE", "NONE", "PRESERVE" })
     public ResolveConflicts getResolveConflicts() {
         return resolveConflicts;
     }
@@ -153,6 +176,102 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         this.arn = arn;
     }
 
+    /**
+     * The Unix epoch timestamp at object creation.
+     */
+    @Output
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * The Unix epoch timestamp for the last modification.
+     */
+    @Output
+    public String getModifiedAt() {
+        return modifiedAt;
+    }
+
+    public void setModifiedAt(String modifiedAt) {
+        this.modifiedAt = modifiedAt;
+    }
+
+    /**
+     * The health of the addon.
+     */
+    @Output
+    public EksAddonHealth getHealth() {
+        return health;
+    }
+
+    public void setHealth(EksAddonHealth health) {
+        this.health = health;
+    }
+
+    /**
+     * Information about the addon from AWS Marketplace.
+     */
+    @Output
+    public EksAddonMarketplaceInformation getMarketplaceInformation() {
+        return marketplaceInformation;
+    }
+
+    public void setMarketplaceInformation(EksAddonMarketplaceInformation marketplaceInformation) {
+        this.marketplaceInformation = marketplaceInformation;
+    }
+
+    /**
+     * The owner of the addon.
+     */
+    @Output
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    /**
+     * EKS Pod Identity associations owned by the addon.
+     */
+    @Output
+    public Set<String> getPodIdentityAssociations() {
+        return podIdentityAssociations;
+    }
+
+    public void setPodIdentityAssociations(Set<String> podIdentityAssociations) {
+        this.podIdentityAssociations = podIdentityAssociations;
+    }
+
+    /**
+     * The publisher of the addon.
+     */
+    @Output
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    /**
+     * The status of the addon.
+     */
+    @Output
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String primaryKey() {
         return getAddonName();
@@ -162,9 +281,33 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     public void copyFrom(Addon model) {
         setAddonName(model.addonName());
         setAddonVersion(model.addonVersion());
+        setConfigurationValues(model.configurationValues());
         setServiceAccountRole(findById(RoleResource.class, model.serviceAccountRoleArn()));
         setArn(model.addonArn());
         setTags(model.tags());
+
+        setCreatedAt(model.createdAt() != null ? model.createdAt().toString() : null);
+        setModifiedAt(model.modifiedAt() != null ? model.modifiedAt().toString() : null);
+        setOwner(model.owner());
+        setPublisher(model.publisher());
+        setStatus(model.statusAsString());
+        setPodIdentityAssociations(model.podIdentityAssociations() == null
+            ? null
+            : Set.copyOf(model.podIdentityAssociations()));
+
+        setHealth(null);
+        if (model.health() != null) {
+            EksAddonHealth health = newSubresource(EksAddonHealth.class);
+            health.copyFrom(model.health());
+            setHealth(health);
+        }
+
+        setMarketplaceInformation(null);
+        if (model.marketplaceInformation() != null) {
+            EksAddonMarketplaceInformation mi = newSubresource(EksAddonMarketplaceInformation.class);
+            mi.copyFrom(model.marketplaceInformation());
+            setMarketplaceInformation(mi);
+        }
     }
 
     @Override
@@ -178,6 +321,7 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
         CreateAddonResponse response = client.createAddon(r -> r.addonName(getAddonName())
             .addonVersion(getAddonVersion())
+            .configurationValues(getConfigurationValues())
             .clusterName(clusterName())
             .resolveConflicts(getResolveConflicts())
             .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn())
@@ -207,9 +351,13 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
             client.tagResource(TagResourceRequest.builder().resourceArn(getArn()).tags(getTags()).build());
         }
 
-        if (changedFieldNames.contains("addon-version") || changedFieldNames.contains("service-account-role")) {
+        if (changedFieldNames.contains("addon-version")
+            || changedFieldNames.contains("service-account-role")
+            || changedFieldNames.contains("configuration-values")) {
+
             client.updateAddon(r -> r.addonName(getAddonName())
                 .addonVersion(getAddonVersion())
+                .configurationValues(getConfigurationValues())
                 .clusterName(clusterName())
                 .resolveConflicts(getResolveConflicts())
                 .serviceAccountRoleArn(getServiceAccountRole() == null ? null : getServiceAccountRole().getArn()));

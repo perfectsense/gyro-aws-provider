@@ -62,6 +62,16 @@
           "iam:AWSServiceName": "eks.amazonaws.com"
         }
       }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "eks:*",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "*"
     }
   ]
 }
