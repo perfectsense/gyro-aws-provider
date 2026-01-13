@@ -71,7 +71,7 @@ public class EksAddonIssue extends Diffable implements Copyable<AddonIssue> {
 
     @Override
     public String primaryKey() {
-        return getCode();
+        return "";
     }
 
     @Override

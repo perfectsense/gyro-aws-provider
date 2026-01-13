@@ -46,7 +46,7 @@ public class EksAddonHealth extends Diffable implements Copyable<AddonHealth> {
 
     @Override
     public String primaryKey() {
-        return "health";
+        return "";
     }
 
     @Override

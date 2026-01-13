@@ -52,7 +52,7 @@ public class EksAddonMarketplaceInformation extends Diffable implements Copyable
 
     @Override
     public String primaryKey() {
-        return "marketplace-info";
+        return "";
     }
 
     @Override
