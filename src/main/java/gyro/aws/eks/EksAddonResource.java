@@ -16,7 +16,9 @@
 
 package gyro.aws.eks;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -77,13 +79,10 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
 
     // Read-only
     private String arn;
-    private String createdAt;
-    private String modifiedAt;
+    private Date createdAt;
+    private Date modifiedAt;
     private EksAddonHealth health;
-    private EksAddonMarketplaceInformation marketplaceInformation;
-    private String owner;
-    private Set<String> podIdentityAssociations;
-    private String publisher;
+    private List<String> podIdentityAssociations;
     private String status;
 
     /**
@@ -180,11 +179,11 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
      * The Unix epoch timestamp at object creation.
      */
     @Output
-    public String getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -192,11 +191,11 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
      * The Unix epoch timestamp for the last modification.
      */
     @Output
-    public String getModifiedAt() {
+    public Date getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(String modifiedAt) {
+    public void setModifiedAt(Date modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 
@@ -213,51 +212,15 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
     }
 
     /**
-     * Information about the addon from AWS Marketplace.
-     */
-    @Output
-    public EksAddonMarketplaceInformation getMarketplaceInformation() {
-        return marketplaceInformation;
-    }
-
-    public void setMarketplaceInformation(EksAddonMarketplaceInformation marketplaceInformation) {
-        this.marketplaceInformation = marketplaceInformation;
-    }
-
-    /**
-     * The owner of the addon.
-     */
-    @Output
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    /**
      * EKS Pod Identity associations owned by the addon.
      */
     @Output
-    public Set<String> getPodIdentityAssociations() {
+    public List<String> getPodIdentityAssociations() {
         return podIdentityAssociations;
     }
 
-    public void setPodIdentityAssociations(Set<String> podIdentityAssociations) {
+    public void setPodIdentityAssociations(List<String> podIdentityAssociations) {
         this.podIdentityAssociations = podIdentityAssociations;
-    }
-
-    /**
-     * The publisher of the addon.
-     */
-    @Output
-    public String getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
     }
 
     /**
@@ -286,27 +249,16 @@ public class EksAddonResource extends AwsResource implements Copyable<Addon> {
         setArn(model.addonArn());
         setTags(model.tags());
 
-        setCreatedAt(model.createdAt() != null ? model.createdAt().toString() : null);
-        setModifiedAt(model.modifiedAt() != null ? model.modifiedAt().toString() : null);
-        setOwner(model.owner());
-        setPublisher(model.publisher());
+        setCreatedAt(model.createdAt() != null ? Date.from(model.createdAt()) : null);
+        setModifiedAt(model.modifiedAt() != null ? Date.from(model.modifiedAt()) : null);
         setStatus(model.statusAsString());
-        setPodIdentityAssociations(model.podIdentityAssociations() == null
-            ? null
-            : Set.copyOf(model.podIdentityAssociations()));
+        setPodIdentityAssociations(model.podIdentityAssociations());
 
         setHealth(null);
         if (model.health() != null) {
             EksAddonHealth health = newSubresource(EksAddonHealth.class);
             health.copyFrom(model.health());
             setHealth(health);
-        }
-
-        setMarketplaceInformation(null);
-        if (model.marketplaceInformation() != null) {
-            EksAddonMarketplaceInformation mi = newSubresource(EksAddonMarketplaceInformation.class);
-            mi.copyFrom(model.marketplaceInformation());
-            setMarketplaceInformation(mi);
         }
     }
 
