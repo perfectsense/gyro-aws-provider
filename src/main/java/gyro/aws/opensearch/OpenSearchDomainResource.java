@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -52,6 +53,8 @@ import software.amazon.awssdk.services.opensearch.model.DescribeDomainResponse;
 import software.amazon.awssdk.services.opensearch.model.DomainConfig;
 import software.amazon.awssdk.services.opensearch.model.DomainStatus;
 import software.amazon.awssdk.services.opensearch.model.IPAddressType;
+import software.amazon.awssdk.services.opensearch.model.LogPublishingOption;
+import software.amazon.awssdk.services.opensearch.model.LogType;
 import software.amazon.awssdk.services.opensearch.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.opensearch.model.Tag;
 import software.amazon.awssdk.services.opensearch.model.UpdateDomainConfigRequest;
@@ -127,6 +130,20 @@ import software.amazon.awssdk.utils.IoUtils;
  *                 $(aws::security-group example-security-group)
  *             ]
  *         end
+ *
+ *         log-publishing-options
+ *             name: "INDEX_SLOW_LOGS"
+ *             option
+ *                 enabled: true
+ *                 cloud-watch-logs-log-group-arn: "arn:aws:logs:..."
+ *             end
+ *         end
+ *         log-publishing-options
+ *             name: "SEARCH_SLOW_LOGS"
+ *             option
+ *                 enabled: false
+ *             end
+ *         end
  *     end
  */
 @Type("opensearch-domain")
@@ -148,6 +165,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private OpenSearchAutoTuneOptions autoTuneOptions;
     private IPAddressType ipAddressType;
     private Map<String, String> tags;
+    private List<OpenSearchLogPublishingOptionMap> logPublishingOptions;
 
     // Output
     private String id;
@@ -461,6 +479,21 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         this.endpointV2 = endpointV2;
     }
 
+    /**
+     * The log publishing options.
+     */
+    @Updatable
+    public List<OpenSearchLogPublishingOptionMap> getLogPublishingOptions() {
+        if (logPublishingOptions == null) {
+            logPublishingOptions = new ArrayList<>();
+        }
+        return logPublishingOptions;
+    }
+
+    public void setLogPublishingOptions(List<OpenSearchLogPublishingOptionMap> logPublishingOptions) {
+        this.logPublishingOptions = logPublishingOptions;
+    }
+
     @Override
     public void copyFrom(DomainStatus model) {
         setId(model.domainId());
@@ -545,6 +578,27 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                 OpenSearchOffPeakWindowOptions.class);
             openSearchOffPeakWindowOptions.copyFrom(model.offPeakWindowOptions());
             setOffPeakWindowOptions(openSearchOffPeakWindowOptions);
+        }
+
+        getLogPublishingOptions().clear();
+        if (model.logPublishingOptions() != null && !model.logPublishingOptions().isEmpty()) {
+            for (Map.Entry<LogType, LogPublishingOption> entry : model.logPublishingOptions().entrySet()) {
+                LogType sdkType = entry.getKey();
+                LogPublishingOption sdkOption = entry.getValue();
+
+                if (sdkOption == null) {
+                    continue;
+                }
+
+                OpenSearchLogPublishingOptionMap optionMap = new OpenSearchLogPublishingOptionMap();
+                optionMap.setName(sdkType.toString());
+
+                OpenSearchLogPublishingOption option = new OpenSearchLogPublishingOption();
+                option.copyFrom(sdkOption);
+                optionMap.setOption(option);
+
+                getLogPublishingOptions().add(optionMap);
+            }
         }
 
         OpenSearchClient client = createClient(OpenSearchClient.class);
@@ -646,10 +700,37 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         addTags(client);
 
         waitForAvailability(client, TimeoutSettings.Action.CREATE);
+        state.save();
 
         OpenSearchMasterUserOptions masterUserOptions = Optional.ofNullable(getAdvancedSecurityOptions())
             .map(OpenSearchAdvancedSecurityOptions::getMasterUserOptions)
             .orElse(null);
+
+        // ADD LOG PUBLISHING OPTIONS IN SEPARATE UPDATE CALL
+        if (getLogPublishingOptions() != null && !getLogPublishingOptions().isEmpty()) {
+            Map<LogType, LogPublishingOption> options = new HashMap<>();
+
+            for (OpenSearchLogPublishingOptionMap optionMap : getLogPublishingOptions()) {
+                String logTypeName = optionMap.getName();
+                OpenSearchLogPublishingOption option = optionMap.getOption();
+
+                if (option == null) {
+                    continue;
+                }
+
+                LogType logType = LogType.fromValue(logTypeName);
+                options.put(logType, option.toLogPublishingOption());
+            }
+
+            if (!options.isEmpty()) {
+                UpdateDomainConfigRequest.Builder updateBuilder = UpdateDomainConfigRequest.builder()
+                    .domainName(getDomainName())
+                    .logPublishingOptions(options);
+
+                client.updateDomainConfig(updateBuilder.build());
+                waitForAvailability(client, TimeoutSettings.Action.UPDATE);
+            }
+        }
 
         copyFrom(getOpenSearchDomain(client));
 
@@ -709,6 +790,26 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
         if (changedFieldNames.contains("auto-tune-options")) {
             builder = builder.autoTuneOptions(getAutoTuneOptions().toAutoTuneOptions());
+        }
+
+        if (changedFieldNames.contains("log-publishing-options")) {
+            Map<LogType, LogPublishingOption> options = new HashMap<>();
+
+            if (getLogPublishingOptions() != null) {
+                for (OpenSearchLogPublishingOptionMap optionMap : getLogPublishingOptions()) {
+                    String logTypeName = optionMap.getName();
+                    OpenSearchLogPublishingOption option = optionMap.getOption();
+
+                    if (option == null) {
+                        continue;
+                    }
+
+                    LogType logType = LogType.fromValue(logTypeName);
+                    options.put(logType, option.toLogPublishingOption());
+                }
+            }
+
+            builder.logPublishingOptions(options);
         }
 
         OpenSearchClient client = createClient(OpenSearchClient.class);

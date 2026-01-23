@@ -1,0 +1,12 @@
+aws::cloudwatch-log-group log-group-example
+    log-group-name: "/aws/temp/app/api"
+    retention-days: 5
+
+    log-group-class: "STANDARD"
+    index-policy: "index-policy.json"
+    data-protection-policy: "data-protection-policy.json"
+
+    tags: {
+        Name: "log-group-example"
+    }
+end

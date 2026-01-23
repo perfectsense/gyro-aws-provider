@@ -106,4 +106,35 @@ aws::opensearch-domain opensearch-domain-example
             $(aws::security-group example-security-group)
         ]
     end
+
+    log-publishing-options
+        name: "INDEX_SLOW_LOGS"
+        option
+            enabled: true
+            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
+        end
+    end
+
+    log-publishing-options
+        name: "SEARCH_SLOW_LOGS"
+        option
+            enabled: false
+        end
+    end
+
+    log-publishing-options
+        name: "ES_APPLICATION_LOGS"
+        option
+            enabled: true
+            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
+        end
+    end
+
+    log-publishing-options
+        name: "AUDIT_LOGS"
+        option
+            enabled: true
+            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
+        end
+    end
 end
