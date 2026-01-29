@@ -109,32 +109,24 @@ aws::opensearch-domain opensearch-domain-example
 
     log-publishing-options
         name: "INDEX_SLOW_LOGS"
-        option
-            enabled: true
-            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
-        end
+        enabled: true
+        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
     end
 
     log-publishing-options
         name: "SEARCH_SLOW_LOGS"
-        option
-            enabled: false
-        end
+        enabled: false
     end
 
     log-publishing-options
         name: "ES_APPLICATION_LOGS"
-        option
-            enabled: true
-            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
-        end
+        enabled: true
+        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
     end
 
     log-publishing-options
         name: "AUDIT_LOGS"
-        option
-            enabled: true
-            cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:242040583208:log-group:/temp/logg1"
-        end
+        enabled: true
+        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
     end
 end

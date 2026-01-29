@@ -165,7 +165,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private OpenSearchAutoTuneOptions autoTuneOptions;
     private IPAddressType ipAddressType;
     private Map<String, String> tags;
-    private List<OpenSearchLogPublishingOptionMap> logPublishingOptions;
+    private List<OpenSearchLogPublishingOption> logPublishingOptions;
 
     // Output
     private String id;
@@ -483,14 +483,14 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
      * The log publishing options.
      */
     @Updatable
-    public List<OpenSearchLogPublishingOptionMap> getLogPublishingOptions() {
+    public List<OpenSearchLogPublishingOption> getLogPublishingOptions() {
         if (logPublishingOptions == null) {
             logPublishingOptions = new ArrayList<>();
         }
         return logPublishingOptions;
     }
 
-    public void setLogPublishingOptions(List<OpenSearchLogPublishingOptionMap> logPublishingOptions) {
+    public void setLogPublishingOptions(List<OpenSearchLogPublishingOption> logPublishingOptions) {
         this.logPublishingOptions = logPublishingOptions;
     }
 
@@ -590,14 +590,9 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                     continue;
                 }
 
-                OpenSearchLogPublishingOptionMap optionMap = new OpenSearchLogPublishingOptionMap();
-                optionMap.setName(sdkType.toString());
-
-                OpenSearchLogPublishingOption option = new OpenSearchLogPublishingOption();
-                option.copyFrom(sdkOption);
-                optionMap.setOption(option);
-
-                getLogPublishingOptions().add(optionMap);
+                OpenSearchLogPublishingOption option = newSubresource(OpenSearchLogPublishingOption.class);
+                option.copyFrom(sdkType, sdkOption);
+                getLogPublishingOptions().add(option);
             }
         }
 
@@ -687,9 +682,25 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             builder = builder.autoTuneOptions(getAutoTuneOptions().toAutoTuneOptionsInput());
         }
 
+        if (getLogPublishingOptions() != null && !getLogPublishingOptions().isEmpty()) {
+            Map<LogType, LogPublishingOption> options = new HashMap<>();
+            for (OpenSearchLogPublishingOption option : getLogPublishingOptions()) {
+                if (option == null || option.getName() == null) {
+                    continue;
+                }
+                LogType logType = LogType.fromValue(option.getName());
+                options.put(logType, option.toLogPublishingOption());
+            }
+            if (!options.isEmpty()) {
+                builder.logPublishingOptions(options);
+            }
+        }
+
         OpenSearchClient client = createClient(OpenSearchClient.class);
         CreateDomainResponse response = client.createDomain(builder.build());
         DomainStatus domainStatus = response.domainStatus();
+
+        waitForAvailability(client, TimeoutSettings.Action.CREATE);
 
         setArn(domainStatus.arn());
         setId(domainStatus.domainId());
@@ -699,38 +710,9 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
         addTags(client);
 
-        waitForAvailability(client, TimeoutSettings.Action.CREATE);
-        state.save();
-
         OpenSearchMasterUserOptions masterUserOptions = Optional.ofNullable(getAdvancedSecurityOptions())
             .map(OpenSearchAdvancedSecurityOptions::getMasterUserOptions)
             .orElse(null);
-
-        // ADD LOG PUBLISHING OPTIONS IN SEPARATE UPDATE CALL
-        if (getLogPublishingOptions() != null && !getLogPublishingOptions().isEmpty()) {
-            Map<LogType, LogPublishingOption> options = new HashMap<>();
-
-            for (OpenSearchLogPublishingOptionMap optionMap : getLogPublishingOptions()) {
-                String logTypeName = optionMap.getName();
-                OpenSearchLogPublishingOption option = optionMap.getOption();
-
-                if (option == null) {
-                    continue;
-                }
-
-                LogType logType = LogType.fromValue(logTypeName);
-                options.put(logType, option.toLogPublishingOption());
-            }
-
-            if (!options.isEmpty()) {
-                UpdateDomainConfigRequest.Builder updateBuilder = UpdateDomainConfigRequest.builder()
-                    .domainName(getDomainName())
-                    .logPublishingOptions(options);
-
-                client.updateDomainConfig(updateBuilder.build());
-                waitForAvailability(client, TimeoutSettings.Action.UPDATE);
-            }
-        }
 
         copyFrom(getOpenSearchDomain(client));
 
@@ -793,19 +775,35 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         }
 
         if (changedFieldNames.contains("log-publishing-options")) {
+            OpenSearchDomainResource currentResource = (OpenSearchDomainResource) current;
             Map<LogType, LogPublishingOption> options = new HashMap<>();
 
+            // Add/update current options
             if (getLogPublishingOptions() != null) {
-                for (OpenSearchLogPublishingOptionMap optionMap : getLogPublishingOptions()) {
-                    String logTypeName = optionMap.getName();
-                    OpenSearchLogPublishingOption option = optionMap.getOption();
+                for (OpenSearchLogPublishingOption option : getLogPublishingOptions()) {
+                    if (option == null || option.getName() == null) {
+                        continue;
+                    }
+                    LogType logType = LogType.fromValue(option.getName());
+                    options.put(logType, option.toLogPublishingOption());
+                }
+            }
 
-                    if (option == null) {
+            // Disable removed options
+            if (currentResource.getLogPublishingOptions() != null) {
+                for (OpenSearchLogPublishingOption oldOption : currentResource.getLogPublishingOptions()) {
+                    if (oldOption == null || oldOption.getName() == null) {
                         continue;
                     }
 
-                    LogType logType = LogType.fromValue(logTypeName);
-                    options.put(logType, option.toLogPublishingOption());
+                    LogType logType = LogType.fromValue(oldOption.getName());
+
+                    if (!options.containsKey(logType)) {
+                        System.out.println("\n* * * * Removing " + logType);
+                        options.put(logType, LogPublishingOption.builder()
+                            .enabled(false)
+                            .build());
+                    }
                 }
             }
 
@@ -925,5 +923,13 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             // If unable to get the region, return null
             return null;
         }
+    }
+
+    private OpenSearchLogPublishingOption copyLogPublishingOption(OpenSearchLogPublishingOption original) {
+        OpenSearchLogPublishingOption copy = new OpenSearchLogPublishingOption();
+        copy.setName(original.getName());
+        copy.setEnabled(original.getEnabled());
+        copy.setCloudWatchLogsLogGroupArn(original.getCloudWatchLogsLogGroupArn());
+        return copy;
     }
 }

@@ -19,12 +19,26 @@ package gyro.aws.opensearch;
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.resource.Id;
 import software.amazon.awssdk.services.opensearch.model.LogPublishingOption;
+import software.amazon.awssdk.services.opensearch.model.LogType;
 
 public class OpenSearchLogPublishingOption extends Diffable implements Copyable<LogPublishingOption> {
 
+    private String name;
     private String cloudWatchLogsLogGroupArn;
     private Boolean enabled;
+
+    /**
+     * The log type name (e.g., INDEX_SLOW_LOGS, SEARCH_SLOW_LOGS, ES_APPLICATION_LOGS, AUDIT_LOGS).
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * ARN of the CloudWatch log group for publishing logs.
@@ -50,24 +64,34 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
         this.enabled = enabled;
     }
 
+    @Id
     @Override
     public String primaryKey() {
-        return "";
+        return getName();
     }
 
     @Override
     public void copyFrom(LogPublishingOption model) {
         setEnabled(model.enabled());
-        setCloudWatchLogsLogGroupArn(model.cloudWatchLogsLogGroupArn());
+        if (Boolean.TRUE.equals(model.enabled())) {
+            setCloudWatchLogsLogGroupArn(model.cloudWatchLogsLogGroupArn());
+        }
+    }
+
+    public void copyFrom(LogType logType, LogPublishingOption model) {
+        setName(logType.toString());
+        copyFrom(model);
     }
 
     public LogPublishingOption toLogPublishingOption() {
         if (!getEnabled()) {
             return LogPublishingOption.builder().enabled(false).build();
         }
+
         if (getCloudWatchLogsLogGroupArn() == null || getCloudWatchLogsLogGroupArn().isEmpty()) {
             throw new IllegalStateException("'cloud-watch-logs-log-group-arn' is required when 'enabled' is set to true");
         }
+
         return LogPublishingOption.builder()
             .enabled(true)
             .cloudWatchLogsLogGroupArn(getCloudWatchLogsLogGroupArn())
