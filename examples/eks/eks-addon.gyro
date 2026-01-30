@@ -60,7 +60,6 @@ end
 aws::eks-cluster ex
     name: "example-eks-gyro"
     role: $(aws::iam-role example-role-iam-eks)
-    cluster-creation-role: $(aws::iam-role example-role-iam-eks)
     version: 1.34
 
     vpc-config
