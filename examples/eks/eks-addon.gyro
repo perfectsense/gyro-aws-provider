@@ -6,7 +6,7 @@ aws::vpc vpc
     }
 end
 
-@for zone, cidr -in ['us-east-1a', '10.0.0.0/24', 'us-east-1b', '10.0.1.0/24']
+@for zone, cidr -in ['us-east-2a', '10.0.0.0/24', 'us-east-2b', '10.0.1.0/24']
     aws::subnet "subnet-example-$(zone)"
         vpc: $(aws::vpc vpc)
         availability-zone: $(zone)
@@ -67,8 +67,8 @@ aws::eks-cluster ex
         enable-endpoint-public-access: true
 
         subnets: [
-            $(aws::subnet "subnet-example-us-east-1a"),
-            $(aws::subnet "subnet-example-us-east-1b")
+            $(aws::subnet "subnet-example-us-east-2a"),
+            $(aws::subnet "subnet-example-us-east-2b")
         ]
 
         security-groups: [
