@@ -1,0 +1,20 @@
+aws::cloudfront-key-value-store kvs-example-1
+    name: "kvs-example-1"
+    comment: "Sample KV Store"
+
+    key-values: {
+        "key-1": "val-1",
+        "key-2": "val-2",
+        "foo": "bar"
+    }
+end
+
+aws::cloudfront-key-value-store kvs-example-2
+    name: "kvs-example-2"
+    comment: "Sample KV Store with S3"
+
+    import-source
+       source-type: "S3"
+       source-arn: "arn:aws:s3:::my-bucket/kvs-data.json"
+    end
+end
