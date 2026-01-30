@@ -98,7 +98,6 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
     /**
      * The name of the key value store.
      */
-    @Id
     @Required
     public String getName() {
         return name;
@@ -165,6 +164,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
     /**
      * The Amazon Resource Name (ARN) of the key value store.
      */
+    @Id
     @Output
     public String getArn() {
         return arn;
