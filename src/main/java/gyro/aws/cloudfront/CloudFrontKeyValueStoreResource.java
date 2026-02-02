@@ -41,18 +41,23 @@ import software.amazon.awssdk.services.cloudfront.model.UpdateKeyValueStoreReque
 import software.amazon.awssdk.services.cloudfront.model.DeleteKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchResourceException;
 
+import software.amazon.awssdk.services.cloudfront.model.UpdateKeyValueStoreResponse;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.CloudFrontKeyValueStoreClient;
-import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.DeleteKeyResponse;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.DeleteKeyRequestListItem;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.GetKeyResponse;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysResponseListItem;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyRequest;
-import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.DeleteKeyRequest;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysRequest;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysResponse;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyRequestListItem;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyResponse;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.UpdateKeysResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Creates a CloudFront KeyValueStore.
@@ -93,7 +98,10 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
     private String id;
     private String arn;
     private String status;
+    // ETag for CloudFront KeyValueStore configuration (name/comment/status)
     private String etag;
+    // ETag for CloudFrontKeyValueStore key/value contents
+    private String kvsEtag;
 
     /**
      * The name of the key value store.
@@ -138,6 +146,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
     /**
      * The S3 import source for initially populating the key value store.
      * This can be specified only during creation. The S3 bucket must contain a valid JSON file.
+     *
      * @subresource gyro.aws.cloudfront.CloudFrontKeyValueStoreImportSource
      */
     @ConflictsWith("key-values")
@@ -199,6 +208,18 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
         this.etag = etag;
     }
 
+    /**
+     * The current ETag/version identifier of the key value store contents.
+     */
+    @Output
+    public String getKvsEtag() {
+        return kvsEtag;
+    }
+
+    public void setKvsEtag(String kvsEtag) {
+        this.kvsEtag = kvsEtag;
+    }
+
     @Override
     public void copyFrom(KeyValueStore model) {
         setName(model.name());
@@ -206,6 +227,31 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
         setId(model.id());
         setArn(model.arn());
         setStatus(model.status());
+
+        CloudFrontKeyValueStoreClient kvsClient = createClient(CloudFrontKeyValueStoreClient.class);
+        Map<String, String> kvs = new HashMap<>();
+
+        String nextToken = null;
+        do {
+            ListKeysResponse listResponse = kvsClient.listKeys(
+                ListKeysRequest.builder()
+                    .kvsARN(getArn())
+                    .nextToken(nextToken)
+                    .build()
+            );
+
+            for (ListKeysResponseListItem keyItem : listResponse.items()) {
+                GetKeyResponse getResponse = kvsClient.getKey(r -> r
+                    .kvsARN(getArn())
+                    .key(keyItem.key())
+                );
+                kvs.put(keyItem.key(), getResponse.value());
+            }
+
+            nextToken = listResponse.nextToken();
+        } while (nextToken != null);
+
+        setKeyValues(kvs);
     }
 
     @Override
@@ -222,6 +268,8 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
             KeyValueStore kvs = response.keyValueStore();
             copyFrom(kvs);
             setEtag(response.eTag());
+            CloudFrontKeyValueStoreClient kvsClient = createClient(CloudFrontKeyValueStoreClient.class);
+            setKvsEtag(getKeyValueStoreETag(kvsClient));
 
             return true;
         } catch (NoSuchResourceException ex) {
@@ -251,25 +299,24 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
 
         waitForAvailability(client, TimeoutSettings.Action.CREATE);
 
+        CloudFrontKeyValueStoreClient kvsClient = createClient(CloudFrontKeyValueStoreClient.class);
+        setKvsEtag(getKeyValueStoreETag(kvsClient));
+
         state.save();
-        refresh();
 
         // Create key-value pairs
         if (!getKeyValues().isEmpty()) {
-            CloudFrontKeyValueStoreClient kvsClient = createClient(CloudFrontKeyValueStoreClient.class);
-            String kvsEtag = getKeyValueStoreETag(kvsClient);
-
             for (Map.Entry<String, String> entry : getKeyValues().entrySet()) {
                 PutKeyResponse putResponse = kvsClient.putKey(
                     PutKeyRequest.builder()
                         .kvsARN(getArn())
                         .key(entry.getKey())
                         .value(entry.getValue())
-                        .ifMatch(kvsEtag)
+                        .ifMatch(getKvsEtag())
                         .build()
                 );
 
-                kvsEtag = putResponse.eTag();
+                setKvsEtag(putResponse.eTag());
             }
         }
     }
@@ -280,58 +327,34 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
         CloudFrontClient client = createClient(CloudFrontClient.class);
 
         if (changedProperties.contains("comment")) {
-            client.updateKeyValueStore(
+            UpdateKeyValueStoreResponse response = client.updateKeyValueStore(
                 UpdateKeyValueStoreRequest.builder()
                     .name(getName())
                     .comment(getComment())
                     .ifMatch(getEtag())
                     .build()
             );
-
-            refresh();
+            setEtag(response.eTag());
         }
 
         if (changedProperties.contains("key-values")) {
             CloudFrontKeyValueStoreResource currentResource = (CloudFrontKeyValueStoreResource) current;
             CloudFrontKeyValueStoreClient kvsClient = createClient(CloudFrontKeyValueStoreClient.class);
-            String kvsEtag = getKeyValueStoreETag(kvsClient);
+            String kvsEtag = currentResource.getKvsEtag();
 
             Map<String, String> currentKeyValues = currentResource.getKeyValues();
             Map<String, String> newKeyValues = getKeyValues();
 
-            // added/updated
-            for (Map.Entry<String, String> entry : newKeyValues.entrySet()) {
-                String key = entry.getKey();
-                String newValue = entry.getValue();
-                String oldValue = currentKeyValues.get(key);
-
-                if (oldValue == null || !oldValue.equals(newValue)) {
-                    PutKeyResponse putResponse = kvsClient.putKey(
-                        PutKeyRequest.builder()
-                            .kvsARN(getArn())
-                            .key(key)
-                            .value(newValue)
-                            .ifMatch(kvsEtag)
-                            .build()
-                    );
-                    kvsEtag = putResponse.eTag();
-                }
-            }
-
-            // deleted
-            for (String key : currentKeyValues.keySet()) {
-                if (!newKeyValues.containsKey(key)) {
-                    DeleteKeyResponse deleteResponse = kvsClient.deleteKey(
-                        DeleteKeyRequest.builder()
-                            .kvsARN(getArn())
-                            .key(key)
-                            .ifMatch(kvsEtag)
-                            .build()
-                    );
-                    kvsEtag = deleteResponse.eTag();
-                }
-            }
-            refresh();
+            Set<String> deleteKeys = currentKeyValues.keySet();
+            deleteKeys.removeAll(newKeyValues.keySet());
+            UpdateKeysResponse updateResponse = kvsClient.updateKeys(r -> r.puts(newKeyValues.entrySet().stream()
+                    .map(k -> PutKeyRequestListItem.builder().key(k.getKey()).value(k.getValue()).build())
+                    .collect(Collectors.toSet()))
+                .deletes(deleteKeys.stream().map(k -> DeleteKeyRequestListItem.builder().key(k).build())
+                    .collect(Collectors.toSet()))
+                .ifMatch(kvsEtag)
+                .kvsARN(getArn()));
+            setKvsEtag(updateResponse.eTag());
         }
     }
 
@@ -361,6 +384,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
                     );
 
                     KeyValueStore kvs = response.keyValueStore();
+                    setEtag(response.eTag());
                     return kvs != null && "READY".equals(kvs.status());
                 } catch (NoSuchResourceException ex) {
                     return false;
