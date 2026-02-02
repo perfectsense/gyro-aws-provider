@@ -21,6 +21,7 @@ import gyro.core.resource.Diffable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.ImportSource;
+import software.amazon.awssdk.services.cloudfront.model.ImportSourceType;
 
 /**
  * The import source for importing key-value pairs from S3.
@@ -37,7 +38,7 @@ import software.amazon.awssdk.services.cloudfront.model.ImportSource;
  */
 public class CloudFrontKeyValueStoreImportSource extends Diffable implements Copyable<ImportSource> {
 
-    private String sourceType;
+    private ImportSourceType sourceType;
     private String sourceArn;
 
     /**
@@ -45,11 +46,11 @@ public class CloudFrontKeyValueStoreImportSource extends Diffable implements Cop
      */
     @Required
     @ValidStrings("S3")
-    public String getSourceType() {
+    public ImportSourceType getSourceType() {
         return sourceType;
     }
 
-    public void setSourceType(String sourceType) {
+    public void setSourceType(ImportSourceType sourceType) {
         this.sourceType = sourceType;
     }
 
@@ -67,7 +68,7 @@ public class CloudFrontKeyValueStoreImportSource extends Diffable implements Cop
 
     @Override
     public void copyFrom(ImportSource model) {
-        setSourceType(model.sourceType().toString());
+        setSourceType(model.sourceType());
         setSourceArn(model.sourceARN());
     }
 
