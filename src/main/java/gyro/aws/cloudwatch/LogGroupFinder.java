@@ -38,7 +38,7 @@ import java.util.Map;
  *    log-group: $(external-query aws::cloudwatch-log-group { name: '/app/api' })
  */
 @Type("cloudwatch-log-group")
-public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroupResource, LogGroupResource> {
+public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroup, LogGroupResource> {
 
     private String name;
 
@@ -51,8 +51,8 @@ public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroupReso
     }
 
     @Override
-    protected List<LogGroupResource> findAllAws(CloudWatchLogsClient client) {
-        List<LogGroupResource> resources = new ArrayList<>();
+    protected List<LogGroup> findAllAws(CloudWatchLogsClient client) {
+        List<LogGroup> resources = new ArrayList<>();
 
         String nextToken = null;
         do {
@@ -64,9 +64,7 @@ public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroupReso
 
             if (response.logGroups() != null) {
                 for (LogGroup logGroup : response.logGroups()) {
-                    LogGroupResource resource = new LogGroupResource();
-                    resource.copyFrom(logGroup);
-                    resources.add(resource);
+                    resources.add(logGroup);
                 }
             }
 
@@ -77,17 +75,15 @@ public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroupReso
     }
 
     @Override
-    protected List<LogGroupResource> findAws(CloudWatchLogsClient client, Map<String, String> filters) {
-        List<LogGroupResource> resources = new ArrayList<>();
+    protected List<LogGroup> findAws(CloudWatchLogsClient client, Map<String, String> filters) {
+        List<LogGroup> resources = new ArrayList<>();
 
         String name = filters != null ? filters.get("name") : null;
 
         if (name != null && !name.isEmpty()) {
             LogGroup logGroup = getLogGroup(client, name);
             if (logGroup != null) {
-                LogGroupResource resource = new LogGroupResource();
-                resource.copyFrom(logGroup);
-                resources.add(resource);
+                resources.add(logGroup);
             }
         } else {
             resources = findAllAws(client);
