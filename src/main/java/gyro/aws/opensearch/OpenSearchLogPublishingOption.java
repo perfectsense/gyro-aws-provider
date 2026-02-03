@@ -16,10 +16,15 @@
 
 package gyro.aws.opensearch;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Id;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.opensearch.model.LogPublishingOption;
 import software.amazon.awssdk.services.opensearch.model.LogType;
 
@@ -41,7 +46,7 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
     }
 
     /**
-     * ARN of the CloudWatch log group for publishing logs.
+     * The ARN of the CloudWatch log group for publishing logs.
      */
     @Updatable
     public String getCloudWatchLogsLogGroupArn() {
@@ -53,7 +58,7 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
     }
 
     /**
-     * Whether log publishing is enabled
+     *  When set to ``true``, log publishing is enabled
      */
     @Updatable
     public Boolean getEnabled() {
@@ -84,17 +89,23 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
     }
 
     public LogPublishingOption toLogPublishingOption() {
-        if (!getEnabled()) {
-            return LogPublishingOption.builder().enabled(false).build();
+        LogPublishingOption.Builder builder = LogPublishingOption.builder().enabled(getEnabled());
+
+        if (getEnabled()) {
+            builder.cloudWatchLogsLogGroupArn(getCloudWatchLogsLogGroupArn());
         }
 
-        if (getCloudWatchLogsLogGroupArn() == null || getCloudWatchLogsLogGroupArn().isEmpty()) {
-            throw new IllegalStateException("'cloud-watch-logs-log-group-arn' is required when 'enabled' is set to true");
+        return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (getEnabled() && (getCloudWatchLogsLogGroupArn() == null || getCloudWatchLogsLogGroupArn().isEmpty())) {
+            errors.add(new ValidationError(this, null, "'cloud-watch-logs-log-group-arn' is required when 'enabled' is set to true."));
         }
 
-        return LogPublishingOption.builder()
-            .enabled(true)
-            .cloudWatchLogsLogGroupArn(getCloudWatchLogsLogGroupArn())
-            .build();
+        return errors;
     }
 }

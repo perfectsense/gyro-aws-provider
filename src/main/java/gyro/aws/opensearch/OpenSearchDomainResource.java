@@ -481,6 +481,8 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     /**
      * The log publishing options.
+     *
+     * @subresource gyro.aws.opensearch.OpenSearchLogPublishingOption
      */
     @Updatable
     public List<OpenSearchLogPublishingOption> getLogPublishingOptions() {
@@ -799,7 +801,6 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                     LogType logType = LogType.fromValue(oldOption.getName());
 
                     if (!options.containsKey(logType)) {
-                        System.out.println("\n* * * * Removing " + logType);
                         options.put(logType, LogPublishingOption.builder()
                             .enabled(false)
                             .build());
@@ -923,13 +924,5 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             // If unable to get the region, return null
             return null;
         }
-    }
-
-    private OpenSearchLogPublishingOption copyLogPublishingOption(OpenSearchLogPublishingOption original) {
-        OpenSearchLogPublishingOption copy = new OpenSearchLogPublishingOption();
-        copy.setName(original.getName());
-        copy.setEnabled(original.getEnabled());
-        copy.setCloudWatchLogsLogGroupArn(original.getCloudWatchLogsLogGroupArn());
-        return copy;
     }
 }

@@ -27,6 +27,8 @@ import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidNumbers;
+import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
 import software.amazon.awssdk.services.cloudwatchlogs.model.AssociateKmsKeyRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogGroupRequest;
@@ -125,9 +127,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
 
     /**
      * The number of days to retain log events.
-     * Valid values: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, and 3653
      */
     @Updatable
+    @ValidNumbers({1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1096, 1827, 2192, 2557, 2922, 3288, 3653})
     public Integer getRetentionDays() {
         return retentionDays;
     }
@@ -151,8 +153,8 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
 
     /**
      * The log group class.
-     * Valid values: STANDARD, INFREQUENT_ACCESS
      */
+    @ValidStrings({"STANDARD", "INFREQUENT_ACCESS"})
     public String getLogGroupClass() {
         return logGroupClass;
     }
@@ -178,7 +180,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
 
     /**
      * The JSON policy document for field indexing
-     * Valid for STANDARD log class only.
+     * Valid for ``STANDARD`` log class only.
      */
     @Updatable
     public String getIndexPolicy() {
@@ -219,6 +221,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         this.dataProtectionPolicy = dataProtectionPolicy;
     }
 
+    /**
+     * The ARN of the log group.
+     */
     @Output
     public String getLogGroupArn() {
         return logGroupArn;
@@ -228,6 +233,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         this.logGroupArn = logGroupArn;
     }
 
+    /**
+     * The creation time of the log group.
+     */
     @Output
     public Long getCreationTime() {
         return creationTime;
@@ -237,6 +245,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         this.creationTime = creationTime;
     }
 
+    /**
+     * The total bytes stored in the log group.
+     */
     @Output
     public Long getStoredBytes() {
         return storedBytes;
@@ -246,6 +257,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         this.storedBytes = storedBytes;
     }
 
+    /**
+     * The number of metric filters for the log group.
+     */
     @Output
     public Integer getMetricFilterCount() {
         return metricFilterCount;
@@ -255,6 +269,9 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         this.metricFilterCount = metricFilterCount;
     }
 
+    /**
+     * The source of the log group index policy.
+     */
     @Output
     public String getIndexPolicySource() {
         return indexPolicySource;
@@ -278,6 +295,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         CloudWatchLogsClient client = createClient(CloudWatchLogsClient.class);
 
         // Fetch tags
+        getTags().clear();
         try {
             ListTagsForResourceResponse tagsResponse = client.listTagsForResource(
                 ListTagsForResourceRequest.builder()
@@ -292,6 +310,8 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         }
 
         // Fetch index policy
+        setIndexPolicy(null);
+        setIndexPolicySource(null);
         try {
             DescribeIndexPoliciesResponse indexPolicies = client.describeIndexPolicies(
                 DescribeIndexPoliciesRequest.builder()
@@ -308,6 +328,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         }
 
         // Fetch data protection policy
+        setDataProtectionPolicy(null);
         try {
             GetDataProtectionPolicyResponse dppResponse = client.getDataProtectionPolicy(
                 GetDataProtectionPolicyRequest.builder()
@@ -315,9 +336,6 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
                     .build()
             );
             setDataProtectionPolicy(dppResponse.policyDocument());
-        } catch (ResourceNotFoundException e) {
-            // No data protection policy exists
-            setDataProtectionPolicy(null);
         } catch (Exception e) {
             // Ignore
         }
@@ -384,8 +402,6 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
             );
             state.save();
         }
-
-        refresh();
     }
 
     @Override
@@ -477,8 +493,6 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
                 }
             }
         }
-
-        refresh();
     }
 
     @Override
