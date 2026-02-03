@@ -1,0 +1,36 @@
+{
+  "Version": "2021-06-01",
+  "Name": "pii-protection-policy",
+  "Statement": [
+      {
+      "Sid": "AuditPII",
+      "DataIdentifier": [
+        "arn:aws:dataprotection::aws:data-identifier/EmailAddress",
+        "arn:aws:dataprotection::aws:data-identifier/CreditCardNumber",
+        "arn:aws:dataprotection::aws:data-identifier/Name"
+      ],
+      "Operation": {
+        "Audit": {
+          "FindingsDestination": {
+            "CloudWatchLogs": {
+              "LogGroup": "/aws/lambda/test1"
+            }
+          }
+        }
+      }
+    },
+    {
+      "Sid": "MaskPII",
+      "DataIdentifier": [
+        "arn:aws:dataprotection::aws:data-identifier/EmailAddress",
+        "arn:aws:dataprotection::aws:data-identifier/CreditCardNumber",
+        "arn:aws:dataprotection::aws:data-identifier/Name"
+      ],
+      "Operation": {
+        "Deidentify": {
+          "MaskConfig": {}
+        }
+      }
+    }
+  ]
+}
