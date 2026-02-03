@@ -110,7 +110,7 @@ aws::opensearch-domain opensearch-domain-example
     log-publishing-options
         name: "INDEX_SLOW_LOGS"
         enabled: true
-        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
+        cloud-watch-logs-log-group: $(external-query aws::cloudwatch-log-group { name: '/aws/temp/app/api' })
     end
 
     log-publishing-options
@@ -121,12 +121,12 @@ aws::opensearch-domain opensearch-domain-example
     log-publishing-options
         name: "ES_APPLICATION_LOGS"
         enabled: true
-        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
+        cloud-watch-logs-log-group: $(aws::cloudwatch-log-group log-group-example)
     end
 
     log-publishing-options
         name: "AUDIT_LOGS"
         enabled: true
-        cloud-watch-logs-log-group-arn: "arn:aws:logs:us-east-1:364827858769:log-group:/temp/logg1"
+        cloud-watch-logs-log-group: $(external-query aws::cloudwatch-log-group { name: '/aws/temp/app/api' })
     end
 end

@@ -135,7 +135,7 @@ import software.amazon.awssdk.utils.IoUtils;
  *             name: "INDEX_SLOW_LOGS"
  *             option
  *                 enabled: true
- *                 cloud-watch-logs-log-group-arn: "arn:aws:logs:..."
+ *                 cloud-watch-logs-log-group: $(aws::cloudwatch-log-group log-group-example)
  *             end
  *         end
  *         log-publishing-options
@@ -690,7 +690,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                 if (option == null || option.getName() == null) {
                     continue;
                 }
-                LogType logType = LogType.fromValue(option.getName());
+                LogType logType = option.getName();
                 options.put(logType, option.toLogPublishingOption());
             }
             if (!options.isEmpty()) {
@@ -786,7 +786,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                     if (option == null || option.getName() == null) {
                         continue;
                     }
-                    LogType logType = LogType.fromValue(option.getName());
+                    LogType logType = option.getName();
                     options.put(logType, option.toLogPublishingOption());
                 }
             }
@@ -798,7 +798,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
                         continue;
                     }
 
-                    LogType logType = LogType.fromValue(oldOption.getName());
+                    LogType logType = oldOption.getName();
 
                     if (!options.containsKey(logType)) {
                         options.put(logType, LogPublishingOption.builder()

@@ -21,40 +21,45 @@ import java.util.List;
 import java.util.Set;
 
 import gyro.aws.Copyable;
+import gyro.aws.cloudwatch.LogGroupResource;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.resource.Id;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.opensearch.model.LogPublishingOption;
 import software.amazon.awssdk.services.opensearch.model.LogType;
 
 public class OpenSearchLogPublishingOption extends Diffable implements Copyable<LogPublishingOption> {
 
-    private String name;
-    private String cloudWatchLogsLogGroupArn;
+    private LogType name;
+    private LogGroupResource cloudWatchLogsLogGroup;
     private Boolean enabled;
 
     /**
-     * The log type name (e.g., INDEX_SLOW_LOGS, SEARCH_SLOW_LOGS, ES_APPLICATION_LOGS, AUDIT_LOGS).
+     * The log type name.
      */
-    public String getName() {
+    @ValidStrings({"INDEX_SLOW_LOGS", "SEARCH_SLOW_LOGS", "ES_APPLICATION_LOGS", "AUDIT_LOGS"})
+    public LogType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(LogType name) {
         this.name = name;
     }
 
     /**
-     * The ARN of the CloudWatch log group for publishing logs.
+     * The CloudWatch log group for publishing logs.
+     *
+     * @subresource gyro.aws.cloudwatch.LogGroupResource
      */
     @Updatable
-    public String getCloudWatchLogsLogGroupArn() {
-        return cloudWatchLogsLogGroupArn;
+    public LogGroupResource getCloudWatchLogsLogGroup() {
+        return cloudWatchLogsLogGroup;
     }
 
-    public void setCloudWatchLogsLogGroupArn(String cloudWatchLogsLogGroupArn) {
-        this.cloudWatchLogsLogGroupArn = cloudWatchLogsLogGroupArn;
+    public void setCloudWatchLogsLogGroup(LogGroupResource cloudWatchLogsLogGroup) {
+        this.cloudWatchLogsLogGroup = cloudWatchLogsLogGroup;
     }
 
     /**
@@ -72,19 +77,19 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
     @Id
     @Override
     public String primaryKey() {
-        return getName();
+        return getName().toString();
     }
 
     @Override
     public void copyFrom(LogPublishingOption model) {
         setEnabled(model.enabled());
         if (Boolean.TRUE.equals(model.enabled())) {
-            setCloudWatchLogsLogGroupArn(model.cloudWatchLogsLogGroupArn());
+            setCloudWatchLogsLogGroup(findById(LogGroupResource.class, model.cloudWatchLogsLogGroupArn()));
         }
     }
 
     public void copyFrom(LogType logType, LogPublishingOption model) {
-        setName(logType.toString());
+        setName(logType);
         copyFrom(model);
     }
 
@@ -92,7 +97,7 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
         LogPublishingOption.Builder builder = LogPublishingOption.builder().enabled(getEnabled());
 
         if (getEnabled()) {
-            builder.cloudWatchLogsLogGroupArn(getCloudWatchLogsLogGroupArn());
+            builder.cloudWatchLogsLogGroupArn(getCloudWatchLogsLogGroup().getLogGroupArn());
         }
 
         return builder.build();
@@ -102,8 +107,8 @@ public class OpenSearchLogPublishingOption extends Diffable implements Copyable<
     public List<ValidationError> validate(Set<String> configuredFields) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getEnabled() && (getCloudWatchLogsLogGroupArn() == null || getCloudWatchLogsLogGroupArn().isEmpty())) {
-            errors.add(new ValidationError(this, null, "'cloud-watch-logs-log-group-arn' is required when 'enabled' is set to true."));
+        if (getEnabled() && getCloudWatchLogsLogGroup() == null) {
+            errors.add(new ValidationError(this, null, "'cloud-watch-logs-log-group' is required when 'enabled' is set to true."));
         }
 
         return errors;
