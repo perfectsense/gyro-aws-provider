@@ -19,9 +19,11 @@ package gyro.aws.cloudwatch;
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.aws.iam.PolicyResource;
+import gyro.aws.kms.KmsKeyResource;
 import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
+import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
 import gyro.core.resource.Updatable;
@@ -48,7 +50,6 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.LogGroup;
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutDataProtectionPolicyRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutIndexPolicyRequest;
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutRetentionPolicyRequest;
-import software.amazon.awssdk.services.cloudwatchlogs.model.ResourceNotFoundException;
 import software.amazon.awssdk.utils.IoUtils;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ import java.util.Set;
  *     aws::cloudwatch-log-group encrypted-log-group
  *         name: "/aws/lambda/my-function"
  *         retention-days: 14
- *         kms-key-id: "example-key-id"
+ *         kms-key: $(aws::kms-key example-kms-key)
  *         log-group-class: "STANDARD"
  *
  *         tags: {
@@ -99,7 +100,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
 
     private String logGroupName;
     private Integer retentionDays;
-    private String kmsKeyId;
+    private KmsKeyResource kmsKey;
     private String logGroupClass;
     private Map<String, String> tags;
     private String indexPolicy;
@@ -116,6 +117,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
      * The name of the log group.
      * Cannot be changed after creation.
      */
+    @Id
     @Required
     public String getLogGroupName() {
         return logGroupName;
@@ -143,12 +145,12 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
      * If not specified, encryption is disabled.
      */
     @Updatable
-    public String getKmsKeyId() {
-        return kmsKeyId;
+    public KmsKeyResource getKmsKey() {
+        return kmsKey;
     }
 
-    public void setKmsKeyId(String kmsKeyId) {
-        this.kmsKeyId = kmsKeyId;
+    public void setKmsKey(KmsKeyResource kmsKey) {
+        this.kmsKey = kmsKey;
     }
 
     /**
@@ -285,7 +287,7 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
     public void copyFrom(LogGroup logGroup) {
         setLogGroupName(logGroup.logGroupName());
         setRetentionDays(logGroup.retentionInDays());
-        setKmsKeyId(logGroup.kmsKeyId());
+        setKmsKey(findById(KmsKeyResource.class, logGroup.kmsKeyId()));
         setLogGroupClass(logGroup.logGroupClass() != null ? logGroup.logGroupClass().toString() : null);
         setLogGroupArn(logGroup.logGroupArn());
         setCreationTime(logGroup.creationTime());
@@ -358,8 +360,8 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
         CreateLogGroupRequest.Builder requestBuilder = CreateLogGroupRequest.builder()
             .logGroupName(getLogGroupName());
 
-        if (getKmsKeyId() != null) {
-            requestBuilder.kmsKeyId(getKmsKeyId());
+        if (getKmsKey() != null) {
+            requestBuilder.kmsKeyId(getKmsKey().getId());
         }
 
         if (getLogGroupClass() != null) {
@@ -426,15 +428,15 @@ public class LogGroupResource extends AwsResource implements Copyable<LogGroup> 
             }
         }
 
-        if (changedFieldNames.contains("kms-key-id")) {
-            if (getKmsKeyId() != null) {
+        if (changedFieldNames.contains("kms-key")) {
+            if (getKmsKey() != null) {
                 client.associateKmsKey(
                     AssociateKmsKeyRequest.builder()
                         .logGroupName(getLogGroupName())
-                        .kmsKeyId(getKmsKeyId())
+                        .kmsKeyId(getKmsKey().getId())
                         .build()
                 );
-            } else if (currentResource.getKmsKeyId() != null) {
+            } else if (currentResource.getKmsKey() != null) {
                 client.disassociateKmsKey(
                     DisassociateKmsKeyRequest.builder()
                         .logGroupName(getLogGroupName())
