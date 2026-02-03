@@ -79,14 +79,11 @@ public class LogGroupFinder extends AwsFinder<CloudWatchLogsClient, LogGroup, Lo
         List<LogGroup> resources = new ArrayList<>();
 
         String name = filters != null ? filters.get("name") : null;
-
         if (name != null && !name.isEmpty()) {
             LogGroup logGroup = getLogGroup(client, name);
             if (logGroup != null) {
                 resources.add(logGroup);
             }
-        } else {
-            resources = findAllAws(client);
         }
 
         return resources;
