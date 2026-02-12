@@ -1,6 +1,20 @@
 CHANGELOG
 =========
 
+## 1.9.6 (February 12th, 2026)
+
+ENHANCEMENTS:
+
+* [746](https://github.com/perfectsense/gyro-aws-provider/pull/746): Support for additional values in EksAddonResource
+* [750](https://github.com/perfectsense/gyro-aws-provider/pull/750): Allow the min and desired size of Eks nodegroups to be 0
+* [751](https://github.com/perfectsense/gyro-aws-provider/pull/751): Allow 0 rules in WebAclResource and RuleGroupResource
+
+## 1.9.5 (December 16th 2025)
+
+ENHANCEMENTS:
+
+* [730](https://github.com/perfectsense/gyro-aws-provider/issues/730): Add support for AsnMatchStatement
+
 ## 1.9.4 (November 20th, 2025)
 
 ENHANCEMENTS:
