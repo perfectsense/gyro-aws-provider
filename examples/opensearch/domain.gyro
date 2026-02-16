@@ -106,4 +106,27 @@ aws::opensearch-domain opensearch-domain-example
             $(aws::security-group example-security-group)
         ]
     end
+
+    log-publishing-options
+        name: "INDEX_SLOW_LOGS"
+        enabled: true
+        cloud-watch-logs-log-group: $(external-query aws::cloudwatch-log-group { name: '/aws/temp/app/api' })
+    end
+
+    log-publishing-options
+        name: "SEARCH_SLOW_LOGS"
+        enabled: false
+    end
+
+    log-publishing-options
+        name: "ES_APPLICATION_LOGS"
+        enabled: true
+        cloud-watch-logs-log-group: $(aws::cloudwatch-log-group log-group-example)
+    end
+
+    log-publishing-options
+        name: "AUDIT_LOGS"
+        enabled: true
+        cloud-watch-logs-log-group: $(external-query aws::cloudwatch-log-group { name: '/aws/temp/app/api' })
+    end
 end

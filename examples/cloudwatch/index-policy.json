@@ -1,0 +1,8 @@
+{
+  "Fields": [
+    "requestId",
+    "userId", 
+    "statusCode",
+    "serviceName"
+  ]
+}
