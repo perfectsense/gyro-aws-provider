@@ -33,8 +33,10 @@ import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.scope.State;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.ConnectivityType;
 import software.amazon.awssdk.services.ec2.model.CreateNatGatewayResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeNatGatewaysResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -42,25 +44,42 @@ import software.amazon.awssdk.services.ec2.model.NatGateway;
 import software.amazon.awssdk.services.ec2.model.NatGatewayState;
 
 /**
- * Creates a Nat Gateway with the specified elastic ip allocation id and subnet id.
+ * Creates a Nat Gateway with the specified subnet id.
  *
  * Example
  * -------
+ *
+ * Public NAT Gateway (default):
  *
  * .. code-block:: gyro
  *
  *     aws::nat-gateway nat-gateway-example
  *         elastic-ip: $(aws::elastic-ip elastic-ip-example-for-nat-gateway)
+ *         internet-gateway: $(aws::internet-gateway internet-gateway-example)
  *         subnet: $(aws::subnet subnet-example-for-nat-gateway)
  *
  *         tags: {
- *             Name: elastic-ip-example-for-nat-gateway
+ *             Name: nat-gateway-example
+ *         }
+ *     end
+ *
+ * Private NAT Gateway:
+ *
+ * .. code-block:: gyro
+ *
+ *     aws::nat-gateway nat-gateway-private-example
+ *         connectivity-type: "private"
+ *         subnet: $(aws::subnet subnet-example-for-nat-gateway)
+ *
+ *         tags: {
+ *             Name: nat-gateway-private-example
  *         }
  *     end
  */
 @Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
+    private String connectivityType;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
     private InternetGatewayResource internetGateway;
@@ -69,9 +88,24 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     private String id;
 
     /**
-     * The associated elastic IP for the Nat Gateway.
+     * The connectivity type of the NAT gateway. Defaults to ``public``.
      */
-    @Required
+    @ValidStrings({ "public", "private" })
+    public String getConnectivityType() {
+        if (connectivityType == null) {
+            connectivityType = "public";
+        }
+
+        return connectivityType;
+    }
+
+    public void setConnectivityType(String connectivityType) {
+        this.connectivityType = connectivityType;
+    }
+
+    /**
+     * The associated elastic IP for the Nat Gateway. Required for public NAT gateways.
+     */
     public ElasticIpResource getElasticIp() {
         return elasticIp;
     }
@@ -93,9 +127,8 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     }
 
     /**
-     * The internet gateway required for the Nat Gateway to be created.
+     * The internet gateway required for a public Nat Gateway to be created. Required for public NAT gateways.
      */
-    @Required
     public InternetGatewayResource getInternetGateway() {
         return internetGateway;
     }
@@ -126,7 +159,17 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public void copyFrom(NatGateway natGateway) {
         setId(natGateway.natGatewayId());
         setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
-        setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
+        setConnectivityType(natGateway.connectivityTypeAsString() != null
+            ? natGateway.connectivityTypeAsString().toLowerCase()
+            : "public");
+
+        if ("public".equals(getConnectivityType())
+                && !natGateway.natGatewayAddresses().isEmpty()
+                && natGateway.natGatewayAddresses().get(0).allocationId() != null) {
+            setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
+        } else {
+            setElasticIp(null);
+        }
 
         refreshTags();
     }
@@ -152,10 +195,20 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         validate();
 
-        CreateNatGatewayResponse response = client.createNatGateway(
-            r -> r.allocationId(getElasticIp().getId())
-                .subnetId(getSubnet().getId())
-        );
+        CreateNatGatewayResponse response;
+
+        if ("private".equals(getConnectivityType())) {
+            response = client.createNatGateway(
+                r -> r.connectivityType(ConnectivityType.PRIVATE)
+                    .subnetId(getSubnet().getId())
+            );
+        } else {
+            response = client.createNatGateway(
+                r -> r.connectivityType(ConnectivityType.PUBLIC)
+                    .allocationId(getElasticIp().getId())
+                    .subnetId(getSubnet().getId())
+            );
+        }
 
         NatGateway natGateway = response.natGateway();
         setId(natGateway.natGatewayId());
@@ -243,12 +296,44 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (getSubnet() != null && getInternetGateway() != null && !getSubnet().getVpc()
-            .equals(getInternetGateway().getVpc())) {
-            errors.add(new ValidationError(
-                this,
-                null,
-                "The 'subnet' and 'internet-gateway' needs to belong to the same vpc."));
+        if ("public".equals(getConnectivityType())) {
+            if (getElasticIp() == null) {
+                errors.add(new ValidationError(
+                    this,
+                    "elastic-ip",
+                    "'elastic-ip' is required for public NAT gateways."));
+            }
+
+            if (getInternetGateway() == null) {
+                errors.add(new ValidationError(
+                    this,
+                    "internet-gateway",
+                    "'internet-gateway' is required for public NAT gateways."));
+            }
+
+            if (getSubnet() != null && getInternetGateway() != null && !getSubnet().getVpc()
+                .equals(getInternetGateway().getVpc())) {
+                errors.add(new ValidationError(
+                    this,
+                    null,
+                    "The 'subnet' and 'internet-gateway' needs to belong to the same vpc."));
+            }
+        }
+
+        if ("private".equals(getConnectivityType())) {
+            if (getElasticIp() != null) {
+                errors.add(new ValidationError(
+                    this,
+                    "elastic-ip",
+                    "'elastic-ip' cannot be specified for private NAT gateways."));
+            }
+
+            if (getInternetGateway() != null) {
+                errors.add(new ValidationError(
+                    this,
+                    "internet-gateway",
+                    "'internet-gateway' cannot be specified for private NAT gateways."));
+            }
         }
 
         return errors;
