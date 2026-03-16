@@ -68,7 +68,7 @@ import software.amazon.awssdk.services.ec2.model.NatGatewayState;
  * .. code-block:: gyro
  *
  *     aws::nat-gateway nat-gateway-private-example
- *         connectivity-type: "private"
+ *         connectivity-type: "PRIVATE"
  *         subnet: $(aws::subnet subnet-example-for-nat-gateway)
  *
  *         tags: {
@@ -79,7 +79,7 @@ import software.amazon.awssdk.services.ec2.model.NatGatewayState;
 @Type("nat-gateway")
 public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implements Copyable<NatGateway> {
 
-    private String connectivityType;
+    private ConnectivityType connectivityType;
     private ElasticIpResource elasticIp;
     private SubnetResource subnet;
     private InternetGatewayResource internetGateway;
@@ -90,16 +90,12 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     /**
      * The connectivity type of the NAT gateway. Defaults to ``public``.
      */
-    @ValidStrings({ "public", "private" })
-    public String getConnectivityType() {
-        if (connectivityType == null) {
-            connectivityType = "public";
-        }
-
+    @ValidStrings({ "PUBLIC", "PRIVATE" })
+    public ConnectivityType getConnectivityType() {
         return connectivityType;
     }
 
-    public void setConnectivityType(String connectivityType) {
+    public void setConnectivityType(ConnectivityType connectivityType) {
         this.connectivityType = connectivityType;
     }
 
@@ -159,17 +155,10 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public void copyFrom(NatGateway natGateway) {
         setId(natGateway.natGatewayId());
         setSubnet(findById(SubnetResource.class, natGateway.subnetId()));
-        setConnectivityType(natGateway.connectivityTypeAsString() != null
-            ? natGateway.connectivityTypeAsString().toLowerCase()
-            : "public");
-
-        if ("public".equals(getConnectivityType())
-                && !natGateway.natGatewayAddresses().isEmpty()
-                && natGateway.natGatewayAddresses().get(0).allocationId() != null) {
-            setElasticIp(findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
-        } else {
-            setElasticIp(null);
-        }
+        setConnectivityType(natGateway.connectivityType());
+        setElasticIp(natGateway.natGatewayAddresses().isEmpty() || natGateway.natGatewayAddresses().get(0) == null ||
+            natGateway.natGatewayAddresses().get(0).allocationId() == null ? null :
+            findById(ElasticIpResource.class, natGateway.natGatewayAddresses().get(0).allocationId()));
 
         refreshTags();
     }
@@ -195,20 +184,11 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
 
         validate();
 
-        CreateNatGatewayResponse response;
-
-        if ("private".equals(getConnectivityType())) {
-            response = client.createNatGateway(
-                r -> r.connectivityType(ConnectivityType.PRIVATE)
-                    .subnetId(getSubnet().getId())
-            );
-        } else {
-            response = client.createNatGateway(
-                r -> r.connectivityType(ConnectivityType.PUBLIC)
-                    .allocationId(getElasticIp().getId())
-                    .subnetId(getSubnet().getId())
-            );
-        }
+        CreateNatGatewayResponse response = client.createNatGateway(
+            r -> r.allocationId(getElasticIp() == null ? null : getElasticIp().getId())
+                .connectivityType(getConnectivityType())
+                .subnetId(getSubnet().getId())
+        );
 
         NatGateway natGateway = response.natGateway();
         setId(natGateway.natGatewayId());
@@ -296,7 +276,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
     public List<ValidationError> validate() {
         List<ValidationError> errors = new ArrayList<>();
 
-        if ("public".equals(getConnectivityType())) {
+        if (getConnectivityType() == null || ConnectivityType.PUBLIC.equals(getConnectivityType())) {
             if (getElasticIp() == null) {
                 errors.add(new ValidationError(
                     this,
@@ -320,7 +300,7 @@ public class NatGatewayResource extends Ec2TaggableResource<NatGateway> implemen
             }
         }
 
-        if ("private".equals(getConnectivityType())) {
+        if (ConnectivityType.PRIVATE.equals(getConnectivityType())) {
             if (getElasticIp() != null) {
                 errors.add(new ValidationError(
                     this,
