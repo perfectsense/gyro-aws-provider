@@ -400,6 +400,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
      *
      * @subresource gyro.aws.opensearch.OpensearchSoftwareUpdateOptions
      */
+    @Updatable
     public OpensearchSoftwareUpdateOptions getSoftwareUpdateOptions() {
         return softwareUpdateOptions;
     }
