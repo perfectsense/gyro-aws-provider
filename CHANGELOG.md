@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 1.9.7 (March 18th, 2026)
+
+ENHANCEMENTS:
+
+* [753](https://github.com/perfectsense/gyro-aws-provider/pull/753): Make opensearch version updatable
+* [754](https://github.com/perfectsense/gyro-aws-provider/pull/754): Add connectivity-type for NAT Gateway
+
 ## 1.9.6 (February 12th, 2026)
 
 ENHANCEMENTS:
