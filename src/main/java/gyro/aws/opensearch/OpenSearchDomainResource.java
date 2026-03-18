@@ -148,6 +148,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     private OpenSearchAutoTuneOptions autoTuneOptions;
     private IPAddressType ipAddressType;
     private Map<String, String> tags;
+    private OpensearchSoftwareUpdateOptions softwareUpdateOptions;
 
     // Output
     private String id;
@@ -161,6 +162,7 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     /**
      * The version of OpenSearch.
      */
+    @Updatable
     @Regex(value = "Elasticsearch_\\d+\\.\\d+", message = "Should be in the format of 'Elasticsearch_X.Y'")
     @Regex(value = "OpenSearch_\\d+\\.\\d+", message = "Should be in the format of 'OpenSearch_X.Y'")
     public String getOpenSearchVersion() {
@@ -394,6 +396,20 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
     }
 
     /**
+     * The software update options configuration.
+     *
+     * @subresource gyro.aws.opensearch.OpensearchSoftwareUpdateOptions
+     */
+    @Updatable
+    public OpensearchSoftwareUpdateOptions getSoftwareUpdateOptions() {
+        return softwareUpdateOptions;
+    }
+
+    public void setSoftwareUpdateOptions(OpensearchSoftwareUpdateOptions softwareUpdateOptions) {
+        this.softwareUpdateOptions = softwareUpdateOptions;
+    }
+
+    /**
      * The ID of the OpenSearch domain.
      */
     @Output
@@ -473,6 +489,14 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
         setEndpoints(model.endpoints());
         setEndpoint(model.endpoint());
         setEndpointV2(model.endpointV2());
+
+        setSoftwareUpdateOptions(null);
+        if (model.softwareUpdateOptions() != null) {
+            OpensearchSoftwareUpdateOptions opensearchSoftwareUpdateOptions = newSubresource(
+                OpensearchSoftwareUpdateOptions.class);
+            opensearchSoftwareUpdateOptions.copyFrom(model.softwareUpdateOptions());
+            setSoftwareUpdateOptions(opensearchSoftwareUpdateOptions);
+        }
 
         setEbsOptions(null);
         if (model.ebsOptions() != null) {
@@ -633,6 +657,10 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             builder = builder.autoTuneOptions(getAutoTuneOptions().toAutoTuneOptionsInput());
         }
 
+        if (getSoftwareUpdateOptions() != null) {
+            builder = builder.softwareUpdateOptions(getSoftwareUpdateOptions().toSoftwareUpdateOptions());
+        }
+
         OpenSearchClient client = createClient(OpenSearchClient.class);
         CreateDomainResponse response = client.createDomain(builder.build());
         DomainStatus domainStatus = response.domainStatus();
@@ -660,6 +688,13 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
 
     @Override
     public void update(GyroUI ui, State state, Resource current, Set<String> changedFieldNames) throws Exception {
+        OpenSearchClient client = createClient(OpenSearchClient.class);
+
+        if (changedFieldNames.contains("open-search-version")) {
+            client.upgradeDomain(r -> r.domainName(getDomainName()).targetVersion(getOpenSearchVersion()));
+            waitForAvailability(client, TimeoutSettings.Action.UPDATE);
+        }
+
         UpdateDomainConfigRequest.Builder builder = UpdateDomainConfigRequest.builder()
             .domainName(getDomainName());
 
@@ -711,7 +746,10 @@ public class OpenSearchDomainResource extends AwsResource implements Copyable<Do
             builder = builder.autoTuneOptions(getAutoTuneOptions().toAutoTuneOptions());
         }
 
-        OpenSearchClient client = createClient(OpenSearchClient.class);
+        if (changedFieldNames.contains("software-update-options")) {
+            builder = builder.softwareUpdateOptions(getSoftwareUpdateOptions().toSoftwareUpdateOptions());
+        }
+
         client.updateDomainConfig(builder.build());
 
         OpenSearchDomainResource currentResource = (OpenSearchDomainResource) current;
