@@ -8,6 +8,14 @@
       },
       "Action": "es:*",
       "Resource": "arn:aws:es:us-east-2:242040583208:domain/testdomain/*"
+    },
+    {
+      "Effect":"Allow",
+      "Principal": {
+        "Service":"opensearch.amazonaws.com"
+      },
+      "Action":"logs:*",
+      "Resource": "arn:aws:logs:us-east-2:242040583208:log-group:/aws/loggroup1:*"
     }
   ]
 }
