@@ -1,0 +1,152 @@
+aws::wafv2-web-acl web-acl-managed-rule-group-example
+    name: "web-acl-managed-rule-group-example"
+    description: "web-acl-managed-rule-group-example-desc"
+    scope: "CLOUDFRONT"
+    default-action: "BLOCK"
+
+    visibility-config
+        metric-name: "web-acl-managed-rule-group-example"
+        cloud-watch-metrics-enabled: false
+        sampled-requests-enabled: false
+    end
+
+    rule
+        name: "acfp-managed-rule"
+        priority: 0
+        override-action: "NONE"
+
+        visibility-config
+            metric-name: "acfp-managed-rule"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            managed-rule-group-statement
+                name: "AWSManagedRulesACFPRuleSet"
+                vendor-name: "AWS"
+
+                managed-rule-group-configs
+                    aws-managed-rules-acfp-rule-set
+                        registration-page-path: "/signup"
+                        creation-path: "/signup/submit"
+                        enable-regex-in-path: false
+
+                        request-inspection
+                            payload-type: "JSON"
+                            username-field: "/user/username"
+                            password-field: "/user/password"
+                            email-field: "/user/email"
+                            phone-number-fields: [ "/user/phone" ]
+                            address-fields: [ "/user/address" ]
+                        end
+
+                        response-inspection
+                            body-contains-success-strings: [ "Account creation successful" ]
+                            body-contains-failure-strings: [ "Request failed" ]
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    rule
+        name: "anti-ddos-managed-rule"
+        priority: 1
+        override-action: "NONE"
+
+        visibility-config
+            metric-name: "anti-ddos-managed-rule"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            managed-rule-group-statement
+                name: "AWSManagedRulesAntiDDoSRuleSet"
+                vendor-name: "AWS"
+
+                managed-rule-group-configs
+                    aws-managed-rules-anti-ddos-rule-set
+                        sensitivity-to-block: "MEDIUM"
+
+                        client-side-action-config
+                            challenge
+                                sensitivity: "HIGH"
+                                usage-of-action: "ENABLED"
+
+                                exempt-uri-regular-expressions
+                                    regex-string: "^/healthcheck$"
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    rule
+        name: "atp-managed-rule"
+        priority: 2
+        override-action: "NONE"
+
+        visibility-config
+            metric-name: "atp-managed-rule"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            managed-rule-group-statement
+                name: "AWSManagedRulesATPRuleSet"
+                vendor-name: "AWS"
+
+                managed-rule-group-configs
+                    aws-managed-rules-atp-rule-set
+                        login-path: "/login"
+                        enable-regex-in-path: false
+
+                        request-inspection
+                            payload-type: "JSON"
+                            username-field: "/username"
+                            password-field: "/password"
+                        end
+
+                        response-inspection
+                            status-code-success-codes: [ 200 ]
+                            status-code-failure-codes: [ 400, 401, 403 ]
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    rule
+        name: "bot-control-managed-rule"
+        priority: 3
+        override-action: "NONE"
+
+        visibility-config
+            metric-name: "bot-control-managed-rule"
+            cloud-watch-metrics-enabled: false
+            sampled-requests-enabled: false
+        end
+
+        statement
+            managed-rule-group-statement
+                name: "AWSManagedRulesBotControlRuleSet"
+                vendor-name: "AWS"
+
+                managed-rule-group-configs
+                    aws-managed-rules-bot-control-rule-set
+                        inspection-level: "TARGETED"
+                        enable-machine-learning: true
+                    end
+                end
+            end
+        end
+    end
+end
