@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "key": "s3-key1",
+      "value": "foo"
+    },
+    {
+      "key": "s3-key2",
+      "value": "bar"
+    }
+  ]
+}
