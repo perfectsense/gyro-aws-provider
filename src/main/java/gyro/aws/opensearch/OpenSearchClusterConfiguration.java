@@ -26,24 +26,21 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.DependsOn;
 import gyro.core.validation.Min;
 import gyro.core.validation.Range;
-import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.opensearch.model.ClusterConfig;
-import software.amazon.awssdk.services.opensearch.model.OpenSearchPartitionInstanceType;
-import software.amazon.awssdk.services.opensearch.model.OpenSearchWarmPartitionInstanceType;
 
 public class OpenSearchClusterConfiguration extends Diffable implements Copyable<ClusterConfig> {
 
     private Boolean enableZoneAwareness;
     private OpenSearchZoneAwarenessConfiguration zoneAwarenessConfiguration;
-    private OpenSearchPartitionInstanceType instanceType;
+    private String instanceType;
     private Integer instanceCount;
     private Boolean dedicatedMasterEnabled;
-    private OpenSearchPartitionInstanceType dedicatedMasterType;
+    private String dedicatedMasterType;
     private Integer dedicatedMasterCount;
     private Boolean enableWarm;
     private Integer warmCount;
-    private OpenSearchWarmPartitionInstanceType warmType;
+    private String warmType;
 
     /**
      * When set to ``true``, zone awareness is enabled for the OpenSearch domain cluster.
@@ -73,14 +70,17 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     }
 
     /**
-     * The instance type for the OpenSearch domain cluster. Defaults to ``m4.large_elasticsearch``.
+     * The instance type for the OpenSearch domain cluster, e.g. ``m7g.large.search``. Defaults to ``m4.large.search``.
+     * See `Supported instance types <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html>`_.
+     * The value is passed to AWS as a string and validated by the service, so instance families not yet present in the
+     * SDK enum (such as ``m7g`` and ``m8g``) are supported.
      */
     @Updatable
-    public OpenSearchPartitionInstanceType getInstanceType() {
+    public String getInstanceType() {
         return instanceType;
     }
 
-    public void setInstanceType(OpenSearchPartitionInstanceType instanceType) {
+    public void setInstanceType(String instanceType) {
         this.instanceType = instanceType;
     }
 
@@ -110,15 +110,18 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     }
 
     /**
-     * The instance type for the dedicated master nodes. Defaults to ``m4.large_elasticsearch``.
+     * The instance type for the dedicated master nodes, e.g. ``m7g.large.search``. Defaults to ``m4.large.search``.
+     * See `Supported instance types <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html>`_.
+     * The value is passed to AWS as a string and validated by the service, so instance families not yet present in the
+     * SDK enum (such as ``m7g`` and ``m8g``) are supported.
      */
     @Updatable
     @DependsOn("dedicated-master-enabled")
-    public OpenSearchPartitionInstanceType getDedicatedMasterType() {
+    public String getDedicatedMasterType() {
         return dedicatedMasterType;
     }
 
-    public void setDedicatedMasterType(OpenSearchPartitionInstanceType dedicatedMasterType) {
+    public void setDedicatedMasterType(String dedicatedMasterType) {
         this.dedicatedMasterType = dedicatedMasterType;
     }
 
@@ -163,16 +166,18 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     }
 
     /**
-     * The instance type for warm nodes. Defaults to ``ultrawarm1.medium.elasticsearch``.
+     * The instance type for warm nodes, e.g. ``ultrawarm1.medium.search``. Defaults to ``ultrawarm1.medium.search``.
+     * See `UltraWarm storage <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ultrawarm.html>`_.
+     * The value is passed to AWS as a string and validated by the service, so instance types not yet present in the
+     * SDK enum are supported.
      */
     @Updatable
     @DependsOn("enable-warm")
-    @ValidStrings({ "ultrawarm1.medium.elasticsearch", "ultrawarm1.large.elasticsearch", "ultrawarm1.xlarge.search" })
-    public OpenSearchWarmPartitionInstanceType getWarmType() {
+    public String getWarmType() {
         return warmType;
     }
 
-    public void setWarmType(OpenSearchWarmPartitionInstanceType warmType) {
+    public void setWarmType(String warmType) {
         this.warmType = warmType;
     }
 
@@ -180,13 +185,13 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     public void copyFrom(ClusterConfig model) {
         setDedicatedMasterCount(model.dedicatedMasterCount());
         setDedicatedMasterEnabled(model.dedicatedMasterEnabled());
-        setDedicatedMasterType(model.dedicatedMasterType());
+        setDedicatedMasterType(model.dedicatedMasterTypeAsString());
         setEnableWarm(model.warmEnabled());
         setWarmCount(model.warmCount());
-        setWarmType(model.warmType());
+        setWarmType(model.warmTypeAsString());
         setEnableZoneAwareness(model.zoneAwarenessEnabled());
         setInstanceCount(model.instanceCount());
-        setInstanceType(model.instanceType());
+        setInstanceType(model.instanceTypeAsString());
 
         setZoneAwarenessConfiguration(null);
         if (model.zoneAwarenessConfig() != null) {
