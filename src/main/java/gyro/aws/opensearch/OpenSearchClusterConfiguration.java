@@ -72,8 +72,6 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     /**
      * The instance type for the OpenSearch domain cluster, e.g. ``m7g.large.search``. Defaults to ``m4.large.search``.
      * See `Supported instance types <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html>`_.
-     * The value is passed to AWS as a string and validated by the service, so instance families not yet present in the
-     * SDK enum (such as ``m7g`` and ``m8g``) are supported.
      */
     @Updatable
     public String getInstanceType() {
@@ -112,8 +110,6 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     /**
      * The instance type for the dedicated master nodes, e.g. ``m7g.large.search``. Defaults to ``m4.large.search``.
      * See `Supported instance types <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/supported-instance-types.html>`_.
-     * The value is passed to AWS as a string and validated by the service, so instance families not yet present in the
-     * SDK enum (such as ``m7g`` and ``m8g``) are supported.
      */
     @Updatable
     @DependsOn("dedicated-master-enabled")
@@ -168,8 +164,6 @@ public class OpenSearchClusterConfiguration extends Diffable implements Copyable
     /**
      * The instance type for warm nodes, e.g. ``ultrawarm1.medium.search``. Defaults to ``ultrawarm1.medium.search``.
      * See `UltraWarm storage <https://docs.aws.amazon.com/opensearch-service/latest/developerguide/ultrawarm.html>`_.
-     * The value is passed to AWS as a string and validated by the service, so instance types not yet present in the
-     * SDK enum are supported.
      */
     @Updatable
     @DependsOn("enable-warm")
