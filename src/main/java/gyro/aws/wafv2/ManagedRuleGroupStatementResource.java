@@ -95,8 +95,6 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
 
     /**
      * The scope down statement for the managed rule group.
-     *
-     * @subresource gyro.aws.wafv2.StatementResource
      */
     public StatementResource getScopeDownStatement() {
         return scopeDownStatement;

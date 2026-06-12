@@ -30,9 +30,9 @@ public class EksNodegroupScalingConfig extends Diffable implements Copyable<Node
     private Integer minSize;
 
     /**
-     * The current number of worker nodes that the managed node group should maintain. Defaults to ``2``. Can be between ``1`` to ``100``.
+     * The current number of worker nodes that the managed node group should maintain. Defaults to ``2``. Can be between ``0`` to ``100``.
      */
-    @Range(min = 1, max = 100)
+    @Range(min = 0, max = 100)
     @Updatable
     public Integer getDesiredSize() {
         if (desiredSize == null) {
@@ -60,9 +60,9 @@ public class EksNodegroupScalingConfig extends Diffable implements Copyable<Node
     }
 
     /**
-     * The minimum number of worker nodes that the managed node group can scale in to. Defaults to ``1``. Can be between ``1`` to ``100``.
+     * The minimum number of worker nodes that the managed node group can scale in to. Defaults to ``1``. Can be between ``0`` to ``100``.
      */
-    @Range(min = 1, max = 100)
+    @Range(min = 0, max = 100)
     @Updatable
     public Integer getMinSize() {
         return minSize;

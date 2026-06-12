@@ -300,9 +300,7 @@ public class RuleGroupResource extends WafTaggableResource implements Copyable<R
      *
      * @subresource gyro.aws.wafv2.RuleResource
      */
-    @Required
     @Updatable
-    @CollectionMax(10)
     public Set<RuleResource> getRule() {
         if (rule == null) {
             rule = new HashSet<>();
