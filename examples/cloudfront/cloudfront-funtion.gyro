@@ -8,3 +8,24 @@ aws::cloudfront-function cloudfront-function
         comment: "test-function"
     end
 end
+aws::cloudfront-key-value-store my-kvs
+    name: "kvs-example-1"
+    comment: "Sample KV Store"
+
+    key-values: {
+        "key-1": "val-1",
+        "key-2": "val-2",
+        "foo": "bar"
+    }
+end
+aws::cloudfront-function cloudfront-function-2
+    name: "cloudfront-function-example-function-2"
+
+    content-file-path: "example-function.js"
+
+    config
+        runtime: "cloudfront-js-2.0"
+        comment: "test-function-2"
+        key-value-store-associations: [$(aws::cloudfront-key-value-store my-kvs)]
+    end
+end

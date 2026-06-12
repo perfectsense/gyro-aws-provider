@@ -61,6 +61,7 @@ import software.amazon.awssdk.services.cloudfront.model.UpdateFunctionResponse;
  *     config
  *         runtime: "cloudfront-js-1.0"
  *         comment: "test-function"
+ *         key-value-store-associations: [$(aws::cloudfront-key-value-store my-kvs)]
  *     end
  * end
  */
