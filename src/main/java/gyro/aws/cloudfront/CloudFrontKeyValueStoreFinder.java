@@ -16,31 +16,39 @@
 
 package gyro.aws.cloudfront;
 
-import gyro.aws.AwsFinder;
-import gyro.core.Type;
-import gyro.core.validation.Required;
-import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
-import software.amazon.awssdk.services.cloudfront.model.DescribeKeyValueStoreRequest;
-import software.amazon.awssdk.services.cloudfront.model.ListKeyValueStoresRequest;
-import software.amazon.awssdk.services.cloudfront.model.ListKeyValueStoresResponse;
-import software.amazon.awssdk.services.cloudfront.model.KeyValueStore;
-import software.amazon.awssdk.services.cloudfront.model.NoSuchResourceException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import gyro.aws.AwsFinder;
+import gyro.core.Type;
+import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
+import software.amazon.awssdk.services.cloudfront.model.DescribeKeyValueStoreRequest;
+import software.amazon.awssdk.services.cloudfront.model.KeyValueStore;
+import software.amazon.awssdk.services.cloudfront.model.ListKeyValueStoresRequest;
+import software.amazon.awssdk.services.cloudfront.model.ListKeyValueStoresResponse;
+import software.amazon.awssdk.services.cloudfront.model.NoSuchResourceException;
+
+/**
+ * Query cloudfront key value store.
+ *
+ * Example
+ * -------
+ *
+ * .. code-block:: gyro
+ *
+ *    cloudfront-key-value-store: $(external-query aws::cloudfront-key-value-store { name: "kvs-example" })
+ */
 @Type("cloudfront-key-value-store")
 public class CloudFrontKeyValueStoreFinder extends AwsFinder<CloudFrontClient, KeyValueStore, CloudFrontKeyValueStoreResource> {
 
     private String name;
 
     /**
-     * The name of the Key Value Store.
+     * The name of the key value store.
      */
-    @Required
     public String getName() {
         return name;
     }

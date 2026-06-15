@@ -17,6 +17,7 @@
 package gyro.aws.cloudfront;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -35,7 +36,6 @@ import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
-import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CreateKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.CreateKeyValueStoreResponse;
@@ -96,9 +96,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
     private String id;
     private String arn;
     private String status;
-    // ETag for CloudFront KeyValueStore configuration (name/comment/status)
     private String etag;
-    // ETag for CloudFrontKeyValueStore key/value contents
     private String kvsEtag;
 
     /**
@@ -185,7 +183,6 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
      * The status of the key value store.
      */
     @Output
-    @ValidStrings({ "PROVISIONING", "READY", "DELETING" })
     public String getStatus() {
         return status;
     }
@@ -302,7 +299,6 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
 
         state.save();
 
-        // Create key-value pairs
         if (!getKeyValues().isEmpty()) {
             for (Map.Entry<String, String> entry : getKeyValues().entrySet()) {
                 PutKeyResponse putResponse = kvsClient.putKey(
@@ -343,7 +339,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
             Map<String, String> currentKeyValues = currentResource.getKeyValues();
             Map<String, String> newKeyValues = getKeyValues();
 
-            Set<String> deleteKeys = currentKeyValues.keySet();
+            Set<String> deleteKeys = new HashSet<>(currentKeyValues.keySet());
             deleteKeys.removeAll(newKeyValues.keySet());
             UpdateKeysResponse updateResponse = kvsClient.updateKeys(r -> r.puts(newKeyValues.entrySet().stream()
                     .map(k -> PutKeyRequestListItem.builder().key(k.getKey()).value(k.getValue()).build())
