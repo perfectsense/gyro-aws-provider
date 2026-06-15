@@ -1,7 +1,7 @@
 aws::wafv2-web-acl web-acl-managed-rule-group-example
     name: "web-acl-managed-rule-group-example"
     description: "web-acl-managed-rule-group-example-desc"
-    scope: "CLOUDFRONT"
+    scope: "REGIONAL"
     default-action: "BLOCK"
 
     visibility-config
@@ -42,8 +42,10 @@ aws::wafv2-web-acl web-acl-managed-rule-group-example
                         end
 
                         response-inspection
-                            body-contains-success-strings: [ "Account creation successful" ]
-                            body-contains-failure-strings: [ "Request failed" ]
+                            body-contains
+                                success-strings: [ "Account creation successful" ]
+                                failure-strings: [ "Request failed" ]
+                            end
                         end
                     end
                 end

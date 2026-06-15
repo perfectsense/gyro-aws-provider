@@ -22,11 +22,13 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesAntiDDoSRuleSet;
+import software.amazon.awssdk.services.wafv2.model.SensitivityToAct;
 
-public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements Copyable<AWSManagedRulesAntiDDoSRuleSet> {
+public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable
+    implements Copyable<AWSManagedRulesAntiDDoSRuleSet> {
 
     private ClientSideActionConfigResource clientSideActionConfig;
-    private String sensitivityToBlock;
+    private SensitivityToAct sensitivityToBlock;
 
     /**
      * Configuration for handling requests during a DDoS attack.
@@ -46,13 +48,13 @@ public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements 
     /**
      * Sensitivity level that the rule group uses when matching against DDoS suspicion labels.
      */
-    @ValidStrings({ "LOW", "MEDIUM", "HIGH" })
     @Updatable
-    public String getSensitivityToBlock() {
+    @ValidStrings({ "LOW", "MEDIUM", "HIGH" })
+    public SensitivityToAct getSensitivityToBlock() {
         return sensitivityToBlock;
     }
 
-    public void setSensitivityToBlock(String sensitivityToBlock) {
+    public void setSensitivityToBlock(SensitivityToAct sensitivityToBlock) {
         this.sensitivityToBlock = sensitivityToBlock;
     }
 
@@ -70,18 +72,15 @@ public class AwsManagedRulesAntiDDoSRuleSetResource extends Diffable implements 
             setClientSideActionConfig(resource);
         }
 
-        setSensitivityToBlock(awsManagedRulesAntiDDoSRuleSet.sensitivityToBlockAsString());
+        setSensitivityToBlock(awsManagedRulesAntiDDoSRuleSet.sensitivityToBlock());
     }
 
     AWSManagedRulesAntiDDoSRuleSet toAwsManagedRulesAntiDDoSRuleSet() {
-        AWSManagedRulesAntiDDoSRuleSet.Builder builder = AWSManagedRulesAntiDDoSRuleSet.builder();
+        AWSManagedRulesAntiDDoSRuleSet.Builder builder = AWSManagedRulesAntiDDoSRuleSet.builder()
+            .sensitivityToBlock(getSensitivityToBlock());
 
         if (getClientSideActionConfig() != null) {
             builder.clientSideActionConfig(getClientSideActionConfig().toClientSideActionConfig());
-        }
-
-        if (getSensitivityToBlock() != null) {
-            builder.sensitivityToBlock(getSensitivityToBlock());
         }
 
         return builder.build();

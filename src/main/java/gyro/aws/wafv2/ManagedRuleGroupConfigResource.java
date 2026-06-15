@@ -16,8 +16,16 @@
 
 package gyro.aws.wafv2;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
+import gyro.core.resource.Updatable;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.ManagedRuleGroupConfig;
 
 public class ManagedRuleGroupConfigResource extends Diffable implements Copyable<ManagedRuleGroupConfig> {
@@ -32,13 +40,12 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesACFPRuleSetResource
      */
+    @Updatable
     public AwsManagedRulesACFPRuleSetResource getAwsManagedRulesAcfpRuleSet() {
         return awsManagedRulesAcfpRuleSet;
     }
 
-    public void setAwsManagedRulesAcfpRuleSet(
-        AwsManagedRulesACFPRuleSetResource awsManagedRulesAcfpRuleSet
-    ) {
+    public void setAwsManagedRulesAcfpRuleSet(AwsManagedRulesACFPRuleSetResource awsManagedRulesAcfpRuleSet) {
         this.awsManagedRulesAcfpRuleSet = awsManagedRulesAcfpRuleSet;
     }
 
@@ -47,13 +54,13 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesAntiDDoSRuleSetResource
      */
+    @Updatable
     public AwsManagedRulesAntiDDoSRuleSetResource getAwsManagedRulesAntiDdosRuleSet() {
         return awsManagedRulesAntiDdosRuleSet;
     }
 
     public void setAwsManagedRulesAntiDdosRuleSet(
-        AwsManagedRulesAntiDDoSRuleSetResource awsManagedRulesAntiDDoSRuleSet
-    ) {
+        AwsManagedRulesAntiDDoSRuleSetResource awsManagedRulesAntiDDoSRuleSet) {
         this.awsManagedRulesAntiDdosRuleSet = awsManagedRulesAntiDDoSRuleSet;
     }
 
@@ -62,13 +69,12 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesATPRuleSetResource
      */
+    @Updatable
     public AwsManagedRulesATPRuleSetResource getAwsManagedRulesAtpRuleSet() {
         return awsManagedRulesAtpRuleSet;
     }
 
-    public void setAwsManagedRulesAtpRuleSet(
-        AwsManagedRulesATPRuleSetResource awsManagedRulesAtpRuleSet
-    ) {
+    public void setAwsManagedRulesAtpRuleSet(AwsManagedRulesATPRuleSetResource awsManagedRulesAtpRuleSet) {
         this.awsManagedRulesAtpRuleSet = awsManagedRulesAtpRuleSet;
     }
 
@@ -77,19 +83,34 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
      *
      * @subresource gyro.aws.wafv2.AwsManagedRulesBotControlRuleSetResource
      */
+    @Updatable
     public AwsManagedRulesBotControlRuleSetResource getAwsManagedRulesBotControlRuleSet() {
         return awsManagedRulesBotControlRuleSet;
     }
 
     public void setAwsManagedRulesBotControlRuleSet(
-        AwsManagedRulesBotControlRuleSetResource awsManagedRulesBotControlRuleSet
-    ) {
+        AwsManagedRulesBotControlRuleSetResource awsManagedRulesBotControlRuleSet) {
         this.awsManagedRulesBotControlRuleSet = awsManagedRulesBotControlRuleSet;
     }
 
     @Override
     public String primaryKey() {
-        return "";
+        List<String> configured = new ArrayList<>();
+
+        if (getAwsManagedRulesAcfpRuleSet() != null) {
+            configured.add("acfp rule set");
+        }
+        if (getAwsManagedRulesAntiDdosRuleSet() != null) {
+            configured.add("anti-ddos rule set");
+        }
+        if (getAwsManagedRulesAtpRuleSet() != null) {
+            configured.add("atp rule set");
+        }
+        if (getAwsManagedRulesBotControlRuleSet() != null) {
+            configured.add("bot control rule set");
+        }
+
+        return String.format("with config - '%s'", String.join(", ", configured));
     }
 
     @Override
@@ -117,7 +138,8 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
 
         setAwsManagedRulesBotControlRuleSet(null);
         if (managedRuleGroupConfig.awsManagedRulesBotControlRuleSet() != null) {
-            AwsManagedRulesBotControlRuleSetResource rule = newSubresource(AwsManagedRulesBotControlRuleSetResource.class);
+            AwsManagedRulesBotControlRuleSetResource rule =
+                newSubresource(AwsManagedRulesBotControlRuleSetResource.class);
             rule.copyFrom(managedRuleGroupConfig.awsManagedRulesBotControlRuleSet());
             setAwsManagedRulesBotControlRuleSet(rule);
         }
@@ -147,5 +169,28 @@ public class ManagedRuleGroupConfigResource extends Diffable implements Copyable
         }
 
         return builder.build();
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        long count = Stream.of(
+                getAwsManagedRulesAcfpRuleSet(),
+                getAwsManagedRulesAntiDdosRuleSet(),
+                getAwsManagedRulesAtpRuleSet(),
+                getAwsManagedRulesBotControlRuleSet())
+            .filter(Objects::nonNull)
+            .count();
+
+        if (count != 1) {
+            errors.add(new ValidationError(
+                this,
+                null,
+                "Exactly one of [ 'aws-managed-rules-acfp-rule-set', 'aws-managed-rules-anti-ddos-rule-set', "
+                    + "'aws-managed-rules-atp-rule-set', 'aws-managed-rules-bot-control-rule-set' ] is required"));
+        }
+
+        return errors;
     }
 }

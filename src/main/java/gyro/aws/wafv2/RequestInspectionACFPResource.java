@@ -27,16 +27,13 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.wafv2.model.AddressField;
-import software.amazon.awssdk.services.wafv2.model.EmailField;
-import software.amazon.awssdk.services.wafv2.model.PasswordField;
+import software.amazon.awssdk.services.wafv2.model.PayloadType;
 import software.amazon.awssdk.services.wafv2.model.PhoneNumberField;
 import software.amazon.awssdk.services.wafv2.model.RequestInspectionACFP;
-import software.amazon.awssdk.services.wafv2.model.PayloadType;
-import software.amazon.awssdk.services.wafv2.model.UsernameField;
 
 public class RequestInspectionACFPResource extends Diffable implements Copyable<RequestInspectionACFP> {
 
-    private String payloadType;
+    private PayloadType payloadType;
     private String usernameField;
     private String passwordField;
     private String emailField;
@@ -49,11 +46,11 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     @Required
     @Updatable
     @ValidStrings({ "JSON", "FORM_ENCODED" })
-    public String getPayloadType() {
+    public PayloadType getPayloadType() {
         return payloadType;
     }
 
-    public void setPayloadType(String payloadType) {
+    public void setPayloadType(PayloadType payloadType) {
         this.payloadType = payloadType;
     }
 
@@ -101,6 +98,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
         if (phoneNumberFields == null) {
             phoneNumberFields = new ArrayList<>();
         }
+
         return phoneNumberFields;
     }
 
@@ -116,6 +114,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
         if (addressFields == null) {
             addressFields = new ArrayList<>();
         }
+
         return addressFields;
     }
 
@@ -130,7 +129,7 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
 
     @Override
     public void copyFrom(RequestInspectionACFP requestInspectionACFP) {
-        setPayloadType(requestInspectionACFP.payloadType() != null ? requestInspectionACFP.payloadType().toString() : null);
+        setPayloadType(requestInspectionACFP.payloadType());
 
         setUsernameField(requestInspectionACFP.usernameField() != null
             ? requestInspectionACFP.usernameField().identifier()
@@ -160,28 +159,19 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
     }
 
     RequestInspectionACFP toRequestInspectionACFP() {
-        RequestInspectionACFP.Builder builder = RequestInspectionACFP.builder();
-
-        if (getPayloadType() != null) {
-            builder.payloadType(PayloadType.fromValue(getPayloadType()));
-        }
+        RequestInspectionACFP.Builder builder = RequestInspectionACFP.builder()
+            .payloadType(getPayloadType());
 
         if (getUsernameField() != null) {
-            builder.usernameField(UsernameField.builder()
-                .identifier(getUsernameField())
-                .build());
+            builder.usernameField(r -> r.identifier(getUsernameField()));
         }
 
         if (getPasswordField() != null) {
-            builder.passwordField(PasswordField.builder()
-                .identifier(getPasswordField())
-                .build());
+            builder.passwordField(r -> r.identifier(getPasswordField()));
         }
 
         if (getEmailField() != null) {
-            builder.emailField(EmailField.builder()
-                .identifier(getEmailField())
-                .build());
+            builder.emailField(r -> r.identifier(getEmailField()));
         }
 
         if (!getPhoneNumberFields().isEmpty()) {
@@ -215,19 +205,19 @@ public class RequestInspectionACFPResource extends Diffable implements Copyable<
             errors.add(new ValidationError(
                 this,
                 "username-field",
-                "The param 'username-field' must not exceed 512 characters in length."));
+                "'username-field' must not exceed 512 characters in length."));
         }
         if (getPasswordField() != null && getPasswordField().length() > 512) {
             errors.add(new ValidationError(
                 this,
                 "password-field",
-                "The param 'password-field' must not exceed 512 characters in length."));
+                "'password-field' must not exceed 512 characters in length."));
         }
         if (getEmailField() != null && getEmailField().length() > 512) {
             errors.add(new ValidationError(
                 this,
                 "email-field",
-                "The param 'email-field' must not exceed 512 characters in length."));
+                "'email-field' must not exceed 512 characters in length."));
         }
 
         for (String phone : getPhoneNumberFields()) {

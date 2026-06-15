@@ -18,6 +18,7 @@ package gyro.aws.wafv2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
@@ -26,12 +27,14 @@ import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.ClientSideAction;
 import software.amazon.awssdk.services.wafv2.model.Regex;
+import software.amazon.awssdk.services.wafv2.model.SensitivityToAct;
+import software.amazon.awssdk.services.wafv2.model.UsageOfAction;
 
 public class ClientSideActionResource extends Diffable implements Copyable<ClientSideAction> {
 
     private List<RegexResource> exemptUriRegularExpressions;
-    private String sensitivity;
-    private String usageOfAction;
+    private SensitivityToAct sensitivity;
+    private UsageOfAction usageOfAction;
 
     /**
      * List of URI patterns that are exempt from the client-side action.
@@ -55,11 +58,11 @@ public class ClientSideActionResource extends Diffable implements Copyable<Clien
      */
     @Updatable
     @ValidStrings({ "LOW", "MEDIUM", "HIGH" })
-    public String getSensitivity() {
+    public SensitivityToAct getSensitivity() {
         return sensitivity;
     }
 
-    public void setSensitivity(String sensitivity) {
+    public void setSensitivity(SensitivityToAct sensitivity) {
         this.sensitivity = sensitivity;
     }
 
@@ -69,11 +72,11 @@ public class ClientSideActionResource extends Diffable implements Copyable<Clien
     @Required
     @Updatable
     @ValidStrings({ "ENABLED", "DISABLED" })
-    public String getUsageOfAction() {
+    public UsageOfAction getUsageOfAction() {
         return usageOfAction;
     }
 
-    public void setUsageOfAction(String usageOfAction) {
+    public void setUsageOfAction(UsageOfAction usageOfAction) {
         this.usageOfAction = usageOfAction;
     }
 
@@ -93,27 +96,19 @@ public class ClientSideActionResource extends Diffable implements Copyable<Clien
             }
         }
 
-        setSensitivity(clientSideAction.sensitivityAsString());
-        setUsageOfAction(clientSideAction.usageOfActionAsString());
+        setSensitivity(clientSideAction.sensitivity());
+        setUsageOfAction(clientSideAction.usageOfAction());
     }
 
     ClientSideAction toClientSideAction() {
-        ClientSideAction.Builder builder = ClientSideAction.builder();
+        ClientSideAction.Builder builder = ClientSideAction.builder()
+            .sensitivity(getSensitivity())
+            .usageOfAction(getUsageOfAction());
 
         if (!getExemptUriRegularExpressions().isEmpty()) {
-            List<Regex> regexList = new ArrayList<>();
-            for (RegexResource r : getExemptUriRegularExpressions()) {
-                regexList.add(r.toRegex());
-            }
-            builder.exemptUriRegularExpressions(regexList);
-        }
-
-        if (getSensitivity() != null) {
-            builder.sensitivity(getSensitivity());
-        }
-
-        if (getUsageOfAction() != null) {
-            builder.usageOfAction(getUsageOfAction());
+            builder.exemptUriRegularExpressions(getExemptUriRegularExpressions().stream()
+                .map(RegexResource::toRegex)
+                .collect(Collectors.toList()));
         }
 
         return builder.build();

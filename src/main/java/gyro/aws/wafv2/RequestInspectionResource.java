@@ -26,14 +26,12 @@ import gyro.core.resource.Updatable;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
 import gyro.core.validation.ValidationError;
-import software.amazon.awssdk.services.wafv2.model.PasswordField;
-import software.amazon.awssdk.services.wafv2.model.RequestInspection;
 import software.amazon.awssdk.services.wafv2.model.PayloadType;
-import software.amazon.awssdk.services.wafv2.model.UsernameField;
+import software.amazon.awssdk.services.wafv2.model.RequestInspection;
 
 public class RequestInspectionResource extends Diffable implements Copyable<RequestInspection> {
 
-    private String payloadType;
+    private PayloadType payloadType;
     private String usernameField;
     private String passwordField;
 
@@ -43,11 +41,11 @@ public class RequestInspectionResource extends Diffable implements Copyable<Requ
     @Required
     @Updatable
     @ValidStrings({ "JSON", "FORM_ENCODED" })
-    public String getPayloadType() {
+    public PayloadType getPayloadType() {
         return payloadType;
     }
 
-    public void setPayloadType(String payloadType) {
+    public void setPayloadType(PayloadType payloadType) {
         this.payloadType = payloadType;
     }
 
@@ -84,7 +82,7 @@ public class RequestInspectionResource extends Diffable implements Copyable<Requ
 
     @Override
     public void copyFrom(RequestInspection requestInspection) {
-        setPayloadType(requestInspection.payloadType() != null ? requestInspection.payloadType().toString() : null);
+        setPayloadType(requestInspection.payloadType());
 
         setUsernameField(requestInspection.usernameField() != null
             ? requestInspection.usernameField().identifier()
@@ -96,20 +94,14 @@ public class RequestInspectionResource extends Diffable implements Copyable<Requ
     }
 
     RequestInspection toRequestInspection() {
-        RequestInspection.Builder builder = RequestInspection.builder();
+        RequestInspection.Builder builder = RequestInspection.builder()
+            .payloadType(getPayloadType());
 
-        if (getPayloadType() != null) {
-            builder.payloadType(PayloadType.fromValue(getPayloadType()));
-        }
         if (getUsernameField() != null) {
-            builder.usernameField(UsernameField.builder()
-                .identifier(getUsernameField())
-                .build());
+            builder.usernameField(r -> r.identifier(getUsernameField()));
         }
         if (getPasswordField() != null) {
-            builder.passwordField(PasswordField.builder()
-                .identifier(getPasswordField())
-                .build());
+            builder.passwordField(r -> r.identifier(getPasswordField()));
         }
 
         return builder.build();
@@ -123,13 +115,13 @@ public class RequestInspectionResource extends Diffable implements Copyable<Requ
             errors.add(new ValidationError(
                 this,
                 "username-field",
-                "The param 'username-field' must not exceed 512 characters in length."));
+                "'username-field' must not exceed 512 characters in length."));
         }
         if (getPasswordField() != null && getPasswordField().length() > 512) {
             errors.add(new ValidationError(
                 this,
                 "password-field",
-                "The param 'password-field' must not exceed 512 characters in length."));
+                "'password-field' must not exceed 512 characters in length."));
         }
 
         return errors;

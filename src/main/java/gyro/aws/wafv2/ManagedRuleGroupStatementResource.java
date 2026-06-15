@@ -164,7 +164,8 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
             setManagedRuleGroupConfigs(managedRuleGroupStatement.managedRuleGroupConfigs()
                 .stream()
                 .map(c -> {
-                    ManagedRuleGroupConfigResource managedRuleGroupConfigResource = newSubresource(ManagedRuleGroupConfigResource.class);
+                    ManagedRuleGroupConfigResource managedRuleGroupConfigResource =
+                        newSubresource(ManagedRuleGroupConfigResource.class);
                     managedRuleGroupConfigResource.copyFrom(c);
                     return managedRuleGroupConfigResource;
                 })
@@ -197,11 +198,9 @@ public class ManagedRuleGroupStatementResource extends Diffable implements Copya
         }
 
         if (!getManagedRuleGroupConfigs().isEmpty()) {
-            builder = builder.managedRuleGroupConfigs(
-                getManagedRuleGroupConfigs()
-                    .stream()
-                    .map(ManagedRuleGroupConfigResource::toManagedRuleGroupConfig)
-                    .collect(Collectors.toList()));
+            builder = builder.managedRuleGroupConfigs(getManagedRuleGroupConfigs().stream()
+                .map(ManagedRuleGroupConfigResource::toManagedRuleGroupConfig)
+                .collect(Collectors.toList()));
         }
 
         return builder.build();

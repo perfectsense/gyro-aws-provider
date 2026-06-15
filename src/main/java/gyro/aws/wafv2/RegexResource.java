@@ -44,7 +44,7 @@ public class RegexResource extends Diffable implements Copyable<Regex> {
 
     @Override
     public String primaryKey() {
-        return "";
+        return getRegexString();
     }
 
     @Override
@@ -53,9 +53,7 @@ public class RegexResource extends Diffable implements Copyable<Regex> {
     }
 
     Regex toRegex() {
-        return Regex.builder()
-            .regexString(getRegexString())
-            .build();
+        return Regex.builder().regexString(getRegexString()).build();
     }
 
     @Override
@@ -66,7 +64,8 @@ public class RegexResource extends Diffable implements Copyable<Regex> {
             errors.add(new ValidationError(this, null, "The param 'regex-string' must be at least 1 character long."));
         }
         if (getRegexString() != null && getRegexString().length() > 512) {
-            errors.add(new ValidationError(this, null, "The param 'regex-string' must not exceed 512 characters in length."));
+            errors.add(
+                new ValidationError(this, null, "The param 'regex-string' must not exceed 512 characters in length."));
         }
 
         return errors;

@@ -24,9 +24,10 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.wafv2.model.AWSManagedRulesBotControlRuleSet;
 import software.amazon.awssdk.services.wafv2.model.InspectionLevel;
 
-public class AwsManagedRulesBotControlRuleSetResource extends Diffable implements Copyable<AWSManagedRulesBotControlRuleSet> {
+public class AwsManagedRulesBotControlRuleSetResource extends Diffable
+    implements Copyable<AWSManagedRulesBotControlRuleSet> {
 
-    private String inspectionLevel;
+    private InspectionLevel inspectionLevel;
     private Boolean enableMachineLearning;
 
     /**
@@ -35,16 +36,16 @@ public class AwsManagedRulesBotControlRuleSetResource extends Diffable implement
     @Required
     @Updatable
     @ValidStrings({ "COMMON", "TARGETED" })
-    public String getInspectionLevel() {
+    public InspectionLevel getInspectionLevel() {
         return inspectionLevel;
     }
 
-    public void setInspectionLevel(String inspectionLevel) {
+    public void setInspectionLevel(InspectionLevel inspectionLevel) {
         this.inspectionLevel = inspectionLevel;
     }
 
     /**
-     * Whether to use machine learning (ML) to analyze your web traffic for bot-related activity.
+     * When set to ``true``, use machine learning (ML) to analyze your web traffic for bot-related activity.
      */
     @Updatable
     public Boolean getEnableMachineLearning() {
@@ -62,16 +63,14 @@ public class AwsManagedRulesBotControlRuleSetResource extends Diffable implement
 
     @Override
     public void copyFrom(AWSManagedRulesBotControlRuleSet awsManagedRulesBotControlRuleSet) {
-        setInspectionLevel(awsManagedRulesBotControlRuleSet.inspectionLevel() != null ? awsManagedRulesBotControlRuleSet.inspectionLevel().toString() : null);
+        setInspectionLevel(awsManagedRulesBotControlRuleSet.inspectionLevel());
         setEnableMachineLearning(awsManagedRulesBotControlRuleSet.enableMachineLearning());
     }
 
     AWSManagedRulesBotControlRuleSet toAwsManagedRulesBotControlRuleSet() {
-        AWSManagedRulesBotControlRuleSet.Builder builder = AWSManagedRulesBotControlRuleSet.builder();
+        AWSManagedRulesBotControlRuleSet.Builder builder = AWSManagedRulesBotControlRuleSet.builder()
+            .inspectionLevel(getInspectionLevel());
 
-        if (getInspectionLevel() != null) {
-            builder.inspectionLevel(InspectionLevel.fromValue(getInspectionLevel()));
-        }
         if (getEnableMachineLearning() != null) {
             builder.enableMachineLearning(getEnableMachineLearning());
         }

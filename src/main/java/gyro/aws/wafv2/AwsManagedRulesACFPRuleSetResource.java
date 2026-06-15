@@ -62,7 +62,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
     }
 
     /**
-     * Whether regex is allowed in the registration and creation paths.
+     * When set to ``true``, regex is allowed in the registration and creation paths.
      */
     @Updatable
     public Boolean getEnableRegexInPath() {
@@ -115,7 +115,8 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
 
         setRequestInspection(null);
         if (awsManagedRulesACFPRuleSet.requestInspection() != null) {
-            RequestInspectionACFPResource requestInspectionACFPResource = newSubresource(RequestInspectionACFPResource.class);
+            RequestInspectionACFPResource requestInspectionACFPResource =
+                newSubresource(RequestInspectionACFPResource.class);
             requestInspectionACFPResource.copyFrom(awsManagedRulesACFPRuleSet.requestInspection());
             setRequestInspection(requestInspectionACFPResource);
         }
@@ -128,7 +129,7 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
         }
     }
 
-    public AWSManagedRulesACFPRuleSet toAwsManagedRulesACFPRuleSet() {
+    AWSManagedRulesACFPRuleSet toAwsManagedRulesACFPRuleSet() {
         AWSManagedRulesACFPRuleSet.Builder builder = AWSManagedRulesACFPRuleSet.builder()
             .creationPath(getCreationPath())
             .registrationPagePath(getRegistrationPagePath());
@@ -153,10 +154,17 @@ public class AwsManagedRulesACFPRuleSetResource extends Diffable implements Copy
         List<ValidationError> errors = new ArrayList<>();
 
         if (getCreationPath() != null && getCreationPath().length() > 256) {
-            errors.add(new ValidationError(this, null, "The param 'creation-path' must not exceed 256 characters in length."));
+            errors.add(new ValidationError(
+                this,
+                "creation-path",
+                "'creation-path' must not exceed 256 characters in length."));
         }
+
         if (getRegistrationPagePath() != null && getRegistrationPagePath().length() > 256) {
-            errors.add(new ValidationError(this, null, "The param 'registration-path' must not exceed 256 characters in length."));
+            errors.add(new ValidationError(
+                this,
+                "registration-page-path",
+                "'registration-page-path' must not exceed 256 characters in length."));
         }
 
         return errors;
