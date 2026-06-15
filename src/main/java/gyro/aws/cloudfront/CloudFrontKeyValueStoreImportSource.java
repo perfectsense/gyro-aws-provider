@@ -23,19 +23,6 @@ import gyro.core.validation.ValidStrings;
 import software.amazon.awssdk.services.cloudfront.model.ImportSource;
 import software.amazon.awssdk.services.cloudfront.model.ImportSourceType;
 
-/**
- * The import source for importing key-value pairs from S3.
- *
- * Example
- * -------
- *
- * .. code-block:: gyro
- *
- *     import-source
- *         source-type: "S3"
- *         source-arn: "arn:aws:s3:::my-bucket/kvs-data.json"
- *     end
- */
 public class CloudFrontKeyValueStoreImportSource extends Diffable implements Copyable<ImportSource> {
 
     private ImportSourceType sourceType;

@@ -56,7 +56,7 @@ public class CloudFrontFunctionConfig extends Diffable implements Copyable<Funct
     /**
      * The runtime environment for the function. Defaults to ``cloudfront-js-1.0``.
      */
-    @ValidStrings({"cloudfront-js-1.0", "cloudfront-js-2.0"})
+    @ValidStrings({ "cloudfront-js-1.0", "cloudfront-js-2.0" })
     @Updatable
     public FunctionRuntime getRuntime() {
         if (runtime == null) {
@@ -137,11 +137,6 @@ public class CloudFrontFunctionConfig extends Diffable implements Copyable<Funct
         if (!getKeyValueStoreAssociations().isEmpty() && !FunctionRuntime.CLOUDFRONT_JS_2_0.equals(getRuntime())) {
             errors.add(new ValidationError(this, "key-value-store-associations",
                 "Key-Value Store associations require runtime 'cloudfront-js-2.0'"));
-        }
-
-        if (getKeyValueStoreAssociations().size() > 1) {
-            errors.add(new ValidationError(this, "key-value-store-associations",
-                "Only one Key-Value Store can be associated with a CloudFront Function"));
         }
 
         return errors;

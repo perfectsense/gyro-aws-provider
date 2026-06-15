@@ -16,6 +16,12 @@
 
 package gyro.aws.cloudfront;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import gyro.aws.AwsResource;
 import gyro.aws.Copyable;
 import gyro.core.GyroUI;
@@ -30,34 +36,26 @@ import gyro.core.scope.State;
 import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
 import gyro.core.validation.ValidStrings;
-
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CreateKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.CreateKeyValueStoreResponse;
+import software.amazon.awssdk.services.cloudfront.model.DeleteKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.DescribeKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.DescribeKeyValueStoreResponse;
 import software.amazon.awssdk.services.cloudfront.model.KeyValueStore;
-import software.amazon.awssdk.services.cloudfront.model.UpdateKeyValueStoreRequest;
-import software.amazon.awssdk.services.cloudfront.model.DeleteKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.NoSuchResourceException;
-
+import software.amazon.awssdk.services.cloudfront.model.UpdateKeyValueStoreRequest;
 import software.amazon.awssdk.services.cloudfront.model.UpdateKeyValueStoreResponse;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.CloudFrontKeyValueStoreClient;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.DeleteKeyRequestListItem;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.GetKeyResponse;
-import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysResponseListItem;
-import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyRequest;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysRequest;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysResponse;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.ListKeysResponseListItem;
+import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyRequest;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyRequestListItem;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.PutKeyResponse;
 import software.amazon.awssdk.services.cloudfrontkeyvaluestore.model.UpdateKeysResponse;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates a CloudFront KeyValueStore.
@@ -187,7 +185,7 @@ public class CloudFrontKeyValueStoreResource extends AwsResource implements Copy
      * The status of the key value store.
      */
     @Output
-    @ValidStrings({"PROVISIONING", "READY", "DELETING"})
+    @ValidStrings({ "PROVISIONING", "READY", "DELETING" })
     public String getStatus() {
         return status;
     }
