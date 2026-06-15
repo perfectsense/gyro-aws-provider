@@ -20,6 +20,7 @@ import gyro.aws.Copyable;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
 import gyro.core.validation.ValidStrings;
+import software.amazon.awssdk.services.cloudfront.model.MinimumProtocolVersion;
 import software.amazon.awssdk.services.cloudfront.model.ViewerCertificate;
 
 public class CloudFrontViewerCertificate extends Diffable implements Copyable<ViewerCertificate> {
@@ -27,7 +28,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
     private Boolean cloudfrontDefaultCertificate;
     private String acmCertificateArn;
     private String iamCertificateId;
-    private String minimumProtocolVersion;
+    private MinimumProtocolVersion minimumProtocolVersion;
     private String sslSupportMethod;
 
     /**
@@ -74,16 +75,17 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Minimum SSL protocol.
      */
     @Updatable
-    @ValidStrings({"SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018", "TLSv1.2_2019", "TLSv1.2_2021"})
-    public String getMinimumProtocolVersion() {
+    @ValidStrings({ "SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016", "TLSv1.2_2018", "TLSv1.2_2019", "TLSv1.2_2021",
+        "TLSv1.3_2025", "TLSv1.2_2025" })
+    public MinimumProtocolVersion getMinimumProtocolVersion() {
         if (minimumProtocolVersion == null) {
-            minimumProtocolVersion = "TLSv1";
+            minimumProtocolVersion = MinimumProtocolVersion.TLS_V1;
         }
 
         return minimumProtocolVersion;
     }
 
-    public void setMinimumProtocolVersion(String minimumProtocolVersion) {
+    public void setMinimumProtocolVersion(MinimumProtocolVersion minimumProtocolVersion) {
         this.minimumProtocolVersion = minimumProtocolVersion;
     }
 
@@ -91,9 +93,9 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
      * Whether CloudFront uses a dedicated IP or SNI for serving SSL traffic. There is a significant additional monthly charge for ``vip`.
      */
     @Updatable
-    @ValidStrings({"vip", "sni-only"})
+    @ValidStrings({ "vip", "sni-only" })
     public String getSslSupportMethod() {
-        if (getCloudfrontDefaultCertificate())  {
+        if (getCloudfrontDefaultCertificate()) {
             return null;
         } else if (sslSupportMethod == null) {
             return "sni-only";
@@ -111,7 +113,7 @@ public class CloudFrontViewerCertificate extends Diffable implements Copyable<Vi
         setCloudfrontDefaultCertificate(viewerCertificate.cloudFrontDefaultCertificate());
         setAcmCertificateArn(viewerCertificate.acmCertificateArn());
         setIamCertificateId(viewerCertificate.iamCertificateId());
-        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersionAsString());
+        setMinimumProtocolVersion(viewerCertificate.minimumProtocolVersion());
         setSslSupportMethod(viewerCertificate.sslSupportMethodAsString());
     }
 

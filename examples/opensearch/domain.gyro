@@ -63,6 +63,7 @@ aws::opensearch-domain opensearch-domain-example
 
     cluster-configuration
         enable-zone-awareness: true
+        instance-type: 'm7g.large.search'
         instance-count: 4
 
         zone-awareness-configuration

@@ -169,7 +169,6 @@ public class WebAclResource extends WafTaggableResource implements Copyable<WebA
      *
      * @subresource gyro.aws.wafv2.RuleResource
      */
-    @Required
     @Updatable
     public Set<RuleResource> getRule() {
         if (rule == null) {
