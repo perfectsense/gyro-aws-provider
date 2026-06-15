@@ -29,7 +29,7 @@ public class CloudFrontKeyValueStoreImportSource extends Diffable implements Cop
     private String sourceArn;
 
     /**
-     * The source type of the import source. Currently only "S3" is supported.
+     * The source type of the import source. Currently only ``S3`` is supported.
      */
     @Required
     @ValidStrings("S3")
@@ -42,7 +42,7 @@ public class CloudFrontKeyValueStoreImportSource extends Diffable implements Cop
     }
 
     /**
-     * The Amazon Resource Name (ARN) of the S3 bucket containing the import data.
+     * The ARN of the S3 object containing the import data.
      */
     @Required
     public String getSourceArn() {
@@ -54,17 +54,17 @@ public class CloudFrontKeyValueStoreImportSource extends Diffable implements Cop
     }
 
     @Override
+    public String primaryKey() {
+        return "";
+    }
+
+    @Override
     public void copyFrom(ImportSource model) {
         setSourceType(model.sourceType());
         setSourceArn(model.sourceARN());
     }
 
-    @Override
-    public String primaryKey() {
-        return "";
-    }
-
-    public ImportSource toImportSource() {
+    ImportSource toImportSource() {
         return ImportSource.builder()
             .sourceType(getSourceType())
             .sourceARN(getSourceArn())

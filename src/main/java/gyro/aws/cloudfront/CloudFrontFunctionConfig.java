@@ -29,7 +29,6 @@ import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.model.FunctionConfig;
 import software.amazon.awssdk.services.cloudfront.model.FunctionRuntime;
 import software.amazon.awssdk.services.cloudfront.model.KeyValueStoreAssociation;
-import software.amazon.awssdk.services.cloudfront.model.KeyValueStoreAssociations;
 
 public class CloudFrontFunctionConfig extends Diffable implements Copyable<FunctionConfig> {
 
@@ -71,9 +70,8 @@ public class CloudFrontFunctionConfig extends Diffable implements Copyable<Funct
     }
 
     /**
-     * A list of key value stores to associate with the function.
-     *
-     * @subresource gyro.aws.cloudfront.CloudFrontKeyValueStoreResource
+     * The key value stores to associate with the function. At most one key value store may be associated.
+     * Requires runtime ``cloudfront-js-2.0``.
      */
     @Updatable
     public List<CloudFrontKeyValueStoreResource> getKeyValueStoreAssociations() {
@@ -116,14 +114,9 @@ public class CloudFrontFunctionConfig extends Diffable implements Copyable<Funct
 
         if (!getKeyValueStoreAssociations().isEmpty()) {
             builder.keyValueStoreAssociations(
-                KeyValueStoreAssociations.builder()
-                    .quantity(getKeyValueStoreAssociations().size())
-                    .items(getKeyValueStoreAssociations().stream()
-                        .map(kvs -> KeyValueStoreAssociation.builder()
-                            .keyValueStoreARN(kvs.getArn())
-                            .build())
-                        .collect(Collectors.toList()))
-                    .build()
+                r -> r.quantity(getKeyValueStoreAssociations().size()).items(getKeyValueStoreAssociations().stream()
+                    .map(kvs -> KeyValueStoreAssociation.builder().keyValueStoreARN(kvs.getArn()).build())
+                    .collect(Collectors.toList()))
             );
         }
 
@@ -135,8 +128,10 @@ public class CloudFrontFunctionConfig extends Diffable implements Copyable<Funct
         List<ValidationError> errors = new ArrayList<>();
 
         if (!getKeyValueStoreAssociations().isEmpty() && !FunctionRuntime.CLOUDFRONT_JS_2_0.equals(getRuntime())) {
-            errors.add(new ValidationError(this, "key-value-store-associations",
-                "Key-Value Store associations require runtime 'cloudfront-js-2.0'"));
+            errors.add(new ValidationError(
+                this,
+                "key-value-store-associations",
+                "'key-value-store-associations' requires runtime 'cloudfront-js-2.0'."));
         }
 
         return errors;
