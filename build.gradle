@@ -90,6 +90,7 @@ dependencies {
     implementation 'software.amazon.awssdk:autoscalingplans'
     implementation 'software.amazon.awssdk:backup'
     implementation 'software.amazon.awssdk:cloudfront'
+    implementation 'software.amazon.awssdk:cloudfrontkeyvaluestore'
     implementation 'software.amazon.awssdk:cloudtrail'
     implementation 'software.amazon.awssdk:cloudwatch'
     implementation 'software.amazon.awssdk:codebuild'
