@@ -87,7 +87,7 @@ public class PulumiAwsResource extends AwsResource {
             //            System.out.print("\n @|bold,blue  Preview Standard Output: " + preview.standardOutput() + " |@");
 
             UpdateResult refresh = stack.refresh();
-            //            System.out.print("\n @|bold,blue  Refresh Resource changes: " + refresh.summary().resourceChanges() + " |@");
+            System.out.print("\n @|bold,blue  Refresh Resource changes: " + refresh.summary().resourceChanges() + " |@");
             //
             //            System.out.print("\n @|bold,blue  Refresh Standard Output: " + refresh.standardOutput() + " |@");
 

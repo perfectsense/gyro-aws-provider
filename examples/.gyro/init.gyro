@@ -1,2 +1,100 @@
 @highlander: true
 @repository: 'https://artifactory.psdops.com/public'
+@repository: 'https://artifactory.psdops.com/gyro-snapshots'
+@plugin: 'gyro:gyro-aws-provider:1.10.0-SNAPSHOT'
+#@plugin: 'gyro:gyro-aws-provider:1.9.1'
+@plugin: 'gyro:gyro-brightspot-cloud-plugin:1.7.3-SNAPSHOT'
+#@plugin: 'gyro:gyro-ssh-plugin:1.0.0'
+
+project: "gyro-sandbox"
+account: "psd-beam-sandbox"
+environment: "sandbox"
+primary-region: us-east-2
+recovery-region: us-east-2
+#cluster-name: brightspot-cloud-k1
+cluster-domain: 'k1.cloud.brightspot.dev'
+#
+#bsp-cloud-alb-hosted-zone: $(alb-hosted-zones)."$primary-region"
+#bsp-cloud-alb-tenant1: ''
+#
+#bsp-cloud-zones: [
+#    "$(primary-region)a",
+#    "$(primary-region)b",
+#    "$(primary-region)c"
+#]
+#
+#bsp-cloud-vpc-block: '10.145.0.0/16'
+#bsp-cloud-zone-cidrs: [
+#    "$(primary-region)a", '10.145.44.0/23', '10.145.144.0/23',
+#    "$(primary-region)b", '10.145.46.0/23', '10.145.146.0/23',
+#    "$(primary-region)c", '10.145.48.0/23', '10.145.148.0/23'
+#]
+#
+#alb-hosted-zones: {
+#    us-east-1: Z35SXDOTRQ7X7K,
+#    us-east-2: Z3AADJGX6KTTL2
+#}
+
+@credentials 'enterprise::aws-credentials'
+    enterprise-url: "https://beam-enterprise.psdops.com"
+    project: $(project)
+    account: $(account)
+    region: "us-east-2"
+@end
+
+#@audit::auditor 'enterprise::beam-auditor'
+#    enterprise-url: "https://beam-enterprise.psdops.com" 
+#    project: $project
+#    serial: "1"
+#    account: $account
+#@end
+
+#@credentials 'enterprise::aws-credentials' "sandbox-nv"
+#    enterprise-url: "https://beam-enterprise.psdops.com"
+#    project: $(project)
+#    account: $(account)
+#    region: "us-east-1"
+#@end
+
+#@credentials 'enterprise::aws-credentials' "sandbox-nc"
+#    enterprise-url: "https://beam-enterprise.psdops.com"
+#    project: $(project)
+#    account: $(account)
+#    region: "us-west-1"
+#@end
+
+additional-regions: [
+    "us-west-2",
+    "eu-west-1"
+]
+
+#@for additional-region -in $additional-regions
+#    @for something -in $additional-regions
+#        region: $(region)
+#        cluster-name: $(cluster-name)-$(region)
+#
+#        @credentials 'enterprise::aws-credentials' $(additional-region)
+#            enterprise-url: $(enterprise-url)
+#            project: $project
+#            account: $account
+#            region: $(additional-region)
+#        @end
+#    @end
+#@end
+
+public-zone-cidrs2: {
+    us-east-2: [
+        "$(primary-region)a", '10.145.32.0/20',
+        "$(primary-region)b", '10.145.48.0/20',
+        "$(primary-region)c", '10.145.64.0/20'
+    ],
+    us-west-2: [
+        "us-west-2a", '10.150.32.0/20',
+        "us-west-2b", '10.150.48.0/20',
+        "us-west-2c", '10.150.64.0/20'
+    ]
+}
+#@for zone, public-cidr -in $(public-zone-cidrs2).us-east-2
+#@for zone, public-cidr -in $(public-zone-cidrs2).$primary-region
+#    haha: hehe
+#@end
