@@ -155,7 +155,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     private Boolean autoMinorVersionUpgrade;
     private Boolean copyTagsToSnapshot;
     private Boolean enableLocalWriteForwarding;
-    private DbClusterResource sourceDbCluster;
+    private String sourceDbClusterArn;
     private Date restoreToTime;
     private String restoreType;
     private Boolean useLatestRestorableTime;
@@ -491,7 +491,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The identifier of the snapshot.
      */
-    @ConflictsWith({ "s3-import", "source-db-cluster" })
+    @ConflictsWith({ "s3-import", "source-db-cluster-arn" })
     public String getSnapshotIdentifier() {
         return snapshotIdentifier;
     }
@@ -503,7 +503,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The s3 import to restore the database from.
      */
-    @ConflictsWith({ "snapshot-identifier", "source-db-cluster" })
+    @ConflictsWith({ "snapshot-identifier", "source-db-cluster-arn" })
     public DbClusterS3Import getS3Import() {
         return s3Import;
     }
@@ -705,19 +705,19 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * The source DB cluster to restore from.
      */
     @ConflictsWith({ "snapshot-identifier", "s3-import" })
-    public DbClusterResource getSourceDbCluster() {
-        return sourceDbCluster;
+    public String getSourceDbClusterArn() {
+        return sourceDbClusterArn;
     }
 
-    public void setSourceDbCluster(DbClusterResource sourceDbCluster) {
-        this.sourceDbCluster = sourceDbCluster;
+    public void setSourceDbClusterArn(String sourceDbClusterArn) {
+        this.sourceDbClusterArn = sourceDbClusterArn;
     }
 
     /**
      * The date and time to restore the DB cluster to.
      */
     @ConflictsWith({ "use-latest-restorable-time" })
-    @DependsOn("source-db-cluster")
+    @DependsOn("source-db-cluster-arn")
     public Date getRestoreToTime() {
         return restoreToTime;
     }
@@ -729,7 +729,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
     /**
      * The type of restore to perform.
      */
-    @DependsOn("source-db-cluster")
+    @DependsOn("source-db-cluster-arn")
     @ValidStrings({ "copy-on-write", "full-copy" })
     public String getRestoreType() {
         return restoreType;
@@ -743,7 +743,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
      * When set to ``true``, restores the DB cluster to the latest restorable backup time. Defaults to ``false``.
      */
     @ConflictsWith({ "restore-to-time" })
-    @DependsOn("source-db-cluster")
+    @DependsOn("source-db-cluster-arn")
     public Boolean getUseLatestRestorableTime() {
         return useLatestRestorableTime;
     }
@@ -929,7 +929,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
 
         boolean modify = false;
 
-        if (getSourceDbCluster() != null) {
+        if (getSourceDbClusterArn() != null) {
             RestoreDbClusterToPointInTimeResponse response =
                 client.restoreDBClusterToPointInTime(
                     r -> r.backtrackWindow(getBackTrackWindow())
@@ -952,7 +952,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
                         .scalingConfiguration(scalingConfiguration)
                         .serverlessV2ScalingConfiguration(getServerlessV2ScalingConfiguration() != null ?
                             getServerlessV2ScalingConfiguration().toServerlessV2ScalingConfiguration() : null)
-                        .sourceDBClusterIdentifier(getSourceDbCluster().getIdentifier())
+                        .sourceDBClusterIdentifier(getSourceDbClusterArn())
                         .storageType(getStorageType())
                         .useLatestRestorableTime(getUseLatestRestorableTime())
                         .vpcSecurityGroupIds(getVpcSecurityGroups() != null ? getVpcSecurityGroups()
@@ -1110,7 +1110,7 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             waitForActiveStatus(client, TimeoutSettings.Action.CREATE);
         }
 
-        if (getSourceDbCluster() != null || getSnapshotIdentifier() != null || getS3Import() == null) {
+        if (getSourceDbClusterArn() != null || getSnapshotIdentifier() != null || getS3Import() == null) {
             if (getBackupRetentionPeriod() != null) {
                 modifyRequest = modifyRequest.backupRetentionPeriod(getBackupRetentionPeriod());
                 modify = true;
@@ -1306,13 +1306,13 @@ public class DbClusterResource extends RdsTaggableResource implements Copyable<D
             ));
         }
 
-        if (getSourceDbCluster() != null) {
+        if (getSourceDbClusterArn() != null) {
             if (getRestoreToTime() == null &&
                 (getUseLatestRestorableTime() == null || Boolean.FALSE.equals(getUseLatestRestorableTime()))) {
                 errors.add(new ValidationError(
                     this,
                     "restore-to-time",
-                    "Either 'restore-to-time' or 'use-latest-restorable-time' is required when restoring from a 'source-db-cluster'."
+                    "Either 'restore-to-time' or 'use-latest-restorable-time' is required when restoring from a 'source-db-cluster-arn'."
                 ));
             }
 
