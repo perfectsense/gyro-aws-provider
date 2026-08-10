@@ -16,15 +16,22 @@
 
 package gyro.aws.route53;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.psddev.dari.util.StringUtils;
 import gyro.core.resource.Diffable;
 import gyro.core.resource.Updatable;
+import gyro.core.validation.ConflictsWith;
 import gyro.core.validation.Required;
+import gyro.core.validation.ValidationError;
 
 public class AliasTarget extends Diffable {
 
     private String dnsName;
     private String hostedZoneId;
+    private HostedZoneResource hostedZone;
     private Boolean evaluateTargetHealth;
 
     /**
@@ -45,9 +52,9 @@ public class AliasTarget extends Diffable {
     }
 
     /**
-     * The Hosted Zone where the 'dns name' belongs as configured.
+     * The ID for the Hosted Zone where the 'dns name' belongs as configured.
      */
-    @Required
+    @ConflictsWith("hosted-zone")
     @Updatable
     public String getHostedZoneId() {
         return hostedZoneId;
@@ -55,6 +62,19 @@ public class AliasTarget extends Diffable {
 
     public void setHostedZoneId(String hostedZoneId) {
         this.hostedZoneId = hostedZoneId;
+    }
+
+    /**
+     * The Hosted Zone where the 'dns name' belongs as configured.
+     */
+    @ConflictsWith("hosted-zone-id")
+    @Updatable
+    public HostedZoneResource getHostedZone() {
+        return hostedZone;
+    }
+
+    public void setHostedZone(HostedZoneResource hostedZone) {
+        this.hostedZone = hostedZone;
     }
 
     /**
@@ -75,4 +95,14 @@ public class AliasTarget extends Diffable {
         return "alias";
     }
 
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        if (!configuredFields.contains("hosted-zone") && !configuredFields.contains("hosted-zone-id")) {
+            errors.add(new ValidationError(this, null, "Exactly one of 'hosted-zone' or 'hosted-zone-id' is required"));
+        }
+
+        return errors;
+    }
 }
