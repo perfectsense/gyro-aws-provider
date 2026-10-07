@@ -33,6 +33,7 @@ import software.amazon.awssdk.services.cloudfront.model.FunctionAssociations;
 import software.amazon.awssdk.services.cloudfront.model.ItemSelection;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociation;
 import software.amazon.awssdk.services.cloudfront.model.LambdaFunctionAssociations;
+import software.amazon.awssdk.services.cloudfront.model.TrustedKeyGroups;
 import software.amazon.awssdk.services.cloudfront.model.TrustedSigners;
 
 public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheBehavior> {
@@ -53,6 +54,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     private Boolean queryString;
     private Set<String> queryStringCacheKeys;
     private Set<String> trustedSigners;
+    private Set<CloudFrontKeyGroupResource> trustedKeyGroups;
     private String fieldLevelEncryptionId;
     private Set<CloudFrontCacheBehaviorLambdaFunction> lambdaFunctions;
     private Set<CloudFrontCacheBehaviorFunctionAssociation> functionAssociations;
@@ -374,6 +376,24 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
     }
 
     /**
+     * The key groups that CloudFront can use to validate signed URLs or signed cookies for this cache behavior.
+     * When set, CloudFront requires a valid signature on every request served by this behavior. This is the
+     * modern replacement for the deprecated ``trusted-signers`` field.
+     */
+    @Updatable
+    public Set<CloudFrontKeyGroupResource> getTrustedKeyGroups() {
+        if (trustedKeyGroups == null) {
+            trustedKeyGroups = new HashSet<>();
+        }
+
+        return trustedKeyGroups;
+    }
+
+    public void setTrustedKeyGroups(Set<CloudFrontKeyGroupResource> trustedKeyGroups) {
+        this.trustedKeyGroups = trustedKeyGroups;
+    }
+
+    /**
      * The Field Level Encryption configuration ID.
      */
     @Updatable
@@ -455,6 +475,13 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         setViewerProtocolPolicy(cacheBehavior.viewerProtocolPolicyAsString());
         setTrustedSigners(new HashSet<>(cacheBehavior.trustedSigners().items()));
 
+        getTrustedKeyGroups().clear();
+        if (cacheBehavior.trustedKeyGroups() != null && cacheBehavior.trustedKeyGroups().hasItems()) {
+            for (String keyGroupId : cacheBehavior.trustedKeyGroups().items()) {
+                getTrustedKeyGroups().add(findById(CloudFrontKeyGroupResource.class, keyGroupId));
+            }
+        }
+
         // -- TTLs
         setDefaultTtl(cacheBehavior.defaultTTL());
         setMinTtl(cacheBehavior.minTTL());
@@ -513,11 +540,24 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
         return getPathPattern();
     }
 
+    private TrustedKeyGroups toTrustedKeyGroups() {
+        Set<String> keyGroupIds = getTrustedKeyGroups().stream()
+            .map(CloudFrontKeyGroupResource::getId)
+            .collect(Collectors.toCollection(HashSet::new));
+
+        return TrustedKeyGroups.builder()
+            .items(keyGroupIds)
+            .quantity(keyGroupIds.size())
+            .enabled(!keyGroupIds.isEmpty())
+            .build();
+    }
+
     static CacheBehavior getCacheBehaviorFromDefault(DefaultCacheBehavior defaultCacheBehavior) {
         return CacheBehavior.builder().targetOriginId(defaultCacheBehavior.targetOriginId())
             .pathPattern("*")
             .viewerProtocolPolicy(defaultCacheBehavior.viewerProtocolPolicy())
             .trustedSigners(defaultCacheBehavior.trustedSigners())
+            .trustedKeyGroups(defaultCacheBehavior.trustedKeyGroups())
             .defaultTTL(defaultCacheBehavior.defaultTTL())
             .minTTL(defaultCacheBehavior.minTTL())
             .maxTTL(defaultCacheBehavior.maxTTL())
@@ -540,6 +580,8 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .enabled(!getTrustedSigners().isEmpty())
             .build();
 
+        TrustedKeyGroups trustedKeyGroups = toTrustedKeyGroups();
+
         LambdaFunctionAssociations lambdaFunctionAssociations = LambdaFunctionAssociations.builder()
             .items(getLambdaFunctions().stream().map(l -> l.toLambdaFunctionAssociation()).collect(Collectors.toList()))
             .quantity(getLambdaFunctions().size())
@@ -558,6 +600,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .smoothStreaming(getSmoothStreaming())
             .targetOriginId(getTargetOriginId())
             .trustedSigners(trustedSigners)
+            .trustedKeyGroups(trustedKeyGroups)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
             .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
@@ -592,6 +635,8 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .enabled(!getTrustedSigners().isEmpty())
             .build();
 
+        TrustedKeyGroups trustedKeyGroups = toTrustedKeyGroups();
+
         LambdaFunctionAssociations lambdaFunctionAssociations = LambdaFunctionAssociations.builder()
             .items(getLambdaFunctions().stream().map(l -> l.toLambdaFunctionAssociation()).collect(Collectors.toList()))
             .quantity(getLambdaFunctions().size())
@@ -611,6 +656,7 @@ public class CloudFrontCacheBehavior extends Diffable implements Copyable<CacheB
             .targetOriginId(getTargetOriginId())
             .pathPattern(getPathPattern())
             .trustedSigners(trustedSigners)
+            .trustedKeyGroups(trustedKeyGroups)
             .lambdaFunctionAssociations(lambdaFunctionAssociations)
             .functionAssociations(functionAssociations)
             .viewerProtocolPolicy(getViewerProtocolPolicy())
