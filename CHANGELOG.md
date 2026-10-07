@@ -1,6 +1,26 @@
 CHANGELOG
 =========
 
+## 1.10.1 (October 7th, 2026)
+
+ENHANCEMENTS:
+
+* [763](https://github.com/perfectsense/gyro-aws-provider/pull/763): CloudFront: add signed-URL key group support (public keys, key groups, trusted-key-groups)
+
+## 1.10.0 (June 15th, 2026)
+
+ENHANCEMENTS:
+
+* [761](https://github.com/perfectsense/gyro-aws-provider/pull/761): Support OpenSearch m7g/m8g via string instance types
+* [724](https://github.com/perfectsense/gyro-aws-provider/issues/724): Add managedRuleGroupConfigs to ManagedRuleGroupStatementResource
+* [749](https://github.com/perfectsense/gyro-aws-provider/pull/749): Added support for KeyValue Store, support for Javascript Functions 2.0
+
+## 1.9.8 (April 10th, 2026)
+
+ENHANCEMENTS:
+
+* [757](https://github.com/perfectsense/gyro-aws-provider/issues/757): Uses enums and adds available options for minimum protocol version
+
 ## 1.9.7 (March 18th, 2026)
 
 ENHANCEMENTS:
