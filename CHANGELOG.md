@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+## 1.10.2 (November 9th, 2026)
+
+ISSUES FIXED:
+
+* [765](https://github.com/perfectsense/gyro-aws-provider/issues/765): CloudFront cache behavior order not preserved on apply
+
 ## 1.10.1 (October 7th, 2026)
 
 ENHANCEMENTS:
