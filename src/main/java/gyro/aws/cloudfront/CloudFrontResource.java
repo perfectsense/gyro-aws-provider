@@ -36,6 +36,7 @@ import gyro.core.GyroException;
 import gyro.core.GyroUI;
 import gyro.core.Type;
 import gyro.core.Wait;
+import gyro.core.resource.Calculated;
 import gyro.core.resource.Id;
 import gyro.core.resource.Output;
 import gyro.core.resource.Resource;
@@ -43,6 +44,7 @@ import gyro.core.resource.TestValue;
 import gyro.core.resource.Updatable;
 import gyro.core.scope.State;
 import gyro.core.validation.ValidStrings;
+import gyro.core.validation.ValidationError;
 import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehavior;
 import software.amazon.awssdk.services.cloudfront.model.CacheBehaviors;
@@ -141,7 +143,7 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     private Map<String, String> tags;
     private Set<CloudFrontOrigin> origin;
     private Set<CloudFrontOriginGroup> originGroup;
-    private Set<CloudFrontCacheBehavior> behavior;
+    private List<CloudFrontCacheBehavior> behavior;
     private CloudFrontCacheBehavior defaultCacheBehavior;
     private CloudFrontViewerCertificate viewerCertificate;
     private CloudFrontLogging logging;
@@ -390,21 +392,34 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
     }
 
     /**
-     * List of cache behaviors for this distribution.
+     * List of cache behaviors for this distribution. CloudFront evaluates behaviors in the order listed, and the first behavior whose ``path-pattern`` matches the request is used.
      *
      * @subresource gyro.aws.cloudfront.CloudFrontCacheBehavior
      */
     @Updatable
-    public Set<CloudFrontCacheBehavior> getBehavior() {
+    public List<CloudFrontCacheBehavior> getBehavior() {
         if (behavior == null) {
-            behavior = new HashSet<>();
+            behavior = new ArrayList<>();
         }
 
         return behavior;
     }
 
-    public void setBehavior(Set<CloudFrontCacheBehavior> behavior) {
+    public void setBehavior(List<CloudFrontCacheBehavior> behavior) {
         this.behavior = behavior;
+    }
+
+    /**
+     * The path patterns of ``behavior`` in evaluation order. Calculated from ``behavior`` so that reordering behaviors shows up as a change. Do not set it directly.
+     */
+    @Calculated
+    @Updatable
+    public List<String> getBehaviorOrder() {
+        return getBehavior().stream().map(CloudFrontCacheBehavior::getPathPattern).collect(Collectors.toList());
+    }
+
+    public void setBehaviorOrder(List<String> behaviorOrder) {
+        // Calculated from behavior; values from config or state are ignored.
     }
 
     /**
@@ -716,6 +731,30 @@ public class CloudFrontResource extends AwsResource implements Copyable<Distribu
         }
 
         client.tagResource(r -> r.tags(Tags.builder().items(tags).build()).resource(getArn()));
+    }
+
+    @Override
+    public List<ValidationError> validate(Set<String> configuredFields) {
+        List<ValidationError> errors = new ArrayList<>();
+
+        List<ValidationError> superErrors = super.validate(configuredFields);
+        if (superErrors != null) {
+            errors.addAll(superErrors);
+        }
+
+        Set<String> pathPatterns = new HashSet<>();
+        Set<String> duplicates = new HashSet<>();
+        for (CloudFrontCacheBehavior cacheBehavior : getBehavior()) {
+            String pathPattern = cacheBehavior.getPathPattern();
+            if (pathPattern != null && !pathPatterns.add(pathPattern) && duplicates.add(pathPattern)) {
+                errors.add(new ValidationError(
+                    this,
+                    "behavior",
+                    String.format("Duplicate path-pattern '%s'. Each behavior must have a unique path-pattern.", pathPattern)));
+            }
+        }
+
+        return errors;
     }
 
     private DistributionConfig distributionConfig() {
